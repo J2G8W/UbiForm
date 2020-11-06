@@ -45,5 +45,5 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
 endif()
 
 # Link gtest into the unit tests
-add_library(UbiForm ../src/library.cpp ../src/library.h)
+add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h)
 target_link_libraries(UbiForm gtest_main gmock_main)
