@@ -7,11 +7,14 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
+# Note that both of these libraries need to be pre-installed at the moment, they don't come with
+
 # Find library nng and set to variable NNG
 find_library(NNG nng)
+# Find package RapidJSON and it is included straight away
+find_package(RapidJSON)
 
 #We use googletest for our testing. This downloads and sets it up using CmakeList.txt.in
-
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
@@ -44,6 +47,10 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
-# Link gtest into the unit tests
+# Create library
 add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h)
 target_link_libraries(UbiForm gtest_main gmock_main)
+
+add_executable(component_unittest ../UbiForm/component_unittest.cpp)
+target_link_libraries(component_unittest gtest_main gmock_main UbiForm)
+add_test(NAME TEST1 COMMAND component_unittest)

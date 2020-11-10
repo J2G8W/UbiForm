@@ -1,10 +1,14 @@
 #include "library.h"
 
+#include "rapidjson/document.h"
+
 #include <iostream>
 
-void hello() {
-    std::cout << "Hello, World!" << std::endl;
-}
-int main(){
-    return 0;
-}
+
+
+std::string ComponentManifest::getName() {
+    assert(JSON_document.HasMember("name"));
+    assert(JSON_document["name"].IsString());
+
+    return JSON_document["name"].GetString();
+};
