@@ -47,10 +47,12 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
+set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp)
+
 # Create library
-add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h)
+add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h ${componentFiles})
 target_link_libraries(UbiForm gtest_main gmock_main)
 
-add_executable(component_unittest ../UbiForm/component_unittest.cpp)
+add_executable(component_unittest ../UbiForm/test_ComponentManifest.cpp)
 target_link_libraries(component_unittest gtest_main gmock_main UbiForm)
 add_test(NAME TEST1 COMMAND component_unittest)
