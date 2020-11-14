@@ -24,14 +24,11 @@ public:
         JSON_document.ParseStream(inputStream);
     };
 
-    std::string getName();
 
-    const char* stringify(){
-        rapidjson::StringBuffer buffer;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-        JSON_document.Accept(writer);
-        return buffer.GetString();
-    }
+    ~ComponentManifest()= default;
+
+    std::string getName();
+    rapidjson::StringBuffer stringify();
 };
 
 
