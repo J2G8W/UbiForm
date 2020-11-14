@@ -32,8 +32,8 @@ void Component::createPairConnectionIncoming(const char *url) {
 void Component::sendManifestOnSocket(){
     // Assert that socket is open to something??
     int rv;
-    rapidjson::StringBuffer buffer = manifest->stringify();
-    const char *manifestText = buffer.GetString();
+
+    char * manifestText = manifest->stringify();
     std::cout << "SENDING: " << manifestText << "\n";
 
     //const char *manifestText = "HELLO WORLD";

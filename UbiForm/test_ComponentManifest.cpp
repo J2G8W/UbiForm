@@ -11,11 +11,10 @@ TEST(ComponentManifest, GetNameTest){
     EXPECT_EQ(testManifest.getName(), expected_output);
 }
 TEST(ComponentManifest, StringifyTest){
-    char * jsonString = R"({"name":"TEST1"})";
+    const char * jsonString = R"({"name":"TEST1"})";
     ComponentManifest testManifest(jsonString);
 
-    rapidjson::StringBuffer buffer;
-    buffer = testManifest.stringify();
-    EXPECT_STREQ(buffer.GetString(), jsonString);
+    char* outputString = testManifest.stringify();
+    EXPECT_STREQ(outputString, jsonString);
 }
 

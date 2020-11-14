@@ -19,16 +19,18 @@ public:
     };
     // Accept JSON input as a FILE pointer
     explicit ComponentManifest(FILE* jsonFP){
+        // Arbitrary size of read buffer - only changes efficiency of the inputStream constructor
         char readBuffer[65536];
         rapidjson::FileReadStream inputStream(jsonFP, readBuffer, sizeof(readBuffer));
         JSON_document.ParseStream(inputStream);
     };
 
-
+    // No complex delete needed
     ~ComponentManifest()= default;
 
+    // We return a C++ string as this is what we want to be handling inside the program
     std::string getName();
-    rapidjson::StringBuffer stringify();
+    char* stringify();
 };
 
 
