@@ -29,6 +29,7 @@ void Component::createPairConnectionIncoming(const char *url) {
     }
 }
 
+// We send out manifest out on the socket that the component has
 void Component::sendManifestOnSocket(){
     // Assert that socket is open to something??
     int rv;
@@ -42,6 +43,7 @@ void Component::sendManifestOnSocket(){
     }
 }
 
+// Receive the manifest on the component's socket
 void Component::receiveManifestOnSocket(){
     // Assert that socket is open to something??
     int rv;

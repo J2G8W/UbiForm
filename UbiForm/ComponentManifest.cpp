@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstring>
 
+// Return the name of the Component
 std::string ComponentManifest::getName() {
     assert(JSON_document.HasMember("name"));
     assert(JSON_document["name"].IsString());
@@ -9,6 +10,8 @@ std::string ComponentManifest::getName() {
     return JSON_document["name"].GetString();
 }
 
+// Return the string of the manifest (for sending on)
+// TODO - optimise this for speed
 char* ComponentManifest::stringify(){
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
