@@ -6,6 +6,9 @@
 #include <rapidjson/filereadstream.h>
 #include <rapidjson/writer.h>
 
+#include "general_functions.h"
+
+
 class ComponentManifest {
 private:
     rapidjson::Document JSON_document;
@@ -30,7 +33,7 @@ public:
 
     // We return a C++ string as this is what we want to be handling inside the program
     std::string getName();
-    char* stringify();
+    char* stringify(){return stringifyDocument(JSON_document);};
 };
 
 

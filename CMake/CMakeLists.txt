@@ -51,7 +51,7 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
-set(generalFunctions ../UbiForm/general_functions.h)
+set(generalFunctions ../UbiForm/general_functions.h ../UbiForm/general_functions.cpp)
 set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp)
 
 # Create library

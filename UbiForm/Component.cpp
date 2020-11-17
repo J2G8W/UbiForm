@@ -12,7 +12,7 @@ void Component::createPairConnectionOutgoing(const char *url) {
     if((rv = nng_pair0_open(&socket)) != 0 ){
         fatal("nng_pair1_open", rv);
     }
-    if ((rv = nng_dial(socket,url, NULL, 0)) != 0){
+    if ((rv = nng_dial(socket,url, nullptr, 0)) != 0){
         fatal("nng_dial",rv);
     }
 }
@@ -24,7 +24,7 @@ void Component::createPairConnectionIncoming(const char *url) {
         fatal("nng_pair1_open", rv);
     }
 
-    if ((rv = nng_listen(socket,url, NULL, 0)) != 0){
+    if ((rv = nng_listen(socket,url, nullptr, 0)) != 0){
         fatal("nng_listen",rv);
     }
 }
@@ -47,7 +47,7 @@ void Component::sendManifestOnSocket(){
 void Component::receiveManifestOnSocket(){
     // Assert that socket is open to something??
     int rv;
-    char *buffer = NULL;
+    char *buffer = nullptr;
     size_t  sz;
 
     if ((rv = nng_recv(socket, &buffer, &sz, NNG_FLAG_ALLOC)) == 0) {

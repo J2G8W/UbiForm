@@ -1,8 +1,4 @@
 #include <cstring>
-#include <unistd.h>
-
-#include "nng/nng.h"
-#include "nng/protocol/pair1/pair.h"
 
 #include "../UbiForm/Component.h"
 #define RECEIVER "RECEIVER"
