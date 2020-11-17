@@ -60,8 +60,9 @@ target_link_libraries(UbiForm gtest_main gmock_main)
 
 # Create tests
 if (BUILD_TESTS)
-    add_executable(component_unittest ../UbiForm/test_ComponentManifest.cpp)
-    target_link_libraries(component_unittest gtest_main gmock_main UbiForm)
+    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h)
+    add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
+    target_link_libraries(run_tests gtest_main gmock_main UbiForm ${NNG})
 endif(BUILD_TESTS)
 
 # Create examples
