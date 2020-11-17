@@ -34,9 +34,6 @@ public:
         JSON_document.AddMember(key, value, JSON_document.GetAllocator());
     }
 
-
-
-
     char * stringify(){return stringifyDocument(JSON_document);};
 
 };
