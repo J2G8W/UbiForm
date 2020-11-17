@@ -16,7 +16,9 @@ option(BUILD_EXAMPLES "Build examples programs" OFF)
 # Find library nng and set to variable NNG
 find_library(NNG nng)
 # Find package RapidJSON and it is included straight away
+ADD_DEFINITIONS(-DRAPIDJSON_HAS_STDSTRING)
 find_package(RapidJSON)
+
 
 #We use googletest for our testing. This downloads and sets it up using CmakeList.txt.in
 # Download and unpack googletest at configure time

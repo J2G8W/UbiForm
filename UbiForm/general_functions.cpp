@@ -24,7 +24,7 @@ char* stringifyDocument(rapidjson::Document & JSON_document) {
     // We copy the string from the buffer to our return string so that it is not squashed when we return
     int stringLength = buffer.GetLength();
     char *jsonReturnString = new char[stringLength];
-    strncpy(jsonReturnString, buffer.GetString(), stringLength);
+    strncpy(jsonReturnString, buffer.GetString(), stringLength +1);
 
     return jsonReturnString;
 }
