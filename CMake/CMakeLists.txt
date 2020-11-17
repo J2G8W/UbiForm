@@ -52,7 +52,8 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
 endif()
 
 set(generalFunctions ../UbiForm/general_functions.h ../UbiForm/general_functions.cpp)
-set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp)
+set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
+        ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp)
 
 # Create library
 add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h ${componentFiles} ${generalFunctions})
