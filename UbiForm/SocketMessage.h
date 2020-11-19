@@ -9,8 +9,10 @@
 #include "general_functions.h"
 
 
+
 // Note that we need RAPIDJSON_HAS_STDSTRING turned on
 class SocketMessage {
+    friend class ComponentManifest;
 private:
     rapidjson::Document JSON_document;
 
@@ -51,7 +53,6 @@ public:
         rapidjson::Value valueContainer(value);
         addOrSwap(key,valueContainer);
     }
-
 
 
     char * stringify(){return stringifyDocument(JSON_document);};

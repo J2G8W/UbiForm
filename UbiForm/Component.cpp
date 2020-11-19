@@ -64,6 +64,8 @@ void Component::sendMessage(SocketMessage& s) {
     int rv;
     char* buffer = s.stringify();
 
+    componentManifest->validate(s);
+
     if ((rv = nng_send(socket, (void*) buffer, strlen(buffer),0)) != 0){
         fatal("nng_send (msg)", rv);
     }
