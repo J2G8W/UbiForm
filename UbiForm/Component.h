@@ -12,13 +12,15 @@
 
 class Component{
 private:
-    std::unique_ptr<ComponentManifest> manifest;
-    nng_socket socket;
+    std::unique_ptr<ComponentManifest> componentManifest{nullptr};
+    std::unique_ptr<ComponentManifest> socketManifest{nullptr};
+    nng_socket socket{};
+
 
 public:
-    Component():manifest(nullptr){ }
-    void specifyManifest(FILE* jsonFP){manifest = std::unique_ptr<ComponentManifest>(new ComponentManifest(jsonFP));}
-    void specifyManifest(const char *jsonString){manifest = std::unique_ptr<ComponentManifest>(new ComponentManifest(jsonString));}
+    Component()= default;
+    void specifyManifest(FILE* jsonFP){ componentManifest = std::make_unique<ComponentManifest>(jsonFP);}
+    void specifyManifest(const char *jsonString){ componentManifest = std::make_unique<ComponentManifest>(jsonString);}
 
     void createPairConnectionOutgoing(const char* url);
     void createPairConnectionIncoming(const char* url);

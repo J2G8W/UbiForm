@@ -17,8 +17,6 @@ int main(int argc, char ** argv){
             receiver.createPairConnectionIncoming("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
 
-            receiver.receiveManifestOnSocket();
-            std::cout << "MANIFEST RECEIVED" << "\n";
         }
         if (strcmp(argv[1], SENDER) == 0){
             Component sender;
@@ -28,9 +26,6 @@ int main(int argc, char ** argv){
 
             sender.createPairConnectionOutgoing("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
-
-            sender.sendManifestOnSocket();
-            std::cout << "MANIFEST SENT" << "\n";
 
         }
     }

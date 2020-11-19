@@ -15,6 +15,8 @@ void Component::createPairConnectionOutgoing(const char *url) {
     if ((rv = nng_dial(socket,url, nullptr, 0)) != 0){
         fatal("nng_dial",rv);
     }
+    sendManifestOnSocket();
+    receiveManifestOnSocket();
 }
 
 // Incoming means it will listen on an internal URL
@@ -27,6 +29,8 @@ void Component::createPairConnectionIncoming(const char *url) {
     if ((rv = nng_listen(socket,url, nullptr, 0)) != 0){
         fatal("nng_listen",rv);
     }
+    receiveManifestOnSocket();
+    sendManifestOnSocket();
 }
 
 // We send out manifest out on the socket that the component has
@@ -34,10 +38,8 @@ void Component::sendManifestOnSocket(){
     // Assert that socket is open to something??
     int rv;
 
-    char * manifestText = manifest->stringify();
-    std::cout << "SENDING: " << manifestText << "\n";
+    char * manifestText = componentManifest->stringify();
 
-    //const char *manifestText = "HELLO WORLD";
     if ((rv = nng_send(socket, (void*) manifestText, strlen(manifestText),0)) != 0){
         fatal("nng_send", rv);
     }
@@ -51,13 +53,14 @@ void Component::receiveManifestOnSocket(){
     size_t  sz;
 
     if ((rv = nng_recv(socket, &buffer, &sz, NNG_FLAG_ALLOC)) == 0) {
-        std::cout << buffer << "\n";
+        socketManifest = std::make_unique<ComponentManifest>(buffer);
         nng_free(buffer, sz);
     }else{
         fatal("nng_receive",rv);
     }
 }
 
+// Destructor waits a short time before closing socket such that any unsent messages are released
 Component::~Component() {
     int rv;
     // Make sure that the messages are flushed
