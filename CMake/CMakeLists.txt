@@ -72,4 +72,7 @@ endif(BUILD_TESTS)
 if (BUILD_EXAMPLES)
     add_executable(pair_example ../examples/PairConnectionExample.cpp)
     target_link_libraries(pair_example UbiForm ${NNG})
+
+    # Copy over our base JSON files for our examples to use
+    file(COPY ../examples/JsonFiles DESTINATION .)
 endif(BUILD_EXAMPLES)
