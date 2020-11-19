@@ -1,4 +1,5 @@
 #include <cstring>
+#include <cstdlib>
 
 #include "../UbiForm/Component.h"
 #define RECEIVER "RECEIVER"
@@ -17,6 +18,12 @@ int main(int argc, char ** argv){
             receiver.createPairConnectionIncoming("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
 
+            SocketMessage * s;
+            for(int i =0; i< 5; i++){
+                s = receiver.receiveMessage();
+                std::cout << "Data: " << s->stringify() << "\n";
+            }
+
         }
         if (strcmp(argv[1], SENDER) == 0){
             Component sender;
@@ -26,6 +33,13 @@ int main(int argc, char ** argv){
 
             sender.createPairConnectionOutgoing("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
+
+            SocketMessage s;
+            for (int i = 0; i<10; i++) {
+                s.addMember("Temp", rand() % 100);
+                s.addMember("Msg", std::string("HELLO"));
+                sender.sendMessage(s);
+            }
 
         }
     }

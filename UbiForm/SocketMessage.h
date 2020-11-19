@@ -27,6 +27,10 @@ public:
     SocketMessage(): JSON_document(){
         JSON_document.SetObject();
     };
+    SocketMessage(char* jsonString){
+        rapidjson::StringStream stream(jsonString);
+        JSON_document.ParseStream(stream);
+    }
 
     // Add a string value
     void addMember(const std::string &attributeName, const std::string &value){

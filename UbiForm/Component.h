@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "ComponentManifest.h"
+#include "SocketMessage.h"
 
 class Component{
 private:
@@ -27,6 +28,9 @@ public:
 
     void sendManifestOnSocket();
     void receiveManifestOnSocket();
+
+    void sendMessage(SocketMessage& s);
+    SocketMessage* receiveMessage();
 
     ~Component();
 

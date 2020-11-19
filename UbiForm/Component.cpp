@@ -41,7 +41,7 @@ void Component::sendManifestOnSocket(){
     char * manifestText = componentManifest->stringify();
 
     if ((rv = nng_send(socket, (void*) manifestText, strlen(manifestText),0)) != 0){
-        fatal("nng_send", rv);
+        fatal("nng_send (manifest)", rv);
     }
 }
 
@@ -56,7 +56,33 @@ void Component::receiveManifestOnSocket(){
         socketManifest = std::make_unique<ComponentManifest>(buffer);
         nng_free(buffer, sz);
     }else{
-        fatal("nng_receive",rv);
+        fatal("nng_receive (manifest)",rv);
+    }
+}
+
+void Component::sendMessage(SocketMessage& s) {
+    int rv;
+    char* buffer = s.stringify();
+
+    if ((rv = nng_send(socket, (void*) buffer, strlen(buffer),0)) != 0){
+        fatal("nng_send (msg)", rv);
+    }
+}
+
+SocketMessage * Component::receiveMessage() {
+    int rv;
+    char *buffer = nullptr;
+
+    size_t  sz;
+
+    if ((rv = nng_recv(socket, &buffer, &sz, NNG_FLAG_ALLOC)) == 0) {
+        auto * receivedMessage = new SocketMessage(buffer);
+        nng_free(buffer, sz);
+        return receivedMessage;
+    }else{
+        fatal("nng_receive (manifest)",rv);
+        // TODO - change this error handling
+        return nullptr;
     }
 }
 
