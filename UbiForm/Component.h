@@ -11,7 +11,7 @@
 #include "ComponentManifest.h"
 #include "SocketMessage.h"
 
-class Component{
+class Component {
 private:
     std::unique_ptr<ComponentManifest> componentManifest{nullptr};
     std::unique_ptr<ComponentManifest> socketManifest{nullptr};
@@ -19,17 +19,24 @@ private:
 
 
 public:
-    Component()= default;
-    void specifyManifest(FILE* jsonFP){ componentManifest = std::make_unique<ComponentManifest>(jsonFP);}
-    void specifyManifest(const char *jsonString){ componentManifest = std::make_unique<ComponentManifest>(jsonString);}
+    Component() = default;
 
-    void createPairConnectionOutgoing(const char* url);
-    void createPairConnectionIncoming(const char* url);
+    void specifyManifest(FILE *jsonFP) { componentManifest = std::make_unique<ComponentManifest>(jsonFP); }
+
+    void specifyManifest(const char *jsonString) {
+        componentManifest = std::make_unique<ComponentManifest>(jsonString);
+    }
+
+    void createPairConnectionOutgoing(const char *url);
+
+    void createPairConnectionIncoming(const char *url);
 
     void sendManifestOnSocket();
+
     void receiveManifestOnSocket();
 
-    void sendMessage(SocketMessage& s);
+    void sendMessage(SocketMessage &s);
+
     std::unique_ptr<SocketMessage> receiveMessage();
 
     ~Component();

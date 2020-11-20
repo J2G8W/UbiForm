@@ -1,7 +1,4 @@
 #include "ComponentManifest.h"
-#include "SocketMessage.h"
-#include <iostream>
-#include <cstring>
 
 // Return the name of the Component
 std::string ComponentManifest::getName() {
@@ -11,7 +8,7 @@ std::string ComponentManifest::getName() {
     return JSON_document["name"].GetString();
 }
 
-void ComponentManifest::validate(const SocketMessage& messageToValidate){
+void ComponentManifest::validate(const SocketMessage &messageToValidate) {
 
     rapidjson::SchemaValidator validator(*schema);
     if (!messageToValidate.JSON_document.Accept(validator)) {
@@ -24,7 +21,7 @@ void ComponentManifest::validate(const SocketMessage& messageToValidate){
         sb.Clear();
         validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
         printf("Invalid document: %s\n", sb.GetString());
-    }else{
-        std::cout<< "Manifest successfully validated" << "\n";
+    } else {
+        std::cout << "Manifest successfully validated" << "\n";
     }
 }

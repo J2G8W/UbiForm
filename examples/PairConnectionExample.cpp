@@ -29,8 +29,10 @@ int main(int argc, char ** argv){
             Component sender;
 
             FILE* pFile = fopen("JsonFiles/SenderManifest1.json", "r");
-            if (pFile == NULL) perror("ERROR");
+            if (pFile == nullptr) perror("ERROR");
             sender.specifyManifest(pFile);
+            fclose(pFile);
+
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             sender.createPairConnectionOutgoing("tcp://127.0.0.1:8000");
