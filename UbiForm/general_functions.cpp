@@ -22,10 +22,6 @@ std::string stringifyDocument(rapidjson::Document &JSON_document) {
     JSON_document.Accept(writer);
 
     // We copy the string from the buffer to our return string so that it is not squashed when we return
-    // Plus 1 is used to make sure we copy over a null terminator
-    int stringLength = buffer.GetLength();
-
-
     std::string jsonReturnString(buffer.GetString());
 
     return jsonReturnString;

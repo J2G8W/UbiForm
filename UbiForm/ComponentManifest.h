@@ -34,16 +34,17 @@ public:
         schema = new rapidjson::SchemaDocument(JSON_document["schema"]);
     };
 
-    // No complex delete needed
+    // Delete our schema object
     ~ComponentManifest(){
         delete schema;
     };
 
-    // We return a C++ string as this is what we want to be handling inside the program
+    // We return C++ strings such that memory management is simpler
     std::string getName();
 
     std::string stringify() { return stringifyDocument(JSON_document); };
 
+    // We check the given message against our schema
     void validate(const SocketMessage &messageToValidate);
 };
 

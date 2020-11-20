@@ -59,9 +59,11 @@ void Component::receiveManifestOnSocket() {
     }
 }
 
+// Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void Component::sendMessage(SocketMessage &s) {
     int rv;
     std::string messageTextObject = s.stringify();
+    // Effectively treat this as cast, as the pointer is still to stack memory
     const char *buffer = messageTextObject.c_str();
 
     componentManifest->validate(s);
@@ -71,6 +73,8 @@ void Component::sendMessage(SocketMessage &s) {
     }
 }
 
+// Receive a message, validate it against the socketManifest and return a pointer to the object.
+// Use smart pointers to avoid complex memory management
 std::unique_ptr<SocketMessage> Component::receiveMessage() {
     int rv;
     char *buffer = nullptr;
