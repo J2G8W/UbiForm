@@ -25,6 +25,7 @@ public:
     explicit ComponentManifest(const char *jsonString);
 
     // Accept JSON input as a FILE pointer
+    // This is used rather than istreams as we get better performance for rapidjson
     explicit ComponentManifest(FILE *jsonFP);
 
     // Delete our schema object

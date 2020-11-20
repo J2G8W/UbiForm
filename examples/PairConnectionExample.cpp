@@ -12,7 +12,11 @@ int main(int argc, char ** argv){
         if (strcmp(argv[1], RECEIVER) == 0){
             Component receiver;
 
-            receiver.specifyManifest(R"({"name":"RECEIVER"})");
+            FILE* pFile = fopen("JsonFiles/ReceiverManifest1.json", "r");
+            if (pFile == nullptr) perror("ERROR");
+            receiver.specifyManifest(pFile);
+            fclose(pFile);
+
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             receiver.createPairConnectionIncoming("tcp://127.0.0.1:8000");
@@ -41,7 +45,7 @@ int main(int argc, char ** argv){
             SocketMessage s;
             for (int i = 0; i<10; i++) {
                 s.addMember("temp", rand() % 100);
-                s.addMember("msg", std::string("HELLO"));
+                s.addMember("msg", std::string("HELLO WORLD!"));
                 sender.sendMessage(s);
             }
 

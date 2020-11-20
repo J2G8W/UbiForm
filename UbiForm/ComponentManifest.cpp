@@ -45,6 +45,7 @@ std::string ComponentManifest::getName() {
     return JSON_document["name"].GetString();
 }
 
+// Validate a socket message against the manifest
 void ComponentManifest::validate(const SocketMessage &messageToValidate) {
 
     rapidjson::SchemaValidator validator(*schema);
@@ -58,7 +59,5 @@ void ComponentManifest::validate(const SocketMessage &messageToValidate) {
         errorText << "Invalid schema: " << sb.GetString() << std::endl;
         errorText << "Invalid keyword: " <<  validator.GetInvalidSchemaKeyword() << std::endl;
         throw std::logic_error(errorText.str());
-    } else {
-        std::cout << "Manifest successfully validated" << "\n";
     }
 }
