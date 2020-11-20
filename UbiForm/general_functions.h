@@ -1,4 +1,4 @@
 
 void fatal(const char *func, int rv);
 
-char *stringifyDocument(rapidjson::Document &JSON_document);
+std::string stringifyDocument(rapidjson::Document &JSON_document);

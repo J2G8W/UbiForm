@@ -42,7 +42,7 @@ public:
     // We return a C++ string as this is what we want to be handling inside the program
     std::string getName();
 
-    char *stringify() { return stringifyDocument(JSON_document); };
+    std::string stringify() { return stringifyDocument(JSON_document); };
 
     void validate(const SocketMessage &messageToValidate);
 };

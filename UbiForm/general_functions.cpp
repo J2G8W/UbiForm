@@ -15,7 +15,7 @@ void fatal(const char *func, int rv) {
 }
 
 // TODO - optimise this for speed
-char *stringifyDocument(rapidjson::Document &JSON_document) {
+std::string stringifyDocument(rapidjson::Document &JSON_document) {
     rapidjson::StringBuffer buffer;
 
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
@@ -24,9 +24,9 @@ char *stringifyDocument(rapidjson::Document &JSON_document) {
     // We copy the string from the buffer to our return string so that it is not squashed when we return
     // Plus 1 is used to make sure we copy over a null terminator
     int stringLength = buffer.GetLength();
-    char *jsonReturnString = new char[stringLength + 1];
-    strncpy(jsonReturnString, buffer.GetString(), static_cast<size_t>(stringLength + 1));
-    jsonReturnString[stringLength] = '\0';
+
+
+    std::string jsonReturnString(buffer.GetString());
 
     return jsonReturnString;
 }

@@ -8,7 +8,7 @@ TEST(SocketMessage, AddMember) {
     socketMessage.addMember("B", true);
     socketMessage.addMember("C", std::string{"HELLO"});
 
-    EXPECT_STREQ(socketMessage.stringify(), R"({"A":42,"B":true,"C":"HELLO"})");
+    EXPECT_EQ(socketMessage.stringify(), R"({"A":42,"B":true,"C":"HELLO"})");
 }
 
 TEST(SocketMessage, OverwriteInteger) {
@@ -16,7 +16,7 @@ TEST(SocketMessage, OverwriteInteger) {
     socketMessage.addMember("A", 42);
     socketMessage.addMember("A", 0);
 
-    EXPECT_STREQ(socketMessage.stringify(), R"({"A":0})");
+    EXPECT_EQ(socketMessage.stringify(), R"({"A":0})");
 }
 
 TEST(SocketMessage, OverwriteString) {
@@ -24,6 +24,6 @@ TEST(SocketMessage, OverwriteString) {
     socketMessage.addMember("A", std::string("HELLO"));
     socketMessage.addMember("A", std::string("WORLD!"));
 
-    EXPECT_STREQ(socketMessage.stringify(), R"({"A":"WORLD!"})");
+    EXPECT_EQ(socketMessage.stringify(), R"({"A":"WORLD!"})");
 }
 

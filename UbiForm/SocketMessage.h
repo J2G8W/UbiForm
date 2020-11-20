@@ -57,7 +57,7 @@ public:
     }
 
 
-    char *stringify() { return stringifyDocument(JSON_document); };
+    std::string stringify() { return stringifyDocument(JSON_document); };
 
     ~SocketMessage();
 };

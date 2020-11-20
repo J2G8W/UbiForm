@@ -36,7 +36,8 @@ void Component::sendManifestOnSocket() {
     // Assert that socket is open to something??
     int rv;
 
-    char *manifestText = componentManifest->stringify();
+    std::string manifestTextObject = componentManifest->stringify();
+    const char *manifestText = manifestTextObject.c_str();
 
     if ((rv = nng_send(socket, (void *) manifestText, strlen(manifestText), 0)) != 0) {
         fatal("nng_send (manifest)", rv);
@@ -60,7 +61,8 @@ void Component::receiveManifestOnSocket() {
 
 void Component::sendMessage(SocketMessage &s) {
     int rv;
-    char *buffer = s.stringify();
+    std::string messageTextObject = s.stringify();
+    const char *buffer = messageTextObject.c_str();
 
     componentManifest->validate(s);
 

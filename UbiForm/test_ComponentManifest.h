@@ -15,7 +15,6 @@ TEST(ComponentManifest, StringifyTest) {
     const char *jsonString = R"({"name":"TEST1"})";
     ComponentManifest testManifest(jsonString);
 
-    char *outputString = testManifest.stringify();
-    EXPECT_STREQ(outputString, jsonString);
+    EXPECT_EQ(testManifest.stringify(), std::string(jsonString));
 }
 
