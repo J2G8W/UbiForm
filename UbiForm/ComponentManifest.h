@@ -6,6 +6,7 @@
 #include <rapidjson/filereadstream.h>
 #include <rapidjson/writer.h>
 #include "rapidjson/schema.h"
+#include "rapidjson/error/en.h"
 
 #include "general_functions.h"
 #include "SocketMessage.h"
@@ -16,23 +17,15 @@ private:
     rapidjson::Document JSON_document;
     rapidjson::SchemaDocument *schema;
 
+    void checkParse();
+
 
 public:
     // Accept JSON input as string
-    explicit ComponentManifest(const char *jsonString) {
-        rapidjson::StringStream stream(jsonString);
-        JSON_document.ParseStream(stream);
-        schema = new rapidjson::SchemaDocument(JSON_document["schema"]);
-    };
+    explicit ComponentManifest(const char *jsonString);
 
     // Accept JSON input as a FILE pointer
-    explicit ComponentManifest(FILE *jsonFP) {
-        // Arbitrary size of read buffer - only changes efficiency of the inputStream constructor
-        char readBuffer[65536];
-        rapidjson::FileReadStream inputStream(jsonFP, readBuffer, sizeof(readBuffer));
-        JSON_document.ParseStream(inputStream);
-        schema = new rapidjson::SchemaDocument(JSON_document["schema"]);
-    };
+    explicit ComponentManifest(FILE *jsonFP);
 
     // Delete our schema object
     ~ComponentManifest(){
