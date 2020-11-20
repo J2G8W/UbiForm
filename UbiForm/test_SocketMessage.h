@@ -49,3 +49,11 @@ TEST(SocketMessage, OverwriteString) {
 TEST(SocketMessage, BadStringInput){
     EXPECT_ANY_THROW(new SocketMessage(R"({"HELLO":42)"));
 }
+
+TEST(SocketMessage, BasicGetters){
+    SocketMessage socketMessage;
+    socketMessage.addMember("A", 42);
+    EXPECT_EQ(socketMessage.getInteger("A") , 42);
+    socketMessage.addMember("B", std::string("HELLO"));
+    EXPECT_EQ(socketMessage.getString("B"), "HELLO");
+}

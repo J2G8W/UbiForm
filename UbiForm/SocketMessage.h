@@ -80,6 +80,12 @@ public:
     }
 
 
+    int getInteger(const std::string &attributeName);
+    bool getBoolean(const std::string &attributeName);
+    std::string getString(const std::string &attributeName);
+
+
+
     std::string stringify() { return stringifyDocument(JSON_document); };
 
     ~SocketMessage();

@@ -1,4 +1,5 @@
 #include <unistd.h>
+
 #include "nng/nng.h"
 #include "nng/protocol/pair0/pair.h"
 
@@ -8,7 +9,7 @@
 void Component::createPairConnectionOutgoing(const char *url) {
     int rv;
     if ((rv = nng_pair0_open(&socket)) != 0) {
-        fatal("nng_pair1_open", rv);
+        fatal("nng_pair0_open", rv);
     }
     if ((rv = nng_dial(socket, url, nullptr, 0)) != 0) {
         fatal("nng_dial", rv);
@@ -21,7 +22,7 @@ void Component::createPairConnectionOutgoing(const char *url) {
 void Component::createPairConnectionIncoming(const char *url) {
     int rv;
     if ((rv = nng_pair0_open(&socket)) != 0) {
-        fatal("nng_pair1_open", rv);
+        fatal("nng_pair0_open", rv);
     }
 
     if ((rv = nng_listen(socket, url, nullptr, 0)) != 0) {
