@@ -35,7 +35,9 @@ public:
     };
 
     // No complex delete needed
-    ~ComponentManifest() = default;
+    ~ComponentManifest(){
+        delete schema;
+    };
 
     // We return a C++ string as this is what we want to be handling inside the program
     std::string getName();
