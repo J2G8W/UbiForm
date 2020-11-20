@@ -30,11 +30,9 @@ public:
     void receiveManifestOnSocket();
 
     void sendMessage(SocketMessage& s);
-    SocketMessage* receiveMessage();
+    std::unique_ptr<SocketMessage> receiveMessage();
 
     ~Component();
-
-
 
 };
 

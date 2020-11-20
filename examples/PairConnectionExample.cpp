@@ -18,7 +18,7 @@ int main(int argc, char ** argv){
             receiver.createPairConnectionIncoming("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
 
-            SocketMessage * s;
+            std::unique_ptr<SocketMessage> s;
             for(int i =0; i< 5; i++){
                 s = receiver.receiveMessage();
                 std::cout << "Data: " << s->stringify() << "\n";

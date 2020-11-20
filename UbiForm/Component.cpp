@@ -66,19 +66,20 @@ void Component::sendMessage(SocketMessage& s) {
 
     componentManifest->validate(s);
 
-    if ((rv = nng_send(socket, (void*) buffer, strlen(buffer),0)) != 0){
+    if ((rv = nng_send(socket, (void*) buffer, strlen(buffer) + 1 ,0)) != 0){
         fatal("nng_send (msg)", rv);
     }
 }
 
-SocketMessage * Component::receiveMessage() {
+std::unique_ptr<SocketMessage> Component::receiveMessage() {
     int rv;
     char *buffer = nullptr;
 
     size_t  sz;
 
     if ((rv = nng_recv(socket, &buffer, &sz, NNG_FLAG_ALLOC)) == 0) {
-        auto * receivedMessage = new SocketMessage(buffer);
+        std::unique_ptr<SocketMessage> receivedMessage = std::make_unique<SocketMessage>(buffer);
+        socketManifest->validate(*receivedMessage);
         nng_free(buffer, sz);
         return receivedMessage;
     }else{
