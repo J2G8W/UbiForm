@@ -9,7 +9,14 @@
       },
       "msg": {
         "type": "string"
+      },
+      "moreData": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
       }
-    }
+    },
+    "required": ["moreData"]
   }
 }

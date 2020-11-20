@@ -46,6 +46,8 @@ int main(int argc, char ** argv){
             for (int i = 0; i<10; i++) {
                 s.addMember("temp", rand() % 100);
                 s.addMember("msg", std::string("HELLO WORLD!"));
+                std::vector<int> arrayValue = {rand()%10, rand() % 100, rand() % 1000};
+                s.addMember("moreData",arrayValue);
                 sender.sendMessage(s);
             }
 
