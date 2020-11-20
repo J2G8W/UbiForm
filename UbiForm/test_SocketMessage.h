@@ -2,6 +2,13 @@
 
 #include "SocketMessage.h"
 
+TEST(SocketMessage, Stringify){
+    std::string jsonString = R"({"temperature":42,"value":"HELLO WORLD!"})";
+    SocketMessage socketMessage(jsonString.c_str());
+    EXPECT_EQ(jsonString, socketMessage.stringify());
+
+}
+
 TEST(SocketMessage, AddMember) {
     SocketMessage socketMessage;
     socketMessage.addMember("A", 42);
@@ -27,3 +34,6 @@ TEST(SocketMessage, OverwriteString) {
     EXPECT_EQ(socketMessage.stringify(), R"({"A":"WORLD!"})");
 }
 
+TEST(SocketMessage, BadStringInput){
+    EXPECT_ANY_THROW(new SocketMessage(R"({"HELLO":42)"));
+}

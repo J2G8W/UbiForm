@@ -2,10 +2,12 @@
 #define UBIFORM_SOCKETMESSAGE_H
 
 #include <iostream>
+#include <sstream>
 
 
 #include "rapidjson/document.h"
 #include "rapidjson/rapidjson.h"
+#include "rapidjson/error/en.h"
 #include "general_functions.h"
 
 
@@ -30,9 +32,15 @@ public:
         JSON_document.SetObject();
     };
 
-    explicit SocketMessage(char *jsonString) {
+    explicit SocketMessage(const char *jsonString) {
         rapidjson::StringStream stream(jsonString);
         JSON_document.ParseStream(stream);
+        if (JSON_document.HasParseError()){
+            std::ostringstream error;
+            error << "Error parsing manifest, offset: " << JSON_document.GetErrorOffset();
+            error << " , error: " << rapidjson::GetParseError_En(JSON_document.GetParseError()) << std::endl;
+            throw std::logic_error(error.str());
+        }
     }
 
     // Add a string value
