@@ -1,5 +1,7 @@
 #include "gtest/gtest.h"
 
+#include <vector>
+
 #include "SocketMessage.h"
 
 TEST(SocketMessage, Stringify){
@@ -16,6 +18,16 @@ TEST(SocketMessage, AddMember) {
     socketMessage.addMember("C", std::string{"HELLO"});
 
     EXPECT_EQ(socketMessage.stringify(), R"({"A":42,"B":true,"C":"HELLO"})");
+}
+
+TEST(SocketMessage, AddArray){
+    const std::vector<int> inputVector = {1,2,3,4};
+
+    SocketMessage socketMessage;
+    socketMessage.addMember<int>("A",inputVector);
+
+    EXPECT_EQ(socketMessage.stringify(), R"({"A":[1,2,3,4]})");
+
 }
 
 TEST(SocketMessage, OverwriteInteger) {

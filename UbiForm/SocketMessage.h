@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 
 #include "rapidjson/document.h"
@@ -62,6 +63,20 @@ public:
         rapidjson::Value key(attributeName, JSON_document.GetAllocator());
         rapidjson::Value valueContainer(value);
         addOrSwap(key, valueContainer);
+    }
+
+    // Add an array
+    // Note that this has to be defined in the header as template are compiled as required
+    template <class T>
+    void addMember(const std::string &attributeName, std::vector<T> inputArray){
+        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+
+        rapidjson::Value valueArray(rapidjson::kArrayType);
+        valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
+        for (auto item : inputArray){
+            valueArray.PushBack(item, JSON_document.GetAllocator());
+        }
+        addOrSwap(key,valueArray);
     }
 
 
