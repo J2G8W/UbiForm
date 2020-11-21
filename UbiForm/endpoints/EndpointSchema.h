@@ -10,7 +10,7 @@ private:
     rapidjson::SchemaDocument schema;
 
 public:
-    explicit EndpointSchema(rapidjson::Document &doc) : schema(doc) { }
+    explicit EndpointSchema(rapidjson::Value &doc) : schema(doc) { }
     void validate(const SocketMessage &messageToValidate);
 };
 
