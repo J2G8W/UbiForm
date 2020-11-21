@@ -12,6 +12,7 @@ specifyManifest(char *jsonString)
 
 ### (ABSTRACT) Endpoint::
 The point of this class is to represent a socket connection with something. It will be able to do different types of connection, but basically abstracts of the idea of NNG sockets.
+
 `Endpoint(ComponentManifest*)`
 > We create the Endpoint by giving it a pointer to the manifest its going to use. It DOES NOT own the manifest, as the concept is that it will be owned by a component.
 
@@ -67,6 +68,7 @@ ComponentManifest (FILE *)
 > This will validate our SocketMessage against the schema which was specified in the manifest given the id of the endpoint
 
 **METHODS TO CHANGE SCHEMA - further research needed**
+
 `void changeAttributeType( std::string &AttributeName, TYPE)`
 > We change the type of an attribute
 
