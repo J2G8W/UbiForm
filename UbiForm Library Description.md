@@ -46,8 +46,7 @@ This extends the Endpoint class and does the Pub/Sub model.
 > Used by the Publisher endpoint to send a message of a specific TopicRepresentation
 
 ### ComponentManifest::
-
-: This is used to specify the description of a component. It contains schemas for the endpoints
+This is used to specify the description of a component. It contains schemas for the endpoints
 
 `ComponentManifest (const char *)`
 `ComponentManifest (FILE *)`
@@ -59,8 +58,10 @@ This extends the Endpoint class and does the Pub/Sub model.
 `void validate(SocketMessage& s, id)`
 > This will validate our SocketMessage against the schema which was specified in the manifest given the id of the endpoint
 
-SocketMessage::
-: This is used to describe a message which we'll send on the socket.
+`void 
+
+### SocketMessage::
+This is used to describe a message which we'll send on the socket.
 
 `SocketMessage()`
 `Socket Message(const char*)`
@@ -81,14 +82,14 @@ SocketMessage::
 `std::string stringify()`
 > Is used to return a string of our message such that it can be sent on the network
 
-ResourceDiscoveryComponent:: (Extends Component)
-: This will designed such that the component sits in the network and can be connected to so other components can discover each other (and what data they accept)
+### ResourceDiscoveryComponent:: (Extends Component)
+This will designed such that the component sits in the network and can be connected to so other components can discover each other (and what data they accept)
 
 `void acceptConnections()`
 >An async process which will accept connections and on connection will record the manifest of the connecting component to send out. These connections will be of type pair and will mean that a component can request things from the RDC about different available manifests
 
-ResourceDiscoveryEndpoint:: (Extends Endpoint)
-: Each component will likely have an endpoint of this type such that it has the ability to connect to the ResourceDiscoveryComponent and make requests
+### ResourceDiscoveryEndpoint:: (Extends Endpoint)
+Each component will likely have an endpoint of this type such that it has the ability to connect to the ResourceDiscoveryComponent and make requests
 
 `void connectToRDC()`
 > We will use **some as yet undecided technique** to find the RDC on the network we are currently on. This will establish the connection with the RDC component
@@ -96,6 +97,6 @@ ResourceDiscoveryEndpoint:: (Extends Endpoint)
 `??? findAvailableConnections(ComponentManifest)`
 > We make a request to the RDC  to find available connections on the network which can relate to our Manifest. We then return this in some form of data structure.
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbODAzODY2NTcxLC0xMDgzNzkwMjg3LDY0Nz
-U3NTE5MF19
+eyJoaXN0b3J5IjpbODAwNTU1NjgsLTEwODM3OTAyODcsNjQ3NT
+c1MTkwXX0=
 -->
