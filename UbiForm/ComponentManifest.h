@@ -5,18 +5,25 @@
 #include <rapidjson/document.h>
 #include <rapidjson/filereadstream.h>
 #include <rapidjson/writer.h>
+#include <map>
 #include "rapidjson/schema.h"
 #include "rapidjson/error/en.h"
 
 #include "general_functions.h"
+#include "endpoints/EndpointSchema.h"
 
 
 class ComponentManifest {
 private:
     rapidjson::Document JSON_document;
 
+    // TODO -  combine into one map at some point
+    std::map<std::string, EndpointSchema*> receiverSchemas;
+    std::map<std::string, EndpointSchema*> senderSchemas;
+
 
     void checkParse();
+    void fillSchemaMaps();
 
 
 public:
@@ -29,11 +36,19 @@ public:
 
 
 
+    EndpointSchema * getReceiverSchema(const std::string& typeOfEndpoint){
+        // TODO - error handling
+        return receiverSchemas.at(typeOfEndpoint);
+    }
+    EndpointSchema * getSenderSchema(const std::string& typeOfEndpoint){
+        // TODO - error handling
+        return senderSchemas.at(typeOfEndpoint);
+    }
+
     // We return C++ strings such that memory management is simpler
     std::string getName();
 
     std::string stringify() { return stringifyDocument(JSON_document); };
-
 
 };
 
