@@ -12,19 +12,21 @@ int main(int argc, char ** argv){
         if (strcmp(argv[1], RECEIVER) == 0){
             Component receiver;
 
-            FILE* pFile = fopen("JsonFiles/ReceiverManifest1.json", "r");
+            FILE* pFile = fopen("JsonFiles/PairManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
             receiver.specifyManifest(pFile);
             fclose(pFile);
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            receiver.createPairConnectionIncoming("tcp://127.0.0.1:8000");
+            receiver.createNewPairEndpoint("v1", "UNIQUE_ID_1");
+            DataReceiverEndpoint * receiverEndpoint = receiver.getReceiverEndpoint("UNIQUE_ID_1");
+            receiverEndpoint->dialConnection("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
 
             std::unique_ptr<SocketMessage> s;
             for(int i =0; i< 5; i++){
-                s = receiver.receiveMessage();
+                s = receiverEndpoint->receiveMessage();
                 std::cout << "Data: " << s->stringify() << "\n";
             }
 
@@ -32,14 +34,16 @@ int main(int argc, char ** argv){
         if (strcmp(argv[1], SENDER) == 0){
             Component sender;
 
-            FILE* pFile = fopen("JsonFiles/SenderManifest1.json", "r");
+            FILE* pFile = fopen("JsonFiles/PairManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
             sender.specifyManifest(pFile);
             fclose(pFile);
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            sender.createPairConnectionOutgoing("tcp://127.0.0.1:8000");
+            sender.createNewPairEndpoint("v1", "UNIQUE_ID_2");
+            DataSenderEndpoint * senderEndpoint = sender.getSenderEndpoint("UNIQUE_ID_2");
+            senderEndpoint->listenForConnection("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
 
             SocketMessage s;
@@ -48,7 +52,7 @@ int main(int argc, char ** argv){
                 s.addMember("msg", std::string("HELLO WORLD!"));
                 std::vector<int> arrayValue = {rand()%10, rand() % 100, rand() % 1000};
                 s.addMember("moreData",arrayValue);
-                sender.sendMessage(s);
+                senderEndpoint->sendMessage(s);
             }
 
         }
