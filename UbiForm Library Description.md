@@ -1,5 +1,6 @@
 # Library plan
 Component::
+
 : The point of this class is to represent the whole object we are running on. The expectation is that anything using my software will only use one Component object to run
 
 `specifyManifest(FILE *)`
@@ -46,6 +47,7 @@ PubSubEndpoint:: (extends Endpoint)
 > Used by the Publisher endpoint to send a message of a specific TopicRepresentation
 
 ComponentManifest::
+
 : This is used to specify the description of a component. It contains schemas for the endpoints
 
 `ComponentManifest (const char *)`
@@ -95,5 +97,5 @@ ResourceDiscoveryEndpoint:: (Extends Endpoint)
 `??? findAvailableConnections(ComponentManifest)`
 > We make a request to the RDC  to find available connections on the network which can relate to our Manifest. We then return this in some form of data structure.
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE5MjI4NDYyNzhdfQ==
+eyJoaXN0b3J5IjpbNjQ3NTc1MTkwLC0xOTIyODQ2Mjc4XX0=
 -->
