@@ -1,14 +1,13 @@
 # Library plan
-Component::
-
-: The point of this class is to represent the whole object we are running on. The expectation is that anything using my software will only use one Component object to run
+##### Component::
+The point of this class is to represent the whole object we are running on. The expectation is that anything using my software will only use one Component object to run
 
 `specifyManifest(FILE *)`
 `specifyManifest(char *jsonString)`
 > For our component we present raw data to build the manifest object which describes it. The Component then OWNS the manifest object (and is reponsible for deletion)
 
-(ABSTRACT) Endpoint::
-: The point of this class is to represent a socket connection with something. It will be able to do different types of connection, but basically abstracts of the idea of NNG sockets.
+### (ABSTRACT) Endpoint::
+The point of this class is to represent a socket connection with something. It will be able to do different types of connection, but basically abstracts of the idea of NNG sockets.
 `Endpoint(ComponentManifest*)`
 > We create the Endpoint by giving it a pointer to the manifest its going to use. It DOES NOT own the manifest, as the concept is that it will be owned by a component.
 
@@ -22,8 +21,8 @@ Component::
 `unique_ptr\<SocketMessage\> receiveMessage()`
 > Receive message on whatever socket we have opened - blocking
 
-PairEndpoint:: (extends Endpoint)
-: This extends the Endpoint class and represents a Pair connection.
+### PairEndpoint:: (extends Endpoint)
+This extends the Endpoint class and represents a Pair connection.
 
 `void createReceiver(const char *url)`
 > This will create a pair socket and which listens for connections on the url. The URL must be internal for us to listen on it.
@@ -97,5 +96,5 @@ ResourceDiscoveryEndpoint:: (Extends Endpoint)
 `??? findAvailableConnections(ComponentManifest)`
 > We make a request to the RDC  to find available connections on the network which can relate to our Manifest. We then return this in some form of data structure.
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNjQ3NTc1MTkwXX0=
+eyJoaXN0b3J5IjpbLTEwODM3OTAyODcsNjQ3NTc1MTkwXX0=
 -->
