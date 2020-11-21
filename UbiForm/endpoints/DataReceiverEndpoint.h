@@ -9,7 +9,7 @@
 
 class DataReceiverEndpoint {
 protected:
-    nng_socket * receiverSocket{};
+    nng_socket * receiverSocket = new nng_socket;
     EndpointSchema *receiverSchema;
 public:
     explicit DataReceiverEndpoint( EndpointSchema* es) : receiverSchema(es) {};

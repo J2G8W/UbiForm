@@ -8,7 +8,7 @@
 
 class DataSenderEndpoint {
 protected:
-    nng_socket * senderSocket{};
+    nng_socket * senderSocket = new nng_socket ;
     EndpointSchema * senderSchema;
 public:
     explicit DataSenderEndpoint( EndpointSchema *es) : senderSchema(es) {};
