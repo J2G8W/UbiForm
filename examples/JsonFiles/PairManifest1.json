@@ -1,0 +1,31 @@
+{
+  "name": "Pair",
+  "schemas": {
+    "v1": {
+      "send": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "temp": {
+            "type": "number"
+          },
+          "msg": {
+            "type": "string"
+          }
+        }
+      },
+      "receive": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "temp": {
+            "type": "number"
+          },
+          "msg": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
