@@ -1,3 +1,4 @@
+#include <rapidjson/document.h>
 
 void fatal(const char *func, int rv);
 
