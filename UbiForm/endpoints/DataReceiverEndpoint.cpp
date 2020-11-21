@@ -13,7 +13,7 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
         if ((rv = nng_recv(*receiverSocket, &buffer, &sz, NNG_FLAG_ALLOC)) == 0) {
             try {
                 std::unique_ptr<SocketMessage> receivedMessage = std::make_unique<SocketMessage>(buffer);
-                receiverSchema.validate(*receivedMessage);
+                receiverSchema->validate(*receivedMessage);
                 nng_free(buffer, sz);
                 return receivedMessage;
             } catch (std::logic_error &e) {

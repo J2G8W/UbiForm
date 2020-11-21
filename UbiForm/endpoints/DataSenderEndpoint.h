@@ -9,9 +9,9 @@
 class DataSenderEndpoint {
 protected:
     nng_socket * senderSocket{};
-    EndpointSchema senderSchema;
+    EndpointSchema * senderSchema;
 public:
-    explicit DataSenderEndpoint( rapidjson::Document doc) : senderSchema(doc) {};
+    explicit DataSenderEndpoint( EndpointSchema *es) : senderSchema(es) {};
 
     virtual void listenForConnection(const char *url) = 0;
     void sendMessage(SocketMessage &s);

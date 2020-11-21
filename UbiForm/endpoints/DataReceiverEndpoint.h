@@ -10,9 +10,9 @@
 class DataReceiverEndpoint {
 protected:
     nng_socket * receiverSocket{};
-    EndpointSchema receiverSchema;
+    EndpointSchema *receiverSchema;
 public:
-    explicit DataReceiverEndpoint( rapidjson::Document doc) : receiverSchema(doc) {};
+    explicit DataReceiverEndpoint( EndpointSchema* es) : receiverSchema(es) {};
 
     virtual void dialConnection(const char *url) = 0;
     std::unique_ptr<SocketMessage> receiveMessage();

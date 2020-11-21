@@ -8,7 +8,7 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
     const char *buffer = messageTextObject.c_str();
 
     try {
-        senderSchema.validate(s);
+        senderSchema->validate(s);
         if ((rv = nng_send(*senderSocket, (void *) buffer, strlen(buffer) + 1, 0)) != 0) {
             fatal("nng_send (msg)", rv);
         }
