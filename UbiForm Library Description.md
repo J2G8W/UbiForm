@@ -1,5 +1,5 @@
 # Library plan
-##### Component::
+### Component::
 The point of this class is to represent the whole object we are running on. The expectation is that anything using my software will only use one Component object to run
 
 `specifyManifest(FILE *)`
@@ -30,8 +30,8 @@ This extends the Endpoint class and represents a Pair connection.
 `void createInitiator(const char *url)`
 > Create a pair socket which dials for a connection the url. The URL can be external (i.e. it initiates the connection)
 
-PubSubEndpoint:: (extends Endpoint)
-: This extends the Endpoint class and does the Pub/Sub model.
+### PubSubEndpoint:: (extends Endpoint)
+This extends the Endpoint class and does the Pub/Sub model.
 
 `void createReceiver(const char *url)`
 > This will create a Publisher endpoint which listens on an internal port and will do publisher things
@@ -45,7 +45,7 @@ PubSubEndpoint:: (extends Endpoint)
 `void sendMessageOfTopic(SocketMessage, TopicRepresentation)`
 > Used by the Publisher endpoint to send a message of a specific TopicRepresentation
 
-ComponentManifest::
+### ComponentManifest::
 
 : This is used to specify the description of a component. It contains schemas for the endpoints
 
@@ -96,5 +96,6 @@ ResourceDiscoveryEndpoint:: (Extends Endpoint)
 `??? findAvailableConnections(ComponentManifest)`
 > We make a request to the RDC  to find available connections on the network which can relate to our Manifest. We then return this in some form of data structure.
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEwODM3OTAyODcsNjQ3NTc1MTkwXX0=
+eyJoaXN0b3J5IjpbODAzODY2NTcxLC0xMDgzNzkwMjg3LDY0Nz
+U3NTE5MF19
 -->
