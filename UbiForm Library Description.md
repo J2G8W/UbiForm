@@ -1,4 +1,6 @@
 # Library plan
+Below documents the central classes I plan to implement. This has scope to be changed, but allows me to plan as I start writing stuff. I believe it encompasses the key functionality that is required at the time of writing.
+
 ### Component::
 The point of this class is to represent the whole object we are running on. The expectation is that anything using my software will only use one Component object to run
 
@@ -21,6 +23,11 @@ The point of this class is to represent a socket connection with something. It w
 `unique_ptr\<SocketMessage\> receiveMessage()`
 > Receive message on whatever socket we have opened - blocking
 
+`void sendAsyncMessage(SocketMessage)`
+> Send message on whatever socket we have opened - non- blocking
+
+`void receiveAsyncMessage (HandlerFunction)`
+> Receive message on whatever socket we have opened - non-blocking. We take in a function to handle the message rather than return the message as it by definition async
 ### PairEndpoint:: (extends Endpoint)
 This extends the Endpoint class and represents a Pair connection.
 
