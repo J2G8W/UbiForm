@@ -56,14 +56,18 @@ endif()
 set(generalFunctions ../UbiForm/general_functions.h ../UbiForm/general_functions.cpp)
 set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
         ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp)
+set(endpointFiles ../UbiForm/endpoints/DataReceiverEndpoint.h ../UbiForm/endpoints/DataReceiverEndpoint.cpp
+        ../UbiForm/endpoints/DataSenderEndpoint.h ../UbiForm/endpoints/DataSenderEndpoint.cpp
+        ../UbiForm/endpoints/EndpointSchema.h ../UbiForm/endpoints/EndpointSchema.cpp
+        ../UbiForm/endpoints/PairEndpoint.h ../UbiForm/endpoints/PairEndpoint.cpp)
 
 # Create library
-add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h ${componentFiles} ${generalFunctions})
+add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h ${componentFiles} ${generalFunctions} ${endpointFiles})
 target_link_libraries(UbiForm gtest_main gmock_main)
 
 # Create tests
 if (BUILD_TESTS)
-    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h)
+    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h ../UbiForm/endpoints/test_EndpointSchema.h)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm ${NNG})
 endif(BUILD_TESTS)
