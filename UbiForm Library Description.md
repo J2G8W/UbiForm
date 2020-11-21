@@ -2,8 +2,10 @@
 ### Component::
 The point of this class is to represent the whole object we are running on. The expectation is that anything using my software will only use one Component object to run
 
-`specifyManifest(FILE *)`
-`specifyManifest(char *jsonString)`
+```
+specifyManifest(FILE *)`
+specifyManifest(char *jsonString)
+```
 > For our component we present raw data to build the manifest object which describes it. The Component then OWNS the manifest object (and is reponsible for deletion)
 
 ### (ABSTRACT) Endpoint::
@@ -11,9 +13,7 @@ The point of this class is to represent a socket connection with something. It w
 `Endpoint(ComponentManifest*)`
 > We create the Endpoint by giving it a pointer to the manifest its going to use. It DOES NOT own the manifest, as the concept is that it will be owned by a component.
 
-`ABSTRACT void createReceiver(const char url)`
-`ABSTRACT void createInitiator(const char url)`
-> These two methods are ABSTRACT as we need to specify a connection type. Also allows for extensiality
+**We don't have any abstract methods for creating connections as these look different for each type of endpoint**
 
 `void sendMessage(SocketMessage)`
 > Sends message on whatever socket we have opened - blocking
@@ -47,9 +47,10 @@ This extends the Endpoint class and does the Pub/Sub model.
 
 ### ComponentManifest::
 This is used to specify the description of a component. It contains schemas for the endpoints
-
-`ComponentManifest (const char *)`
-`ComponentManifest (FILE *)`
+```
+ComponentManifest (const char *)
+ComponentManifest (FILE *)
+```
 > Our constructors from string and file pointer
 
 `std::string stringify()`
@@ -71,17 +72,20 @@ This is used to describe a message which we'll send on the socket.
 `SocketMessage()`
 `Socket Message(const char*)`
 > We have two constructors, a default one creates the empty message, and the string ne will initialise a message from an input string.
-
-`void addMember(std::string &attributeName, int value)`
-`void addMember(std::string &attributeName, bool value)`
-`void addMember(std::string &attributeName, std::string value)`
-`void addMember(std::string &attributeName, std::vector<T> value)`
+```
+void addMember(std::string &attributeName, int value)
+void addMember(std::string &attributeName, bool value)
+void addMember(std::string &attributeName, std::string value)
+void addMember(std::string &attributeName, std::vector<T> value)
+```
 > We add members to our socket message. This will include replacement so if you try and add two attributes of the same name, the most recent value is kept.
 
-`int getInteger(std::string &attributeName)`
-`bool getBoolean(std::string &attributeName)`
-`std::string getString(std::string &attributeName)`
-`????? getArray(std::string &attributeName)`
+```
+int getInteger(std::string &attributeName)
+bool getBoolean(std::string &attributeName)
+std::string getString(std::string &attributeName)
+????? getArray(std::string &attributeName)
+```
 > We have getter methods for our socket message so we can manipulate the data on the other end. The array is a challenge to represent as we wanted to have the ability to do nesting
 
 `std::string stringify()`
@@ -101,8 +105,8 @@ Each component will likely have an endpoint of this type such that it has the ab
 
 `??? findAvailableConnections(ComponentManifest)`
 > We make a request to the RDC  to find available connections on the network which can relate to our Manifest. We then return this in some form of data structure.
-<!--stackedit_data:
-eyJoaXN0b3J5IjpbMTM5OTAzNjIwMywtMjA2NDQ2OTU0MSw3ND
-AyMjY0NSw4MDA1NTU2OCwtMTA4Mzc5MDI4Nyw2NDc1NzUxOTBd
-fQ==
--->
+
+### MutatorEndpoint (extends PairEndpoint)
+We want to send and receive changes which will change the manifest of our components.
+
+**Will have very similar methods to the mutator methods for the ComponentManifest, these are TBC so I won't have any more depth here**
