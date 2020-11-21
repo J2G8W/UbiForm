@@ -6,9 +6,11 @@
 #include "DataReceiverEndpoint.h"
 #include "DataSenderEndpoint.h"
 
-class PairEndpoint : DataReceiverEndpoint, DataSenderEndpoint {
+class PairEndpoint : public DataReceiverEndpoint, public DataSenderEndpoint {
 
 public:
+    PairEndpoint(EndpointSchema * receiveSchema, EndpointSchema * sendSchema): DataReceiverEndpoint(receiveSchema), DataSenderEndpoint(sendSchema){}
+
     void listenForConnection(const char *url) override ;
     void dialConnection(const char *url) override;
 
