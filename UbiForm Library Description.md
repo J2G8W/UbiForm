@@ -59,7 +59,8 @@ This is used to specify the description of a component. It contains schemas for 
 > This will validate our SocketMessage against the schema which was specified in the manifest given the id of the endpoint
 
 **METHODS TO CHANGE SCHEMA - further research needed**
-`void 
+`void changeAttributeType( std::string &AttributeName, TYPE)`
+> We change the type of an attri
 
 ### SocketMessage::
 This is used to describe a message which we'll send on the socket.
@@ -98,7 +99,7 @@ Each component will likely have an endpoint of this type such that it has the ab
 `??? findAvailableConnections(ComponentManifest)`
 > We make a request to the RDC  to find available connections on the network which can relate to our Manifest. We then return this in some form of data structure.
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTQwMTIxMDI3OSwtMjA2NDQ2OTU0MSw3ND
+eyJoaXN0b3J5IjpbMTI2NDQzMjYxNiwtMjA2NDQ2OTU0MSw3ND
 AyMjY0NSw4MDA1NTU2OCwtMTA4Mzc5MDI4Nyw2NDc1NzUxOTBd
 fQ==
 -->
