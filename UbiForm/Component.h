@@ -7,15 +7,18 @@
 
 #include <iostream>
 #include <memory>
+#include <map>
 
 #include "ComponentManifest.h"
 #include "SocketMessage.h"
+#include "endpoints/PairEndpoint.h"
 
 class Component {
 private:
     std::unique_ptr<ComponentManifest> componentManifest{nullptr};
-    std::unique_ptr<ComponentManifest> socketManifest{nullptr};
-    nng_socket socket{};
+    std::map<std::string, DataReceiverEndpoint* > receiverEndpoints;
+    std::map<std::string, DataSenderEndpoint* > senderEndpoints;
+
 
 
 public:
@@ -27,19 +30,23 @@ public:
         componentManifest = std::make_unique<ComponentManifest>(jsonString);
     }
 
-    void createPairConnectionOutgoing(const char *url);
+    void createNewPairEndpoint(std::string type, std::string id);
 
-    void createPairConnectionIncoming(const char *url);
+    DataReceiverEndpoint* getReceiverEndpoint(const std::string& id){
+        try{
+            return receiverEndpoints.at(id);
+        }catch(std::out_of_range &e){
+            throw;
+        }
+    };
 
-    void sendManifestOnSocket();
-
-    void receiveManifestOnSocket();
-
-    void sendMessage(SocketMessage &s);
-
-    std::unique_ptr<SocketMessage> receiveMessage();
-
-    ~Component();
+    DataSenderEndpoint* getSenderEndpoint(const std::string& id){
+        try{
+            return senderEndpoints.at(id);
+        }catch(std::out_of_range &e){
+            throw;
+        }
+    };
 
 };
 
