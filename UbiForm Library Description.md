@@ -97,5 +97,5 @@ ResourceDiscoveryEndpoint:: (Extends Endpoint)
 `??? findAvailableConnections(ComponentManifest)`
 > We make a request to the RDC  to find available connections on the network which can relate to our Manifest. We then return this in some form of data structure.
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNjQ3NTc1MTkwLC0xOTIyODQ2Mjc4XX0=
+eyJoaXN0b3J5IjpbNjQ3NTc1MTkwXX0=
 -->
