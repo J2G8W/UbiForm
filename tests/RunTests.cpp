@@ -3,6 +3,7 @@
 #include "../UbiForm/test_ComponentManifest.h"
 #include "../UbiForm/test_SocketMessage.h"
 #include "../UbiForm/endpoints/test_EndpointSchema.h"
+#include "../UbiForm/test_Component.h"
 
 int main(int argc, char **argv)
 {
