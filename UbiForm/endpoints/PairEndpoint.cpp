@@ -38,3 +38,17 @@ void PairEndpoint::listenForConnection(const char *url){
     }
 
 }
+
+// Destructor waits a short time before closing socket such that any unsent messages are released
+PairEndpoint::~PairEndpoint() {
+    int rv;
+    // Make sure that the messages are flushed
+    sleep(1);
+    // We only have one actual socket so only need to close 1
+    if ((rv = nng_close(*receiverSocket)) == NNG_ECLOSED) {
+        std::cerr << "This socket had already been closed" << std::endl;
+    }
+
+    // Note that we only delete once as the senderSocket points to the same place as the receiverSocket
+    delete senderSocket;
+}

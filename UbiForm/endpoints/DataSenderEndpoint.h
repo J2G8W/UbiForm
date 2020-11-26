@@ -18,7 +18,10 @@ public:
         senderSchema = es;
     };
 
+    // This is implemented by extending classes as we want to specify socket type and do other useful things
     virtual void listenForConnection(const char *url) = 0;
+
+
     void sendMessage(SocketMessage &s);
 };
 

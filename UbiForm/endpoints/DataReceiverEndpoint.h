@@ -12,13 +12,17 @@ class DataReceiverEndpoint {
 protected:
     // Socket is initialised in extending class
     nng_socket * receiverSocket;
+    // Schema is shared with the parent that houses this endpoint
     std::shared_ptr<EndpointSchema>receiverSchema;
 public:
     explicit DataReceiverEndpoint( std::shared_ptr<EndpointSchema>& es){
         receiverSchema = es;
     };
 
+    // This is implemented by extending classes as we want to specify socket type and do other useful things
     virtual void dialConnection(const char *url) = 0;
+
+
     std::unique_ptr<SocketMessage> receiveMessage();
 };
 
