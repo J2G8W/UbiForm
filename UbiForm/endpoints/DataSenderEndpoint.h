@@ -11,7 +11,7 @@
 class DataSenderEndpoint {
 protected:
     // Socket is initialised in extending class
-    nng_socket * senderSocket;
+    nng_socket * senderSocket = nullptr;
     std::shared_ptr<EndpointSchema>senderSchema;
 public:
     explicit DataSenderEndpoint( std::shared_ptr<EndpointSchema>& es){

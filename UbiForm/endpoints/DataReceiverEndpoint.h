@@ -11,7 +11,7 @@
 class DataReceiverEndpoint {
 protected:
     // Socket is initialised in extending class
-    nng_socket * receiverSocket;
+    nng_socket * receiverSocket = nullptr;
     // Schema is shared with the parent that houses this endpoint
     std::shared_ptr<EndpointSchema>receiverSchema;
 public:
