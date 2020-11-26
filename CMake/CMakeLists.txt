@@ -59,7 +59,9 @@ set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.c
 set(endpointFiles ../UbiForm/endpoints/DataReceiverEndpoint.h ../UbiForm/endpoints/DataReceiverEndpoint.cpp
         ../UbiForm/endpoints/DataSenderEndpoint.h ../UbiForm/endpoints/DataSenderEndpoint.cpp
         ../UbiForm/endpoints/EndpointSchema.h ../UbiForm/endpoints/EndpointSchema.cpp
-        ../UbiForm/endpoints/PairEndpoint.h ../UbiForm/endpoints/PairEndpoint.cpp)
+        ../UbiForm/endpoints/PairEndpoint.h ../UbiForm/endpoints/PairEndpoint.cpp
+        ../UbiForm/endpoints/SubscriberEndpoint.cpp ../UbiForm/endpoints/SubscriberEndpoint.h
+        ../UbiForm/endpoints/PublisherEndpoint.cpp ../UbiForm/endpoints/PublisherEndpoint.h)
 
 # Create library
 add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h ${componentFiles} ${generalFunctions} ${endpointFiles})
@@ -76,6 +78,9 @@ endif(BUILD_TESTS)
 if (BUILD_EXAMPLES)
     add_executable(pair_example ../examples/PairConnectionExample.cpp)
     target_link_libraries(pair_example UbiForm ${NNG})
+
+    add_executable(pubsub_example ../examples/PubSubExample.cpp)
+    target_link_libraries(pubsub_example UbiForm ${NNG})
 
     # Copy over our base JSON files for our examples to use
     file(COPY ../examples/JsonFiles DESTINATION .)

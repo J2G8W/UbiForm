@@ -34,6 +34,9 @@ public:
     // We create a new Pair Endpoint and store it in our map as a SHARED pointer
     void createNewPairEndpoint(std::string type, std::string id);
 
+    void createNewSubscriberEndpoint(std::string type, std::string id);
+    void createNewPublisherEndpoint(std::string type, std::string id);
+
     // We rethrow an out_of_range exception if the request fails
     // shared pointer is returned for C++ ness
     std::shared_ptr<DataReceiverEndpoint> getReceiverEndpoint(const std::string& id);;

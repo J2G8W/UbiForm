@@ -1,14 +1,18 @@
 {
-  "name": "Receiver",
-  "schema": {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "properties": {
-      "temp": {
-        "type": "number"
-      },
-      "msg": {
-        "type": "string"
+  "name": "Subscriber",
+  "schemas": {
+    "v1": {
+      "receive": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "reverse": {
+            "type": "boolean"
+          }
+        }
       }
     }
   }
