@@ -37,6 +37,10 @@ protected:
         componentManifest = new ComponentManifest(pFile);
     }
 
+    ~ManifestExample(){
+        delete componentManifest;
+    }
+
     FILE* pFile = fopen("JsonFiles/PairManifest1.json", "r");
     ComponentManifest* componentManifest;
 };
