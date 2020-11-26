@@ -9,6 +9,7 @@
 #include "EndpointSchema.h"
 
 class DataReceiverEndpoint {
+
 protected:
     // Socket is initialised in extending class
     nng_socket * receiverSocket = nullptr;
@@ -24,6 +25,8 @@ public:
 
 
     std::unique_ptr<SocketMessage> receiveMessage();
+
+    void asyncReceiveMessage(void (*callb)(SocketMessage *));
 };
 
 

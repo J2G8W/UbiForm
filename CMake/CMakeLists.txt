@@ -82,6 +82,9 @@ if (BUILD_EXAMPLES)
     add_executable(pubsub_example ../examples/PubSubExample.cpp)
     target_link_libraries(pubsub_example UbiForm ${NNG})
 
+    add_executable(async_example ../examples/AsyncExample.cpp)
+    target_link_libraries(async_example UbiForm ${NNG})
+
     # Copy over our base JSON files for our examples to use
     file(COPY ../examples/JsonFiles DESTINATION .)
 endif(BUILD_EXAMPLES)
