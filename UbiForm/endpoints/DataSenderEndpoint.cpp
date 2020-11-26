@@ -1,4 +1,5 @@
 #include "DataSenderEndpoint.h"
+#include "../general_functions.h"
 
 // Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(SocketMessage &s) {
@@ -10,9 +11,9 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
     try {
         senderSchema->validate(s);
         if ((rv = nng_send(*senderSocket, (void *) buffer, strlen(buffer) + 1, 0)) != 0) {
-            fatal("nng_send (msg)", rv);
+            throw NNG_error(rv, "nng_send");
         }
     } catch (std::logic_error &e){
-        std::cerr << "Message couldn't send as: " << e.what();
+        std::cerr << "Message couldn't send as: " << e.what() << std::endl;
     }
 }
