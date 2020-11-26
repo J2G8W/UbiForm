@@ -56,7 +56,7 @@ int main(int argc, char ** argv){
 
             SocketMessage s;
             bool valid = true;
-            while(true) {
+            for(int i = 0; i<10; i++) {
                 s.addMember("reverse", valid);
                 valid = !valid;
 
@@ -70,7 +70,7 @@ int main(int argc, char ** argv){
                 s.addMember("date",std::string(dateString));
 
                 publisher_endpoint->sendMessage(s);
-                sleep(10);
+                sleep(1);
             }
 
 

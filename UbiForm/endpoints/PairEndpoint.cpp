@@ -15,6 +15,8 @@ void PairEndpoint::dialConnection(const char *url) {
     int rv;
     if ((rv = nng_pair0_open(senderSocket)) != 0) {
         fatal("nng_pair0_open", rv);
+    }else{
+        socketOpen = true;
     }
     // Use the same socket for sending and receiving
     receiverSocket = senderSocket;
@@ -29,6 +31,8 @@ void PairEndpoint::listenForConnection(const char *url){
     int rv;
     if ((rv = nng_pair0_open(senderSocket)) != 0) {
         fatal("nng_pair0_open", rv);
+    }else{
+        socketOpen = true;
     }
     // Use the same socket for sending and receiving
     receiverSocket = senderSocket;
@@ -43,7 +47,7 @@ void PairEndpoint::listenForConnection(const char *url){
 PairEndpoint::~PairEndpoint() {
     int rv;
     // We have to check if we ever initialised the receiverSocket before trying to close it
-    if (senderSocket != nullptr) {
+    if (senderSocket != nullptr && socketOpen) {
         // Make sure that the messages are flushed
         sleep(1);
         // We only have one actual socket so only need to close 1.

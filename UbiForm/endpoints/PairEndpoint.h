@@ -7,6 +7,9 @@
 #include "DataSenderEndpoint.h"
 
 class PairEndpoint : public DataReceiverEndpoint, public DataSenderEndpoint {
+private:
+    bool socketOpen = false;
+
 
 public:
     PairEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema):

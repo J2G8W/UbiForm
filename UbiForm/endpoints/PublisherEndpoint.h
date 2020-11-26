@@ -8,6 +8,9 @@
 #include "DataSenderEndpoint.h"
 
 class PublisherEndpoint : public DataSenderEndpoint {
+private:
+    bool socketOpen = false;
+
 public:
     explicit PublisherEndpoint(std::shared_ptr<EndpointSchema> sendSchema) : DataSenderEndpoint(sendSchema){
         senderSocket = new nng_socket ;

@@ -21,6 +21,14 @@ protected:
 };
 
 
+TEST_F(ComponentExample, CreateMultipleEndpoints){
+    component->createNewPublisherEndpoint("v1", "PubEndpoint");
+    component->createNewSubscriberEndpoint("v1", "SubEndpoint");
+
+    ASSERT_NO_THROW(component->getReceiverEndpoint("SubEndpoint"));
+    ASSERT_NO_THROW(component->getSenderEndpoint("PubEndpoint"));
+}
+
 TEST_F(ComponentExample, GetEndpoints){
     component->createNewPairEndpoint("v1","TestEndpoint");
 

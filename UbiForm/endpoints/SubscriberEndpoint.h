@@ -8,6 +8,9 @@
 #include "DataReceiverEndpoint.h"
 
 class SubscriberEndpoint : public DataReceiverEndpoint {
+private:
+    bool socketOpen = false;
+
 public:
     explicit SubscriberEndpoint(std::shared_ptr<EndpointSchema> receiveSchema) : DataReceiverEndpoint(receiveSchema){
         receiverSocket = new nng_socket;
