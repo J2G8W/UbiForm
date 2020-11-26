@@ -10,7 +10,9 @@ class PairEndpoint : public DataReceiverEndpoint, public DataSenderEndpoint {
 
 public:
     PairEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema):
-    DataReceiverEndpoint(receiveSchema), DataSenderEndpoint(sendSchema){}
+    DataReceiverEndpoint(receiveSchema), DataSenderEndpoint(sendSchema){
+        senderSocket = new nng_socket;
+    }
 
     void listenForConnection(const char *url) override ;
     void dialConnection(const char *url) override;
@@ -24,6 +26,7 @@ public:
         if ((rv = nng_close(*receiverSocket)) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
         }
+        delete senderSocket;
     }
 };
 

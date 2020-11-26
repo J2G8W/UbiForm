@@ -10,7 +10,8 @@
 
 class DataReceiverEndpoint {
 protected:
-    nng_socket * receiverSocket = new nng_socket;
+    // Socket is initialised in extending class
+    nng_socket * receiverSocket;
     std::shared_ptr<EndpointSchema>receiverSchema;
 public:
     explicit DataReceiverEndpoint( std::shared_ptr<EndpointSchema>& es){
