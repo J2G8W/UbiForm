@@ -20,7 +20,7 @@ int main(int argc, char ** argv){
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             receiver.createNewPairEndpoint("v1", "UNIQUE_ID_1");
-            DataReceiverEndpoint * receiverEndpoint = receiver.getReceiverEndpoint("UNIQUE_ID_1");
+            std::shared_ptr<DataReceiverEndpoint> receiverEndpoint = receiver.getReceiverEndpoint("UNIQUE_ID_1");
             receiverEndpoint->dialConnection("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
 
@@ -42,7 +42,7 @@ int main(int argc, char ** argv){
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             sender.createNewPairEndpoint("v1", "UNIQUE_ID_2");
-            DataSenderEndpoint * senderEndpoint = sender.getSenderEndpoint("UNIQUE_ID_2");
+            std::shared_ptr<DataSenderEndpoint> senderEndpoint = sender.getSenderEndpoint("UNIQUE_ID_2");
             senderEndpoint->listenForConnection("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
 
