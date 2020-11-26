@@ -1,6 +1,7 @@
 #ifndef UBIFORM_COMPONENTMANIFEST_H
 #define UBIFORM_COMPONENTMANIFEST_H
 
+#include <memory>
 
 #include <rapidjson/document.h>
 #include <rapidjson/filereadstream.h>
@@ -18,8 +19,9 @@ private:
     rapidjson::Document JSON_document;
 
     // TODO -  combine into one map at some point
-    std::map<std::string, EndpointSchema*> receiverSchemas;
-    std::map<std::string, EndpointSchema*> senderSchemas;
+    // Note that these maps will "auto delete" as we are using shared pointers so we don't need to worry about their memory
+    std::map<std::string, std::shared_ptr<EndpointSchema> > receiverSchemas;
+    std::map<std::string, std::shared_ptr<EndpointSchema> > senderSchemas;
 
 
     void checkParse();
@@ -36,7 +38,7 @@ public:
 
 
 
-    EndpointSchema * getReceiverSchema(const std::string& typeOfEndpoint){
+    std::shared_ptr<EndpointSchema> getReceiverSchema(const std::string& typeOfEndpoint){
         try{
             return receiverSchemas.at(typeOfEndpoint);
         } catch (std::out_of_range &e) {
@@ -45,7 +47,7 @@ public:
         }
 
     }
-    EndpointSchema * getSenderSchema(const std::string& typeOfEndpoint){
+    std::shared_ptr<EndpointSchema> getSenderSchema(const std::string& typeOfEndpoint){
         try{
             return senderSchemas.at(typeOfEndpoint);
         } catch (std::out_of_range &e) {
@@ -59,6 +61,8 @@ public:
 
     std::string stringify() { return stringifyDocument(JSON_document); };
 
+
+    ~ComponentManifest();
 };
 
 

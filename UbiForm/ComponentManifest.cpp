@@ -1,5 +1,6 @@
 #include "ComponentManifest.h"
 #include <sstream>
+#include <memory>
 
 #include "rapidjson/schema.h"
 
@@ -42,12 +43,12 @@ void ComponentManifest::fillSchemaMaps() {
     assert(JSON_document["schemas"].IsObject());
     for (auto &m : JSON_document["schemas"].GetObject()){
         if (m.value.IsObject() && m.value.HasMember("send")){
-            EndpointSchema *endpointSchema = new EndpointSchema(m.value["send"]);
+            std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(m.value["send"]);
             auto p1 = std::make_pair(std::string(m.name.GetString()), endpointSchema);
             senderSchemas.insert(p1);
         }
         if (m.value.IsObject() && m.value.HasMember("receive")){
-            EndpointSchema *endpointSchema = new EndpointSchema(m.value["receive"]);
+            std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(m.value["receive"]);
             auto p1 = std::make_pair(std::string(m.name.GetString()), endpointSchema);
             receiverSchemas.insert(p1);
         }
@@ -61,4 +62,7 @@ std::string ComponentManifest::getName() {
 
     return JSON_document["name"].GetString();
 }
+
+
+ComponentManifest::~ComponentManifest()= default;
 

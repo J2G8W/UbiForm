@@ -9,7 +9,8 @@
 class PairEndpoint : public DataReceiverEndpoint, public DataSenderEndpoint {
 
 public:
-    PairEndpoint(EndpointSchema * receiveSchema, EndpointSchema * sendSchema): DataReceiverEndpoint(receiveSchema), DataSenderEndpoint(sendSchema){}
+    PairEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema):
+    DataReceiverEndpoint(receiveSchema), DataSenderEndpoint(sendSchema){}
 
     void listenForConnection(const char *url) override ;
     void dialConnection(const char *url) override;

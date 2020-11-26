@@ -48,7 +48,7 @@ protected:
 TEST_F(ManifestExample, ReceiverSchemasTest){
     ASSERT_NO_THROW(componentManifest->getReceiverSchema("v1"));
 
-    EndpointSchema* endpointSchema = componentManifest->getReceiverSchema("v1");
+    std::shared_ptr<EndpointSchema> endpointSchema = componentManifest->getReceiverSchema("v1");
 
     SocketMessage socketMessage;
     socketMessage.addMember("temp",50);
@@ -63,7 +63,7 @@ TEST_F(ManifestExample, ReceiverSchemasTest){
 TEST_F(ManifestExample, SenderSchemasTest){
     ASSERT_NO_THROW(componentManifest->getSenderSchema("v1"));
 
-    EndpointSchema* endpointSchema = componentManifest->getSenderSchema("v1");
+    std::shared_ptr<EndpointSchema> endpointSchema = componentManifest->getSenderSchema("v1");
 
     SocketMessage socketMessage;
     socketMessage.addMember("temp",50);

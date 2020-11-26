@@ -3,6 +3,7 @@
 
 
 #include <memory>
+#include <utility>
 #include <nng/nng.h>
 #include "../SocketMessage.h"
 #include "EndpointSchema.h"
@@ -10,9 +11,11 @@
 class DataReceiverEndpoint {
 protected:
     nng_socket * receiverSocket = new nng_socket;
-    EndpointSchema *receiverSchema;
+    std::shared_ptr<EndpointSchema>receiverSchema;
 public:
-    explicit DataReceiverEndpoint( EndpointSchema* es) : receiverSchema(es) {};
+    explicit DataReceiverEndpoint( std::shared_ptr<EndpointSchema>& es){
+        receiverSchema = es;
+    };
 
     virtual void dialConnection(const char *url) = 0;
     std::unique_ptr<SocketMessage> receiveMessage();
