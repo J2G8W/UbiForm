@@ -37,12 +37,21 @@ public:
 
 
     EndpointSchema * getReceiverSchema(const std::string& typeOfEndpoint){
-        // TODO - error handling
-        return receiverSchemas.at(typeOfEndpoint);
+        try{
+            return receiverSchemas.at(typeOfEndpoint);
+        } catch (std::out_of_range &e) {
+            // Explicit rethrow of the exception
+            throw;
+        }
+
     }
     EndpointSchema * getSenderSchema(const std::string& typeOfEndpoint){
-        // TODO - error handling
-        return senderSchemas.at(typeOfEndpoint);
+        try{
+            return senderSchemas.at(typeOfEndpoint);
+        } catch (std::out_of_range &e) {
+            // Explicit rethrow of the exception
+            throw;
+        }
     }
 
     // We return C++ strings such that memory management is simpler

@@ -38,7 +38,6 @@ void ComponentManifest::checkParse(){
 }
 
 
-// TODO - error handling
 void ComponentManifest::fillSchemaMaps() {
     assert(JSON_document["schemas"].IsObject());
     for (auto &m : JSON_document["schemas"].GetObject()){

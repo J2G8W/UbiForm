@@ -8,7 +8,7 @@
 #include "PairEndpoint.h"
 
 
-
+// TODO - error handling currently very fatal on NNG's end
 
 // Note that outgoing means it dials an external URL
 void PairEndpoint::dialConnection(const char *url) {

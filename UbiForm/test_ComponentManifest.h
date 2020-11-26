@@ -70,3 +70,6 @@ TEST_F(ManifestExample, SenderSchemasTest){
     socketMessage.addMember("msg", false);
     ASSERT_ANY_THROW(endpointSchema->validate(socketMessage));
 }
+
+
+// TODO - add testing for the private methods
