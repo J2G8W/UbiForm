@@ -27,31 +27,44 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
     }
 }
 
-struct work{
-    nng_aio *aio;
-    void (*callback)(SocketMessage *);
-    std::shared_ptr<EndpointSchema> schema;
-};
-void asyncCallback(void* data){
-    work * w = static_cast<work *>(data);
-
-    nng_msg * msg = nng_aio_get_msg(w->aio);
-    char* text = static_cast<char *>(nng_msg_body(msg));
-    SocketMessage *receivedMessage = new SocketMessage(text);
-    w->schema->validate(*receivedMessage);
-    nng_msg_free(msg);
-
-    w->callback(receivedMessage);
-}
 
 
-
+// This is the public interface for asynchronously receiving messages
 void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *)) {
-    struct work *w = new work();
-    w->callback = callb;
-    w->schema = this->receiverSchema;
-    nng_aio_alloc(&(w->aio), asyncCallback, w);
+    auto *asyncData = new AsyncData(callb, this->receiverSchema);
 
-    nng_recv_aio(*receiverSocket, w->aio);
-
+    nng_recv_aio(*receiverSocket, asyncData->nngAioPointer);
+    // Purposely don't delete memory of asyncData as this will be used in the callback
 }
+
+// This is our explicitly defined callback, which does some processing THEN calls the input the callback
+// It cannot be called outside the class
+void DataReceiverEndpoint::asyncCallback(void *data) {
+    auto * asyncInput = static_cast<AsyncData *>(data);
+
+    int rv;
+    if ((rv = nng_aio_result(asyncInput->nngAioPointer)) != 0) {
+        std::cerr << "NNG async error\nError text: " << nng_strerror(rv) << std::endl;
+        delete asyncInput;
+        return;
+    }
+
+    // Extract the message from our AioPointer and create a SocketMessage for easy handling
+    nng_msg * msgPointer = nng_aio_get_msg(asyncInput->nngAioPointer);
+    char* receivedJSON = static_cast<char *>(nng_msg_body(msgPointer));
+    auto *receivedMessage = new SocketMessage(receivedJSON);
+
+    nng_msg_free(msgPointer);
+
+    // If we fail, we don't retry we just display an error message and exit
+    try {
+        asyncInput->endpointSchema->validate(*receivedMessage);
+        asyncInput->callback(receivedMessage);
+    }catch(std::logic_error &e) {
+        std::cerr << "Failed message receive send as: " << e.what() << std::endl;
+    }
+    // Handle our own memory properly
+    delete receivedMessage;
+    delete asyncInput;
+}
+
