@@ -92,3 +92,20 @@ TEST(SocketMessage, StringArray){
     EXPECT_EQ(socketMessage.stringify(), R"({"B":["Hello","its","me","I've","been"]})");
     EXPECT_EQ(socketMessage.getArray<std::string>("B"), stringArray);
 }
+
+TEST(SocketMessage, ObjectArray){
+    SocketMessage main;
+    std::vector<SocketMessage*> objectArray;
+    objectArray.reserve(3);
+    for (int i =0; i<3; i++){
+        objectArray.push_back(new SocketMessage);
+        objectArray.back()->addMember("B",10);
+    }
+    main.addMember("A",objectArray);
+    EXPECT_EQ(objectArray.at(0)->stringify(), "null");
+    EXPECT_EQ(main.stringify(), R"({"A":[{"B":10},{"B":10},{"B":10}]})");
+
+    objectArray = main.getArray<SocketMessage *>("A");
+    EXPECT_EQ(objectArray.at(0)->getInteger("B"), 10);
+    EXPECT_EQ(main.stringify(), R"({"A":[null,null,null]})");
+}

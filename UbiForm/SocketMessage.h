@@ -99,6 +99,18 @@ public:
         addOrSwap(key,valueArray);
     }
 
+    // Add an array of SocketMessages
+    void addMember(const std::string &attributeName, std::vector<SocketMessage*> inputArray){
+        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+
+        rapidjson::Value valueArray(rapidjson::kArrayType);
+        valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
+        for (auto object : inputArray){
+            valueArray.PushBack(object->JSON_document, JSON_document.GetAllocator());
+        }
+        addOrSwap(key,valueArray);
+    }
+
     // Add a new object - this will set the socketMessage to be zero - MOVE CONSTRUCTOR
     void addMember(const std::string &attributeName, SocketMessage &socketMessage){
         rapidjson::Value key(attributeName, JSON_document.GetAllocator());

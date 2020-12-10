@@ -80,3 +80,18 @@ std::vector<std::string> SocketMessage::getArray<std::string>(const std::string 
     }
 }
 
+template<>
+std::vector<SocketMessage *> SocketMessage::getArray<SocketMessage *>(const std::string &attributeName) {
+    if (JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsArray()) {
+        auto memberArray = JSON_document[attributeName].GetArray();
+        std::vector<SocketMessage *> returnVector;
+        returnVector.reserve(memberArray.Size());
+        for (auto &v: memberArray) {
+            assert(v.IsObject());
+            returnVector.push_back(new SocketMessage(v));
+        }
+        return returnVector;
+    }else{
+        throw std::logic_error("This message does not have element of that type");
+    }
+}
