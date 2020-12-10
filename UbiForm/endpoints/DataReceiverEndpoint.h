@@ -17,12 +17,14 @@ private:
     struct AsyncData{
         // The nngAioPointer has to be initialised by C style semantics
         nng_aio *nngAioPointer;
-        void (*callback)(SocketMessage *);
+        void (*callback)(SocketMessage *, void*);
         std::shared_ptr<EndpointSchema> endpointSchema;
+        void *furtherUserData;
 
-        AsyncData(void (*cb)(SocketMessage *), std::shared_ptr<EndpointSchema> es) : callback(cb), endpointSchema(es){
+        AsyncData(void (*cb)(SocketMessage *, void*), std::shared_ptr<EndpointSchema> endpointSchema, void *furtherUserData) : callback(cb), endpointSchema(endpointSchema){
             // So we allocate the async_io with a pointer to our asyncCallback and a pointer to this object
             nng_aio_alloc(&(this->nngAioPointer), asyncCallback, this);
+            this->furtherUserData = furtherUserData;
         };
 
         ~AsyncData(){
@@ -43,12 +45,13 @@ public:
     // This is implemented by extending classes as we want to specify socket type and do other useful things
     virtual void dialConnection(const char *url) = 0;
 
-
+    // Standard blocking receive of message.
     std::unique_ptr<SocketMessage> receiveMessage();
 
     // Here we receive a message asynchronously, it accepts a function which does some work on a SocketMessage
     // NOTE that the SocketMessage should not be freed by the given func (library handles the memory management)
-    void asyncReceiveMessage(void (*callb)(SocketMessage *));
+    // Concept is that API users will provide "furtherData" which will be given to our callback as the void* pointer
+    void asyncReceiveMessage(void (*callb)(SocketMessage *, void*), void*);
 };
 
 

@@ -30,8 +30,9 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
 
 
 // This is the public interface for asynchronously receiving messages
-void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *)) {
-    auto *asyncData = new AsyncData(callb, this->receiverSchema);
+// TODO - improve type safety here - templates rather than void*
+void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *furtherUserData) {
+    auto *asyncData = new AsyncData(callb, this->receiverSchema, furtherUserData);
 
     nng_recv_aio(*receiverSocket, asyncData->nngAioPointer);
     // Purposely don't delete memory of asyncData as this will be used in the callback
@@ -59,7 +60,7 @@ void DataReceiverEndpoint::asyncCallback(void *data) {
     // If we fail, we don't retry we just display an error message and exit
     try {
         asyncInput->endpointSchema->validate(*receivedMessage);
-        asyncInput->callback(receivedMessage);
+        asyncInput->callback(receivedMessage,asyncInput->furtherUserData);
     }catch(std::logic_error &e) {
         std::cerr << "Failed message receive send as: " << e.what() << std::endl;
     }
