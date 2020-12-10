@@ -23,3 +23,52 @@ std::string SocketMessage::getString(const std::string &attributeName){
         throw std::logic_error("The message does not have an element of that type");
     }
 }
+
+template<>
+std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) {
+    if (JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsArray()) {
+        auto memberArray = JSON_document[attributeName].GetArray();
+        std::vector<int> returnVector;
+        returnVector.reserve(memberArray.Size());
+        for (auto &v: memberArray) {
+            assert(v.IsInt());
+            returnVector.push_back(v.GetInt());
+        }
+        return returnVector;
+    }else{
+        throw std::logic_error("This message does not have element of that type");
+    }
+}
+
+template<>
+std::vector<bool> SocketMessage::getArray<bool>(const std::string &attributeName) {
+    if (JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsArray()) {
+        auto memberArray = JSON_document[attributeName].GetArray();
+        std::vector<bool> returnVector;
+        returnVector.reserve(memberArray.Size());
+        for (auto &v: memberArray) {
+            assert(v.IsBool());
+            returnVector.push_back(v.GetBool());
+        }
+        return returnVector;
+    }else{
+        throw std::logic_error("This message does not have element of that type");
+    }
+}
+
+template<>
+std::vector<std::string> SocketMessage::getArray<std::string>(const std::string &attributeName) {
+    if (JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsArray()) {
+        auto memberArray = JSON_document[attributeName].GetArray();
+        std::vector<std::string> returnVector;
+        returnVector.reserve(memberArray.Size());
+        for (auto &v: memberArray) {
+            assert(v.IsString());
+            returnVector.emplace_back(v.GetString());
+        }
+        return returnVector;
+    }else{
+        throw std::logic_error("This message does not have element of that type");
+    }
+}
+

@@ -73,8 +73,22 @@ public:
 
         rapidjson::Value valueArray(rapidjson::kArrayType);
         valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
-        for (auto item : inputArray){
-            valueArray.PushBack(item, JSON_document.GetAllocator());
+        for (T item : inputArray){
+            rapidjson::Value v(item);
+            valueArray.PushBack(v, JSON_document.GetAllocator());
+        }
+        addOrSwap(key,valueArray);
+    }
+
+    // Work around for adding string, which gives type safety with rapidjson
+    void addMember(const std::string &attributeName, std::vector<std::string> inputArray){
+        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+
+        rapidjson::Value valueArray(rapidjson::kArrayType);
+        valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
+        for (std::string item : inputArray){
+            rapidjson::Value v(item,JSON_document.GetAllocator());
+            valueArray.PushBack(v, JSON_document.GetAllocator());
         }
         addOrSwap(key,valueArray);
     }
@@ -84,6 +98,8 @@ public:
     bool getBoolean(const std::string &attributeName);
     std::string getString(const std::string &attributeName);
 
+    template <class T>
+    std::vector<T> getArray(const std::string &attributeName);
 
 
     std::string stringify() { return stringifyDocument(JSON_document); };
