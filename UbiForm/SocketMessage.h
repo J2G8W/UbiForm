@@ -12,7 +12,7 @@
 #include "general_functions.h"
 
 
-// Note that we need RAPIDJSON_HAS_STDSTRING turned on
+// Note that we need RAPIDJSON_HAS_STDSTRING turned on as we need std string usage
 class SocketMessage {
     friend class EndpointSchema;
 
@@ -26,6 +26,12 @@ private:
         } else {
             JSON_document.AddMember(key, valueContainer, JSON_document.GetAllocator());
         }
+    }
+
+    // This is used to create a new SocketMessage from out inputObject and inputObject is set to null
+    SocketMessage(rapidjson::Value &inputObject){
+        JSON_document.SetNull();
+        swap(JSON_document, inputObject);
     }
 
 public:
@@ -66,7 +72,7 @@ public:
     }
 
     // Add an array
-    // Note that this has to be defined in the header as template are compiled as required
+    // Note that this has to be defined in the header as templates are compiled here
     template <class T>
     void addMember(const std::string &attributeName, std::vector<T> inputArray){
         rapidjson::Value key(attributeName, JSON_document.GetAllocator());
@@ -80,7 +86,7 @@ public:
         addOrSwap(key,valueArray);
     }
 
-    // Work around for adding string, which gives type safety with rapidjson
+    // Add an array of strings
     void addMember(const std::string &attributeName, std::vector<std::string> inputArray){
         rapidjson::Value key(attributeName, JSON_document.GetAllocator());
 
@@ -93,10 +99,17 @@ public:
         addOrSwap(key,valueArray);
     }
 
+    // Add a new object - this will set the socketMessage to be zero - MOVE CONSTRUCTOR
+    void addMember(const std::string &attributeName, SocketMessage &socketMessage){
+        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+        addOrSwap(key, socketMessage.JSON_document);
+    }
 
     int getInteger(const std::string &attributeName);
     bool getBoolean(const std::string &attributeName);
     std::string getString(const std::string &attributeName);
+    // Note that this will set the attributeName to null and return a new POINTER which will need memory handling
+    SocketMessage *getObject(const std::string &attributeName);
 
     template <class T>
     std::vector<T> getArray(const std::string &attributeName);

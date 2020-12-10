@@ -24,6 +24,14 @@ std::string SocketMessage::getString(const std::string &attributeName){
     }
 }
 
+SocketMessage* SocketMessage::getObject(const std::string &attributeName) {
+    if (JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsObject()){
+        return new SocketMessage(JSON_document[attributeName]);
+    }else {
+        throw std::logic_error("The message does not have an element of that type");
+    }
+}
+
 template<>
 std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsArray()) {

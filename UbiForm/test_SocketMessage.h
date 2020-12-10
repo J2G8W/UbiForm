@@ -20,6 +20,23 @@ TEST(SocketMessage, AddMember) {
     EXPECT_EQ(socketMessage.stringify(), R"({"A":42,"B":true,"C":"HELLO"})");
 }
 
+TEST(SocketMessage, ObjectTest){
+    SocketMessage main;
+    SocketMessage *mini = new SocketMessage;
+    main.addMember("A",42);
+    mini->addMember("B", 100);
+    main.addMember("C", *mini);
+
+    // Note that mini* is now rapidjson::null due to move semantics
+    EXPECT_EQ(main.stringify(), R"({"A":42,"C":{"B":100}})");
+    EXPECT_EQ(mini->stringify(), "null");
+
+    mini = main.getObject("C");
+    // Mini is repopulated and main/C becomes null
+    EXPECT_EQ(mini->getInteger("B"), 100);
+    EXPECT_EQ(main.stringify(), R"({"A":42,"C":null})");
+}
+
 TEST(SocketMessage, OverwriteInteger) {
     SocketMessage socketMessage;
     socketMessage.addMember("A", 42);
@@ -68,7 +85,7 @@ TEST(SocketMessage, BooleanArray){
 }
 
 
-TEST(SocketMessage, StringArrayTests){
+TEST(SocketMessage, StringArray){
     SocketMessage socketMessage;
     std::vector<std::string> stringArray {"Hello","its","me","I've","been"};
     socketMessage.addMember("B",stringArray);
