@@ -35,6 +35,7 @@ private:
     }
 
 public:
+    // Base constructor creates an empty object
     SocketMessage() : JSON_document() {
         JSON_document.SetObject();
     };

@@ -20,20 +20,26 @@ TEST(SocketMessage, AddMember) {
     EXPECT_EQ(socketMessage.stringify(), R"({"A":42,"B":true,"C":"HELLO"})");
 }
 
-TEST(SocketMessage, ObjectTest){
-    SocketMessage main;
+TEST(SocketMessage, RecursiveObject){
+    // Our recursive Object
     SocketMessage *miniInput = new SocketMessage;
-    main.addMember("A",42);
     miniInput->addMember("B", 100);
+
+    // Our main object
+    SocketMessage main;
+    main.addMember("A",42);
     main.addMember("C", *miniInput);
 
-    // Note that mini* is now rapidjson::null due to move semantics
+    // Check main has in fact got the structure we expect
     EXPECT_EQ(main.stringify(), R"({"A":42,"C":{"B":100}})");
+    // Note that miniInput* is now rapidjson::null due to move semantics
     EXPECT_EQ(miniInput->stringify(), "null");
 
+    // Get the recursive object back out of our message
     SocketMessage *miniOutput = main.getObject("C");
-    // Mini is repopulated and main/C becomes null
+    // Mini is repopulated
     EXPECT_EQ(miniOutput->getInteger("B"), 100);
+    // And main left with a null pointer where mini was
     EXPECT_EQ(main.stringify(), R"({"A":42,"C":null})");
 
     delete miniInput;
@@ -43,30 +49,27 @@ TEST(SocketMessage, ObjectTest){
 TEST(SocketMessage, OverwriteInteger) {
     SocketMessage socketMessage;
     socketMessage.addMember("A", 42);
-    socketMessage.addMember("A", 0);
+    EXPECT_EQ(socketMessage.getInteger("A") , 42);
 
-    EXPECT_EQ(socketMessage.stringify(), R"({"A":0})");
+    socketMessage.addMember("A", 7);
+    EXPECT_EQ(socketMessage.stringify(), R"({"A":7})");
+    EXPECT_EQ(socketMessage.getInteger("A") , 7);
 }
 
 TEST(SocketMessage, OverwriteString) {
     SocketMessage socketMessage;
     socketMessage.addMember("A", std::string("HELLO"));
-    socketMessage.addMember("A", std::string("WORLD!"));
+    EXPECT_EQ(socketMessage.getString("A"), "HELLO");
 
+    socketMessage.addMember("A", std::string("WORLD!"));
     EXPECT_EQ(socketMessage.stringify(), R"({"A":"WORLD!"})");
+    EXPECT_EQ(socketMessage.getString("A"), "WORLD!");
 }
 
 TEST(SocketMessage, BadStringInput){
     EXPECT_ANY_THROW(new SocketMessage(R"({"HELLO":42)"));
 }
 
-TEST(SocketMessage, BasicGetters){
-    SocketMessage socketMessage;
-    socketMessage.addMember("A", 42);
-    EXPECT_EQ(socketMessage.getInteger("A") , 42);
-    socketMessage.addMember("B", std::string("HELLO"));
-    EXPECT_EQ(socketMessage.getString("B"), "HELLO");
-}
 
 TEST(SocketMessage, IntegerArray){
     SocketMessage socketMessage;
@@ -97,19 +100,28 @@ TEST(SocketMessage, StringArray){
 }
 
 TEST(SocketMessage, ObjectArray){
+    // Our main object to hold things
     SocketMessage main;
+    // Our array to be of objects
     std::vector<SocketMessage*> inputObjectArray;
     for (int i =0; i<3; i++){
         inputObjectArray.push_back(new SocketMessage);
         inputObjectArray.back()->addMember("B", i);
     }
     main.addMember("A", inputObjectArray);
+    // We expect each object to become null
     EXPECT_EQ(inputObjectArray.at(0)->stringify(), "null");
+    // We check that our main object has the value we expect
     EXPECT_EQ(main.stringify(), R"({"A":[{"B":0},{"B":1},{"B":2}]})");
 
+    // Get the array out again
     std::vector<SocketMessage *> returnObjectArray = main.getArray<SocketMessage *>("A");
+    // Each object should have the values we put in
     EXPECT_EQ(returnObjectArray.at(0)->getInteger("B"), 0);
+    // The array is left with a number of nulls
     EXPECT_EQ(main.stringify(), R"({"A":[null,null,null]})");
+
+    // Memory cleanup at the end
     for (auto obj: inputObjectArray){
         delete obj;
     }
