@@ -22,19 +22,22 @@ TEST(SocketMessage, AddMember) {
 
 TEST(SocketMessage, ObjectTest){
     SocketMessage main;
-    SocketMessage *mini = new SocketMessage;
+    SocketMessage *miniInput = new SocketMessage;
     main.addMember("A",42);
-    mini->addMember("B", 100);
-    main.addMember("C", *mini);
+    miniInput->addMember("B", 100);
+    main.addMember("C", *miniInput);
 
     // Note that mini* is now rapidjson::null due to move semantics
     EXPECT_EQ(main.stringify(), R"({"A":42,"C":{"B":100}})");
-    EXPECT_EQ(mini->stringify(), "null");
+    EXPECT_EQ(miniInput->stringify(), "null");
 
-    mini = main.getObject("C");
+    SocketMessage *miniOutput = main.getObject("C");
     // Mini is repopulated and main/C becomes null
-    EXPECT_EQ(mini->getInteger("B"), 100);
+    EXPECT_EQ(miniOutput->getInteger("B"), 100);
     EXPECT_EQ(main.stringify(), R"({"A":42,"C":null})");
+
+    delete miniInput;
+    delete miniOutput;
 }
 
 TEST(SocketMessage, OverwriteInteger) {
@@ -95,17 +98,22 @@ TEST(SocketMessage, StringArray){
 
 TEST(SocketMessage, ObjectArray){
     SocketMessage main;
-    std::vector<SocketMessage*> objectArray;
-    objectArray.reserve(3);
+    std::vector<SocketMessage*> inputObjectArray;
     for (int i =0; i<3; i++){
-        objectArray.push_back(new SocketMessage);
-        objectArray.back()->addMember("B",10);
+        inputObjectArray.push_back(new SocketMessage);
+        inputObjectArray.back()->addMember("B", i);
     }
-    main.addMember("A",objectArray);
-    EXPECT_EQ(objectArray.at(0)->stringify(), "null");
-    EXPECT_EQ(main.stringify(), R"({"A":[{"B":10},{"B":10},{"B":10}]})");
+    main.addMember("A", inputObjectArray);
+    EXPECT_EQ(inputObjectArray.at(0)->stringify(), "null");
+    EXPECT_EQ(main.stringify(), R"({"A":[{"B":0},{"B":1},{"B":2}]})");
 
-    objectArray = main.getArray<SocketMessage *>("A");
-    EXPECT_EQ(objectArray.at(0)->getInteger("B"), 10);
+    std::vector<SocketMessage *> returnObjectArray = main.getArray<SocketMessage *>("A");
+    EXPECT_EQ(returnObjectArray.at(0)->getInteger("B"), 0);
     EXPECT_EQ(main.stringify(), R"({"A":[null,null,null]})");
+    for (auto obj: inputObjectArray){
+        delete obj;
+    }
+    for (auto obj: returnObjectArray){
+        delete obj;
+    }
 }
