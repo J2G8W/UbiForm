@@ -13,6 +13,8 @@
 #include "ComponentManifest.h"
 #include "SocketMessage.h"
 #include "endpoints/PairEndpoint.h"
+#include "endpoints/PublisherEndpoint.h"
+#include "endpoints/SubscriberEndpoint.h"
 
 class Component {
 private:
@@ -32,6 +34,8 @@ private:
     std::thread backgroundThread;
 
 
+    static char* requestConnection(const std::string& address, const std::string& requestText);
+
 public:
     Component() = default;
 
@@ -46,8 +50,8 @@ public:
     // We create a new Pair Endpoint and store it in our map as a SHARED pointer
     std::shared_ptr<PairEndpoint> createNewPairEndpoint(std::string type, std::string id);
 
-    void createNewSubscriberEndpoint(std::string type, std::string id);
-    void createNewPublisherEndpoint(std::string type, std::string id);
+    std::shared_ptr<SubscriberEndpoint> createNewSubscriberEndpoint(std::string type, std::string id);
+    std::shared_ptr<PublisherEndpoint> createNewPublisherEndpoint(std::string type, std::string id);
 
     // We rethrow an out_of_range exception if the request fails
     std::shared_ptr<DataReceiverEndpoint> getReceiverEndpointById(const std::string& id);
@@ -59,6 +63,8 @@ public:
 
 
     void requestPairConnection(const std::string& address, const std::string& endpointType);
+
+    void requestConnectionToPublisher(const std::string& address, const std::string &endpointType);
 
     ~Component();
 };
