@@ -20,6 +20,10 @@ private:
     std::map<std::string, std::shared_ptr<DataReceiverEndpoint> > receiverEndpoints;
     std::map<std::string, std::shared_ptr<DataSenderEndpoint> > senderEndpoints;
 
+    nng_socket backgroundSocket;
+
+    static void backgroundListen(Component *component);
+    int lowestPort = 8000;
 
 
 public:
@@ -31,8 +35,10 @@ public:
         componentManifest = std::make_unique<ComponentManifest>(jsonString);
     }
 
+    void startBackgroundListen();
+
     // We create a new Pair Endpoint and store it in our map as a SHARED pointer
-    void createNewPairEndpoint(std::string type, std::string id);
+    std::shared_ptr<PairEndpoint> createNewPairEndpoint(std::string type, std::string id);
 
     void createNewSubscriberEndpoint(std::string type, std::string id);
     void createNewPublisherEndpoint(std::string type, std::string id);
@@ -45,6 +51,7 @@ public:
     std::shared_ptr<DataSenderEndpoint> getSenderEndpoint(const std::string& id);;
 
 
+    void requestPairConnection(const std::string& address, const std::string& endpointType);
 };
 
 

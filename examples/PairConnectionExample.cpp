@@ -6,7 +6,67 @@
 #define SENDER "SENDER"
 
 
+int main(int argc, char ** argv){
+    if (argc >= 2){
+        if (strcmp(argv[1], RECEIVER) == 0){
+            Component receiver;
+            FILE* pFile = fopen("JsonFiles/PairManifest1.json", "r");
+            if (pFile == nullptr) perror("ERROR");
+            receiver.specifyManifest(pFile);
+            fclose(pFile);
 
+            std::cout << "MANIFEST SPECIFIED" << "\n";
+
+            receiver.requestPairConnection("tcp://127.0.0.1:8000", "v1");
+            while(true){
+                try {
+                    auto e = receiver.getReceiverEndpoint("8000");
+                    auto msg = e->receiveMessage();
+                    std::cout << msg->getString("msg") << std::endl;
+                }catch (std::out_of_range &e){
+                    std::cout << "Error" << std::endl;
+                    sleep(1);
+                }
+            }
+
+
+
+        }
+        if (strcmp(argv[1], SENDER) == 0){
+            Component sender;
+
+            FILE* pFile = fopen("JsonFiles/PairManifest1.json", "r");
+            if (pFile == nullptr) perror("ERROR");
+            sender.specifyManifest(pFile);
+            fclose(pFile);
+
+            std::cout << "MANIFEST SPECIFIED" << "\n";
+
+            sender.startBackgroundListen();
+            while(true){
+                sleep(1);
+                try {
+                    auto e = sender.getSenderEndpoint("8001");
+                    SocketMessage sm;
+                    sm.addMember("temp", 10);
+                    sm.addMember("msg", std::string("HELLO WORLD!"));
+                    e->sendMessage(sm);
+                }catch (std::out_of_range &e){
+                    std::cout << "ERROR" << std::endl;
+                    // IGNORED
+                }
+            }
+
+        }
+    }
+    else{
+        std::cerr << "Error usage is " << argv[0] << " " << RECEIVER <<"|"<<SENDER << "\n";
+    }
+}
+
+
+
+/*
 int main(int argc, char ** argv){
     if (argc >= 2){
         if (strcmp(argv[1], RECEIVER) == 0){
@@ -61,4 +121,4 @@ int main(int argc, char ** argv){
         std::cerr << "Error usage is " << argv[0] << " " << RECEIVER <<"|"<<SENDER << "\n";
     }
 }
-
+*/
