@@ -13,6 +13,7 @@ protected:
     // Socket is initialised in extending class
     nng_socket * senderSocket = nullptr;
     std::shared_ptr<EndpointSchema>senderSchema;
+    std::string listenUrl;
 public:
     explicit DataSenderEndpoint( std::shared_ptr<EndpointSchema>& es){
         senderSchema = es;
@@ -23,6 +24,7 @@ public:
 
 
     void sendMessage(SocketMessage &s);
+    std::string getListenUrl(){return listenUrl;}
 };
 
 

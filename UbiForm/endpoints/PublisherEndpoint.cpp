@@ -12,6 +12,7 @@ void PublisherEndpoint::listenForConnection(const char *url) {
     if ((rv = nng_listen(*senderSocket, url, nullptr, 0)) != 0) {
         fatal("nng_listen", rv);
     }
+    this->listenUrl = url;
 }
 
 // Destructor waits a short time before closing socket such that any unsent messages are released

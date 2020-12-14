@@ -37,6 +37,8 @@ protected:
     nng_socket * receiverSocket = nullptr;
     // Schema is shared with the parent that houses this endpoint
     std::shared_ptr<EndpointSchema>receiverSchema;
+
+    std::string dialUrl;
 public:
     explicit DataReceiverEndpoint( std::shared_ptr<EndpointSchema>& es){
         receiverSchema = es;
@@ -52,6 +54,8 @@ public:
     // NOTE that the SocketMessage should not be freed by the given func (library handles the memory management)
     // Concept is that API users will provide "furtherData" which will be given to our callback as the void* pointer
     void asyncReceiveMessage(void (*callb)(SocketMessage *, void*), void*);
+
+    std::string getDialUrl(){return dialUrl;}
 };
 
 

@@ -19,6 +19,7 @@ void SubscriberEndpoint::dialConnection(const char *url){
     if ((rv = nng_socket_set(*receiverSocket, NNG_OPT_SUB_SUBSCRIBE, nullptr, 0)) != 0) {
         fatal("nng_socket_set", rv);
     }
+    this->dialUrl = url;
 
 }
 

@@ -26,6 +26,8 @@ void PairEndpoint::dialConnection(const char *url) {
         error << "NNG error code " << rv << " type - " << nng_strerror(rv);
         throw std::logic_error(error.str());
     }
+    this->listenUrl = url;
+    this->dialUrl = url;
 
 }
 
@@ -46,7 +48,8 @@ void PairEndpoint::listenForConnection(const char *url){
         error << "NNG error code " << rv << " type - " << nng_strerror(rv);
         throw std::logic_error(error.str());
     }
-
+    this->listenUrl = url;
+    this->dialUrl = url;
 }
 
 // Destructor waits a short time before closing socket such that any unsent messages are released
