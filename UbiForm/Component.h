@@ -18,8 +18,12 @@ class Component {
 private:
     std::unique_ptr<ComponentManifest> componentManifest{nullptr};
     // Note that we use shared pointers so there can be multiple active pointers, but there memory management is handled automatically
-    std::map<std::string, std::shared_ptr<DataReceiverEndpoint> > receiverEndpoints;
-    std::map<std::string, std::shared_ptr<DataSenderEndpoint> > senderEndpoints;
+    std::map<std::string, std::shared_ptr<DataReceiverEndpoint> > idReceiverEndpoints;
+    std::map<std::string, std::shared_ptr<DataSenderEndpoint> > idSenderEndpoints;
+
+    // Choice made to also store endpoints by TYPE, for speed of access and other things
+    std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > > typeReceiverEndpoints;
+    std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > > typeSenderEndpoints;
 
     nng_socket backgroundSocket;
 
@@ -46,11 +50,12 @@ public:
     void createNewPublisherEndpoint(std::string type, std::string id);
 
     // We rethrow an out_of_range exception if the request fails
-    // shared pointer is returned for C++ ness
-    std::shared_ptr<DataReceiverEndpoint> getReceiverEndpoint(const std::string& id);;
+    std::shared_ptr<DataReceiverEndpoint> getReceiverEndpointById(const std::string& id);
+    std::shared_ptr<DataSenderEndpoint> getSenderEndpointById(const std::string& id);
 
-    // We rethrow an out_of_range exception if the request fails
-    std::shared_ptr<DataSenderEndpoint> getSenderEndpoint(const std::string& id);;
+    // No exception thrown here, return an empty vector if not found (which will get filled later on)
+    std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > getReceiverEndpointsByType(const std::string &id);
+    std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > getSenderEndpointsByType(const std::string &id);
 
 
     void requestPairConnection(const std::string& address, const std::string& endpointType);

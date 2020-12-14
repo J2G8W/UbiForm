@@ -20,7 +20,7 @@ int main(int argc, char ** argv){
             receiver.requestPairConnection("tcp://127.0.0.1:8000", "v1");
             while(true){
                 try {
-                    auto e = receiver.getReceiverEndpoint("8000");
+                    auto e = receiver.getReceiverEndpointById("8000");
                     auto msg = e->receiveMessage();
                     std::cout << msg->getString("msg") << std::endl;
                 }catch (std::out_of_range &e){
@@ -43,14 +43,17 @@ int main(int argc, char ** argv){
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             sender.startBackgroundListen();
+            auto endpointVector = sender.getSenderEndpointsByType("v1");
             while(true){
                 sleep(1);
                 try {
-                    auto e = sender.getSenderEndpoint("8001");
                     SocketMessage sm;
                     sm.addMember("temp", 10);
                     sm.addMember("msg", std::string("HELLO WORLD!"));
-                    e->sendMessage(sm);
+                    for (const auto& e : *endpointVector){
+                        e->sendMessage(sm);
+                    }
+
                 }catch (std::out_of_range &e){
                     std::cout << "ERROR" << std::endl;
                     // IGNORED
@@ -80,7 +83,7 @@ int main(int argc, char ** argv){
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             receiver.createNewPairEndpoint("v1", "UNIQUE_ID_1");
-            std::shared_ptr<DataReceiverEndpoint> receiverEndpoint = receiver.getReceiverEndpoint("UNIQUE_ID_1");
+            std::shared_ptr<DataReceiverEndpoint> receiverEndpoint = receiver.getReceiverEndpointById("UNIQUE_ID_1");
             receiverEndpoint->dialConnection("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
 
@@ -102,7 +105,7 @@ int main(int argc, char ** argv){
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             sender.createNewPairEndpoint("v1", "UNIQUE_ID_2");
-            std::shared_ptr<DataSenderEndpoint> senderEndpoint = sender.getSenderEndpoint("UNIQUE_ID_2");
+            std::shared_ptr<DataSenderEndpoint> senderEndpoint = sender.getSenderEndpointById("UNIQUE_ID_2");
             senderEndpoint->listenForConnection("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
 

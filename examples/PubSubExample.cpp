@@ -21,7 +21,7 @@ int main(int argc, char ** argv){
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             component.createNewSubscriberEndpoint("v1", "Sub1");
-            std::shared_ptr<DataReceiverEndpoint> subscriber_endpoint = component.getReceiverEndpoint("Sub1");
+            std::shared_ptr<DataReceiverEndpoint> subscriber_endpoint = component.getReceiverEndpointById("Sub1");
             subscriber_endpoint->dialConnection("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
 
@@ -50,7 +50,7 @@ int main(int argc, char ** argv){
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             component.createNewPublisherEndpoint("v1", "Pub1");
-            std::shared_ptr<DataSenderEndpoint> publisher_endpoint = component.getSenderEndpoint("Pub1");
+            std::shared_ptr<DataSenderEndpoint> publisher_endpoint = component.getSenderEndpointById("Pub1");
             publisher_endpoint->listenForConnection("tcp://127.0.0.1:8000");
             std::cout << "CONNECTION MADE" << "\n";
 

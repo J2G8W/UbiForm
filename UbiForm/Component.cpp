@@ -14,8 +14,22 @@ std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(std::string typeO
     std::shared_ptr<EndpointSchema>sendSchema = componentManifest->getSenderSchema(typeOfEndpoint);
 
     std::shared_ptr<PairEndpoint> pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema);
-    receiverEndpoints.insert(std::make_pair(id, pe));
-    senderEndpoints.insert(std::make_pair(id, pe));
+    idReceiverEndpoints.insert(std::make_pair(id, pe));
+    idSenderEndpoints.insert(std::make_pair(id, pe));
+
+
+    if (typeSenderEndpoints.count(typeOfEndpoint) == 1) {
+        typeSenderEndpoints.at(typeOfEndpoint)->push_back(pe);
+    }else{
+        typeSenderEndpoints.insert(std::make_pair(typeOfEndpoint,std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >(1,pe)));
+    }
+
+    if (typeReceiverEndpoints.count(typeOfEndpoint) == 1) {
+        typeReceiverEndpoints.at(typeOfEndpoint)->push_back(pe);
+    }else{
+        typeReceiverEndpoints.insert(std::make_pair(typeOfEndpoint,std::make_shared<std::vector<std::shared_ptr<DataReceiverEndpoint> > >(1,pe)));
+    }
+
     return pe;
 }
 
@@ -23,31 +37,57 @@ void Component::createNewPublisherEndpoint(std::string typeOfEndpoint, std::stri
     std::shared_ptr<EndpointSchema>sendSchema = componentManifest->getSenderSchema(typeOfEndpoint);
 
     std::shared_ptr<PublisherEndpoint> pe = std::make_shared<PublisherEndpoint>(sendSchema);
-    senderEndpoints.insert(std::make_pair(id, pe));
+    idSenderEndpoints.insert(std::make_pair(id, pe));
 }
 
 void Component::createNewSubscriberEndpoint(std::string typeOfEndpoint, std::string id) {
     std::shared_ptr<EndpointSchema>receiveSchema = componentManifest->getReceiverSchema(typeOfEndpoint);
 
     std::shared_ptr<SubscriberEndpoint> pe = std::make_shared<SubscriberEndpoint>(receiveSchema);
-    receiverEndpoints.insert(std::make_pair(id, pe));
+    idReceiverEndpoints.insert(std::make_pair(id, pe));
 }
 
-std::shared_ptr<DataReceiverEndpoint> Component::getReceiverEndpoint(const std::string &id) {
+std::shared_ptr<DataReceiverEndpoint> Component::getReceiverEndpointById(const std::string &id) {
     try{
-        return receiverEndpoints.at(id);
+        return idReceiverEndpoints.at(id);
     }catch(std::out_of_range &e){
         throw;
     }
 }
 
-std::shared_ptr<DataSenderEndpoint> Component::getSenderEndpoint(const std::string &id) {
+std::shared_ptr<DataSenderEndpoint> Component::getSenderEndpointById(const std::string &id) {
     try{
-        return senderEndpoints.at(id);
+        return idSenderEndpoints.at(id);
     }catch(std::out_of_range &e){
         throw;
     }
 }
+
+std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > >
+Component::getReceiverEndpointsByType(const std::string &type) {
+    try {
+        return typeReceiverEndpoints.at(type);
+    }catch(std::out_of_range &e){
+        // Make an empty vector to return, this will get filled if things then come along later
+        auto returnVector = std::make_shared<std::vector<std::shared_ptr<DataReceiverEndpoint> > >();
+        typeReceiverEndpoints.insert(std::make_pair(type, returnVector));
+        return returnVector;
+    }
+}
+
+
+std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > >
+Component::getSenderEndpointsByType(const std::string &type) {
+    try {
+        return typeSenderEndpoints.at(type);
+    }catch(std::out_of_range &e){
+        // Make an empty vector to return, this will get filled if things then come along later
+        auto returnVector = std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >();
+        typeSenderEndpoints.insert(std::make_pair(type, returnVector));
+        return returnVector;
+    }
+}
+
 
 void Component::startBackgroundListen() {
     int rv;
@@ -76,7 +116,6 @@ void Component::backgroundListen(Component *component) {
         if ((sz > strlen(PAIR)) && strncmp(buf,PAIR,strlen(PAIR)) == 0){
             char * typeRequest = buf + strlen(PAIR);
             try {
-                component->componentManifest->getSenderSchema(typeRequest);
 
                 std::string url = "tcp://127.0.0.1:" + std::to_string(component->lowestPort);
 
@@ -93,10 +132,10 @@ void Component::backgroundListen(Component *component) {
                     throw std::logic_error(error.str());
                 }
             }catch (std::out_of_range &e){
-                std::cerr << "No schema of type " << typeRequest << " found in this component" << std::endl;
+                std::cerr << "No schema of type " << typeRequest << " found in this component." <<  std::endl << e.what() <<std::endl;
                 const char *reply = ERROR;
                 if ((rv = nng_send(component->backgroundSocket, (void *) reply, strlen(reply) + 1, 0)) != 0) {
-                    fatal("nng_send", rv);
+                   fatal("nng_send", rv);
                 }
             }catch (std::logic_error &e){
                 std::cerr << e.what() << std::endl;

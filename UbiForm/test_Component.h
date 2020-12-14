@@ -25,18 +25,18 @@ TEST_F(ComponentExample, CreateMultipleEndpoints){
     component->createNewPublisherEndpoint("v1", "PubEndpoint");
     component->createNewSubscriberEndpoint("v1", "SubEndpoint");
 
-    ASSERT_NO_THROW(component->getReceiverEndpoint("SubEndpoint"));
-    ASSERT_NO_THROW(component->getSenderEndpoint("PubEndpoint"));
+    ASSERT_NO_THROW(component->getReceiverEndpointById("SubEndpoint"));
+    ASSERT_NO_THROW(component->getSenderEndpointById("PubEndpoint"));
 }
 
 TEST_F(ComponentExample, GetEndpoints){
     component->createNewPairEndpoint("v1","TestEndpoint");
 
-    ASSERT_NO_THROW(component->getReceiverEndpoint("TestEndpoint"));
-    ASSERT_NO_THROW(component->getSenderEndpoint("TestEndpoint"));
+    ASSERT_NO_THROW(component->getReceiverEndpointById("TestEndpoint"));
+    ASSERT_NO_THROW(component->getSenderEndpointById("TestEndpoint"));
 
-    ASSERT_ANY_THROW(component->getSenderEndpoint("NotAnEndpoint"));
-    ASSERT_ANY_THROW(component->getReceiverEndpoint("NotAnEndpoint"));
+    ASSERT_ANY_THROW(component->getSenderEndpointById("NotAnEndpoint"));
+    ASSERT_ANY_THROW(component->getReceiverEndpointById("NotAnEndpoint"));
 }
 
 TEST_F(ComponentExample, WrongEndpointType){
