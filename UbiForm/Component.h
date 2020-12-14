@@ -45,7 +45,7 @@ public:
         componentManifest = std::make_unique<ComponentManifest>(jsonString);
     }
 
-    void startBackgroundListen();
+    void startBackgroundListen(const char *listenAddress);
 
     // We create a new Pair Endpoint and store it in our map as a SHARED pointer
     std::shared_ptr<PairEndpoint> createNewPairEndpoint(std::string type, std::string id);
@@ -58,8 +58,8 @@ public:
     std::shared_ptr<DataSenderEndpoint> getSenderEndpointById(const std::string& id);
 
     // No exception thrown here, return an empty vector if not found (which will get filled later on)
-    std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > getReceiverEndpointsByType(const std::string &id);
-    std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > getSenderEndpointsByType(const std::string &id);
+    std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > getReceiverEndpointsByType(const std::string &type);
+    std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > getSenderEndpointsByType(const std::string &type);
 
 
     void requestPairConnection(const std::string& address, const std::string& endpointType);

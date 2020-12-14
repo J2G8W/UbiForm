@@ -7,6 +7,7 @@
 
 #include <nng/protocol/reqrep0/rep.h>
 #include <nng/protocol/reqrep0/req.h>
+#include <nng/supplemental/util/platform.h>
 #include <thread>
 
 std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(std::string typeOfEndpoint, std::string id){
@@ -105,13 +106,13 @@ Component::getSenderEndpointsByType(const std::string &type) {
 }
 
 
-void Component::startBackgroundListen() {
+void Component::startBackgroundListen(const char * listenAddress) {
     int rv;
     if ((rv = nng_rep0_open(&backgroundSocket)) != 0) {
         fatal("Failure opening background socket", rv);
     }
 
-    if ((rv = nng_listen(backgroundSocket, "tcp://127.0.0.1:8000", nullptr, 0)) != 0) {
+    if ((rv = nng_listen(backgroundSocket, listenAddress, nullptr, 0)) != 0) {
         fatal("nng_listen", rv);
     }
     this->lowestPort ++;
@@ -223,12 +224,13 @@ Component::~Component(){
     }
 
     // Make sure that the messages are flushed
-    sleep(1);
+    nng_msleep(300);
 
 
 
     // Close our background socket, and don't really care what return value is
-    nng_close(backgroundSocket);
+    // TODO - sort problem of closing socket while backgroundThread uses it
+    //nng_close(backgroundSocket);
 }
 
 char *Component::requestConnection(const std::string &address, const std::string& requestText) {

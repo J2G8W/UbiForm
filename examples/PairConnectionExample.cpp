@@ -42,7 +42,7 @@ int main(int argc, char ** argv){
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            sender.startBackgroundListen();
+            sender.startBackgroundListen("tcp://127.0.0.1:8000");
             auto endpointVector = sender.getSenderEndpointsByType("v1");
             while(true){
                 sleep(1);
