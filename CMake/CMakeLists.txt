@@ -61,7 +61,7 @@ set(endpointFiles ../UbiForm/endpoints/DataReceiverEndpoint.h ../UbiForm/endpoin
         ../UbiForm/endpoints/EndpointSchema.h ../UbiForm/endpoints/EndpointSchema.cpp
         ../UbiForm/endpoints/PairEndpoint.h ../UbiForm/endpoints/PairEndpoint.cpp
         ../UbiForm/endpoints/SubscriberEndpoint.cpp ../UbiForm/endpoints/SubscriberEndpoint.h
-        ../UbiForm/endpoints/PublisherEndpoint.cpp ../UbiForm/endpoints/PublisherEndpoint.h)
+        ../UbiForm/endpoints/PublisherEndpoint.cpp ../UbiForm/endpoints/PublisherEndpoint.h ../UbiForm/endpoints/ResourceDiscoveryHubEndpoint.cpp ../UbiForm/endpoints/ResourceDiscoveryHubEndpoint.h ../UbiForm/endpoints/ResourceDiscoveryConnEndpoint.cpp ../UbiForm/endpoints/ResourceDiscoveryConnEndpoint.h)
 
 # Create library
 add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h ${componentFiles} ${generalFunctions} ${endpointFiles})
