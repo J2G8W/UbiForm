@@ -19,6 +19,20 @@ std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(std::string typeO
     return pe;
 }
 
+void Component::createNewPublisherEndpoint(std::string typeOfEndpoint, std::string id) {
+    std::shared_ptr<EndpointSchema>sendSchema = componentManifest->getSenderSchema(typeOfEndpoint);
+
+    std::shared_ptr<PublisherEndpoint> pe = std::make_shared<PublisherEndpoint>(sendSchema);
+    senderEndpoints.insert(std::make_pair(id, pe));
+}
+
+void Component::createNewSubscriberEndpoint(std::string typeOfEndpoint, std::string id) {
+    std::shared_ptr<EndpointSchema>receiveSchema = componentManifest->getReceiverSchema(typeOfEndpoint);
+
+    std::shared_ptr<SubscriberEndpoint> pe = std::make_shared<SubscriberEndpoint>(receiveSchema);
+    receiverEndpoints.insert(std::make_pair(id, pe));
+}
+
 std::shared_ptr<DataReceiverEndpoint> Component::getReceiverEndpoint(const std::string &id) {
     try{
         return receiverEndpoints.at(id);
@@ -35,20 +49,6 @@ std::shared_ptr<DataSenderEndpoint> Component::getSenderEndpoint(const std::stri
     }
 }
 
-void Component::createNewPublisherEndpoint(std::string typeOfEndpoint, std::string id) {
-    std::shared_ptr<EndpointSchema>sendSchema = componentManifest->getSenderSchema(typeOfEndpoint);
-
-    std::shared_ptr<PublisherEndpoint> pe = std::make_shared<PublisherEndpoint>(sendSchema);
-    senderEndpoints.insert(std::make_pair(id, pe));
-}
-
-void Component::createNewSubscriberEndpoint(std::string typeOfEndpoint, std::string id) {
-    std::shared_ptr<EndpointSchema>receiveSchema = componentManifest->getReceiverSchema(typeOfEndpoint);
-
-    std::shared_ptr<SubscriberEndpoint> pe = std::make_shared<SubscriberEndpoint>(receiveSchema);
-    receiverEndpoints.insert(std::make_pair(id, pe));
-}
-
 void Component::startBackgroundListen() {
     int rv;
     if ((rv = nng_rep0_open(&backgroundSocket)) != 0) {
@@ -59,7 +59,7 @@ void Component::startBackgroundListen() {
         fatal("nng_listen", rv);
     }
     this->lowestPort ++;
-    std::thread * t = new std::thread(backgroundListen,this);
+    this->backgroundThread = std::thread(backgroundListen,this);
 
 }
 
@@ -78,20 +78,28 @@ void Component::backgroundListen(Component *component) {
             try {
                 component->componentManifest->getSenderSchema(typeRequest);
 
-                std::shared_ptr<DataSenderEndpoint> e = component->createNewPairEndpoint(typeRequest, std::to_string(component->lowestPort));
                 std::string url = "tcp://127.0.0.1:" + std::to_string(component->lowestPort);
+
+                std::shared_ptr<DataSenderEndpoint> e = component->createNewPairEndpoint(typeRequest, std::to_string(component->lowestPort));
+                e->listenForConnection(url.c_str());
+
                 component->lowestPort ++;
 
-                e->listenForConnection(url.c_str());
+                // Send reply on regrep with url for the component to dial
                 if ((rv = nng_send(component->backgroundSocket, (void *) url.c_str(), url.size() + 1, 0)) != 0) {
-                    fatal("nng_send", rv);
+                    std::ostringstream error;
+                    error << "Error replying" << std::endl;
+                    error << "NNG error code " << rv << " type - " << nng_strerror(rv);
+                    throw std::logic_error(error.str());
                 }
             }catch (std::out_of_range &e){
-                std::cerr << "No schema of type " << typeRequest << " found";
+                std::cerr << "No schema of type " << typeRequest << " found in this component" << std::endl;
                 const char *reply = ERROR;
                 if ((rv = nng_send(component->backgroundSocket, (void *) reply, strlen(reply) + 1, 0)) != 0) {
                     fatal("nng_send", rv);
                 }
+            }catch (std::logic_error &e){
+                std::cerr << e.what() << std::endl;
             }
         }
     }
@@ -107,7 +115,7 @@ void Component::requestPairConnection(const std::string& address, const std::str
     if ((rv = nng_dial(tempSocket, address.c_str(), nullptr, 0)) != 0) {
         fatal("nng_dial", rv);
     }
-    std::string request = "PAIR" + endpointType;
+    std::string request = PAIR + endpointType;
     if ((rv = nng_send(tempSocket, (void *) request.c_str(), request.size() + 1, 0)) != 0) {
         fatal("nng_send", rv);
     }
@@ -133,3 +141,10 @@ void Component::requestPairConnection(const std::string& address, const std::str
 }
 
 
+Component::~Component(){
+    // Make sure that the messages are flushed
+    sleep(1);
+
+    nng_close(backgroundSocket);
+    // Background thread automatically terminated as it is in component.
+}

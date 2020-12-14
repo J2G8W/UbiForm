@@ -8,6 +8,7 @@
 #include <iostream>
 #include <memory>
 #include <map>
+#include <thread>
 
 #include "ComponentManifest.h"
 #include "SocketMessage.h"
@@ -24,6 +25,7 @@ private:
 
     static void backgroundListen(Component *component);
     int lowestPort = 8000;
+    std::thread backgroundThread;
 
 
 public:
@@ -52,6 +54,8 @@ public:
 
 
     void requestPairConnection(const std::string& address, const std::string& endpointType);
+
+    ~Component();
 };
 
 

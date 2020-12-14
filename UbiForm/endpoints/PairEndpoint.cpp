@@ -21,7 +21,10 @@ void PairEndpoint::dialConnection(const char *url) {
     // Use the same socket for sending and receiving
     receiverSocket = senderSocket;
     if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
-        fatal("nng_dial", rv);
+        std::ostringstream error;
+        error << "PairEndpoint error dialing up: " << url << std::endl;
+        error << "NNG error code " << rv << " type - " << nng_strerror(rv);
+        throw std::logic_error(error.str());
     }
 
 }
@@ -38,7 +41,10 @@ void PairEndpoint::listenForConnection(const char *url){
     receiverSocket = senderSocket;
 
     if ((rv = nng_listen(*senderSocket, url, nullptr, 0)) != 0) {
-        fatal("nng_listen", rv);
+        std::ostringstream error;
+        error << "PairEndpoint error listening on: " << url << std::endl;
+        error << "NNG error code " << rv << " type - " << nng_strerror(rv);
+        throw std::logic_error(error.str());
     }
 
 }
