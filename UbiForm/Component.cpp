@@ -218,7 +218,9 @@ void Component::requestConnectionToPublisher(const std::string &address, const s
 
 Component::~Component(){
     // We detach our background thread so termination of the thread happens safely
-    backgroundThread.detach();
+    if (backgroundThread.joinable()) {
+        backgroundThread.detach();
+    }
 
     // Make sure that the messages are flushed
     sleep(1);
