@@ -15,7 +15,7 @@
 
 
 class ComponentManifest {
-private:
+protected:
     rapidjson::Document JSON_document;
 
     // TODO -  combine into one map at some point
@@ -27,7 +27,6 @@ private:
     void checkParse();
     void fillSchemaMaps();
 
-
 public:
     // Accept JSON input as string
     explicit ComponentManifest(const char *jsonString);
@@ -36,6 +35,9 @@ public:
     // This is used rather than istreams as we get better performance for rapidjson
     explicit ComponentManifest(FILE *jsonFP);
 
+    // TODO - don't copy, use move constructors - far more efficient
+    explicit ComponentManifest(SocketMessage* sm) : ComponentManifest(sm->stringify().c_str()) {
+    }
 
 
     std::shared_ptr<EndpointSchema> getReceiverSchema(const std::string& typeOfEndpoint){

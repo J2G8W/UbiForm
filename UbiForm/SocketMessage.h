@@ -118,6 +118,13 @@ public:
         addOrSwap(key, socketMessage.JSON_document.Move());
     }
 
+    void setNull(const std::string &attributeName){
+        rapidjson::Value v;
+        v.SetNull();
+        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+        addOrSwap(key, v);
+    }
+
     int getInteger(const std::string &attributeName);
     bool getBoolean(const std::string &attributeName);
     std::string getString(const std::string &attributeName);
@@ -126,6 +133,10 @@ public:
 
     template <class T>
     std::vector<T> getArray(const std::string &attributeName);
+
+    bool isNull(const std::string &attributeName){
+        return JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsNull();
+    }
 
 
     std::string stringify() { return stringifyDocument(JSON_document); };
