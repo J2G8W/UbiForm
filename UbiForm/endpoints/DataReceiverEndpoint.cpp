@@ -22,7 +22,7 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
                 throw NNG_error(rv, "nng_recv");
             }
         } catch(std::logic_error &e) {
-            std::cerr << "Failed message receive send as: " << e.what() << std::endl;
+            std::cerr << "Failed message receive as: " << e.what() << std::endl;
         }
     }
 }
@@ -62,7 +62,7 @@ void DataReceiverEndpoint::asyncCallback(void *data) {
         asyncInput->endpointSchema->validate(*receivedMessage);
         asyncInput->callback(receivedMessage,asyncInput->furtherUserData);
     }catch(std::logic_error &e) {
-        std::cerr << "Failed message receive send as: " << e.what() << std::endl;
+        std::cerr << "Failed message receive as: " << e.what() << std::endl;
     }
     // Handle our own memory properly
     delete receivedMessage;

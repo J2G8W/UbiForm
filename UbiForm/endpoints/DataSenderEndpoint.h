@@ -9,6 +9,24 @@
 #include "EndpointSchema.h"
 
 class DataSenderEndpoint {
+private:
+    static void AsyncCleanup(void*);
+    struct AsyncData{
+        // The nngAioPointer has to be initialised by C style semantics
+        nng_aio *nngAioPointer;
+
+
+        AsyncData(void (*cb)( void*)){
+            // So we allocate the async_io with a pointer to our asyncCallback and a pointer to this object
+            nng_aio_alloc(&(this->nngAioPointer), cb, this);
+        };
+
+
+        ~AsyncData(){
+            nng_aio_free(nngAioPointer);
+            // Rest of data handled automatically
+        }
+    };
 protected:
     // Socket is initialised in extending class
     nng_socket * senderSocket = nullptr;
@@ -24,6 +42,7 @@ public:
 
 
     void sendMessage(SocketMessage &s);
+    void asyncSendMessage(SocketMessage &s);
     std::string getListenUrl(){return listenUrl;}
 };
 

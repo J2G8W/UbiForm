@@ -4,7 +4,7 @@
 #include "../UbiForm/Component.h"
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
-
+#include <nng/supplemental/util/platform.h>
 
 int main(int argc, char ** argv){
     if (argc >= 2){
@@ -21,8 +21,9 @@ int main(int argc, char ** argv){
             auto endpoints = receiver.getReceiverEndpointsByType("v1");
             while(true){
                 for(auto e: *endpoints){
+                    std::cout << "READY" <<std::endl;
                     auto msg = e->receiveMessage();
-                    std::cout << msg->getString("msg") << std::endl;
+                    std::cout << msg->getInteger("temp") << std::endl;
                 }
             }
 
@@ -41,11 +42,13 @@ int main(int argc, char ** argv){
 
             sender.startBackgroundListen("tcp://127.0.0.1:8000");
             auto endpointVector = sender.getSenderEndpointsByType("v1");
+            int i =0;
             while(true){
                 sleep(1);
                 try {
+                    std::cout << "SENT  " << i << std::endl;
                     SocketMessage sm;
-                    sm.addMember("temp", 10);
+                    sm.addMember("temp", i++);
                     sm.addMember("msg", std::string("HELLO WORLD!"));
                     for (const auto& e : *endpointVector){
                         e->sendMessage(sm);
