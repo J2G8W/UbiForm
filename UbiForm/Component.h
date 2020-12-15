@@ -29,6 +29,8 @@ private:
 
     nng_socket backgroundSocket;
 
+    static EndpointSchema initiateSchema;
+
     static void backgroundListen(Component *component);
     int lowestPort = 8000;
     std::thread backgroundThread;

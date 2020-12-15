@@ -132,13 +132,14 @@ void Component::backgroundListen(Component *component) {
         if ((rv = nng_recv(component->backgroundSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
             fatal("nng_recv", rv);
         }
+        SocketMessage sm(buf);
 
         try {
-            if ((sz > strlen(PAIR)) && strncmp(buf,PAIR,strlen(PAIR)) == 0) {
-                char *typeRequest = buf + strlen(PAIR);
+            initiateSchema.validate(sm);
+            if (sm.getString("connType") == PAIR) {
                 std::string url = "tcp://127.0.0.1:" + std::to_string(component->lowestPort);
 
-                std::shared_ptr<DataSenderEndpoint> e = component->createNewPairEndpoint(typeRequest, std::to_string(
+                std::shared_ptr<DataSenderEndpoint> e = component->createNewPairEndpoint(sm.getString("endType"), std::to_string(
                         component->lowestPort));
                 e->listenForConnection(url.c_str());
 
@@ -151,16 +152,13 @@ void Component::backgroundListen(Component *component) {
                     error << "NNG error code " << rv << " type - " << nng_strerror(rv);
                     throw std::logic_error(error.str());
                 }
-            } else if ((sz > strlen(PUBLISHER)) && strncmp(buf,PUBLISHER,strlen(PUBLISHER)) == 0) {
-                char *typeRequest = buf + strlen(PUBLISHER);
-
+            } else if (sm.getString("connType") == PUBLISHER) {
                 std::string url;
-                // TODO - change this to be a standard boolean check
-                auto existingPublishers = component->getSenderEndpointsByType(typeRequest);
+                auto existingPublishers = component->getSenderEndpointsByType(sm.getString("endType"));
                 if (existingPublishers->empty()) {
                     url = "tcp://127.0.0.1:" + std::to_string(component->lowestPort);
                     std::shared_ptr<DataSenderEndpoint> e =
-                            component->createNewPublisherEndpoint(typeRequest, std::to_string(component->lowestPort));
+                            component->createNewPublisherEndpoint(sm.getString("endType"), std::to_string(component->lowestPort));
                     e->listenForConnection(url.c_str());
                     component->lowestPort++;
                 }else{
@@ -174,7 +172,7 @@ void Component::backgroundListen(Component *component) {
                 }
             }
         }catch (std::out_of_range &e){
-            std::cerr << "No schema of type " << buf << " found in this component." <<  std::endl << e.what() <<std::endl;
+            std::cerr << "No schema of type " << sm.getString("endType") << " found in this component." <<  std::endl << e.what() <<std::endl;
             const char *reply = ERROR;
             if ((rv = nng_send(component->backgroundSocket, (void *) reply, strlen(reply) + 1, 0)) != 0) {
                fatal("nng_send", rv);
@@ -186,11 +184,12 @@ void Component::backgroundListen(Component *component) {
 }
 
 void Component::requestPairConnection(const std::string& address, const std::string& endpointType){
-
-    std::string request = PAIR + endpointType;
+    SocketMessage sm;
+    sm.addMember("connType",std::string(PAIR));
+    sm.addMember("endType",endpointType);
     char* url;
     try{
-        url = requestConnection(address,request);
+        url = requestConnection(address,sm.stringify());
         std::shared_ptr<DataReceiverEndpoint> e = this->createNewPairEndpoint(endpointType, std::to_string(this->lowestPort));
         this->lowestPort ++;
         e->dialConnection(url);
@@ -202,10 +201,12 @@ void Component::requestPairConnection(const std::string& address, const std::str
 }
 
 void Component::requestConnectionToPublisher(const std::string &address, const std::string &endpointType) {
-    std::string request = PUBLISHER + endpointType;
+    SocketMessage sm;
+    sm.addMember("connType",std::string(PUBLISHER));
+    sm.addMember("endType",endpointType);
     char* url;
     try{
-        url = requestConnection(address,request);
+        url = requestConnection(address,sm.stringify());
         std::shared_ptr<DataReceiverEndpoint> e = this->createNewSubscriberEndpoint(endpointType, std::to_string(this->lowestPort));
         this->lowestPort ++;
         e->dialConnection(url);
@@ -215,6 +216,19 @@ void Component::requestConnectionToPublisher(const std::string &address, const s
 
     delete url;
 }
+
+
+EndpointSchema createInitiateSchema(){
+    const char* jsonSchema = R"({"$schema": "http://json-schema.org/draft-07/schema#","type": "object","properties": {"connType": {)"
+            R"("type": "string"}, "endType": {"type": "string"}},"required"=["connType","endType"]})";
+    rapidjson::Document d;
+    rapidjson::StringStream stream(jsonSchema);
+    d.ParseStream(stream);
+    EndpointSchema es(d);
+    return es;
+}
+
+EndpointSchema Component::initiateSchema = createInitiateSchema();
 
 
 Component::~Component(){

@@ -18,14 +18,11 @@ int main(int argc, char ** argv){
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             receiver.requestPairConnection("tcp://127.0.0.1:8000", "v1");
+            auto endpoints = receiver.getReceiverEndpointsByType("v1");
             while(true){
-                try {
-                    auto e = receiver.getReceiverEndpointById("8000");
+                for(auto e: *endpoints){
                     auto msg = e->receiveMessage();
                     std::cout << msg->getString("msg") << std::endl;
-                }catch (std::out_of_range &e){
-                    std::cout << "Error" << std::endl;
-                    sleep(1);
                 }
             }
 

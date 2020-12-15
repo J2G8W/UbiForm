@@ -75,6 +75,7 @@ TEST_F(PairBasedComponent, FindEachOther){
     ASSERT_NO_THROW(receiverComponent->requestPairConnection(address, "v1"));
 
     sleep(1);
+    // No throw means that there is in fact a pair connection being created in our component
     ASSERT_NO_THROW(receiverComponent->getReceiverEndpointsByType("v1")->at(0));
     ASSERT_NO_THROW(senderComponent->getSenderEndpointsByType("v1")->at(0));
 
