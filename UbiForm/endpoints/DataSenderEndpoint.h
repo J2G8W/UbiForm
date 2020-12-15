@@ -11,22 +11,8 @@
 class DataSenderEndpoint {
 private:
     static void AsyncCleanup(void*);
-    struct AsyncData{
-        // The nngAioPointer has to be initialised by C style semantics
-        nng_aio *nngAioPointer;
 
-
-        AsyncData(void (*cb)( void*)){
-            // So we allocate the async_io with a pointer to our asyncCallback and a pointer to this object
-            nng_aio_alloc(&(this->nngAioPointer), cb, this);
-        };
-
-
-        ~AsyncData(){
-            nng_aio_free(nngAioPointer);
-            // Rest of data handled automatically
-        }
-    };
+    nng_aio *nngAioPointer;
 protected:
     // Socket is initialised in extending class
     nng_socket * senderSocket = nullptr;
@@ -35,6 +21,8 @@ protected:
 public:
     explicit DataSenderEndpoint( std::shared_ptr<EndpointSchema>& es){
         senderSchema = es;
+        nng_aio_alloc(&(this->nngAioPointer), AsyncCleanup, this);
+        nng_aio_set_timeout(nngAioPointer, 50);
     };
 
     // This is implemented by extending classes as we want to specify socket type and do other useful things
@@ -44,6 +32,12 @@ public:
     void sendMessage(SocketMessage &s);
     void asyncSendMessage(SocketMessage &s);
     std::string getListenUrl(){return listenUrl;}
+
+    ~DataSenderEndpoint(){
+        nng_aio_wait(nngAioPointer);
+        nng_aio_free(nngAioPointer);
+    }
+
 };
 
 

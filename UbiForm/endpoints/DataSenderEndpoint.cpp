@@ -19,8 +19,7 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
 }
 
 void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
-    auto *ad = new AsyncData(AsyncCleanup);
-
+    nng_aio_wait(nngAioPointer);
     std::string text = s.stringify();
     const char * textArray = text.c_str();
 
@@ -32,13 +31,15 @@ void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
     if ((rv =nng_msg_append(msg, (void*) textArray, text.size()+1)) != 0){
         fatal("nng_msg_append", rv);
     }
-    nng_aio_set_msg(ad->nngAioPointer, msg);
-    nng_send_aio(*senderSocket, ad->nngAioPointer);
+    nng_aio_set_msg(nngAioPointer, msg);
+
+    std::cout << "SENDING " << text << std::endl;
+    nng_send_aio(*senderSocket, nngAioPointer);
 
 }
 
 void DataSenderEndpoint::AsyncCleanup(void * data) {
-    auto * asyncInput = static_cast<AsyncData *>(data);
+    auto * asyncInput = static_cast<DataSenderEndpoint *>(data);
     int rv;
 
     if ((rv = nng_aio_result(asyncInput->nngAioPointer)) != 0){
@@ -46,5 +47,4 @@ void DataSenderEndpoint::AsyncCleanup(void * data) {
         nng_msg * msg = nng_aio_get_msg(asyncInput->nngAioPointer);
         nng_msg_free(msg);
     }
-    delete asyncInput;
 }

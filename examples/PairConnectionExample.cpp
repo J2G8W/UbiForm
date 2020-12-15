@@ -46,12 +46,11 @@ int main(int argc, char ** argv){
             while(true){
                 sleep(1);
                 try {
-                    std::cout << "SENT  " << i << std::endl;
                     SocketMessage sm;
                     sm.addMember("temp", i++);
                     sm.addMember("msg", std::string("HELLO WORLD!"));
                     for (const auto& e : *endpointVector){
-                        e->sendMessage(sm);
+                        e->asyncSendMessage(sm);
                     }
 
                 }catch (std::out_of_range &e){
