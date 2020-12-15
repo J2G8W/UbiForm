@@ -10,7 +10,8 @@
 
 class DataSenderEndpoint {
 private:
-    static void AsyncCleanup(void*);
+    static void asyncCleanup(void*);
+    int numSendFails = 0;
 
     nng_aio *nngAioPointer;
 protected:
@@ -21,7 +22,7 @@ protected:
 public:
     explicit DataSenderEndpoint( std::shared_ptr<EndpointSchema>& es){
         senderSchema = es;
-        nng_aio_alloc(&(this->nngAioPointer), AsyncCleanup, this);
+        nng_aio_alloc(&(this->nngAioPointer), asyncCleanup, this);
         nng_aio_set_timeout(nngAioPointer, 50);
     };
 

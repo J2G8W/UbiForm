@@ -38,12 +38,13 @@ void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
 
 }
 
-void DataSenderEndpoint::AsyncCleanup(void * data) {
+void DataSenderEndpoint::asyncCleanup(void * data) {
     auto * asyncInput = static_cast<DataSenderEndpoint *>(data);
     int rv;
 
     if ((rv = nng_aio_result(asyncInput->nngAioPointer)) != 0){
         // Failed message send, we do cleanup
+        asyncInput->numSendFails ++;
         nng_msg * msg = nng_aio_get_msg(asyncInput->nngAioPointer);
         nng_msg_free(msg);
     }
