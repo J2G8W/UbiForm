@@ -1,5 +1,7 @@
 #include "ResourceDiscoveryStore.h"
 
+#include <algorithm>
+
 class SimpleRDS : public testing::Test{
 protected:
     // Note we aren't REALLY testing the inputting of the manifest as this is done automatically
@@ -12,6 +14,21 @@ protected:
 
     ~SimpleRDS(){
         delete exampleManifest;
+    }
+
+    SocketMessage* addDummyComponent(std::string listenUrl){
+        SocketMessage sm;
+        sm.addMember("request", ADDITION);
+
+        SocketMessage manifest(exampleManifest->stringify().c_str());
+        manifest.addMember("url", listenUrl);
+        sm.addMember("manifest",manifest);
+
+
+        SocketMessage * returnMsg = nullptr;
+        returnMsg = ResourceDiscoveryStore::generateRDResponse(&sm, resourceDiscoveryStore);
+
+        return returnMsg;
     }
 
     FILE* pFile = fopen("JsonFiles/PairManifest1.json", "r");
@@ -39,19 +56,10 @@ TEST_F(SimpleRDS,AdditionOfComponent){
     delete sm;
 }
 
+
 TEST_F(SimpleRDS,GetManifestById){
-    SocketMessage * sm = new SocketMessage;
-    sm->addMember("request", ADDITION);
-
     std::string listenUrl = "tcp://127.0.0.1:8000";
-
-    SocketMessage manifest(exampleManifest->stringify().c_str());
-    manifest.addMember("url", listenUrl);
-    sm->addMember("manifest",manifest);
-
-
-    SocketMessage * returnMsg = nullptr;
-    returnMsg = ResourceDiscoveryStore::generateRDResponse(sm, resourceDiscoveryStore);
+    SocketMessage * returnMsg = addDummyComponent(listenUrl);
 
     // Assert that we have a returned ID
     std::string returnID = returnMsg->getString("id");
@@ -77,7 +85,31 @@ TEST_F(SimpleRDS,GetManifestById){
 
     ASSERT_EQ(componentRepresentation.getUrl(), listenUrl);
 
-    delete sm;
     delete returnMsg;
     delete componentObject;
+}
+
+TEST_F(SimpleRDS, GetComponentIds){
+    std::string url1 = "tcp://127.0.0.1:8000";
+    std::string url2 = "tcp://127.0.0.2:8001";
+
+    SocketMessage * returnMsg = addDummyComponent(url1);
+    std::string id1 = returnMsg->getString("id");
+    delete returnMsg;
+    returnMsg = addDummyComponent(url2);
+    std::string id2 = returnMsg->getString("id");
+    delete returnMsg;
+
+    SocketMessage request;
+    request.addMember("request",REQUEST_COMPONENTS);
+
+    SocketMessage * reply = ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore);
+
+    std::vector<std::string> ids;
+    ASSERT_NO_THROW(ids = reply->getArray<std::string>("components"));
+
+    ASSERT_NE(std::find(ids.begin(), ids.end(), id1), ids.end());
+    ASSERT_NE(std::find(ids.begin(), ids.end(), id2), ids.end());
+
+    delete reply;
 }

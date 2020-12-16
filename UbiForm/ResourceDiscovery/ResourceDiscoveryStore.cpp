@@ -1,9 +1,7 @@
-//
-// Created by julian on 16/12/2020.
-//
-
 #include <random>
 #include "ResourceDiscoveryStore.h"
+
+std::minstd_rand0 ResourceDiscoveryStore::generator(0);
 
 SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, ResourceDiscoveryStore &rds) {
     std::string request = sm->getString("request");
@@ -11,7 +9,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
     if (request == ADDITION){
         SocketMessage *manifest = sm->getObject("manifest");
         auto newCR = std::make_shared<ComponentRepresentation>(manifest);
-        std::minstd_rand0 generator (0);
+
         std::string id = std::to_string(generator());
         auto p1 = std::make_pair(id, newCR);
         rds.componentById.insert(p1);
