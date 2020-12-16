@@ -18,7 +18,7 @@
 
 class Component {
 private:
-    std::unique_ptr<ComponentManifest> componentManifest{nullptr};
+    std::shared_ptr<ComponentManifest> componentManifest{nullptr};
     // Note that we use shared pointers so there can be multiple active pointers, but there memory management is handled automatically
     std::map<std::string, std::shared_ptr<DataReceiverEndpoint> > idReceiverEndpoints;
     std::map<std::string, std::shared_ptr<DataSenderEndpoint> > idSenderEndpoints;
@@ -41,10 +41,10 @@ private:
 public:
     Component() = default;
 
-    void specifyManifest(FILE *jsonFP) { componentManifest = std::make_unique<ComponentManifest>(jsonFP); }
+    void specifyManifest(FILE *jsonFP) { componentManifest = std::make_shared<ComponentManifest>(jsonFP); }
 
     void specifyManifest(const char *jsonString) {
-        componentManifest = std::make_unique<ComponentManifest>(jsonString);
+        componentManifest = std::make_shared<ComponentManifest>(jsonString);
     }
 
     void startBackgroundListen(const char *listenAddress);
@@ -67,6 +67,10 @@ public:
     void requestPairConnection(const std::string& address, const std::string& endpointType);
 
     void requestConnectionToPublisher(const std::string& address, const std::string &endpointType);
+
+    std::shared_ptr<ComponentManifest> getComponentManifest(){
+        return componentManifest;
+    }
 
     ~Component();
 };
