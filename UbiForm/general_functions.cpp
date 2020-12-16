@@ -81,5 +81,6 @@ bool compareSchemaObjects(rapidjson::Value &schema1, rapidjson::Value &schema2) 
 
 bool compareSchemaArrays(rapidjson::GenericValue<rapidjson::UTF8<>>::Object object,
                          rapidjson::GenericValue<rapidjson::UTF8<>>::Object object1) {
+    //TODO
     return true;
 }
