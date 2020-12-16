@@ -188,8 +188,9 @@ void Component::requestPairConnection(const std::string& address, const std::str
     sm.addMember("connType",std::string(PAIR));
     sm.addMember("endType",endpointType);
     char* url;
+    size_t sz = 0;
     try{
-        url = requestConnection(address,sm.stringify());
+        url = requestConnection(address,sm.stringify() ,sz);
         std::shared_ptr<DataReceiverEndpoint> e = this->createNewPairEndpoint(endpointType, std::to_string(this->lowestPort));
         this->lowestPort ++;
         e->dialConnection(url);
@@ -197,7 +198,8 @@ void Component::requestPairConnection(const std::string& address, const std::str
         std::cerr << e.what() << std::endl;
     }
 
-    delete url;
+    std::cout << sz << std::endl;
+    nng_free(url, sz);
 }
 
 void Component::requestConnectionToPublisher(const std::string &address, const std::string &endpointType) {
@@ -205,8 +207,9 @@ void Component::requestConnectionToPublisher(const std::string &address, const s
     sm.addMember("connType",std::string(PUBLISHER));
     sm.addMember("endType",endpointType);
     char* url;
+    size_t sz = 0;
     try{
-        url = requestConnection(address,sm.stringify());
+        url = requestConnection(address,sm.stringify(), sz);
         std::shared_ptr<DataReceiverEndpoint> e = this->createNewSubscriberEndpoint(endpointType, std::to_string(this->lowestPort));
         this->lowestPort ++;
         e->dialConnection(url);
@@ -214,7 +217,8 @@ void Component::requestConnectionToPublisher(const std::string &address, const s
         std::cerr << e.what() << std::endl;
     }
 
-    delete url;
+    std::cout << sz << std::endl;
+    nng_free(url, sz);
 }
 
 
@@ -247,7 +251,7 @@ Component::~Component(){
     //nng_close(backgroundSocket);
 }
 
-char *Component::requestConnection(const std::string &address, const std::string& requestText) {
+char * Component::requestConnection(const std::string &address, const std::string& requestText, size_t & sz) {
     int rv;
     nng_socket tempSocket;
     if ((rv = nng_req0_open(&tempSocket)) != 0) {
@@ -263,7 +267,6 @@ char *Component::requestConnection(const std::string &address, const std::string
     }
 
     char *buf = nullptr;
-    size_t sz;
     if ((rv = nng_recv(tempSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
         fatal("nng_recv", rv);
     }

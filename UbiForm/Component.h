@@ -36,7 +36,7 @@ private:
     std::thread backgroundThread;
 
 
-    static char* requestConnection(const std::string& address, const std::string& requestText);
+    static char* requestConnection(const std::string& address, const std::string& requestText, size_t &sz);
 
 public:
     Component() = default;
