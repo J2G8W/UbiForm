@@ -10,12 +10,13 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
     auto * returnMsg = new SocketMessage;
     if (request == ADDITION){
         SocketMessage *manifest = sm->getObject("manifest");
-        auto *newCR = new ComponentRepresentation(manifest);
+        auto newCR = std::make_shared<ComponentRepresentation>(manifest);
         std::minstd_rand0 generator (0);
         std::string id = std::to_string(generator());
         auto p1 = std::make_pair(id, newCR);
         rds.componentById.insert(p1);
         returnMsg->addMember("id",id);
+        delete manifest;
     }else if (request == REQUEST_BY_ID){
         std::string id = sm->getString("id");
         if (rds.componentById.count(id) > 0){

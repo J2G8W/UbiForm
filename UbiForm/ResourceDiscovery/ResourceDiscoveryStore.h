@@ -9,9 +9,11 @@
 
 class ResourceDiscoveryStore{
 private:
-    std::map<std::string, ComponentRepresentation *> componentById;
+    std::map<std::string, std::shared_ptr<ComponentRepresentation>> componentById;
 public:
     static SocketMessage * generateRDResponse(SocketMessage *sm, ResourceDiscoveryStore & rds);
+
+
 };
 
 #endif //UBIFORM_RESOURCEDISCOVERYSTORE_H
