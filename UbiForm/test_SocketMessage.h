@@ -40,8 +40,7 @@ TEST(SocketMessage, RecursiveObject){
     SocketMessage *miniOutput = main.getObject("C");
     // Mini is repopulated
     EXPECT_EQ(miniOutput->getInteger("B"), 100);
-    // And main left with a null pointer where mini was
-    EXPECT_EQ(main.stringify(), R"({"A":42,"C":null})");
+    EXPECT_EQ(main.getInteger("A"),42);
 
     delete miniOutput;
 }
@@ -109,22 +108,21 @@ TEST(SocketMessage, ObjectArray){
         inputObjectArray.back()->addMember("B", i);
     }
     main.addMember("A", inputObjectArray);
-    // We expect each object to become null
-    EXPECT_EQ(inputObjectArray.at(0)->stringify(), "null");
     // We check that our main object has the value we expect
     EXPECT_EQ(main.stringify(), R"({"A":[{"B":0},{"B":1},{"B":2}]})");
+
+    // Due to memory safety we can delete these all good
+    for (auto obj: inputObjectArray){
+        delete obj;
+    }
 
     // Get the array out again
     std::vector<SocketMessage *> returnObjectArray = main.getArray<SocketMessage *>("A");
     // Each object should have the values we put in
     EXPECT_EQ(returnObjectArray.at(0)->getInteger("B"), 0);
-    // The array is left with a number of nulls
-    EXPECT_EQ(main.stringify(), R"({"A":[null,null,null]})");
+
 
     // Memory cleanup at the end
-    for (auto obj: inputObjectArray){
-        delete obj;
-    }
     for (auto obj: returnObjectArray){
         delete obj;
     }

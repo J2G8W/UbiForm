@@ -28,10 +28,12 @@ private:
         }
     }
 
-    // This is used to create a new SocketMessage from out inputObject and inputObject is set to null
-    SocketMessage(rapidjson::Value &inputObject){
-        JSON_document.SetNull();
-        swap(JSON_document, inputObject);
+
+    // COPY CONSTRUCTOR - needed for sensible memory allocation!
+    // TODO - Consider making a move constructor
+    explicit SocketMessage(rapidjson::Value &inputObject){
+        JSON_document.SetObject();
+        JSON_document.CopyFrom(inputObject,JSON_document.GetAllocator());
     }
 
 public:
@@ -105,18 +107,24 @@ public:
     }
 
     // Add an array of SocketMessages
+    // TODO - No copy constructing
     void addMember(const std::string &attributeName, std::vector<SocketMessage*> inputArray){
         rapidjson::Value key(attributeName, JSON_document.GetAllocator());
 
         rapidjson::Value valueArray(rapidjson::kArrayType);
         valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
         for (auto object : inputArray){
-            valueArray.PushBack(object->JSON_document, JSON_document.GetAllocator());
+            rapidjson::Value v;
+            v.SetObject();
+            v.CopyFrom(object->JSON_document, JSON_document.GetAllocator());
+            valueArray.PushBack(v, JSON_document.GetAllocator());
         }
         addOrSwap(key,valueArray);
     }
 
-    // Add a new object - this will set the socketMessage to be zero - MOVE CONSTRUCTOR
+    // This will COPY the message to become an object in our main document
+    // TODO - make this more efficient by getting rid of copy and figuring out relevant MemoryPool
+    //  semantics
     void addMember(const std::string &attributeName, SocketMessage &socketMessage){
         rapidjson::Value key(attributeName, JSON_document.GetAllocator());
         rapidjson::Value v;
