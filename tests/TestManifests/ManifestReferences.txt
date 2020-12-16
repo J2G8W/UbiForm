@@ -1,0 +1,6 @@
+Component1 (receive) is exactly the same as Endpoint1
+Component1 (receive) is functionally the same as Endpoint2
+Component1 (receive) has different type of "msg" to Endpoint 3
+
+Component2 (send) is exactly the same as Endpoint4
+Component2 (send) has msg but Endpoint 5 doesn't - should this be equal??

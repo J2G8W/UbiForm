@@ -72,9 +72,10 @@ target_link_libraries(UbiForm gtest_main gmock_main)
 
 # Create tests
 if (BUILD_TESTS)
-    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h ../UbiForm/endpoints/test_EndpointSchema.h ../UbiForm/test_Component.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h)
+    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h ../UbiForm/endpoints/test_EndpointSchema.h ../UbiForm/test_Component.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm ${NNG})
+    file(COPY ../tests/TestManifests DESTINATION .)
 endif(BUILD_TESTS)
 
 # Create examples

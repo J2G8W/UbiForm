@@ -5,6 +5,7 @@
 #include "../UbiForm/endpoints/test_EndpointSchema.h"
 #include "../UbiForm/test_Component.h"
 #include "../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h"
+#include "../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h"
 
 int main(int argc, char **argv)
 {

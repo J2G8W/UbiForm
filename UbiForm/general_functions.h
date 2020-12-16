@@ -8,6 +8,8 @@ void fatal(const char *func, int rv);
 
 std::string stringifyDocument(rapidjson::Document &JSON_document);
 
+bool compareSchemaObjects(rapidjson::Value &schema1, rapidjson::Value &schema2);
+
 class NNG_error : std::logic_error{
 public:
     NNG_error(int rv, const std::string& function_name):

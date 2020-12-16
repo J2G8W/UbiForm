@@ -15,6 +15,7 @@
 // Note that we need RAPIDJSON_HAS_STDSTRING turned on as we need std string usage
 class SocketMessage {
     friend class EndpointSchema;
+    friend class ComponentRepresentation;
 
 private:
     rapidjson::Document JSON_document;

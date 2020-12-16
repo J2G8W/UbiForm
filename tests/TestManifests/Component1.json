@@ -1,0 +1,34 @@
+{
+  "name": "Pair",
+  "url": "tcp://127.0.0.1:8000",
+  "schemas": {
+    "v1": {
+      "send": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "temp": {
+            "type": "number"
+          },
+          "msg": {
+            "type": "string"
+          }
+        },
+        "required": ["msg","temp"]
+      },
+      "receive": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "temp": {
+            "type": "number"
+          },
+          "msg": {
+            "type": "string"
+          }
+        },
+        "required": ["msg","temp"]
+      }
+    }
+  }
+}
