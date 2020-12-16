@@ -1,6 +1,7 @@
 #include "ResourceDiscoveryStore.h"
 
 #include <algorithm>
+#include <fstream>
 
 class SimpleRDS : public testing::Test{
 protected:
@@ -31,7 +32,19 @@ protected:
         return returnMsg;
     }
 
-    FILE* pFile = fopen("JsonFiles/PairManifest1.json", "r");
+    SocketMessage * loadSocketMessage(std::string location){
+        try {
+            std::ifstream in(location);
+            std::string contents((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+            SocketMessage *socketMessage = new SocketMessage(contents.c_str());
+            return socketMessage;
+        }catch(const std::ifstream::failure &e){
+            std::cerr << "ERROR OPENING FILE: " << location <<std::endl;
+            throw;
+        }
+    }
+
+    FILE* pFile = fopen("TestManifests/Component1.json", "r");
     ResourceDiscoveryStore resourceDiscoveryStore;
     ComponentManifest * exampleManifest;
 };
@@ -112,6 +125,62 @@ TEST_F(SimpleRDS, GetComponentIds){
     ASSERT_NE(std::find(ids.begin(), ids.end(), id2), ids.end());
     // Make sure we are getting allocated two different IDs
     ASSERT_NE(id1,id2);
+
+    delete reply;
+}
+
+
+TEST_F(SimpleRDS, GetBySchemaValid){
+    std::string url1 = "tcp://127.0.0.1:8000";
+
+    SocketMessage * returnMsg = addDummyComponent(url1);
+    std::string id1 = returnMsg->getString("id");
+    delete returnMsg;
+
+    SocketMessage request;
+    request.addMember("request",REQUEST_BY_SCHEMA);
+    SocketMessage * schema = loadSocketMessage("TestManifests/Endpoint1.json");
+    request.addMember("schema",*schema);
+    request.addMember("receiveData", true);
+    delete schema;
+
+
+    SocketMessage * reply = ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore);
+    std::vector<SocketMessage *> endpointReturns = reply->getArray<SocketMessage*>("schemas");
+    ASSERT_GE(endpointReturns.size(), 1);
+
+
+    delete reply;
+    SocketMessage * firstEndpoint = endpointReturns.at(0);
+    ASSERT_EQ(firstEndpoint->getString("url"), url1);
+    ASSERT_EQ(firstEndpoint->getString("componentId"),id1);
+
+    for (auto e : endpointReturns){
+        delete e;
+    }
+}
+
+
+TEST_F(SimpleRDS, GetBySchemaInvalid){
+    std::string url1 = "tcp://127.0.0.1:8000";
+
+    SocketMessage * returnMsg = addDummyComponent(url1);
+    std::string id1 = returnMsg->getString("id");
+    delete returnMsg;
+
+    SocketMessage request;
+    request.addMember("request",REQUEST_BY_SCHEMA);
+    // Doesn't match component1
+    SocketMessage * schema = loadSocketMessage("TestManifests/Endpoint3.json");
+    request.addMember("schema",*schema);
+    request.addMember("receiveData", true);
+    delete schema;
+
+
+    SocketMessage * reply = ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore);
+    std::vector<SocketMessage *> endpointReturns = reply->getArray<SocketMessage*>("schemas");
+    ASSERT_EQ(endpointReturns.size(), 0);
+
 
     delete reply;
 }

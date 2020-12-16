@@ -25,6 +25,27 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
             returnMsg->setNull("component");
         }
     }else if (request == REQUEST_BY_SCHEMA){
+        SocketMessage * schemaRequest = sm->getObject("schema");
+        bool receiveData = sm->getBoolean("receiveData");
+        std::vector<SocketMessage *> returnEndpoints;
+
+        for (const auto &componentRep : rds.componentById){
+            std::vector<std::string> endpointIds = componentRep.second->findEquals(receiveData, *schemaRequest);
+            for (const auto &id: endpointIds){
+                auto * endpoint = new SocketMessage;
+
+                endpoint->addMember("componentId", componentRep.first);
+                endpoint->addMember("url",componentRep.second->getUrl());
+                endpoint->addMember("type", id);
+                endpoint->addMember("socketType", "TODO");
+                returnEndpoints.emplace_back(endpoint);
+            }
+        }
+        returnMsg->addMember("schemas", returnEndpoints);
+        for (auto rs: returnEndpoints){
+            delete rs;
+        }
+        delete schemaRequest;
 
     }else if (request == REQUEST_COMPONENTS){
         std::vector<std::string> componentIds;
