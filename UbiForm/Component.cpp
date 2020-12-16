@@ -116,6 +116,7 @@ void Component::startBackgroundListen(const char * listenAddress) {
         fatal("nng_listen", rv);
     }
     this->lowestPort ++;
+    this->backgroundListenAddress = std::string(listenAddress);
     this->backgroundThread = std::thread(backgroundListen,this);
 
 }

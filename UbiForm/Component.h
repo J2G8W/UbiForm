@@ -34,6 +34,7 @@ private:
     static void backgroundListen(Component *component);
     int lowestPort = 8000;
     std::thread backgroundThread;
+    std::string backgroundListenAddress;
 
 
     static char* requestConnection(const std::string& address, const std::string& requestText, size_t &sz);
@@ -70,6 +71,10 @@ public:
 
     std::shared_ptr<ComponentManifest> getComponentManifest(){
         return componentManifest;
+    }
+
+    std::string & getBackgroundListenAddress(){
+        return backgroundListenAddress;
     }
 
     ~Component();
