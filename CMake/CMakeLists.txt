@@ -64,7 +64,7 @@ set(endpointFiles ../UbiForm/endpoints/DataReceiverEndpoint.h ../UbiForm/endpoin
         ../UbiForm/endpoints/PublisherEndpoint.cpp ../UbiForm/endpoints/PublisherEndpoint.h)
 
 set(resourceDiscovery ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.h
-        ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.cpp)
+        ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.h)
 
 # Create library
 add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h ${componentFiles} ${generalFunctions} ${endpointFiles} ${resourceDiscovery})
@@ -72,7 +72,7 @@ target_link_libraries(UbiForm gtest_main gmock_main)
 
 # Create tests
 if (BUILD_TESTS)
-    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h ../UbiForm/endpoints/test_EndpointSchema.h ../UbiForm/test_Component.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryHubEndpoint.h)
+    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h ../UbiForm/endpoints/test_EndpointSchema.h ../UbiForm/test_Component.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm ${NNG})
 endif(BUILD_TESTS)

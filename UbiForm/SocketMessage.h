@@ -58,6 +58,10 @@ public:
         addOrSwap(key, valueContainer);
     }
 
+    void addMember(const std::string &attributeName, const char * value){
+        addMember(attributeName, std::string(value));
+    }
+
     // Add an integer value
     void addMember(const std::string &attributeName, int value) {
         rapidjson::Value key(attributeName, JSON_document.GetAllocator());
