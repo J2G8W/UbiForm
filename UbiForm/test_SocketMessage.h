@@ -32,8 +32,9 @@ TEST(SocketMessage, RecursiveObject){
 
     // Check main has in fact got the structure we expect
     EXPECT_EQ(main.stringify(), R"({"A":42,"C":{"B":100}})");
-    // Note that miniInput* is now rapidjson::null due to move semantics
-    EXPECT_EQ(miniInput->stringify(), "null");
+
+    // This tests that main is not still using memory allocated by miniInput - VERY IMPORTANT
+    delete miniInput;
 
     // Get the recursive object back out of our message
     SocketMessage *miniOutput = main.getObject("C");
@@ -42,7 +43,6 @@ TEST(SocketMessage, RecursiveObject){
     // And main left with a null pointer where mini was
     EXPECT_EQ(main.stringify(), R"({"A":42,"C":null})");
 
-    delete miniInput;
     delete miniOutput;
 }
 

@@ -55,6 +55,8 @@ TEST_F(SimpleRDS,GetManifestById){
 
     // Assert that we have a returned ID
     std::string returnID = returnMsg->getString("id");
+
+    // We delete the returned message because it is safe to do so
     delete returnMsg;
 
 
@@ -74,9 +76,8 @@ TEST_F(SimpleRDS,GetManifestById){
     ComponentRepresentation componentRepresentation(componentObject);
 
     ASSERT_EQ(componentRepresentation.getUrl(), listenUrl);
-    ASSERT_TRUE(returnMsg->isNull("component"));
 
     delete sm;
-    delete returnMsg;
+
     delete componentObject;
 }

@@ -119,7 +119,9 @@ public:
     // Add a new object - this will set the socketMessage to be zero - MOVE CONSTRUCTOR
     void addMember(const std::string &attributeName, SocketMessage &socketMessage){
         rapidjson::Value key(attributeName, JSON_document.GetAllocator());
-        addOrSwap(key, socketMessage.JSON_document.Move());
+        rapidjson::Value v;
+        v.CopyFrom(socketMessage.JSON_document,JSON_document.GetAllocator());
+        addOrSwap(key,v);
     }
 
     void setNull(const std::string &attributeName){
