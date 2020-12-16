@@ -198,7 +198,6 @@ void Component::requestPairConnection(const std::string& address, const std::str
         std::cerr << e.what() << std::endl;
     }
 
-    std::cout << sz << std::endl;
     nng_free(url, sz);
 }
 
@@ -217,7 +216,6 @@ void Component::requestConnectionToPublisher(const std::string &address, const s
         std::cerr << e.what() << std::endl;
     }
 
-    std::cout << sz << std::endl;
     nng_free(url, sz);
 }
 
