@@ -28,6 +28,16 @@ TEST(ComponentManifest, MalformedManifest){
     ASSERT_ANY_THROW(new ComponentManifest(jsonString));
 }
 
+TEST(ComponentManifest, CreationFromSocketMessage){
+    const char *jsonString = R"({"name":"TEST1","schemas":{}})";
+    SocketMessage * sm = new SocketMessage(jsonString);
+
+    ComponentManifest testManifest(sm);
+    EXPECT_EQ(testManifest.stringify(), std::string(jsonString));
+
+    delete sm;
+}
+
 class ManifestExample : public testing::Test{
 protected:
     ManifestExample(){
