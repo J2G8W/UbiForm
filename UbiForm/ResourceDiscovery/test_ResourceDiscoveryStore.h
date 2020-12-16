@@ -110,6 +110,8 @@ TEST_F(SimpleRDS, GetComponentIds){
 
     ASSERT_NE(std::find(ids.begin(), ids.end(), id1), ids.end());
     ASSERT_NE(std::find(ids.begin(), ids.end(), id2), ids.end());
+    // Make sure we are getting allocated two different IDs
+    ASSERT_NE(id1,id2);
 
     delete reply;
 }
