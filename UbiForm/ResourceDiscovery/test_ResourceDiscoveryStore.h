@@ -78,6 +78,6 @@ TEST_F(SimpleRDS,GetManifestById){
     ASSERT_EQ(componentRepresentation.getUrl(), listenUrl);
 
     delete sm;
-
+    delete returnMsg;
     delete componentObject;
 }
