@@ -64,6 +64,27 @@ public:
     std::string stringify() { return stringifyDocument(JSON_document); };
 
 
+    SocketMessage * getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema){
+        const auto & schemas = JSON_document["schemas"].GetObject();
+        if (schemas.HasMember(typeOfEndpoint) && schemas[typeOfEndpoint].IsObject()){
+            if(receiveSchema){
+                if (schemas[typeOfEndpoint].GetObject().HasMember("receive")){
+                    return new SocketMessage(schemas[typeOfEndpoint].GetObject()["receive"]);
+                }else{
+                    throw std::logic_error("The endpoint has no receive member");
+                }
+            }else{
+                if (schemas[typeOfEndpoint].GetObject().HasMember("send")){
+                    return new SocketMessage(schemas[typeOfEndpoint].GetObject()["send"]);
+                }else{
+                    throw std::logic_error("The endpoint has no send member");
+                }
+            }
+        }else{
+            throw std::logic_error("No endpoint of that type found");
+        }
+    }
+
     ~ComponentManifest();
 };
 

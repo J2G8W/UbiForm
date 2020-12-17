@@ -87,16 +87,36 @@ ComponentRepresentation *ResourceDiscoveryConnEndpoint::getComponentById(std::st
 }
 
 SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(std::string endpointType) {
-    SocketMessage * request = new SocketMessage;
+    auto * request = new SocketMessage;
     request->addMember("request",REQUEST_BY_SCHEMA);
-    // TODO - CHECK THIS BOOLEAN
+
+    // We want the schema we get back to be a data SENDER
     request->addMember("receiveData",false);
 
-    // TODO - figure out how to get schema out
-    component.getComponentManifest()->getReceiverSchema(endpointType);
-    return nullptr;
+    // We want our schema to be receiving data
+    SocketMessage* schema = component.getComponentManifest()->getSchemaObject(endpointType, true);
+
+    request->addMember("schema",schema);
+    delete schema;
+
+    return request;
 }
 
 std::vector<SocketMessage *> ResourceDiscoveryConnEndpoint::getComponentsBySchema(std::string endpointType) {
-    return std::vector<SocketMessage *>();
+    std::vector<SocketMessage *> returnEndpoints;
+
+    SocketMessage* request = generateFindBySchemaRequest(endpointType);
+    for (const auto& rdh : RDHUrls){
+        SocketMessage* reply = sendRequest(rdh,request);
+        std::vector<SocketMessage *> replyEndpoints = reply->getArray<SocketMessage *>("endpoints");
+        delete reply;
+
+        returnEndpoints.insert(
+                returnEndpoints.end(),
+                std::make_move_iterator(replyEndpoints.begin()),
+                std::make_move_iterator(replyEndpoints.end())
+        );
+    }
+    delete request;
+    return returnEndpoints;
 }

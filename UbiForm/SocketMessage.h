@@ -16,6 +16,7 @@
 class SocketMessage {
     friend class EndpointSchema;
     friend class ComponentRepresentation;
+    friend class ComponentManifest;
 
 private:
     rapidjson::Document JSON_document;

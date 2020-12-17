@@ -146,7 +146,7 @@ TEST_F(SimpleRDS, GetBySchemaValid){
 
 
     SocketMessage * reply = ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore);
-    std::vector<SocketMessage *> endpointReturns = reply->getArray<SocketMessage*>("schemas");
+    std::vector<SocketMessage *> endpointReturns = reply->getArray<SocketMessage*>("endpoints");
     ASSERT_GE(endpointReturns.size(), 1);
 
 
@@ -178,7 +178,7 @@ TEST_F(SimpleRDS, GetBySchemaInvalid){
 
 
     SocketMessage * reply = ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore);
-    std::vector<SocketMessage *> endpointReturns = reply->getArray<SocketMessage*>("schemas");
+    std::vector<SocketMessage *> endpointReturns = reply->getArray<SocketMessage*>("endpoints");
     ASSERT_EQ(endpointReturns.size(), 0);
 
 

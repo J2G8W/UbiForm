@@ -41,7 +41,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
                 returnEndpoints.emplace_back(endpoint);
             }
         }
-        returnMsg->addMember("schemas", returnEndpoints);
+        returnMsg->addMember("endpoints", returnEndpoints);
         for (auto rs: returnEndpoints){
             delete rs;
         }
