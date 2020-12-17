@@ -27,6 +27,7 @@ public:
     }
 
     void validate(const SocketMessage &messageToValidate);
+    void validate(const rapidjson::Value &doc);
 };
 
 

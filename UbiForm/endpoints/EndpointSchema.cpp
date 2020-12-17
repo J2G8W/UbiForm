@@ -6,8 +6,12 @@
 // Validate a socket message against the manifest
 void EndpointSchema::validate(const SocketMessage &messageToValidate) {
 
+    validate(messageToValidate.JSON_document);
+}
+
+void EndpointSchema::validate(const rapidjson::Value &doc) {
     rapidjson::SchemaValidator validator(schema);
-    if (!messageToValidate.JSON_document.Accept(validator)) {
+    if (!doc.Accept(validator)) {
         // Input JSON is invalid according to the schema
         // Raise exception
         rapidjson::StringBuffer sb;

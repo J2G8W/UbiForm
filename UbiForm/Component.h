@@ -50,7 +50,9 @@ public:
     Component(const std::string & baseAddress);
     Component() : Component("tcp://127.0.0.1"){}
 
-    void specifyManifest(FILE *jsonFP) { componentManifest = std::make_shared<ComponentManifest>(jsonFP); }
+    void specifyManifest(FILE *jsonFP) {
+        componentManifest = std::make_shared<ComponentManifest>(jsonFP);
+    }
 
     void specifyManifest(const char *jsonString) {
         componentManifest = std::make_shared<ComponentManifest>(jsonString);
