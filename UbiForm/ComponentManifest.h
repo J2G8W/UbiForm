@@ -29,8 +29,6 @@ protected:
     void fillSchemaMaps();
 
 public:
-    // TODO - in construction check our component manifest against our schema
-
     // Accept JSON input as string
     explicit ComponentManifest(const char *jsonString);
 

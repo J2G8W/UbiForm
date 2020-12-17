@@ -27,4 +27,9 @@ public:
     explicit AccessError(const std::string& error) : std::logic_error(error){}
 };
 
+class ParsingError : public std::logic_error{
+public:
+    explicit ParsingError(const std::string& error) : std::logic_error(error){}
+};
+
 #endif //UBIFORM_GENERALFUNC_H

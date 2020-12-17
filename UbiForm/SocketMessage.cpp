@@ -68,6 +68,17 @@ std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) 
     }
 }
 
+SocketMessage::SocketMessage(const char *jsonString) {
+    rapidjson::StringStream stream(jsonString);
+    JSON_document.ParseStream(stream);
+    if (JSON_document.HasParseError()){
+        std::ostringstream error;
+        error << "Error parsing manifest, offset: " << JSON_document.GetErrorOffset();
+        error << " , error: " << rapidjson::GetParseError_En(JSON_document.GetParseError()) << std::endl;
+        throw ParsingError(error.str());
+    }
+}
+
 template<>
 std::vector<bool> SocketMessage::getArray<bool>(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {

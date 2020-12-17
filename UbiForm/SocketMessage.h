@@ -44,16 +44,7 @@ public:
         JSON_document.SetObject();
     };
 
-    explicit SocketMessage(const char *jsonString) {
-        rapidjson::StringStream stream(jsonString);
-        JSON_document.ParseStream(stream);
-        if (JSON_document.HasParseError()){
-            std::ostringstream error;
-            error << "Error parsing manifest, offset: " << JSON_document.GetErrorOffset();
-            error << " , error: " << rapidjson::GetParseError_En(JSON_document.GetParseError()) << std::endl;
-            throw std::logic_error(error.str());
-        }
-    }
+    explicit SocketMessage(const char *jsonString);
 
     // Add a string value
     void addMember(const std::string &attributeName, const std::string &value) {

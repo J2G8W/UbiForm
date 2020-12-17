@@ -38,12 +38,13 @@ ComponentManifest::ComponentManifest(const char *jsonString) {
 };
 
 // Check if we have parsed our manifest okay
+// Throws ParseError for parsing issues and ValidationError when manifest doesn't line up
 void ComponentManifest::checkParse(){
     if (JSON_document.HasParseError()){
         std::ostringstream error;
         error << "Error parsing manifest, offset: " << JSON_document.GetErrorOffset();
         error << " , error: " << rapidjson::GetParseError_En(JSON_document.GetParseError()) << std::endl;
-        throw std::logic_error(error.str());
+        throw ParsingError(error.str());
     }
     componentManifestSchema.validate(JSON_document);
 }
