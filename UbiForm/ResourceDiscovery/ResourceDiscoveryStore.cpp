@@ -97,5 +97,6 @@ ResourceDiscoveryStore::ResourceDiscoveryStore() {
         }
         std::unique_ptr<EndpointSchema> es = std::make_unique<EndpointSchema>(pFile);
         systemSchemas.insert(std::make_pair(static_cast<RDMessaging>(i), std::move(es)));
+        fclose(pFile);
     }
 }
