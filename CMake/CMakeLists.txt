@@ -89,6 +89,9 @@ if (BUILD_EXAMPLES)
     add_executable(async_recv_example ../examples/AsyncRecvExample.cpp)
     target_link_libraries(async_recv_example UbiForm ${NNG})
 
+    add_executable(resource_discovery_example ../examples/ResourceDiscoveryExample.cpp)
+    target_link_libraries(resource_discovery_example UbiForm ${NNG})
+
     # Copy over our base JSON files for our examples to use
     file(COPY ../examples/JsonFiles DESTINATION .)
 endif(BUILD_EXAMPLES)

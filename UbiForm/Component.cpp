@@ -5,6 +5,8 @@
 #include "endpoints/PublisherEndpoint.h"
 #include "endpoints/SubscriberEndpoint.h"
 
+#include "ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
+
 #include <nng/protocol/reqrep0/rep.h>
 #include <nng/protocol/reqrep0/req.h>
 #include <nng/supplemental/util/platform.h>
@@ -275,4 +277,9 @@ char * Component::requestConnection(const std::string &address, const std::strin
         buf[sz - 1] = 0;
         return buf;
     }
+}
+
+ResourceDiscoveryConnEndpoint *Component::createResourceDiscoveryConnectionEndpoint() {
+    auto* rdc = new ResourceDiscoveryConnEndpoint(this);
+    return rdc;
 }

@@ -15,6 +15,10 @@
 #include "endpoints/PairEndpoint.h"
 #include "endpoints/PublisherEndpoint.h"
 #include "endpoints/SubscriberEndpoint.h"
+#include "ResourceDiscovery/ResourceDiscoveryHubEndpoint.h"
+
+
+class ResourceDiscoveryConnEndpoint;
 
 class Component {
 private:
@@ -68,6 +72,13 @@ public:
     void requestPairConnection(const std::string& address, const std::string& endpointType);
 
     void requestConnectionToPublisher(const std::string& address, const std::string &endpointType);
+
+    void startResourceDiscoveryHub(const std::string &listenAddress){
+        ResourceDiscoveryHubEndpoint* rdh = new ResourceDiscoveryHubEndpoint;
+        rdh->startResourceDiscover(listenAddress);
+    }
+
+    ResourceDiscoveryConnEndpoint* createResourceDiscoveryConnectionEndpoint();
 
     std::shared_ptr<ComponentManifest> getComponentManifest(){
         return componentManifest;

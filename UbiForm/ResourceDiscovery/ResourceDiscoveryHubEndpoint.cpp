@@ -40,7 +40,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
             delete requestMsg;
             delete returnMsg;
         }catch (std::logic_error &e){
-            std::cerr << e.what();
+            std::cerr << e.what() << std::endl;
             nng_free(buf,sz);
             continue;
         }

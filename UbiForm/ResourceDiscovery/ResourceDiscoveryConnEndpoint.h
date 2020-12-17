@@ -7,15 +7,16 @@
 #include "../Component.h"
 #include "ComponentRepresentation.h"
 
+class Component ;
 class ResourceDiscoveryConnEndpoint {
 private:
     std::vector<std::string> RDHUrls;
-    Component & component;
+    Component * component;
 
     SocketMessage * sendRequest(std::string, SocketMessage * request);
 
 public:
-    explicit ResourceDiscoveryConnEndpoint(Component &component) : component(component) {}
+    explicit ResourceDiscoveryConnEndpoint(Component *component) : component(component) {}
 
     void addResourceDiscoveryHub (std::string url){
         RDHUrls.push_back(url);

@@ -41,8 +41,8 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
     auto * request = new SocketMessage;
     request->addMember("request",ADDITION);
     // TODO - turn into something better
-    SocketMessage sm(component.getComponentManifest()->stringify().c_str());
-    sm.addMember("url",component.getBackgroundListenAddress());
+    SocketMessage sm(component->getComponentManifest()->stringify().c_str());
+    sm.addMember("url",component->getBackgroundListenAddress());
 
     request->addMember("manifest",sm);
     return request;
@@ -52,7 +52,7 @@ void ResourceDiscoveryConnEndpoint::registerWithHub(std::string url) {
     SocketMessage * request = generateRegisterRequest();
     SocketMessage * reply = sendRequest(url, request);
 
-    std::cout << reply->getInteger("id") << std::endl;
+    std::cout << reply->getString("id") << std::endl;
     delete request;
     delete reply;
 }
@@ -94,9 +94,9 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(std::s
     request->addMember("receiveData",false);
 
     // We want our schema to be receiving data
-    SocketMessage* schema = component.getComponentManifest()->getSchemaObject(endpointType, true);
+    SocketMessage* schema = component->getComponentManifest()->getSchemaObject(endpointType, true);
 
-    request->addMember("schema",schema);
+    request->addMember("schema", *schema);
     delete schema;
 
     return request;
