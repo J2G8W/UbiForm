@@ -91,7 +91,7 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(std::s
     request->addMember("request",REQUEST_BY_SCHEMA);
 
     // We want the schema we get back to be a data SENDER
-    request->addMember("receiveData",false);
+    request->addMember("dataReceiverEndpoint",false);
 
     // We want our schema to be receiving data
     SocketMessage* schema = component->getComponentManifest()->getSchemaObject(endpointType, true);
