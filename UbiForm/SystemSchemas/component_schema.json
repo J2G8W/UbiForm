@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "component_schema_v1",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "schemas" : {
+      "type": "object",
+      "patternProperties": {
+        "[A-Za-z0-9_]*": {
+          "type": "object",
+          "properties": {
+            "socketType": {
+              "type": "string",
+              "enum" : ["pair","publisher","subscriber"]
+            },
+            "send": {
+              "type": "object"
+            },
+            "receive": {
+              "type": "object"
+            }
+          },
+          "required" : ["socketType"]
+        }
+      }
+    }
+  },
+  "required": ["name","schemas"]
+}
