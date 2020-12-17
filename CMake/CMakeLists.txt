@@ -67,6 +67,7 @@ set(resourceDiscovery ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.
         ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.h)
 
 # Create library
+file(COPY ../UbiForm/SystemSchemas DESTINATION .)
 add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h ${componentFiles} ${generalFunctions} ${endpointFiles} ${resourceDiscovery})
 target_link_libraries(UbiForm gtest_main gmock_main)
 
