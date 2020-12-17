@@ -102,6 +102,17 @@ std::shared_ptr<EndpointSchema> ComponentManifest::getSenderSchema(const std::st
     }
 }
 
+std::string ComponentManifest::getSocketType(std::string endpointType) {
+    const auto & schemas = JSON_document["schemas"].GetObject();
+    if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())){
+        throw AccessError("No endpoint of type: " + endpointType + " in manifest");
+    }
+
+    // Note we know that socketType exists due to the schemas
+    std::string socketType = schemas[endpointType].GetObject()["socketType"].GetString();
+    return socketType;
+}
+
 
 ComponentManifest::~ComponentManifest()= default;
 

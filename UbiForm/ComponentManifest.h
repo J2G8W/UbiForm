@@ -28,6 +28,8 @@ protected:
     void fillSchemaMaps();
 
 public:
+    // TODO - in construction check our component manifest against our schema
+
     // Accept JSON input as string
     explicit ComponentManifest(const char *jsonString);
 
@@ -43,8 +45,9 @@ public:
     std::shared_ptr<EndpointSchema> getReceiverSchema(const std::string& typeOfEndpoint);
     std::shared_ptr<EndpointSchema> getSenderSchema(const std::string& typeOfEndpoint);
 
-    // We return C++ strings such that memory management is simpler
     std::string getName();
+
+    std::string getSocketType(std::string endpointType);
 
     std::string stringify() { return stringifyDocument(JSON_document); };
 
