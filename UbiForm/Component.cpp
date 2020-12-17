@@ -12,6 +12,33 @@
 #include <nng/supplemental/util/platform.h>
 #include <thread>
 
+
+// NOTE THAT these strings are defined in the various schemas in SystemSchemas
+#define PAIR "pair"
+#define PUBLISHER "publisher"
+#define SUBSCRIBER "subscriber"
+
+// CONSTRUCTOR
+Component::Component() : backgroundSocket() {
+    const char* files[3] = {"SystemSchemas/component_schema.json",
+                            "SystemSchemas/endpoint_creation_request.json",
+                            "SystemSchemas/endpoint_creation_response.json"};
+
+    for (int i =0; i < 3; i++){
+        FILE* pFile = fopen(files[i], "r");
+        if (pFile == NULL){
+            std::cerr << "Error finding requisite file - " << files[i] << std::endl;
+            exit(1);
+        }
+        std::unique_ptr<EndpointSchema> es = std::make_unique<EndpointSchema>(pFile);
+        systemSchemas.insert(std::make_pair(static_cast<ComponentSystemSchema>(i), std::move(es)));
+        fclose(pFile);
+    }
+}
+
+
+
+// CREATE ENDPOINTS (don't connect)
 std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(std::string typeOfEndpoint, std::string id){
     std::shared_ptr<EndpointSchema>recvSchema = componentManifest->getReceiverSchema(typeOfEndpoint);
     std::shared_ptr<EndpointSchema>sendSchema = componentManifest->getSenderSchema(typeOfEndpoint);
@@ -66,6 +93,8 @@ std::shared_ptr<SubscriberEndpoint> Component::createNewSubscriberEndpoint(std::
     return pe;
 }
 
+
+// GET OUR ENDPOINTS BY ID
 std::shared_ptr<DataReceiverEndpoint> Component::getReceiverEndpointById(const std::string &id) {
     try{
         return idReceiverEndpoints.at(id);
@@ -82,32 +111,33 @@ std::shared_ptr<DataSenderEndpoint> Component::getSenderEndpointById(const std::
     }
 }
 
+// GET OUR ENDPOINTS BY ENDPOINTTYPE
 std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > >
-Component::getReceiverEndpointsByType(const std::string &type) {
+Component::getReceiverEndpointsByType(const std::string &endpointType) {
     try {
-        return typeReceiverEndpoints.at(type);
+        return typeReceiverEndpoints.at(endpointType);
     }catch(std::out_of_range &e){
         // Make an empty vector to return, this will get filled if things then come along later
         auto returnVector = std::make_shared<std::vector<std::shared_ptr<DataReceiverEndpoint> > >();
-        typeReceiverEndpoints.insert(std::make_pair(type, returnVector));
+        typeReceiverEndpoints.insert(std::make_pair(endpointType, returnVector));
         return returnVector;
     }
 }
 
 
 std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > >
-Component::getSenderEndpointsByType(const std::string &type) {
+Component::getSenderEndpointsByType(const std::string &endpointType) {
     try {
-        return typeSenderEndpoints.at(type);
+        return typeSenderEndpoints.at(endpointType);
     }catch(std::out_of_range &e){
         // Make an empty vector to return, this will get filled if things then come along later
         auto returnVector = std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >();
-        typeSenderEndpoints.insert(std::make_pair(type, returnVector));
+        typeSenderEndpoints.insert(std::make_pair(endpointType, returnVector));
         return returnVector;
     }
 }
 
-
+// THIS IS OUR COMPONENT LISTENING FOR REQUESTS TO MAKE SOCKETS
 void Component::startBackgroundListen(const char * listenAddress) {
     int rv;
     if ((rv = nng_rep0_open(&backgroundSocket)) != 0) {
@@ -123,8 +153,6 @@ void Component::startBackgroundListen(const char * listenAddress) {
 
 }
 
-#define PAIR "pair"
-#define PUBLISHER "publisher"
 
 void Component::backgroundListen(Component *component) {
     int rv;
@@ -197,38 +225,32 @@ void Component::backgroundListen(Component *component) {
     }
 }
 
-void Component::requestPairConnection(const std::string& address, const std::string& endpointType){
+// THIS IS OUR COMPONENT MAKING REQUESTS FOR A NEW CONNECTION
+void Component::requestAndCreateConnection(const std::string& localEndpointType, const std::string &connectionComponentAddress,
+                                           const std::string &remoteEndpointType) {
+    std::string requestSocketType = componentManifest->getSocketType(localEndpointType);
     SocketMessage sm;
-    sm.addMember("socketType",std::string(PAIR));
-    sm.addMember("endpointType",endpointType);
-
-    systemSchemas.at(ComponentSystemSchema::endpointCreationRequest)->validate(sm);
-
-    std::string url;
-    size_t sz = 0;
-    try{
-        url = requestConnection(address,sm.stringify() ,sz);
-        std::shared_ptr<DataReceiverEndpoint> e = this->createNewPairEndpoint(endpointType, std::to_string(this->lowestPort));
-        this->lowestPort ++;
-        e->dialConnection(url.c_str());
-    }catch (std::logic_error &e){
-        std::cerr << e.what() << std::endl;
+    if (requestSocketType == SUBSCRIBER){
+        sm.addMember("socketType",PUBLISHER);
+    }else{
+        sm.addMember("socketType",requestSocketType);
     }
 
-}
-
-void Component::requestConnectionToPublisher(const std::string &address, const std::string &endpointType) {
-    SocketMessage sm;
-    sm.addMember("socketType",std::string(PUBLISHER));
-    sm.addMember("endpointType",endpointType);
+    sm.addMember("endpointType",remoteEndpointType);
 
     systemSchemas.at(ComponentSystemSchema::endpointCreationRequest)->validate(sm);
 
     std::string url;
-    size_t sz = 0;
+
     try{
-        url = requestConnection(address,sm.stringify(), sz);
-        std::shared_ptr<DataReceiverEndpoint> e = this->createNewSubscriberEndpoint(endpointType, std::to_string(this->lowestPort));
+        url = requestConnection(connectionComponentAddress,sm.stringify());
+        std::shared_ptr<DataReceiverEndpoint> e;
+        if (requestSocketType == PAIR){
+            e = this->createNewPairEndpoint(localEndpointType, std::to_string(this->lowestPort));
+        }else if (requestSocketType == SUBSCRIBER){
+            e = this->createNewSubscriberEndpoint(localEndpointType, std::to_string(this->lowestPort));
+        }
+
         this->lowestPort ++;
         e->dialConnection(url.c_str());
     }catch (std::logic_error &e){
@@ -236,25 +258,9 @@ void Component::requestConnectionToPublisher(const std::string &address, const s
     }
 }
 
-
-
-Component::~Component(){
-    // We detach our background thread so termination of the thread happens safely
-    if (backgroundThread.joinable()) {
-        backgroundThread.detach();
-    }
-
-    // Make sure that the messages are flushed
-    nng_msleep(300);
-
-
-    // Close our background socket, and don't really care what return value is
-    // TODO - sort problem of closing socket while backgroundThread uses it
-    //nng_close(backgroundSocket);
-}
-
-std::string Component::requestConnection(const std::string &address, const std::string& requestText, size_t & sz) {
+std::string Component::requestConnection(const std::string &address, const std::string& requestText) {
     int rv;
+
     nng_socket tempSocket;
     if ((rv = nng_req0_open(&tempSocket)) != 0) {
         fatal("Failure opening temporary socket", rv);
@@ -269,6 +275,7 @@ std::string Component::requestConnection(const std::string &address, const std::
     }
 
     char *buf = nullptr;
+    size_t sz;
     if ((rv = nng_recv(tempSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
         fatal("nng_recv", rv);
     }
@@ -293,24 +300,30 @@ std::string Component::requestConnection(const std::string &address, const std::
 
 }
 
+// CREATE RDCONNECTION
 ResourceDiscoveryConnEndpoint *Component::createResourceDiscoveryConnectionEndpoint() {
     auto* rdc = new ResourceDiscoveryConnEndpoint(this);
     return rdc;
 }
 
-Component::Component() : backgroundSocket() {
-    const char* files[3] = {"SystemSchemas/component_schema.json",
-                            "SystemSchemas/endpoint_creation_request.json",
-                            "SystemSchemas/endpoint_creation_response.json"};
+// CREATE RDHUB
+void Component::startResourceDiscoveryHub(const std::string &listenAddress) {
+    auto* rdh = new ResourceDiscoveryHubEndpoint;
+    rdh->startResourceDiscover(listenAddress);
+}
 
-    for (int i =0; i < 3; i++){
-        FILE* pFile = fopen(files[i], "r");
-        if (pFile == NULL){
-            std::cerr << "Error finding requisite file - " << files[i] << std::endl;
-            exit(1);
-        }
-        std::unique_ptr<EndpointSchema> es = std::make_unique<EndpointSchema>(pFile);
-        systemSchemas.insert(std::make_pair(static_cast<ComponentSystemSchema>(i), std::move(es)));
-        fclose(pFile);
+
+Component::~Component(){
+    // We detach our background thread so termination of the thread happens safely
+    if (backgroundThread.joinable()) {
+        backgroundThread.detach();
     }
+
+    // Make sure that the messages are flushed
+    nng_msleep(300);
+
+
+    // Close our background socket, and don't really care what return value is
+    // TODO - sort problem of closing socket while backgroundThread uses it
+    //nng_close(backgroundSocket);
 }

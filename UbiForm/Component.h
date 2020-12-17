@@ -43,7 +43,7 @@ private:
     std::string backgroundListenAddress;
 
 
-    static std::string requestConnection(const std::string& address, const std::string& requestText, size_t &sz);
+    static std::string requestConnection(const std::string& address, const std::string& requestText);
 
 public:
     Component();
@@ -67,28 +67,21 @@ public:
     std::shared_ptr<DataSenderEndpoint> getSenderEndpointById(const std::string& id);
 
     // No exception thrown here, return an empty vector if not found (which will get filled later on)
-    std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > getReceiverEndpointsByType(const std::string &type);
-    std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > getSenderEndpointsByType(const std::string &type);
+    std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > getReceiverEndpointsByType(const std::string &endpointType);
+    std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > getSenderEndpointsByType(const std::string &endpointType);
+
+    void requestAndCreateConnection(const std::string& localEndpointType, const std::string &connectionComponentAddress,
+                                    const std::string &remoteEndpointType);
 
 
-    void requestPairConnection(const std::string& address, const std::string& endpointType);
 
-    void requestConnectionToPublisher(const std::string& address, const std::string &endpointType);
-
-    void startResourceDiscoveryHub(const std::string &listenAddress){
-        ResourceDiscoveryHubEndpoint* rdh = new ResourceDiscoveryHubEndpoint;
-        rdh->startResourceDiscover(listenAddress);
-    }
+    void startResourceDiscoveryHub(const std::string &listenAddress);
 
     ResourceDiscoveryConnEndpoint* createResourceDiscoveryConnectionEndpoint();
 
-    std::shared_ptr<ComponentManifest> getComponentManifest(){
-        return componentManifest;
-    }
+    std::shared_ptr<ComponentManifest> getComponentManifest(){return componentManifest;}
 
-    std::string & getBackgroundListenAddress(){
-        return backgroundListenAddress;
-    }
+    std::string & getBackgroundListenAddress(){return backgroundListenAddress;}
 
     ~Component();
 };
