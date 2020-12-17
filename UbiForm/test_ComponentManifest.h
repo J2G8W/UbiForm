@@ -42,7 +42,7 @@ class ManifestExample : public testing::Test{
 protected:
     ManifestExample(){
         if (pFile == NULL){
-            std::cerr << "Error finding requisite file (JsonFiles/PairManifest1.json)";
+            std::cerr << "Error finding requisite file" << "TestManifests/Component1.json" << std::endl;
         }
         componentManifest = new ComponentManifest(pFile);
     }
@@ -51,14 +51,14 @@ protected:
         delete componentManifest;
     }
 
-    FILE* pFile = fopen("JsonFiles/PairManifest1.json", "r");
+    FILE* pFile = fopen("TestManifests/Component1.json", "r");
     ComponentManifest* componentManifest;
 };
 
 TEST_F(ManifestExample, ReceiverSchemasTest){
-    ASSERT_NO_THROW(componentManifest->getReceiverSchema("v1"));
+    ASSERT_NO_THROW(componentManifest->getReceiverSchema("pairExample"));
 
-    std::shared_ptr<EndpointSchema> endpointSchema = componentManifest->getReceiverSchema("v1");
+    std::shared_ptr<EndpointSchema> endpointSchema = componentManifest->getReceiverSchema("pairExample");
 
     SocketMessage socketMessage;
     socketMessage.addMember("temp",50);
@@ -71,9 +71,9 @@ TEST_F(ManifestExample, ReceiverSchemasTest){
 }
 
 TEST_F(ManifestExample, SenderSchemasTest){
-    ASSERT_NO_THROW(componentManifest->getSenderSchema("v1"));
+    ASSERT_NO_THROW(componentManifest->getSenderSchema("pairExample"));
 
-    std::shared_ptr<EndpointSchema> endpointSchema = componentManifest->getSenderSchema("v1");
+    std::shared_ptr<EndpointSchema> endpointSchema = componentManifest->getSenderSchema("pairExample");
 
     SocketMessage socketMessage;
     socketMessage.addMember("temp",50);
@@ -84,6 +84,3 @@ TEST_F(ManifestExample, SenderSchemasTest){
     socketMessage.addMember("msg", false);
     ASSERT_ANY_THROW(endpointSchema->validate(socketMessage));
 }
-
-
-// TODO - add testing for the private methods
