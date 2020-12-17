@@ -4,7 +4,13 @@
 std::minstd_rand0 ResourceDiscoveryStore::generator(0);
 
 SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, ResourceDiscoveryStore &rds) {
-    std::string request = sm->getString("request");
+    std::string request;
+    try{
+        request= sm->getString("request");
+    }catch(AccessError &e){
+        throw ValidationError("Message has no request field");
+    }
+
     std::cout << request << std::endl;
     auto * returnMsg = new SocketMessage;
     if (request == ADDITION){

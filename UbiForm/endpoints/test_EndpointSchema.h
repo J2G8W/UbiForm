@@ -25,7 +25,7 @@ TEST_F(SchemaTest, ErrorValidationOfMessage){
     // Correct type
     socketMessage.addMember("value", std::string("WORLD"));
 
-    ASSERT_ANY_THROW(endpointSchema.validate(socketMessage));
+    ASSERT_THROW(endpointSchema.validate(socketMessage), ValidationError);
 }
 
 TEST_F(SchemaTest, CorrectValidationOfMessage){

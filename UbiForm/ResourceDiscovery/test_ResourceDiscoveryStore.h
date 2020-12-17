@@ -184,3 +184,15 @@ TEST_F(SimpleRDS, GetBySchemaInvalid){
 
     delete reply;
 }
+
+TEST_F(SimpleRDS, NoRequestField){
+    SocketMessage request;
+    ASSERT_THROW(ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore), ValidationError);
+}
+
+TEST_F(SimpleRDS, BrokenRequest){
+    SocketMessage request;
+    request.addMember("request",ADDITION);
+
+    ASSERT_THROW(ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore), ValidationError);
+}

@@ -1,5 +1,6 @@
 #include "EndpointSchema.h"
 #include "../SocketMessage.h"
+#include "../general_functions.h"
 
 
 // Validate a socket message against the manifest
@@ -13,8 +14,8 @@ void EndpointSchema::validate(const SocketMessage &messageToValidate) {
         validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
 
         std::ostringstream errorText;
-        errorText << "Invalid schema: " << sb.GetString() << std::endl;
-        errorText << "Invalid keyword: " <<  validator.GetInvalidSchemaKeyword() << std::endl;
-        throw std::logic_error(errorText.str());
+        errorText << "Invalid schema property: " << sb.GetString() << std::endl ;
+        errorText << "Invalid keyword: " <<  validator.GetInvalidSchemaKeyword() ;
+        throw ValidationError(errorText.str());
     }
 }
