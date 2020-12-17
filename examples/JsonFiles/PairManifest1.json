@@ -1,7 +1,8 @@
 {
   "name": "Pair",
   "schemas": {
-    "v1": {
+    "pairExample": {
+      "socketType": "pair",
       "send": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
