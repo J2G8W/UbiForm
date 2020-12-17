@@ -303,8 +303,10 @@ std::string Component::requestConnection(const std::string &address, const std::
 
 // CREATE RDCONNECTION
 ResourceDiscoveryConnEndpoint *Component::createResourceDiscoveryConnectionEndpoint() {
-    auto* rdc = new ResourceDiscoveryConnEndpoint(this);
-    return rdc;
+    if(this->resourceDiscoveryConnEndpoint == nullptr) {
+        this->resourceDiscoveryConnEndpoint = new ResourceDiscoveryConnEndpoint(this);
+    }
+    return this->resourceDiscoveryConnEndpoint;
 }
 
 // CREATE RDHUB

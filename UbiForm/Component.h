@@ -44,6 +44,8 @@ private:
 
     std::string baseAddress;
 
+    ResourceDiscoveryConnEndpoint * resourceDiscoveryConnEndpoint {nullptr};
+
     static std::string requestConnection(const std::string& address, const std::string& requestText);
 
 public:

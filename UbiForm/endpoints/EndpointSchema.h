@@ -18,6 +18,7 @@ public:
     }
 
     // TODO - make this less nasty
+    // TODO - get rid of possible memory leak
     static rapidjson::Document InitiateFromFile(FILE *jsonFP){
         rapidjson::Document JSON_document;
         char readBuffer[65536];
