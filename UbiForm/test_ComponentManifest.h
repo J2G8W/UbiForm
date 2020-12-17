@@ -20,7 +20,12 @@ TEST(ComponentManifest, StringifyTest) {
 
 TEST(ComponentManifest, NoSchema){
     const char *jsonString = R"({"name":"TEST1"})";
-    ASSERT_ANY_THROW(new ComponentManifest(jsonString));
+    ASSERT_THROW(new ComponentManifest(jsonString), ValidationError);
+}
+
+TEST(ComponentManifest, MalformedSchema){
+    const char *jsonString = R"({"name":"TEST1","schemas":{"TEST":{"socketType":"NOTHING"}}})";
+    ASSERT_THROW(new ComponentManifest(jsonString), ValidationError);
 }
 
 TEST(ComponentManifest, MalformedManifest){

@@ -23,6 +23,7 @@ protected:
     std::map<std::string, std::shared_ptr<EndpointSchema> > receiverSchemas;
     std::map<std::string, std::shared_ptr<EndpointSchema> > senderSchemas;
 
+    static EndpointSchema componentManifestSchema;
 
     void checkParse();
     void fillSchemaMaps();

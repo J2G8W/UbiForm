@@ -4,6 +4,20 @@
 
 #include "rapidjson/schema.h"
 
+EndpointSchema initManifestSchema(){
+
+    FILE* pFile = fopen("SystemSchemas/component_schema.json", "r");
+    if (pFile == NULL){
+        std::cerr << "Error in ComponentManifest finding requisite file -" << "SystemSchemas/component_schema.json" << std::endl;
+        exit(1);
+    }
+    EndpointSchema es(pFile);
+    return es;
+}
+
+EndpointSchema ComponentManifest::componentManifestSchema = initManifestSchema();
+
+
 // Constructors
 ComponentManifest::ComponentManifest(FILE *jsonFP) {
     // Arbitrary size of read buffer - only changes efficiency of the inputStream constructor
@@ -31,11 +45,7 @@ void ComponentManifest::checkParse(){
         error << " , error: " << rapidjson::GetParseError_En(JSON_document.GetParseError()) << std::endl;
         throw std::logic_error(error.str());
     }
-    if (!(JSON_document.HasMember("schemas") && JSON_document["schemas"].IsObject())) {
-        std::ostringstream error;
-        error << "Error, no schemas found defined for the manifest" << std::endl;
-        throw std::logic_error(error.str());
-    }
+    componentManifestSchema.validate(JSON_document);
 }
 
 
