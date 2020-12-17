@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "resource_discovery_by_id_response_v1",
+  "type": "object",
+  "properties": {
+    "component": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "object"}
+      ]
+    }
+  },
+  "required": ["component"]
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "resource_discovery_component_ids_request_v1",
+  "type": "object",
+  "properties": {
+    "request": {
+      "type": "string",
+      "enum": ["requestComponents"]
+    }
+  },
+  "required": ["request"]
+}

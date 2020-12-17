@@ -1,10 +1,11 @@
 {
-  "name": "Pair",
+  "name": "PairExample",
   "url": "tcp://127.0.0.1:8000",
   "schemas": {
-    "v1": {
+    "pairExample": {
+      "socketType": "pair",
       "send": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
         "properties": {
           "temp": {
@@ -17,7 +18,7 @@
         "required": ["msg","temp"]
       },
       "receive": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
         "properties": {
           "temp": {

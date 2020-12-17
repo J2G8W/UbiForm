@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "resource_discovery_by_schema_response_v1",
+  "type": "object",
+  "properties": {
+    "endpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "componentId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "endpointType": {
+            "type": "string"
+          },
+          "socketType": {
+            "type": "string",
+            "enum": ["pair","publisher","subscriber"]
+          }
+        },
+        "required": ["componentId","url","endpointType","socketType"]
+      }
+    }
+  },
+  "required": ["endpoints"]
+}

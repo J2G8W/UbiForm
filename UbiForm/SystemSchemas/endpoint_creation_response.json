@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "endpoint_creation_response_v1",
+  "type": "object",
+  "properties": {
+    "url": {
+      "oneOf": [
+        {"type": "string"},
+        {"type": "null"}
+      ]
+    }
+  }
+}
