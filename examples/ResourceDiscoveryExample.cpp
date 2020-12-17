@@ -35,7 +35,7 @@ int main(int argc, char ** argv){
 
             SocketMessage s;
             bool valid = true;
-            auto publisherEndpoints = component.getSenderEndpointsByType("v1");
+            auto publisherEndpoints = component.getSenderEndpointsByType("publisherExample");
             while(true) {
                 if (!publisherEndpoints->empty()) {
                     s.addMember("reverse", valid);
