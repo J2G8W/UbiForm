@@ -7,6 +7,9 @@
       "type": "string",
       "enum": ["requestSchema"]
     },
+    "dataReceiverEndpoint": {
+      "type": "boolean"
+    },
     "schema": {
       "type": "object"
     }
