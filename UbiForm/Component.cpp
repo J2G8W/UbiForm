@@ -164,7 +164,7 @@ void Component::backgroundListen(Component *component) {
             fatal("nng_recv", rv);
         }
         SocketMessage sm(buf);
-
+        nng_free(buf, sz);
         try {
             component->systemSchemas.at(ComponentSystemSchema::endpointCreationRequest)->validate(sm);
             if (sm.getString("socketType") == PAIR) {

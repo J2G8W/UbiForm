@@ -13,10 +13,12 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
 
     std::cout << "Resource Discovery Request - " << request << std::endl;
 
-
-    auto * returnMsg = new SocketMessage;
+    // Use a unique_ptr so when exceptions thrown it auto deletes
+    std::unique_ptr<SocketMessage> returnMsg = std::make_unique<SocketMessage>();
     if (request == ADDITION){
+
         rds.systemSchemas.at(RDMessaging::additionRequest)->validate(*sm);
+
 
         SocketMessage *manifest = sm->getObject("manifest");
         auto newCR = std::make_shared<ComponentRepresentation>(manifest);
@@ -78,7 +80,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
         returnMsg->addMember("components", componentIds);
         rds.systemSchemas.at(RDMessaging::componentIdsResponse)->validate(*returnMsg);
     }
-    return returnMsg;
+    return returnMsg.release();
 }
 
 ResourceDiscoveryStore::ResourceDiscoveryStore() {

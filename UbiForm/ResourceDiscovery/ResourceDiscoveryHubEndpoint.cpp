@@ -30,7 +30,6 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
 
         try {
             auto * requestMsg = new SocketMessage(buf);
-
             SocketMessage * returnMsg = ResourceDiscoveryStore::generateRDResponse(requestMsg, rdhe->rdStore);
             std::string msgText = returnMsg->stringify();
             if ((rv = nng_send(rdhe->rdSocket, (void *) msgText.c_str(), msgText.size() + 1, 0)) != 0) {
@@ -39,6 +38,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
 
             delete requestMsg;
             delete returnMsg;
+            nng_free(buf,sz);
         }catch (std::logic_error &e){
             std::cerr << e.what() << std::endl;
             nng_free(buf,sz);

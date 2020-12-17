@@ -26,7 +26,7 @@ protected:
         sm.addMember("manifest",manifest);
 
 
-        SocketMessage * returnMsg = nullptr;
+        SocketMessage * returnMsg;
         returnMsg = ResourceDiscoveryStore::generateRDResponse(&sm, resourceDiscoveryStore);
 
         return returnMsg;
