@@ -33,7 +33,7 @@ private:
 
     nng_socket backgroundSocket;
 
-    enum ComponentSystemSchema{manifestSchema, endpointCreationRequest, endpointCreationResponse};
+    enum ComponentSystemSchema{ endpointCreationRequest, endpointCreationResponse};
     std::map<ComponentSystemSchema, std::unique_ptr<EndpointSchema>> systemSchemas;
 
 

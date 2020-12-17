@@ -22,6 +22,7 @@ public:
         RDHUrls.push_back(url);
     }
 
+    // TODO - probably should validate outgoing and incoming messages, would make sense to share SystemSchemas
     SocketMessage *generateRegisterRequest();
     void registerWithHub(std::string url);
 
