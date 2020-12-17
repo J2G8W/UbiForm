@@ -19,7 +19,8 @@
 #define SUBSCRIBER "subscriber"
 
 // CONSTRUCTOR
-Component::Component() : backgroundSocket() {
+Component::Component(const std::string &baseAddress) : backgroundSocket() {
+    this->baseAddress = baseAddress;
     const char* files[3] = {"SystemSchemas/component_schema.json",
                             "SystemSchemas/endpoint_creation_request.json",
                             "SystemSchemas/endpoint_creation_response.json"};
@@ -138,17 +139,17 @@ Component::getSenderEndpointsByType(const std::string &endpointType) {
 }
 
 // THIS IS OUR COMPONENT LISTENING FOR REQUESTS TO MAKE SOCKETS
-void Component::startBackgroundListen(const char * listenAddress) {
+void Component::startBackgroundListen(int port) {
     int rv;
     if ((rv = nng_rep0_open(&backgroundSocket)) != 0) {
         fatal("Failure opening background socket", rv);
     }
-
-    if ((rv = nng_listen(backgroundSocket, listenAddress, nullptr, 0)) != 0) {
+    this->backgroundListenAddress = this->baseAddress + ":" + std::to_string(port);
+    if ((rv = nng_listen(backgroundSocket, backgroundListenAddress.c_str(), nullptr, 0)) != 0) {
         fatal("nng_listen", rv);
     }
     this->lowestPort ++;
-    this->backgroundListenAddress = std::string(listenAddress);
+
     this->backgroundThread = std::thread(backgroundListen,this);
 
 }
@@ -167,7 +168,7 @@ void Component::backgroundListen(Component *component) {
         try {
             component->systemSchemas.at(ComponentSystemSchema::endpointCreationRequest)->validate(sm);
             if (sm.getString("socketType") == PAIR) {
-                std::string url = "tcp://127.0.0.1:" + std::to_string(component->lowestPort);
+                std::string url = component->baseAddress + ":" + std::to_string(component->lowestPort);
 
                 std::shared_ptr<DataSenderEndpoint> e = component->createNewPairEndpoint(sm.getString("endpointType"), std::to_string(
                         component->lowestPort));
@@ -191,7 +192,7 @@ void Component::backgroundListen(Component *component) {
                 std::string url;
                 auto existingPublishers = component->getSenderEndpointsByType(sm.getString("endpointType"));
                 if (existingPublishers->empty()) {
-                    url = "tcp://127.0.0.1:" + std::to_string(component->lowestPort);
+                    url = component->baseAddress + ":"+ std::to_string(component->lowestPort);
                     std::shared_ptr<DataSenderEndpoint> e =
                             component->createNewPublisherEndpoint(sm.getString("endpointType"), std::to_string(component->lowestPort));
                     e->listenForConnection(url.c_str());
@@ -307,8 +308,9 @@ ResourceDiscoveryConnEndpoint *Component::createResourceDiscoveryConnectionEndpo
 }
 
 // CREATE RDHUB
-void Component::startResourceDiscoveryHub(const std::string &listenAddress) {
+void Component::startResourceDiscoveryHub(int port) {
     auto* rdh = new ResourceDiscoveryHubEndpoint;
+    std::string listenAddress = baseAddress + ":" + std::to_string(port);
     rdh->startResourceDiscover(listenAddress);
 }
 

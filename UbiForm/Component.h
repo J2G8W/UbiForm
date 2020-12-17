@@ -38,15 +38,17 @@ private:
 
 
     static void backgroundListen(Component *component);
-    int lowestPort = 8000;
+    int lowestPort = 8001;
     std::thread backgroundThread;
     std::string backgroundListenAddress;
 
+    std::string baseAddress;
 
     static std::string requestConnection(const std::string& address, const std::string& requestText);
 
 public:
-    Component();
+    Component(const std::string & baseAddress);
+    Component() : Component("tcp://127.0.0.1"){}
 
     void specifyManifest(FILE *jsonFP) { componentManifest = std::make_shared<ComponentManifest>(jsonFP); }
 
@@ -54,7 +56,7 @@ public:
         componentManifest = std::make_shared<ComponentManifest>(jsonString);
     }
 
-    void startBackgroundListen(const char *listenAddress);
+    void startBackgroundListen(int port);
 
     // We create a new Pair Endpoint and store it in our map as a SHARED pointer
     std::shared_ptr<PairEndpoint> createNewPairEndpoint(std::string type, std::string id);
@@ -75,7 +77,7 @@ public:
 
 
 
-    void startResourceDiscoveryHub(const std::string &listenAddress);
+    void startResourceDiscoveryHub(int port);
 
     ResourceDiscoveryConnEndpoint* createResourceDiscoveryConnectionEndpoint();
 

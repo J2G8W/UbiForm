@@ -47,8 +47,8 @@ class PairBasedComponent : public testing::Test{
 protected:
     // Note we aren't REALLY testing the inputting of the manifest as this is done automatically
     PairBasedComponent(){
-        receiverComponent = new Component();
-        senderComponent = new Component();
+        receiverComponent = new Component("ipc:///tmp/comp1");
+        senderComponent = new Component("ipc:///tmp/comp2");
         if (pFile == NULL){
             std::cerr << "Error finding requisite file - " << "TestManifests/Component1.json" << std::endl;
         }
@@ -69,10 +69,9 @@ protected:
 };
 
 TEST_F(PairBasedComponent, FindEachOther){
-    const char *address = "ipc:///tmp/test.ipc";
-    // We use IPC to test our component
-    senderComponent->startBackgroundListen(address);
-    ASSERT_NO_THROW(receiverComponent->requestAndCreateConnection("pairExample",address, "pairExample"));
+    // We use IPC to test our component - concept of ports is less clear, but it works
+    senderComponent->startBackgroundListen(8000);
+    ASSERT_NO_THROW(receiverComponent->requestAndCreateConnection("pairExample",senderComponent->getBackgroundListenAddress(), "pairExample"));
 
     sleep(1);
     // No throw means that there is in fact a pair connection being created in our component

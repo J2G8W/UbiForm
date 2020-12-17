@@ -54,7 +54,7 @@ int main(int argc, char ** argv){
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            component.startBackgroundListen("tcp://127.0.0.1:8000");
+            component.startBackgroundListen(8000);
 
             SocketMessage s;
             bool valid = true;

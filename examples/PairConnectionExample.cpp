@@ -28,8 +28,6 @@ int main(int argc, char ** argv){
                 }
             }
 
-
-
         }
         if (strcmp(argv[1], SENDER) == 0){
             Component sender;
@@ -41,7 +39,7 @@ int main(int argc, char ** argv){
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            sender.startBackgroundListen("tcp://127.0.0.1:8000");
+            sender.startBackgroundListen(8000);
             auto endpointVector = sender.getSenderEndpointsByType("pairExample");
             int i =0;
             while(true){
