@@ -32,6 +32,7 @@ public:
     SocketMessage *generateFindBySchemaRequest(std::string endpointType);
     std::vector<SocketMessage *> getComponentsBySchema(std::string endpointType);
 
+    void createEndpointBySchema(std::string endpointType);
 };
 
 

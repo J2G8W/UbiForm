@@ -120,3 +120,12 @@ std::vector<SocketMessage *> ResourceDiscoveryConnEndpoint::getComponentsBySchem
     delete request;
     return returnEndpoints;
 }
+
+
+void ResourceDiscoveryConnEndpoint::createEndpointBySchema(std::string endpointType){
+    std::vector<SocketMessage *> validLocations = getComponentsBySchema(endpointType);
+
+    for (const auto & location: validLocations) {
+        component->requestAndCreateConnection(endpointType,location->getString("url"), location->getString("endpointType"));
+    }
+}

@@ -11,7 +11,9 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
         throw ValidationError("Message has no request field");
     }
 
-    std::cout << request << std::endl;
+    std::cout << "Resource Discovery Request - " << request << std::endl;
+
+
     auto * returnMsg = new SocketMessage;
     if (request == ADDITION){
         rds.systemSchemas.at(RDMessaging::additionRequest)->validate(*sm);
