@@ -72,7 +72,7 @@ TEST_F(PairBasedComponent, FindEachOther){
     const char *address = "ipc:///tmp/test.ipc";
     // We use IPC to test our component
     senderComponent->startBackgroundListen(address);
-    ASSERT_NO_THROW(receiverComponent->requestPairConnection(address, "pairExample"));
+    ASSERT_NO_THROW(receiverComponent->requestAndCreateConnection("pairExample",address, "pairExample"));
 
     sleep(1);
     // No throw means that there is in fact a pair connection being created in our component

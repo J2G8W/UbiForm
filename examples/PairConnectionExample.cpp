@@ -17,11 +17,12 @@ int main(int argc, char ** argv){
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            receiver.requestPairConnection("tcp://127.0.0.1:8000", "v1");
-            auto endpoints = receiver.getReceiverEndpointsByType("v1");
+            receiver.requestAndCreateConnection("pairExample",
+                                                "tcp://127.0.0.1:8000",
+                                                "pairExample");
+            auto endpoints = receiver.getReceiverEndpointsByType("pairExample");
             while(true){
                 for(auto e: *endpoints){
-                    std::cout << "READY" <<std::endl;
                     auto msg = e->receiveMessage();
                     std::cout << msg->getInteger("temp") << std::endl;
                 }
@@ -41,7 +42,7 @@ int main(int argc, char ** argv){
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             sender.startBackgroundListen("tcp://127.0.0.1:8000");
-            auto endpointVector = sender.getSenderEndpointsByType("v1");
+            auto endpointVector = sender.getSenderEndpointsByType("pairExample");
             int i =0;
             while(true){
                 sleep(1);
@@ -59,9 +60,10 @@ int main(int argc, char ** argv){
                 }
             }
 
+        }else{
+            std::cerr << "Error usage is " << argv[0] << " " << RECEIVER <<"|"<<SENDER << "\n";
         }
-    }
-    else{
+    }else{
         std::cerr << "Error usage is " << argv[0] << " " << RECEIVER <<"|"<<SENDER << "\n";
     }
 }
@@ -119,8 +121,6 @@ int main(int argc, char ** argv){
 
         }
     }
-    else{
-        std::cerr << "Error usage is " << argv[0] << " " << RECEIVER <<"|"<<SENDER << "\n";
-    }
+
 }
 */

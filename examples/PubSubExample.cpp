@@ -13,18 +13,22 @@ int main(int argc, char ** argv){
         if (strcmp(argv[1], SUBSCRIBER) == 0){
             Component component;
 
-            FILE* pFile = fopen("JsonFiles/ReceiverManifest1.json", "r");
+            FILE* pFile = fopen("JsonFiles/SubscriberManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
             component.specifyManifest(pFile);
             fclose(pFile);
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            component.requestConnectionToPublisher("tcp://127.0.0.1:8000","v1");
-            component.requestConnectionToPublisher("tcp://127.0.0.1:8000","v1");
+            component.requestAndCreateConnection("subscriberExample",
+                                                 "tcp://127.0.0.1:8000",
+                                                 "publisherExample");
+            component.requestAndCreateConnection("subscriberExample",
+                                                 "tcp://127.0.0.1:8000",
+                                                 "publisherExample");
             std::unique_ptr<SocketMessage> s;
 
-            auto subscriberEndpoints = component.getReceiverEndpointsByType("v1");
+            auto subscriberEndpoints = component.getReceiverEndpointsByType("subscriberExample");
             while(true){
                 for (const auto& endpoint : *subscriberEndpoints) {
                     s = endpoint->receiveMessage();
@@ -43,7 +47,7 @@ int main(int argc, char ** argv){
         if (strcmp(argv[1], PUBLISHER) == 0){
             Component component;
 
-            FILE* pFile = fopen("JsonFiles/SenderManifest1.json", "r");
+            FILE* pFile = fopen("JsonFiles/PublisherManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
             component.specifyManifest(pFile);
             fclose(pFile);
@@ -54,7 +58,7 @@ int main(int argc, char ** argv){
 
             SocketMessage s;
             bool valid = true;
-            auto publisherEndpoints = component.getSenderEndpointsByType("v1");
+            auto publisherEndpoints = component.getSenderEndpointsByType("publisherExample");
             while(true) {
                 if (!publisherEndpoints->empty()) {
                     s.addMember("reverse", valid);
