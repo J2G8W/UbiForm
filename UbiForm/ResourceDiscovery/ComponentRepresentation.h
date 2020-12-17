@@ -3,6 +3,8 @@
 
 #include "../ComponentManifest.h"
 
+
+// NOTE THAT THESE ARE ALSO DEFINED IN "SystemSchemas/resource_discovery_*_request.json"
 #define ADDITION "addition"
 #define REQUEST_BY_ID "requestId"
 #define REQUEST_BY_SCHEMA "requestSchema"
