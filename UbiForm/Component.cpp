@@ -123,9 +123,8 @@ void Component::startBackgroundListen(const char * listenAddress) {
 
 }
 
-#define PAIR "PAIR"
-#define ERROR "ERROR"
-#define PUBLISHER "PUB"
+#define PAIR "pair"
+#define PUBLISHER "publisher"
 
 void Component::backgroundListen(Component *component) {
     int rv;
@@ -139,45 +138,54 @@ void Component::backgroundListen(Component *component) {
 
         try {
             initiateSchema.validate(sm);
-            if (sm.getString("connType") == PAIR) {
+            if (sm.getString("socketType") == PAIR) {
                 std::string url = "tcp://127.0.0.1:" + std::to_string(component->lowestPort);
 
-                std::shared_ptr<DataSenderEndpoint> e = component->createNewPairEndpoint(sm.getString("endType"), std::to_string(
+                std::shared_ptr<DataSenderEndpoint> e = component->createNewPairEndpoint(sm.getString("endpointType"), std::to_string(
                         component->lowestPort));
                 e->listenForConnection(url.c_str());
 
                 component->lowestPort++;
 
+                SocketMessage reply;
+                reply.addMember("url",url);
+                std::string replyText = reply.stringify();
+
                 // Send reply on regrep with url for the component to dial
-                if ((rv = nng_send(component->backgroundSocket, (void *) url.c_str(), url.size() + 1, 0)) != 0) {
+                if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
                     std::ostringstream error;
                     error << "Error replying" << std::endl;
                     error << "NNG error code " << rv << " type - " << nng_strerror(rv);
                     throw std::logic_error(error.str());
                 }
-            } else if (sm.getString("connType") == PUBLISHER) {
+            } else if (sm.getString("socketType") == PUBLISHER) {
                 std::string url;
-                auto existingPublishers = component->getSenderEndpointsByType(sm.getString("endType"));
+                auto existingPublishers = component->getSenderEndpointsByType(sm.getString("endpointType"));
                 if (existingPublishers->empty()) {
                     url = "tcp://127.0.0.1:" + std::to_string(component->lowestPort);
                     std::shared_ptr<DataSenderEndpoint> e =
-                            component->createNewPublisherEndpoint(sm.getString("endType"), std::to_string(component->lowestPort));
+                            component->createNewPublisherEndpoint(sm.getString("endpointType"), std::to_string(component->lowestPort));
                     e->listenForConnection(url.c_str());
                     component->lowestPort++;
                 }else{
                     url = existingPublishers->at(0)->getListenUrl();
                 }
 
+                SocketMessage reply;
+                reply.addMember("url",url);
+                std::string replyText = reply.stringify();
 
                 // Send reply on regrep with url for the component to dial
-                if ((rv = nng_send(component->backgroundSocket, (void *) url.c_str(), url.size() + 1, 0)) != 0) {
+                if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
                     throw NNG_error(rv, "Regrep reply");
                 }
             }
         }catch (std::out_of_range &e){
-            std::cerr << "No schema of type " << sm.getString("endType") << " found in this component." <<  std::endl << e.what() <<std::endl;
-            const char *reply = ERROR;
-            if ((rv = nng_send(component->backgroundSocket, (void *) reply, strlen(reply) + 1, 0)) != 0) {
+            std::cerr << "No schema of type " << sm.getString("endpointType") << " found in this component." <<  std::endl << e.what() <<std::endl;
+            SocketMessage reply;
+            reply.setNull("url");
+            std::string replyText = reply.stringify();
+            if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
                fatal("nng_send", rv);
             }
         }catch (std::logic_error &e){
@@ -188,48 +196,45 @@ void Component::backgroundListen(Component *component) {
 
 void Component::requestPairConnection(const std::string& address, const std::string& endpointType){
     SocketMessage sm;
-    sm.addMember("connType",std::string(PAIR));
-    sm.addMember("endType",endpointType);
-    char* url;
+    sm.addMember("socketType",std::string(PAIR));
+    sm.addMember("endpointType",endpointType);
+    std::string url;
     size_t sz = 0;
     try{
         url = requestConnection(address,sm.stringify() ,sz);
         std::shared_ptr<DataReceiverEndpoint> e = this->createNewPairEndpoint(endpointType, std::to_string(this->lowestPort));
         this->lowestPort ++;
-        e->dialConnection(url);
+        e->dialConnection(url.c_str());
     }catch (std::logic_error &e){
         std::cerr << e.what() << std::endl;
     }
 
-    nng_free(url, sz);
 }
 
 void Component::requestConnectionToPublisher(const std::string &address, const std::string &endpointType) {
     SocketMessage sm;
-    sm.addMember("connType",std::string(PUBLISHER));
-    sm.addMember("endType",endpointType);
-    char* url;
+    sm.addMember("socketType",std::string(PUBLISHER));
+    sm.addMember("endpointType",endpointType);
+    std::string url;
     size_t sz = 0;
     try{
         url = requestConnection(address,sm.stringify(), sz);
         std::shared_ptr<DataReceiverEndpoint> e = this->createNewSubscriberEndpoint(endpointType, std::to_string(this->lowestPort));
         this->lowestPort ++;
-        e->dialConnection(url);
+        e->dialConnection(url.c_str());
     }catch (std::logic_error &e){
         std::cerr << e.what() << std::endl;
     }
-
-    nng_free(url, sz);
 }
 
 
 EndpointSchema createInitiateSchema(){
-    const char* jsonSchema = R"({"$schema": "http://json-schema.org/draft-07/schema#","type": "object","properties": {"connType": {)"
-            R"("type": "string"}, "endType": {"type": "string"}},"required"=["connType","endType"]})";
-    rapidjson::Document d;
-    rapidjson::StringStream stream(jsonSchema);
-    d.ParseStream(stream);
-    EndpointSchema es(d);
+    FILE* pFile = fopen("SystemSchemas/endpoint_creation_request.json", "r");
+    if (pFile == NULL){
+        std::cerr << "Error finding requisite file -" << "SystemSchemas/endpoint_creation_request.json" << std::endl;
+        exit(1);
+    }
+    EndpointSchema es(pFile);
     return es;
 }
 
@@ -252,7 +257,7 @@ Component::~Component(){
     //nng_close(backgroundSocket);
 }
 
-char * Component::requestConnection(const std::string &address, const std::string& requestText, size_t & sz) {
+std::string Component::requestConnection(const std::string &address, const std::string& requestText, size_t & sz) {
     int rv;
     nng_socket tempSocket;
     if ((rv = nng_req0_open(&tempSocket)) != 0) {
@@ -271,12 +276,19 @@ char * Component::requestConnection(const std::string &address, const std::strin
     if ((rv = nng_recv(tempSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
         fatal("nng_recv", rv);
     }
-    if ((sz > strlen(ERROR)) && strncmp(buf,ERROR,strlen(ERROR)) == 0){
-        throw std::logic_error("No valid endpoint of: " + requestText);
-    }else {
-        buf[sz - 1] = 0;
-        return buf;
+    try{
+        SocketMessage response(buf);
+        nng_free(buf,sz);
+        if (response.isNull("url")){
+            throw std::logic_error("No valid endpoint of: " + requestText);
+        }else{
+            return response.getString("url");
+        }
+    } catch (std::logic_error &e) {
+        std::cerr << "Error in handling response" << std::endl;
+        throw;
     }
+
 }
 
 ResourceDiscoveryConnEndpoint *Component::createResourceDiscoveryConnectionEndpoint() {
