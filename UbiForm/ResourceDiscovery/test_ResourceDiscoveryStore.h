@@ -141,7 +141,7 @@ TEST_F(SimpleRDS, GetBySchemaValid){
     request.addMember("request",REQUEST_BY_SCHEMA);
     SocketMessage * schema = loadSocketMessage("TestManifests/Endpoint1.json");
     request.addMember("schema",*schema);
-    request.addMember("receiveData", true);
+    request.addMember("dataReceiverEndpoint", true);
     delete schema;
 
 
@@ -173,7 +173,7 @@ TEST_F(SimpleRDS, GetBySchemaInvalid){
     // Doesn't match component1
     SocketMessage * schema = loadSocketMessage("TestManifests/Endpoint3.json");
     request.addMember("schema",*schema);
-    request.addMember("receiveData", true);
+    request.addMember("dataReceiverEndpoint", true);
     delete schema;
 
 
