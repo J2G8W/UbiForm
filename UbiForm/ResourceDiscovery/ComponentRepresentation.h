@@ -41,18 +41,7 @@ public:
 
     std::vector<std::string> findEquals(bool recv, SocketMessage &sm);
 
-    SocketMessage * getSchema(std::string endpointId, bool recv){
-        if (JSON_document["schemas"].GetObject().HasMember(endpointId)){
-            SocketMessage *schema;
-            if (recv) {
-                schema = new SocketMessage(JSON_document["schemas"].GetObject()[endpointId].GetObject()["receive"]);
-            }else{
-                schema = new SocketMessage(JSON_document["schemas"].GetObject()[endpointId].GetObject()["send"]);
-            }
-            return schema;
-        }
-        return nullptr;
-    }
+    SocketMessage * getSchema(std::string endpointId, bool recv);
 
 
 };

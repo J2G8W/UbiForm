@@ -63,6 +63,45 @@ std::string ComponentManifest::getName() {
     return JSON_document["name"].GetString();
 }
 
+SocketMessage *ComponentManifest::getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema) {
+    const auto & schemas = JSON_document["schemas"].GetObject();
+    if (schemas.HasMember(typeOfEndpoint) && schemas[typeOfEndpoint].IsObject()){
+        if(receiveSchema){
+            if (schemas[typeOfEndpoint].GetObject().HasMember("receive")){
+                return new SocketMessage(schemas[typeOfEndpoint].GetObject()["receive"]);
+            }else{
+                throw std::logic_error("The endpoint has no receive member");
+            }
+        }else{
+            if (schemas[typeOfEndpoint].GetObject().HasMember("send")){
+                return new SocketMessage(schemas[typeOfEndpoint].GetObject()["send"]);
+            }else{
+                throw std::logic_error("The endpoint has no send member");
+            }
+        }
+    }else{
+        throw std::logic_error("No endpoint of that type found");
+    }
+}
+
+std::shared_ptr<EndpointSchema> ComponentManifest::getReceiverSchema(const std::string &typeOfEndpoint) {
+    try{
+        return receiverSchemas.at(typeOfEndpoint);
+    } catch (std::out_of_range &e) {
+        // Explicit rethrow of the exception
+        throw;
+    }
+}
+
+std::shared_ptr<EndpointSchema> ComponentManifest::getSenderSchema(const std::string &typeOfEndpoint) {
+    try{
+        return senderSchemas.at(typeOfEndpoint);
+    } catch (std::out_of_range &e) {
+        // Explicit rethrow of the exception
+        throw;
+    }
+}
+
 
 ComponentManifest::~ComponentManifest()= default;
 
