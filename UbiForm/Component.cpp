@@ -137,7 +137,7 @@ void Component::backgroundListen(Component *component) {
         SocketMessage sm(buf);
 
         try {
-            initiateSchema.validate(sm);
+            component->systemSchemas.at(ComponentSystemSchema::endpointCreationRequest)->validate(sm);
             if (sm.getString("socketType") == PAIR) {
                 std::string url = "tcp://127.0.0.1:" + std::to_string(component->lowestPort);
 
@@ -149,6 +149,7 @@ void Component::backgroundListen(Component *component) {
 
                 SocketMessage reply;
                 reply.addMember("url",url);
+                component->systemSchemas.at(ComponentSystemSchema::endpointCreationResponse)->validate(reply);
                 std::string replyText = reply.stringify();
 
                 // Send reply on regrep with url for the component to dial
@@ -173,6 +174,7 @@ void Component::backgroundListen(Component *component) {
 
                 SocketMessage reply;
                 reply.addMember("url",url);
+                component->systemSchemas.at(ComponentSystemSchema::endpointCreationResponse)->validate(reply);
                 std::string replyText = reply.stringify();
 
                 // Send reply on regrep with url for the component to dial
@@ -184,6 +186,7 @@ void Component::backgroundListen(Component *component) {
             std::cerr << "No schema of type " << sm.getString("endpointType") << " found in this component." <<  std::endl << e.what() <<std::endl;
             SocketMessage reply;
             reply.setNull("url");
+            component->systemSchemas.at(ComponentSystemSchema::endpointCreationResponse)->validate(reply);
             std::string replyText = reply.stringify();
             if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
                fatal("nng_send", rv);
@@ -198,6 +201,9 @@ void Component::requestPairConnection(const std::string& address, const std::str
     SocketMessage sm;
     sm.addMember("socketType",std::string(PAIR));
     sm.addMember("endpointType",endpointType);
+
+    systemSchemas.at(ComponentSystemSchema::endpointCreationRequest)->validate(sm);
+
     std::string url;
     size_t sz = 0;
     try{
@@ -215,6 +221,9 @@ void Component::requestConnectionToPublisher(const std::string &address, const s
     SocketMessage sm;
     sm.addMember("socketType",std::string(PUBLISHER));
     sm.addMember("endpointType",endpointType);
+
+    systemSchemas.at(ComponentSystemSchema::endpointCreationRequest)->validate(sm);
+
     std::string url;
     size_t sz = 0;
     try{
@@ -228,18 +237,6 @@ void Component::requestConnectionToPublisher(const std::string &address, const s
 }
 
 
-EndpointSchema createInitiateSchema(){
-    FILE* pFile = fopen("SystemSchemas/endpoint_creation_request.json", "r");
-    if (pFile == NULL){
-        std::cerr << "Error finding requisite file -" << "SystemSchemas/endpoint_creation_request.json" << std::endl;
-        exit(1);
-    }
-    EndpointSchema es(pFile);
-    return es;
-}
-
-EndpointSchema Component::initiateSchema = createInitiateSchema();
-
 
 Component::~Component(){
     // We detach our background thread so termination of the thread happens safely
@@ -249,7 +246,6 @@ Component::~Component(){
 
     // Make sure that the messages are flushed
     nng_msleep(300);
-
 
 
     // Close our background socket, and don't really care what return value is
@@ -279,10 +275,16 @@ std::string Component::requestConnection(const std::string &address, const std::
     try{
         SocketMessage response(buf);
         nng_free(buf,sz);
+
+
         if (response.isNull("url")){
             throw std::logic_error("No valid endpoint of: " + requestText);
         }else{
-            return response.getString("url");
+            try {
+                return response.getString("url");
+            }catch (AccessError &e){
+                throw std::logic_error("No endpoint returned");
+            }
         }
     } catch (std::logic_error &e) {
         std::cerr << "Error in handling response" << std::endl;
@@ -294,4 +296,21 @@ std::string Component::requestConnection(const std::string &address, const std::
 ResourceDiscoveryConnEndpoint *Component::createResourceDiscoveryConnectionEndpoint() {
     auto* rdc = new ResourceDiscoveryConnEndpoint(this);
     return rdc;
+}
+
+Component::Component() : backgroundSocket() {
+    const char* files[3] = {"SystemSchemas/component_schema.json",
+                            "SystemSchemas/endpoint_creation_request.json",
+                            "SystemSchemas/endpoint_creation_response.json"};
+
+    for (int i =0; i < 3; i++){
+        FILE* pFile = fopen(files[i], "r");
+        if (pFile == NULL){
+            std::cerr << "Error finding requisite file - " << files[i] << std::endl;
+            exit(1);
+        }
+        std::unique_ptr<EndpointSchema> es = std::make_unique<EndpointSchema>(pFile);
+        systemSchemas.insert(std::make_pair(static_cast<ComponentSystemSchema>(i), std::move(es)));
+        fclose(pFile);
+    }
 }

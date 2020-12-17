@@ -33,7 +33,9 @@ private:
 
     nng_socket backgroundSocket;
 
-    static EndpointSchema initiateSchema;
+    enum ComponentSystemSchema{manifestSchema, endpointCreationRequest, endpointCreationResponse};
+    std::map<ComponentSystemSchema, std::unique_ptr<EndpointSchema>> systemSchemas;
+
 
     static void backgroundListen(Component *component);
     int lowestPort = 8000;
@@ -44,7 +46,7 @@ private:
     static std::string requestConnection(const std::string& address, const std::string& requestText, size_t &sz);
 
 public:
-    Component() = default;
+    Component();
 
     void specifyManifest(FILE *jsonFP) { componentManifest = std::make_shared<ComponentManifest>(jsonFP); }
 
