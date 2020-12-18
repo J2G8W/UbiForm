@@ -7,15 +7,12 @@
 #include <random>
 #include "../SocketMessage.h"
 #include "ComponentRepresentation.h"
+#include "../SystemSchemas/SystemSchemas.h"
 
 class ResourceDiscoveryStore{
 private:
-    enum RDMessaging{
-        additionRequest,additionResponse,byIdRequest,byIdResponse,
-        bySchemaRequest, bySchemaResponse, componentIdsRequest, componentIdsResponse
-    };
 
-    std::map<RDMessaging, std::unique_ptr<EndpointSchema>> systemSchemas;
+    SystemSchemas &systemSchemas;
 
     std::map<std::string, std::shared_ptr<ComponentRepresentation>> componentById;
     static std::minstd_rand0 generator;
@@ -25,7 +22,7 @@ private:
 public:
     static SocketMessage * generateRDResponse(SocketMessage *sm, ResourceDiscoveryStore & rds);
 
-    ResourceDiscoveryStore();
+    ResourceDiscoveryStore(SystemSchemas & ss);
 };
 
 

@@ -17,11 +17,11 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
     std::unique_ptr<SocketMessage> returnMsg = std::make_unique<SocketMessage>();
     if (request == ADDITION){
 
-        rds.systemSchemas.at(RDMessaging::additionRequest)->validate(*sm);
+        rds.systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*sm);
 
 
         SocketMessage *manifest = sm->getObject("manifest");
-        auto newCR = std::make_shared<ComponentRepresentation>(manifest);
+        auto newCR = std::make_shared<ComponentRepresentation>(manifest, rds.systemSchemas);
         delete manifest;
 
         std::string id = std::to_string(generator());
@@ -31,10 +31,10 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
 
         returnMsg->addMember("id",id);
 
-        rds.systemSchemas.at(RDMessaging::additionResponse)->validate(*returnMsg);
+        rds.systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*returnMsg);
 
     }else if (request == REQUEST_BY_ID){
-        rds.systemSchemas.at(RDMessaging::byIdRequest)->validate(*sm);
+        rds.systemSchemas.getSystemSchema(SystemSchemaName::byIdRequest).validate(*sm);
 
         std::string id = sm->getString("id");
         if (rds.componentById.count(id) > 0){
@@ -45,9 +45,9 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
             returnMsg->setNull("component");
         }
 
-        rds.systemSchemas.at(RDMessaging::byIdResponse)->validate(*returnMsg);
+        rds.systemSchemas.getSystemSchema(SystemSchemaName::byIdResponse).validate(*returnMsg);
     }else if (request == REQUEST_BY_SCHEMA){
-        rds.systemSchemas.at(RDMessaging::bySchemaRequest)->validate(*sm);
+        rds.systemSchemas.getSystemSchema(SystemSchemaName::bySchemaRequest).validate(*sm);
 
         SocketMessage * schemaRequest = sm->getObject("schema");
         bool receiveData = sm->getBoolean("dataReceiverEndpoint");
@@ -70,37 +70,18 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
             delete rs;
         }
         delete schemaRequest;
-        rds.systemSchemas.at(RDMessaging::bySchemaResponse)->validate(*returnMsg);
+        rds.systemSchemas.getSystemSchema(SystemSchemaName::bySchemaResponse).validate(*returnMsg);
     }else if (request == REQUEST_COMPONENTS){
-        rds.systemSchemas.at(RDMessaging::componentIdsRequest)->validate(*sm);
+        rds.systemSchemas.getSystemSchema(SystemSchemaName::componentIdsRequest).validate(*sm);
         std::vector<std::string> componentIds;
         for (auto & it : rds.componentById){
             componentIds.push_back(it.first);
         }
         returnMsg->addMember("components", componentIds);
-        rds.systemSchemas.at(RDMessaging::componentIdsResponse)->validate(*returnMsg);
+        rds.systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*returnMsg);
     }
     return returnMsg.release();
 }
 
-ResourceDiscoveryStore::ResourceDiscoveryStore() {
-    const char* files[8] = {"SystemSchemas/resource_discovery_addition_request.json",
-                            "SystemSchemas/resource_discovery_addition_response.json",
-                            "SystemSchemas/resource_discovery_by_id_request.json",
-                            "SystemSchemas/resource_discovery_by_id_response.json",
-                            "SystemSchemas/resource_discovery_by_schema_request.json",
-                            "SystemSchemas/resource_discovery_by_schema_response.json",
-                            "SystemSchemas/resource_discovery_component_ids_request.json",
-                            "SystemSchemas/resource_discovery_component_ids_response.json"};
-
-    for (int i =0; i < 8; i++){
-        FILE* pFile = fopen(files[i], "r");
-        if (pFile == NULL){
-            std::cerr << "Error finding requisite file -" << files[i] << std::endl;
-            exit(1);
-        }
-        std::unique_ptr<EndpointSchema> es = std::make_unique<EndpointSchema>(pFile);
-        systemSchemas.insert(std::make_pair(static_cast<RDMessaging>(i), std::move(es)));
-        fclose(pFile);
-    }
+ResourceDiscoveryStore::ResourceDiscoveryStore(SystemSchemas & ss) : systemSchemas(ss) {
 }

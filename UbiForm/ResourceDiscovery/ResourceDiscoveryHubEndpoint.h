@@ -20,7 +20,7 @@ private:
     static void rdBackground(ResourceDiscoveryHubEndpoint *);
 
 public:
-    ResourceDiscoveryHubEndpoint() :rdSocket() {}
+    ResourceDiscoveryHubEndpoint(SystemSchemas &ss) : rdStore(ss), rdSocket() {}
     void startResourceDiscover(std::string urlInit);
 
 };

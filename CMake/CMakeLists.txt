@@ -55,7 +55,7 @@ endif()
 
 set(generalFunctions ../UbiForm/general_functions.h ../UbiForm/general_functions.cpp)
 set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
-        ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp ../UbiForm/SystemSchemas/SystemSchemas.h)
+        ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp ../UbiForm/SystemSchemas/SystemSchemas.h ../UbiForm/SystemSchemas/SystemSchemas.cpp)
 set(endpointFiles ../UbiForm/endpoints/DataReceiverEndpoint.h ../UbiForm/endpoints/DataReceiverEndpoint.cpp
         ../UbiForm/endpoints/DataSenderEndpoint.h ../UbiForm/endpoints/DataSenderEndpoint.cpp
         ../UbiForm/endpoints/EndpointSchema.h ../UbiForm/endpoints/EndpointSchema.cpp
@@ -64,7 +64,9 @@ set(endpointFiles ../UbiForm/endpoints/DataReceiverEndpoint.h ../UbiForm/endpoin
         ../UbiForm/endpoints/PublisherEndpoint.cpp ../UbiForm/endpoints/PublisherEndpoint.h)
 
 set(resourceDiscovery ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.h
-        ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.h)
+        ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h
+        ../UbiForm/ResourceDiscovery/ComponentRepresentation.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.cpp
+        ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.h)
 
 # Create library
 file(COPY ../UbiForm/SystemSchemas DESTINATION .)
@@ -73,7 +75,9 @@ target_link_libraries(UbiForm gtest_main gmock_main)
 
 # Create tests
 if (BUILD_TESTS)
-    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h ../UbiForm/endpoints/test_EndpointSchema.h ../UbiForm/test_Component.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h)
+    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h
+            ../UbiForm/endpoints/test_EndpointSchema.h ../UbiForm/test_Component.h
+            ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm ${NNG})
     file(COPY ../tests/TestManifests DESTINATION .)

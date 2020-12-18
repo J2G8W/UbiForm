@@ -2,14 +2,14 @@
 
 class SimpleCR : public testing::Test{
 protected:
-    SimpleCR(){
+    SimpleCR():ss(){
     }
     void loadComponentRepresentation(const char * location){
         FILE* pFile = fopen(location, "r");
         if (pFile == NULL){
             std::cerr << "Error finding requisite file ("<<location <<")" << std::endl;
         }
-        componentRepresentation = new ComponentRepresentation(pFile);
+        componentRepresentation = new ComponentRepresentation(pFile,ss);
     }
     void loadSocketMessage(std::string location){
         try {
@@ -30,6 +30,7 @@ protected:
 
     ComponentRepresentation* componentRepresentation;
     SocketMessage* socketMessage;
+    SystemSchemas ss;
 };
 
 TEST_F(SimpleCR, EqualityOfExact){

@@ -76,7 +76,7 @@ ComponentRepresentation *ResourceDiscoveryConnEndpoint::getComponentById(std::st
     }
     try{
         SocketMessage* compRep = reply->getObject("component");
-        auto * componentRepresentation = new ComponentRepresentation(compRep);
+        auto * componentRepresentation = new ComponentRepresentation(compRep, systemSchemas);
         delete compRep;
         delete reply;
         return componentRepresentation;

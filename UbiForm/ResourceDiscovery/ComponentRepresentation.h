@@ -15,21 +15,21 @@ class ComponentRepresentation : public ComponentManifest{
 private:
     std::string url;
 public:
-    explicit ComponentRepresentation(const char *JSON_input): ComponentManifest(JSON_input){
+    explicit ComponentRepresentation(const char *JSON_input, SystemSchemas& ss): ComponentManifest(JSON_input,ss){
         if(JSON_document.HasMember("url") && JSON_document["url"].IsString()){
             url = JSON_document["url"].GetString();
         }else{
             throw std::logic_error("NO URL IN JSON");
         }
     }
-    explicit ComponentRepresentation(SocketMessage * sm) : ComponentManifest(sm){
+    explicit ComponentRepresentation(SocketMessage * sm, SystemSchemas& ss) : ComponentManifest(sm, ss){
         if(JSON_document.HasMember("url") && JSON_document["url"].IsString()){
             url = JSON_document["url"].GetString();
         }else{
             throw std::logic_error("NO URL IN JSON");
         }
     }
-    explicit ComponentRepresentation(FILE *jsonFP) : ComponentManifest(jsonFP){
+    explicit ComponentRepresentation(FILE *jsonFP, SystemSchemas& ss) : ComponentManifest(jsonFP, ss){
         if(JSON_document.HasMember("url") && JSON_document["url"].IsString()){
             url = JSON_document["url"].GetString();
         }else{

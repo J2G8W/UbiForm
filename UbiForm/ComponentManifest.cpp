@@ -4,22 +4,10 @@
 
 #include "rapidjson/schema.h"
 
-EndpointSchema initManifestSchema(){
-
-    FILE* pFile = fopen("SystemSchemas/component_schema.json", "r");
-    if (pFile == NULL){
-        std::cerr << "Error in ComponentManifest finding requisite file -" << "SystemSchemas/component_schema.json" << std::endl;
-        exit(1);
-    }
-    EndpointSchema es(pFile);
-    return es;
-}
-
-EndpointSchema ComponentManifest::componentManifestSchema = initManifestSchema();
 
 
 // Constructors
-ComponentManifest::ComponentManifest(FILE *jsonFP) {
+ComponentManifest::ComponentManifest(FILE *jsonFP,SystemSchemas &ss): systemSchemas(ss) {
     // Arbitrary size of read buffer - only changes efficiency of the inputStream constructor
     char readBuffer[65536];
     rapidjson::FileReadStream inputStream(jsonFP, readBuffer, sizeof(readBuffer));
@@ -29,7 +17,7 @@ ComponentManifest::ComponentManifest(FILE *jsonFP) {
     fillSchemaMaps();
 };
 
-ComponentManifest::ComponentManifest(const char *jsonString) {
+ComponentManifest::ComponentManifest(const char *jsonString, SystemSchemas &ss) : systemSchemas(ss) {
     rapidjson::StringStream stream(jsonString);
     JSON_document.ParseStream(stream);
 
@@ -46,7 +34,7 @@ void ComponentManifest::checkParse(){
         error << " , error: " << rapidjson::GetParseError_En(JSON_document.GetParseError()) << std::endl;
         throw ParsingError(error.str());
     }
-    componentManifestSchema.validate(JSON_document);
+    systemSchemas.getSystemSchema(SystemSchemaName::componentManifest).validate(JSON_document);
 }
 
 

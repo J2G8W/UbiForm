@@ -19,22 +19,9 @@
 #define SUBSCRIBER "subscriber"
 
 // CONSTRUCTOR
-Component::Component(const std::string &baseAddress) : backgroundSocket() {
+Component::Component(const std::string &baseAddress) : backgroundSocket(), systemSchemas() {
     this->baseAddress = baseAddress;
-    const char* files[3] = {"SystemSchemas/component_schema.json",
-                            "SystemSchemas/endpoint_creation_request.json",
-                            "SystemSchemas/endpoint_creation_response.json"};
 
-    for (int i =0; i < 3; i++){
-        FILE* pFile = fopen(files[i], "r");
-        if (pFile == NULL){
-            std::cerr << "Error finding requisite file - " << files[i] << std::endl;
-            exit(1);
-        }
-        std::unique_ptr<EndpointSchema> es = std::make_unique<EndpointSchema>(pFile);
-        systemSchemas.insert(std::make_pair(static_cast<ComponentSystemSchema>(i), std::move(es)));
-        fclose(pFile);
-    }
 }
 
 
@@ -166,7 +153,7 @@ void Component::backgroundListen(Component *component) {
         SocketMessage sm(buf);
         nng_free(buf, sz);
         try {
-            component->systemSchemas.at(ComponentSystemSchema::endpointCreationRequest)->validate(sm);
+            component->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(sm);
             if (sm.getString("socketType") == PAIR) {
                 std::string url = component->baseAddress + ":" + std::to_string(component->lowestPort);
 
@@ -178,7 +165,7 @@ void Component::backgroundListen(Component *component) {
 
                 SocketMessage reply;
                 reply.addMember("url",url);
-                component->systemSchemas.at(ComponentSystemSchema::endpointCreationResponse)->validate(reply);
+                component->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(reply);
                 std::string replyText = reply.stringify();
 
                 // Send reply on regrep with url for the component to dial
@@ -203,7 +190,7 @@ void Component::backgroundListen(Component *component) {
 
                 SocketMessage reply;
                 reply.addMember("url",url);
-                component->systemSchemas.at(ComponentSystemSchema::endpointCreationResponse)->validate(reply);
+                component->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(reply);
                 std::string replyText = reply.stringify();
 
                 // Send reply on regrep with url for the component to dial
@@ -215,7 +202,7 @@ void Component::backgroundListen(Component *component) {
             std::cerr << "No schema of type " << sm.getString("endpointType") << " found in this component." <<  std::endl << e.what() <<std::endl;
             SocketMessage reply;
             reply.setNull("url");
-            component->systemSchemas.at(ComponentSystemSchema::endpointCreationResponse)->validate(reply);
+            component->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(reply);
             std::string replyText = reply.stringify();
             if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
                fatal("nng_send", rv);
@@ -239,7 +226,7 @@ void Component::requestAndCreateConnection(const std::string& localEndpointType,
 
     sm.addMember("endpointType",remoteEndpointType);
 
-    systemSchemas.at(ComponentSystemSchema::endpointCreationRequest)->validate(sm);
+    systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(sm);
 
     std::string url;
 
@@ -304,14 +291,14 @@ std::string Component::requestConnection(const std::string &address, const std::
 // CREATE RDCONNECTION
 ResourceDiscoveryConnEndpoint *Component::createResourceDiscoveryConnectionEndpoint() {
     if(this->resourceDiscoveryConnEndpoint == nullptr) {
-        this->resourceDiscoveryConnEndpoint = new ResourceDiscoveryConnEndpoint(this);
+        this->resourceDiscoveryConnEndpoint = new ResourceDiscoveryConnEndpoint(this, systemSchemas);
     }
     return this->resourceDiscoveryConnEndpoint;
 }
 
 // CREATE RDHUB
 void Component::startResourceDiscoveryHub(int port) {
-    auto* rdh = new ResourceDiscoveryHubEndpoint;
+    auto* rdh = new ResourceDiscoveryHubEndpoint(systemSchemas);
     std::string listenAddress = baseAddress + ":" + std::to_string(port);
     rdh->startResourceDiscover(listenAddress);
 }

@@ -16,6 +16,7 @@
 #include "endpoints/PublisherEndpoint.h"
 #include "endpoints/SubscriberEndpoint.h"
 #include "ResourceDiscovery/ResourceDiscoveryHubEndpoint.h"
+#include "SystemSchemas/SystemSchemas.h"
 
 
 class ResourceDiscoveryConnEndpoint;
@@ -33,8 +34,7 @@ private:
 
     nng_socket backgroundSocket;
 
-    enum ComponentSystemSchema{ endpointCreationRequest, endpointCreationResponse};
-    std::map<ComponentSystemSchema, std::unique_ptr<EndpointSchema>> systemSchemas;
+    SystemSchemas systemSchemas;
 
 
     static void backgroundListen(Component *component);
@@ -53,11 +53,11 @@ public:
     Component() : Component("tcp://127.0.0.1"){}
 
     void specifyManifest(FILE *jsonFP) {
-        componentManifest = std::make_shared<ComponentManifest>(jsonFP);
+        componentManifest = std::make_shared<ComponentManifest>(jsonFP,systemSchemas);
     }
 
     void specifyManifest(const char *jsonString) {
-        componentManifest = std::make_shared<ComponentManifest>(jsonString);
+        componentManifest = std::make_shared<ComponentManifest>(jsonString,systemSchemas);
     }
 
     void startBackgroundListen(int port);

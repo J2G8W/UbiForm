@@ -6,11 +6,11 @@
 class SimpleRDS : public testing::Test{
 protected:
     // Note we aren't REALLY testing the inputting of the manifest as this is done automatically
-    SimpleRDS(): resourceDiscoveryStore(){
+    SimpleRDS(): ss(), resourceDiscoveryStore(ss){
         if (pFile == NULL){
             std::cerr << "Error finding requisite file (JsonFiles/PairManifest1.json)";
         }
-        exampleManifest = new ComponentManifest(pFile);
+        exampleManifest = new ComponentManifest(pFile,ss);
     }
 
     ~SimpleRDS(){
@@ -47,6 +47,7 @@ protected:
     FILE* pFile = fopen("TestManifests/Component1.json", "r");
     ResourceDiscoveryStore resourceDiscoveryStore;
     ComponentManifest * exampleManifest;
+    SystemSchemas ss;
 };
 
 
@@ -94,7 +95,7 @@ TEST_F(SimpleRDS,GetManifestById){
     SocketMessage * componentObject = nullptr;
     ASSERT_NO_THROW(componentObject = returnMsg->getObject("component"));
 
-    ComponentRepresentation componentRepresentation(componentObject);
+    ComponentRepresentation componentRepresentation(componentObject,ss);
 
     ASSERT_EQ(componentRepresentation.getUrl(), listenUrl);
 

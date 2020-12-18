@@ -13,10 +13,12 @@ private:
     std::vector<std::string> RDHUrls;
     Component * component;
 
+    SystemSchemas & systemSchemas;
+
     SocketMessage * sendRequest(std::string, SocketMessage * request);
 
 public:
-    explicit ResourceDiscoveryConnEndpoint(Component *component) : component(component) {}
+    ResourceDiscoveryConnEndpoint(Component *component, SystemSchemas & ss) : component(component), systemSchemas(ss) {}
 
     void addResourceDiscoveryHub (std::string url){
         RDHUrls.push_back(url);

@@ -12,6 +12,7 @@
 
 #include "general_functions.h"
 #include "endpoints/EndpointSchema.h"
+#include "SystemSchemas/SystemSchemas.h"
 
 
 class ComponentManifest {
@@ -23,21 +24,21 @@ protected:
     std::map<std::string, std::shared_ptr<EndpointSchema> > receiverSchemas;
     std::map<std::string, std::shared_ptr<EndpointSchema> > senderSchemas;
 
-    static EndpointSchema componentManifestSchema;
+    SystemSchemas & systemSchemas;
 
     void checkParse();
     void fillSchemaMaps();
 
 public:
     // Accept JSON input as string
-    explicit ComponentManifest(const char *jsonString);
+    explicit ComponentManifest(const char *jsonString, SystemSchemas & es);
 
     // Accept JSON input as a FILE pointer
     // This is used rather than istreams as we get better performance for rapidjson
-    explicit ComponentManifest(FILE *jsonFP);
+    explicit ComponentManifest(FILE *jsonFP, SystemSchemas &es);
 
     // TODO - don't copy, use move constructors - far more efficient
-    explicit ComponentManifest(SocketMessage* sm) : ComponentManifest(sm->stringify().c_str()) {
+    explicit ComponentManifest(SocketMessage* sm,SystemSchemas &es ) : ComponentManifest(sm->stringify().c_str(), es) {
     }
 
 

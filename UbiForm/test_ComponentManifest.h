@@ -4,40 +4,45 @@
 
 #include <string>
 
-TEST(ComponentManifest, GetNameTest) {
-    ComponentManifest testManifest(R"({"name":"TEST1","schemas":{}})");
+class ComponentManifestBasics :  public testing::Test{
+protected:
+    SystemSchemas systemSchemas;
+};
+
+TEST_F(ComponentManifestBasics, GetNameTest) {
+    ComponentManifest testManifest(R"({"name":"TEST1","schemas":{}})", systemSchemas);
     std::string expected_output("TEST1");
 
     EXPECT_EQ(testManifest.getName(), expected_output);
 }
 
-TEST(ComponentManifest, StringifyTest) {
+TEST_F(ComponentManifestBasics, StringifyTest) {
     const char *jsonString = R"({"name":"TEST1","schemas":{}})";
-    ComponentManifest testManifest(jsonString);
+    ComponentManifest testManifest(jsonString, systemSchemas);
 
     EXPECT_EQ(testManifest.stringify(), std::string(jsonString));
 }
 
-TEST(ComponentManifest, NoSchema){
+TEST_F(ComponentManifestBasics, NoSchema){
     const char *jsonString = R"({"name":"TEST1"})";
-    ASSERT_THROW(new ComponentManifest(jsonString), ValidationError);
+    ASSERT_THROW(new ComponentManifest(jsonString, systemSchemas), ValidationError);
 }
 
-TEST(ComponentManifest, MalformedSchema){
+TEST_F(ComponentManifestBasics, MalformedSchema){
     const char *jsonString = R"({"name":"TEST1","schemas":{"TEST":{"socketType":"NOTHING"}}})";
-    ASSERT_THROW(new ComponentManifest(jsonString), ValidationError);
+    ASSERT_THROW(new ComponentManifest(jsonString, systemSchemas), ValidationError);
 }
 
-TEST(ComponentManifest, MalformedManifest){
+TEST_F(ComponentManifestBasics, MalformedManifest){
     const char *jsonString = R"({"name""TEST1")";
-    ASSERT_ANY_THROW(new ComponentManifest(jsonString));
+    ASSERT_ANY_THROW(new ComponentManifest(jsonString, systemSchemas));
 }
 
-TEST(ComponentManifest, CreationFromSocketMessage){
+TEST_F(ComponentManifestBasics, CreationFromSocketMessage){
     const char *jsonString = R"({"name":"TEST1","schemas":{}})";
     SocketMessage * sm = new SocketMessage(jsonString);
 
-    ComponentManifest testManifest(sm);
+    ComponentManifest testManifest(sm,systemSchemas);
     EXPECT_EQ(testManifest.stringify(), std::string(jsonString));
 
     delete sm;
@@ -45,11 +50,11 @@ TEST(ComponentManifest, CreationFromSocketMessage){
 
 class ManifestExample : public testing::Test{
 protected:
-    ManifestExample(){
+    ManifestExample() : systemSchemas(){
         if (pFile == NULL){
             std::cerr << "Error finding requisite file" << "TestManifests/Component1.json" << std::endl;
         }
-        componentManifest = new ComponentManifest(pFile);
+        componentManifest = new ComponentManifest(pFile,systemSchemas);
     }
 
     ~ManifestExample(){
@@ -58,6 +63,7 @@ protected:
 
     FILE* pFile = fopen("TestManifests/Component1.json", "r");
     ComponentManifest* componentManifest;
+    SystemSchemas systemSchemas;
 };
 
 TEST_F(ManifestExample, ReceiverSchemasTest){
