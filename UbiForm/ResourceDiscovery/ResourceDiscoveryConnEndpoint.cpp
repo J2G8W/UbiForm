@@ -8,21 +8,21 @@ SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(std::string url, Socke
     int rv;
     nng_socket requestSocket;
     if ((rv = nng_req0_open(&requestSocket)) != 0) {
-        throw NNG_error(rv, "Open RD connection request socket");
+        throw NngError(rv, "Open RD connection request socket");
     }
 
     if ((rv = nng_dial(requestSocket, url.c_str(), nullptr, 0)) != 0) {
-        throw NNG_error(rv, "Dialing RD hub at " + url);
+        throw NngError(rv, "Dialing RD hub at " + url);
     }
 
     std::string reqText = request->stringify();
     if ((rv = nng_send(requestSocket,(void*)reqText.c_str(),reqText.size() +1,0)) !=0 ){
-        throw NNG_error(rv, "Sending message to RD hub at " + url);
+        throw NngError(rv, "Sending message to RD hub at " + url);
     }
     char *buf;
     size_t sz;
     if ((rv = nng_recv(requestSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0){
-        throw NNG_error(rv, "Error receiving request from RD hub at " + url);
+        throw NngError(rv, "Error receiving request from RD hub at " + url);
     }
     try{
         auto * replyMsg = new SocketMessage(buf);

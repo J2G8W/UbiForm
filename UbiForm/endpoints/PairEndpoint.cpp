@@ -14,14 +14,14 @@
 void PairEndpoint::dialConnection(const char *url) {
     int rv;
     if ((rv = nng_pair0_open(senderSocket)) != 0) {
-        throw NNG_error(rv, "Making pair connection");
+        throw NngError(rv, "Making pair connection");
     }else{
         socketOpen = true;
     }
     // Use the same socket for sending and receiving
     receiverSocket = senderSocket;
     if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
-        throw NNG_error(rv, "Dialing " + std::string(url) + " for a pair connection");
+        throw NngError(rv, "Dialing " + std::string(url) + " for a pair connection");
     }
     this->listenUrl = url;
     this->dialUrl = url;
@@ -32,7 +32,7 @@ void PairEndpoint::dialConnection(const char *url) {
 void PairEndpoint::listenForConnection(const char *url){
     int rv;
     if ((rv = nng_pair0_open(senderSocket)) != 0) {
-        throw NNG_error(rv,"Pair socket creation");
+        throw NngError(rv, "Pair socket creation");
     }else{
         socketOpen = true;
     }
@@ -40,7 +40,7 @@ void PairEndpoint::listenForConnection(const char *url){
     receiverSocket = senderSocket;
 
     if ((rv = nng_listen(*senderSocket, url, nullptr, 0)) != 0) {
-        throw NNG_error(rv, "Listening on " + std::string(url) + " for pair connection");
+        throw NngError(rv, "Listening on " + std::string(url) + " for pair connection");
     }
     this->listenUrl = url;
     this->dialUrl = url;

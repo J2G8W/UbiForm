@@ -4,13 +4,13 @@
 void PublisherEndpoint::listenForConnection(const char *url) {
     int rv;
     if ((rv = nng_pub0_open(senderSocket)) != 0) {
-        throw NNG_error(rv, "Creation of publisher socket");
+        throw NngError(rv, "Creation of publisher socket");
     }else{
         socketOpen = true;
     }
 
     if ((rv = nng_listen(*senderSocket, url, nullptr, 0)) != 0) {
-        throw NNG_error(rv, "Listening on " + std::string(url) + " for publisher");
+        throw NngError(rv, "Listening on " + std::string(url) + " for publisher");
     }
     this->listenUrl = url;
 }

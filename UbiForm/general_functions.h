@@ -8,10 +8,10 @@ std::string stringifyDocument(rapidjson::Document &JSON_document);
 
 bool compareSchemaObjects(rapidjson::Value &schema1, rapidjson::Value &schema2);
 
-class NNG_error : public std::logic_error{
+class NngError : public std::logic_error{
 public:
     int errorCode;
-    NNG_error(int rv, const std::string& function_name):
+    NngError(int rv, const std::string& function_name):
         // TODO - find a way to use std::endl rathen that \n
         std::logic_error("NNG error with function: " + function_name + "\nError text: " + nng_strerror(rv))
         {errorCode = rv;}

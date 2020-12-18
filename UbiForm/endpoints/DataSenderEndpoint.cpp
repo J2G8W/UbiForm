@@ -11,7 +11,7 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
     try {
         senderSchema->validate(s);
         if ((rv = nng_send(*senderSocket, (void *) buffer, strlen(buffer) + 1, 0)) != 0) {
-            throw NNG_error(rv, "nng_send");
+            throw NngError(rv, "nng_send");
         }
     } catch (std::logic_error &e){
         std::cerr << "Message couldn't send as: " << e.what() << std::endl;
@@ -26,10 +26,10 @@ void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
     nng_msg * msg;
     int rv;
     if ((rv = nng_msg_alloc(&msg, 0)) !=0){
-        throw NNG_error(rv,"Allocating message space");
+        throw NngError(rv, "Allocating message space");
     }
     if ((rv =nng_msg_append(msg, (void*) textArray, text.size()+1)) != 0){
-        throw NNG_error(rv,"Creating Message");
+        throw NngError(rv, "Creating Message");
     }
     nng_aio_set_msg(nngAioPointer, msg);
 

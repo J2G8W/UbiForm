@@ -10,11 +10,11 @@
 void ResourceDiscoveryHubEndpoint::startResourceDiscover(std::string urlInit){
     int rv;
     if ((rv = nng_rep0_open(&rdSocket)) != 0) {
-        throw NNG_error(rv, "Opening socket for RDH");
+        throw NngError(rv, "Opening socket for RDH");
     }
 
     if ((rv = nng_listen(rdSocket, urlInit.c_str(), nullptr, 0)) != 0) {
-        throw NNG_error(rv, "Listening on " + urlInit + " for RDH");
+        throw NngError(rv, "Listening on " + urlInit + " for RDH");
     }
     this->rdThread = std::thread(rdBackground, this);
 }
@@ -35,7 +35,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
             SocketMessage * returnMsg = ResourceDiscoveryStore::generateRDResponse(requestMsg, rdhe->rdStore);
             std::string msgText = returnMsg->stringify();
             if ((rv = nng_send(rdhe->rdSocket, (void *) msgText.c_str(), msgText.size() + 1, 0)) != 0) {
-                throw NNG_error(rv, "RDHub sending reply");
+                throw NngError(rv, "RDHub sending reply");
             }
 
             delete requestMsg;
@@ -49,7 +49,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
             std::cerr << "Validation error of request - " << e.what() <<std::endl;
             nng_free(buf,sz);
             continue;
-        }catch (NNG_error &e){
+        }catch (NngError &e){
             std::cerr << "NNG error of request - " << e.what() <<std::endl;
             nng_free(buf,sz);
             continue;

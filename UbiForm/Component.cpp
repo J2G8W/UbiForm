@@ -129,11 +129,11 @@ Component::getSenderEndpointsByType(const std::string &endpointType) {
 void Component::startBackgroundListen(int port) {
     int rv;
     if ((rv = nng_rep0_open(&backgroundSocket)) != 0) {
-        throw NNG_error(rv, "Opening background socket");
+        throw NngError(rv, "Opening background socket");
     }
     this->backgroundListenAddress = this->baseAddress + ":" + std::to_string(port);
     if ((rv = nng_listen(backgroundSocket, backgroundListenAddress.c_str(), nullptr, 0)) != 0) {
-        throw NNG_error(rv,"Listening on " + backgroundListenAddress);
+        throw NngError(rv, "Listening on " + backgroundListenAddress);
     }
     this->lowestPort ++;
 
@@ -171,7 +171,7 @@ void Component::backgroundListen(Component *component) {
 
                 // Send reply on regrep with url for the component to dial
                 if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
-                    throw NNG_error(rv, "Replying to Pair creation request");
+                    throw NngError(rv, "Replying to Pair creation request");
                 }
             } else if (sm.getString("socketType") == PUBLISHER) {
                 std::string url;
@@ -193,7 +193,7 @@ void Component::backgroundListen(Component *component) {
 
                 // Send reply on regrep with url for the component to dial
                 if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
-                    throw NNG_error(rv, "Replying to Publisher creation request");
+                    throw NngError(rv, "Replying to Publisher creation request");
                 }
             }
         }catch (std::out_of_range &e){
@@ -208,7 +208,7 @@ void Component::backgroundListen(Component *component) {
             }
         }catch(ValidationError &e){
             std::cerr << "Invalid creation request - " << e.what() <<std::endl;
-        }catch(NNG_error &e){
+        }catch(NngError &e){
             std::cerr << "NNG error in handling creation request - " << e.what() <<std::endl;
         }
     }
@@ -252,21 +252,21 @@ std::string Component::requestConnection(const std::string &address, const std::
 
     nng_socket tempSocket;
     if ((rv = nng_req0_open(&tempSocket)) != 0) {
-        throw NNG_error(rv,"Opening temporary socket for connection request");
+        throw NngError(rv, "Opening temporary socket for connection request");
     }
 
     if ((rv = nng_dial(tempSocket, address.c_str(), nullptr, 0)) != 0) {
-        throw NNG_error(rv, "Dialing " + address + " for connection request");
+        throw NngError(rv, "Dialing " + address + " for connection request");
     }
 
     if ((rv = nng_send(tempSocket, (void *) requestText.c_str(), requestText.size() + 1, 0)) != 0) {
-        throw NNG_error(rv, "Sending to " + address + " for connection request");
+        throw NngError(rv, "Sending to " + address + " for connection request");
     }
 
     char *buf = nullptr;
     size_t sz;
     if ((rv = nng_recv(tempSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
-        throw NNG_error(rv, "Receiving response from connection request");
+        throw NngError(rv, "Receiving response from connection request");
     }
     try{
         SocketMessage response(buf);
