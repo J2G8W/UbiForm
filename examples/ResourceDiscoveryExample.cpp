@@ -12,12 +12,18 @@
 // Publisher is JUST a publisher (different to Hub)
 #define PUBLISHER "PUBLISHER"
 
-#define RDHlocation "tcp://127.0.0.1:7999"
 
 int main(int argc, char ** argv){
-    if (argc >= 2){
+    const char * componentAddress;
+    if (argc == 4){
+        componentAddress = argv[3];
+    }else{
+        componentAddress = "tcp://127.0.0.1";
+    }
+    if (argc >= 3){
+        const char * RDHAddress = argv[2];
         if (strcmp(argv[1], HUB) == 0){
-            Component component("tcp://127.0.0.1");
+            Component component(componentAddress);
 
             FILE* pFile = fopen("JsonFiles/PublisherManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
@@ -26,6 +32,7 @@ int main(int argc, char ** argv){
 
             std::cout << "MANIFEST SPECIFIED" << std::endl;
 
+            // Start on a specific port
             component.startBackgroundListen(8000);
             std::cout << "Component Listening" << std::endl;
 
@@ -34,7 +41,7 @@ int main(int argc, char ** argv){
             std::cout << "Resource discovery started" << std::endl;
 
             ResourceDiscoveryConnEndpoint* rdc = component.createResourceDiscoveryConnectionEndpoint();
-            rdc->registerWithHub(RDHlocation);
+            rdc->registerWithHub(RDHAddress);
 
             std::cout << "Registered successfully" << std::endl;
 
@@ -58,7 +65,7 @@ int main(int argc, char ** argv){
                 sleep(1);
             }
         }if (strcmp(argv[1], PUBLISHER) == 0){
-            Component component("tcp://127.0.0.3");
+            Component component(componentAddress);
 
             FILE* pFile = fopen("JsonFiles/PublisherManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
@@ -66,12 +73,12 @@ int main(int argc, char ** argv){
             fclose(pFile);
 
             std::cout << "MANIFEST SPECIFIED" << std::endl;
-
+            // Find some port which works
             component.startBackgroundListen();
             std::cout << "Component Listening" << std::endl;
 
             ResourceDiscoveryConnEndpoint* rdc = component.createResourceDiscoveryConnectionEndpoint();
-            rdc->registerWithHub(RDHlocation);
+            rdc->registerWithHub(RDHAddress);
 
             std::cout << "Registered successfully" << std::endl;
 
@@ -96,7 +103,7 @@ int main(int argc, char ** argv){
             }
         }
         if (strcmp(argv[1], CONNECTION) == 0){
-            Component component("tcp://127.0.0.2");
+            Component component(componentAddress);
             component.startBackgroundListen();
 
             FILE* pFile = fopen("JsonFiles/SubscriberManifest1.json", "r");
@@ -107,7 +114,7 @@ int main(int argc, char ** argv){
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
 
-            const char * locationOfRDH = RDHlocation;
+            const char * locationOfRDH = RDHAddress;
 
             ResourceDiscoveryConnEndpoint* rdc = component.createResourceDiscoveryConnectionEndpoint();
             rdc->addResourceDiscoveryHub(locationOfRDH);
@@ -139,7 +146,8 @@ int main(int argc, char ** argv){
         }
     }
     else{
-        std::cerr << "Error usage is " << argv[0] << " " << HUB <<"|"<< CONNECTION << "\n";
+        std::cerr << "Error usage is " << argv[0] << " " << HUB <<"|"<< CONNECTION << "|" << PUBLISHER;
+        std::cerr << " RDHlocation " << "[componentAddress]" << std::endl;
     }
 }
 
