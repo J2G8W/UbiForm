@@ -3,9 +3,9 @@
   "id": "resource_discovery_addition_response_v1",
   "type": "object",
   "properties": {
-    "id": {
+    "newID": {
       "type": "string"
     }
   },
-  "required": ["id"]
+  "required": ["newID"]
 }

@@ -14,5 +14,5 @@
       "type": "object"
     }
   },
-  "required": ["request","schema"]
+  "required": ["request","schema","dataReceiverEndpoint"]
 }

@@ -29,7 +29,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
         auto p1 = std::make_pair(id, newCR);
         rds.componentById.insert(p1);
 
-        returnMsg->addMember("id",id);
+        returnMsg->addMember("newID",id);
 
         rds.systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*returnMsg);
 

@@ -61,10 +61,9 @@ TEST_F(SimpleRDS,AdditionOfComponent){
 
 
     SocketMessage * returnMsg = nullptr;
+    // In this assertion we know that we have got back a valid message
     ASSERT_NO_THROW( returnMsg = ResourceDiscoveryStore::generateRDResponse(sm, resourceDiscoveryStore));
 
-    // Assert that we have a returned ID
-    ASSERT_NO_THROW(returnMsg->getString("id"));
 
     delete returnMsg;
     delete sm;

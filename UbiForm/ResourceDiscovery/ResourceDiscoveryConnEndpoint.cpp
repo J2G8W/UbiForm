@@ -50,9 +50,13 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
 
 void ResourceDiscoveryConnEndpoint::registerWithHub(std::string url) {
     SocketMessage * request = generateRegisterRequest();
+
+    systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*request);
+
     SocketMessage * reply = sendRequest(url, request);
 
-    std::cout << reply->getString("id") << std::endl;
+    systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
+    std::cout << reply->getString("newID") << std::endl;
     delete request;
     delete reply;
 }
@@ -60,7 +64,12 @@ void ResourceDiscoveryConnEndpoint::registerWithHub(std::string url) {
 std::vector<std::string> ResourceDiscoveryConnEndpoint::getComponentIdsFromHub(std::string url) {
     SocketMessage request;
     request.addMember("request",REQUEST_COMPONENTS);
+
+    systemSchemas.getSystemSchema(SystemSchemaName::componentIdsRequest).validate(request);
+
     SocketMessage * reply = sendRequest(url, &request);
+
+    systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*reply);
 
     return reply->getArray<std::string>("components");
 }
@@ -69,7 +78,13 @@ ComponentRepresentation *ResourceDiscoveryConnEndpoint::getComponentById(std::st
     SocketMessage request;
     request.addMember("request", REQUEST_BY_ID);
     request.addMember("id",id);
+
+    systemSchemas.getSystemSchema(SystemSchemaName::byIdRequest).validate(request);
+
     SocketMessage* reply = sendRequest(url, &request);
+
+    systemSchemas.getSystemSchema(SystemSchemaName::byIdResponse).validate(*reply);
+
     if (reply->isNull("component")){
         delete reply;
         throw std::logic_error("RDH did not have a component of that ID");
@@ -82,7 +97,7 @@ ComponentRepresentation *ResourceDiscoveryConnEndpoint::getComponentById(std::st
         return componentRepresentation;
     }catch(std::logic_error &e){
         std::cerr << "Malformed input from RDH" << std::endl;
-        throw;
+        throw ValidationError(e.what());
     }
 }
 
@@ -106,8 +121,14 @@ std::vector<SocketMessage *> ResourceDiscoveryConnEndpoint::getComponentsBySchem
     std::vector<SocketMessage *> returnEndpoints;
 
     SocketMessage* request = generateFindBySchemaRequest(endpointType);
+
+    systemSchemas.getSystemSchema(SystemSchemaName::bySchemaRequest).validate(*request);
+
     for (const auto& rdh : RDHUrls){
         SocketMessage* reply = sendRequest(rdh,request);
+
+        systemSchemas.getSystemSchema(SystemSchemaName::bySchemaResponse).validate(*reply);
+
         std::vector<SocketMessage *> replyEndpoints = reply->getArray<SocketMessage *>("endpoints");
         delete reply;
 
