@@ -129,11 +129,11 @@ Component::getSenderEndpointsByType(const std::string &endpointType) {
 void Component::startBackgroundListen(int port) {
     int rv;
     if ((rv = nng_rep0_open(&backgroundSocket)) != 0) {
-        fatal("Failure opening background socket", rv);
+        throw NNG_error(rv, "Opening background socket");
     }
     this->backgroundListenAddress = this->baseAddress + ":" + std::to_string(port);
     if ((rv = nng_listen(backgroundSocket, backgroundListenAddress.c_str(), nullptr, 0)) != 0) {
-        fatal("nng_listen", rv);
+        throw NNG_error(rv,"Listening on " + backgroundListenAddress);
     }
     this->lowestPort ++;
 
@@ -148,7 +148,8 @@ void Component::backgroundListen(Component *component) {
         char *buf = nullptr;
         size_t sz;
         if ((rv = nng_recv(component->backgroundSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
-            fatal("nng_recv", rv);
+            std::cerr << "NNG error receiving component request - " << nng_strerror(rv) << std::endl;
+            continue;
         }
         SocketMessage sm(buf);
         nng_free(buf, sz);
@@ -157,8 +158,8 @@ void Component::backgroundListen(Component *component) {
             if (sm.getString("socketType") == PAIR) {
                 std::string url = component->baseAddress + ":" + std::to_string(component->lowestPort);
 
-                std::shared_ptr<DataSenderEndpoint> e = component->createNewPairEndpoint(sm.getString("endpointType"), std::to_string(
-                        component->lowestPort));
+                std::shared_ptr<DataSenderEndpoint> e = component->createNewPairEndpoint(
+                        sm.getString("endpointType"), std::to_string(component->lowestPort));
                 e->listenForConnection(url.c_str());
 
                 component->lowestPort++;
@@ -170,10 +171,7 @@ void Component::backgroundListen(Component *component) {
 
                 // Send reply on regrep with url for the component to dial
                 if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
-                    std::ostringstream error;
-                    error << "Error replying" << std::endl;
-                    error << "NNG error code " << rv << " type - " << nng_strerror(rv);
-                    throw std::logic_error(error.str());
+                    throw NNG_error(rv, "Replying to Pair creation request");
                 }
             } else if (sm.getString("socketType") == PUBLISHER) {
                 std::string url;
@@ -195,20 +193,23 @@ void Component::backgroundListen(Component *component) {
 
                 // Send reply on regrep with url for the component to dial
                 if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
-                    throw NNG_error(rv, "Regrep reply");
+                    throw NNG_error(rv, "Replying to Publisher creation request");
                 }
             }
         }catch (std::out_of_range &e){
-            std::cerr << "No schema of type " << sm.getString("endpointType") << " found in this component." <<  std::endl << e.what() <<std::endl;
+            std::cerr << "No schema of type " << sm.getString("endpointType") << " found in this component." <<  std::endl;
+            // Return a simple reply, any errors on send are IGNORED
             SocketMessage reply;
             reply.setNull("url");
             component->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(reply);
             std::string replyText = reply.stringify();
             if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
-               fatal("nng_send", rv);
+               // IGNORE
             }
-        }catch (std::logic_error &e){
-            std::cerr << e.what() << std::endl;
+        }catch(ValidationError &e){
+            std::cerr << "Invalid creation request - " << e.what() <<std::endl;
+        }catch(NNG_error &e){
+            std::cerr << "NNG error in handling creation request - " << e.what() <<std::endl;
         }
     }
 }
@@ -251,31 +252,31 @@ std::string Component::requestConnection(const std::string &address, const std::
 
     nng_socket tempSocket;
     if ((rv = nng_req0_open(&tempSocket)) != 0) {
-        fatal("Failure opening temporary socket", rv);
+        throw NNG_error(rv,"Opening temporary socket for connection request");
     }
 
     if ((rv = nng_dial(tempSocket, address.c_str(), nullptr, 0)) != 0) {
-        fatal("nng_dial", rv);
+        throw NNG_error(rv, "Dialing " + address + " for connection request");
     }
 
     if ((rv = nng_send(tempSocket, (void *) requestText.c_str(), requestText.size() + 1, 0)) != 0) {
-        fatal("nng_send", rv);
+        throw NNG_error(rv, "Sending to " + address + " for connection request");
     }
 
     char *buf = nullptr;
     size_t sz;
     if ((rv = nng_recv(tempSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
-        fatal("nng_recv", rv);
+        throw NNG_error(rv, "Receiving response from connection request");
     }
     try{
         SocketMessage response(buf);
         nng_free(buf,sz);
 
-
         if (response.isNull("url")){
             throw std::logic_error("No valid endpoint of: " + requestText);
         }else{
             try {
+                // Basically validation of response (CBA for using schemas for one field)
                 return response.getString("url");
             }catch (AccessError &e){
                 throw std::logic_error("No endpoint returned");

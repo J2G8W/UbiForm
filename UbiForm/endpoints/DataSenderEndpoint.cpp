@@ -26,10 +26,10 @@ void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
     nng_msg * msg;
     int rv;
     if ((rv = nng_msg_alloc(&msg, 0)) !=0){
-        fatal("nng_msg_alloc",rv);
+        throw NNG_error(rv,"Allocating message space");
     }
     if ((rv =nng_msg_append(msg, (void*) textArray, text.size()+1)) != 0){
-        fatal("nng_msg_append", rv);
+        throw NNG_error(rv,"Creating Message");
     }
     nng_aio_set_msg(nngAioPointer, msg);
 

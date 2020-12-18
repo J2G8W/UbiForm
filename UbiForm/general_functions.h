@@ -4,8 +4,6 @@
 #include <rapidjson/document.h>
 #include <nng/nng.h>
 
-void fatal(const char *func, int rv);
-
 std::string stringifyDocument(rapidjson::Document &JSON_document);
 
 bool compareSchemaObjects(rapidjson::Value &schema1, rapidjson::Value &schema2);

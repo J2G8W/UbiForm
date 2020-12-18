@@ -11,11 +11,6 @@
 bool compareSchemaArrays(rapidjson::GenericValue<rapidjson::UTF8<>>::Object object,
                          rapidjson::GenericValue<rapidjson::UTF8<>>::Object object1);
 
-// For the moment we use the standard NNG function to quit
-void fatal(const char *func, int rv) {
-    std::cerr << "Problem with function: " << func << "\nError text: " << nng_strerror(rv) << "\n";
-    exit(1);
-}
 
 // TODO - optimise this for speed
 std::string stringifyDocument(rapidjson::Document &JSON_document) {

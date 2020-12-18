@@ -7,17 +7,17 @@
 void SubscriberEndpoint::dialConnection(const char *url){
     int rv;
     if ((rv = nng_sub0_open(receiverSocket)) != 0) {
-        fatal("nng_sub0_open", rv);
+        throw NNG_error(rv, "Opening subscriber socket");
     }else{
         socketOpen = true;
     }
     if ((rv = nng_dial(*receiverSocket, url, nullptr, 0)) != 0) {
-        fatal("nng_dial", rv);
+        throw NNG_error(rv,"Dialing " + std::string(url) + " for a subscriber connection");
     }
 
     // Default is that we subscribe to all topics
     if ((rv = nng_socket_set(*receiverSocket, NNG_OPT_SUB_SUBSCRIBE, nullptr, 0)) != 0) {
-        fatal("nng_socket_set", rv);
+        throw NNG_error(rv, "Setting subscribe topics to ALL");
     }
     this->dialUrl = url;
 

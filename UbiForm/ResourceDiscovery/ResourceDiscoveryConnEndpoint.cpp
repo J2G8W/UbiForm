@@ -8,30 +8,30 @@ SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(std::string url, Socke
     int rv;
     nng_socket requestSocket;
     if ((rv = nng_req0_open(&requestSocket)) != 0) {
-        fatal("Failure opening background socket", rv);
+        throw NNG_error(rv, "Open RD connection request socket");
     }
 
     if ((rv = nng_dial(requestSocket, url.c_str(), nullptr, 0)) != 0) {
-        fatal("nng_listen", rv);
+        throw NNG_error(rv, "Dialing RD hub at " + url);
     }
 
     std::string reqText = request->stringify();
     if ((rv = nng_send(requestSocket,(void*)reqText.c_str(),reqText.size() +1,0)) !=0 ){
-        fatal("nng_send", rv);
+        throw NNG_error(rv, "Sending message to RD hub at " + url);
     }
     char *buf;
     size_t sz;
     if ((rv = nng_recv(requestSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0){
-        fatal("nng_recv",rv);
+        throw NNG_error(rv, "Error receiving request from RD hub at " + url);
     }
     try{
         auto * replyMsg = new SocketMessage(buf);
         nng_free(buf,sz);
         return replyMsg;
-    }catch(std::logic_error &e){
-        std::cerr << "ERROR ON PROCESSING MESSAGE" <<std::endl;
-        std::cerr << e.what() << std::endl;
-        return nullptr;
+    }catch(ValidationError &e){
+        std::cerr << "Error processing reply from RD hub" << std::endl;
+        nng_free(buf,sz);
+        throw;
     }
 
 
@@ -96,7 +96,7 @@ ComponentRepresentation *ResourceDiscoveryConnEndpoint::getComponentById(std::st
         delete reply;
         return componentRepresentation;
     }catch(std::logic_error &e){
-        std::cerr << "Malformed input from RDH" << std::endl;
+        std::cerr << "Malformed reply from RDH" << std::endl;
         throw ValidationError(e.what());
     }
 }
