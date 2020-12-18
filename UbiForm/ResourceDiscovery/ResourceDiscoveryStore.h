@@ -15,9 +15,8 @@ private:
     SystemSchemas &systemSchemas;
 
     std::map<std::string, std::shared_ptr<ComponentRepresentation>> componentById;
-    static std::minstd_rand0 generator;
 
-
+    std::minstd_rand0 generator;
 
 public:
     static SocketMessage * generateRDResponse(SocketMessage *sm, ResourceDiscoveryStore & rds);

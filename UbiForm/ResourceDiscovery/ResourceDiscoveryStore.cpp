@@ -1,7 +1,6 @@
 #include <random>
+#include <chrono>
 #include "ResourceDiscoveryStore.h"
-
-std::minstd_rand0 ResourceDiscoveryStore::generator(0);
 
 SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, ResourceDiscoveryStore &rds) {
     std::string request;
@@ -24,7 +23,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
         auto newCR = std::make_shared<ComponentRepresentation>(manifest, rds.systemSchemas);
         delete manifest;
 
-        std::string id = std::to_string(generator());
+        std::string id = std::to_string(rds.generator());
 
         auto p1 = std::make_pair(id, newCR);
         rds.componentById.insert(p1);
@@ -83,5 +82,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
     return returnMsg.release();
 }
 
-ResourceDiscoveryStore::ResourceDiscoveryStore(SystemSchemas & ss) : systemSchemas(ss) {
+ResourceDiscoveryStore::ResourceDiscoveryStore(SystemSchemas & ss) : systemSchemas(ss), generator() {
+    unsigned randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
+    generator.seed(randomSeed);
 }
