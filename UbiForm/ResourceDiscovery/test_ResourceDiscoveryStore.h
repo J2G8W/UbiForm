@@ -75,7 +75,7 @@ TEST_F(SimpleRDS,GetManifestById){
     SocketMessage * returnMsg = addDummyComponent(listenUrl);
 
     // Assert that we have a returned ID
-    std::string returnID = returnMsg->getString("id");
+    std::string returnID = returnMsg->getString("newID");
 
     // We delete the returned message because it is safe to do so
     delete returnMsg;
@@ -107,10 +107,10 @@ TEST_F(SimpleRDS, GetComponentIds){
     std::string url2 = "tcp://127.0.0.2:8001";
 
     SocketMessage * returnMsg = addDummyComponent(url1);
-    std::string id1 = returnMsg->getString("id");
+    std::string id1 = returnMsg->getString("newID");
     delete returnMsg;
     returnMsg = addDummyComponent(url2);
-    std::string id2 = returnMsg->getString("id");
+    std::string id2 = returnMsg->getString("newID");
     delete returnMsg;
 
     SocketMessage request;
@@ -134,7 +134,7 @@ TEST_F(SimpleRDS, GetBySchemaValid){
     std::string url1 = "tcp://127.0.0.1:8000";
 
     SocketMessage * returnMsg = addDummyComponent(url1);
-    std::string id1 = returnMsg->getString("id");
+    std::string id1 = returnMsg->getString("newID");
     delete returnMsg;
 
     SocketMessage request;
@@ -165,7 +165,7 @@ TEST_F(SimpleRDS, GetBySchemaInvalid){
     std::string url1 = "tcp://127.0.0.1:8000";
 
     SocketMessage * returnMsg = addDummyComponent(url1);
-    std::string id1 = returnMsg->getString("id");
+    std::string id1 = returnMsg->getString("newID");
     delete returnMsg;
 
     SocketMessage request;
