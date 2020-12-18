@@ -25,7 +25,7 @@ void PairEndpoint::dialConnection(const char *url) {
 void PairEndpoint::listenForConnection(const char *url){
     int rv = listenForConnectionWithRV(url);
     if (rv != 0){
-        throw NngError(rv,"Listening on " std::string(url));
+        throw NngError(rv,"Listening on " + std::string(url));
     }
 }
 int PairEndpoint::listenForConnectionWithRV(const char *url) {

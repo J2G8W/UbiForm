@@ -67,7 +67,7 @@ int main(int argc, char ** argv){
 
             std::cout << "MANIFEST SPECIFIED" << std::endl;
 
-            component.startBackgroundListen(8000);
+            component.startBackgroundListen();
             std::cout << "Component Listening" << std::endl;
 
             ResourceDiscoveryConnEndpoint* rdc = component.createResourceDiscoveryConnectionEndpoint();
@@ -97,7 +97,7 @@ int main(int argc, char ** argv){
         }
         if (strcmp(argv[1], CONNECTION) == 0){
             Component component("tcp://127.0.0.2");
-            component.startBackgroundListen(8000);
+            component.startBackgroundListen();
 
             FILE* pFile = fopen("JsonFiles/SubscriberManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");

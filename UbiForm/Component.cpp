@@ -21,7 +21,13 @@
 // CONSTRUCTOR
 Component::Component(const std::string &baseAddress) : backgroundSocket(), systemSchemas() {
     this->baseAddress = baseAddress;
-
+    unsigned randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
+    generator.seed(randomSeed);
+    // Create the background socket;
+    int rv;
+    if ((rv = nng_rep0_open(&backgroundSocket)) != 0) {
+        throw NngError(rv, "Opening background socket");
+    }
 }
 
 
@@ -128,17 +134,31 @@ Component::getSenderEndpointsByType(const std::string &endpointType) {
 // THIS IS OUR COMPONENT LISTENING FOR REQUESTS TO MAKE SOCKETS
 void Component::startBackgroundListen(int port) {
     int rv;
-    if ((rv = nng_rep0_open(&backgroundSocket)) != 0) {
-        throw NngError(rv, "Opening background socket");
-    }
     this->backgroundListenAddress = this->baseAddress + ":" + std::to_string(port);
     if ((rv = nng_listen(backgroundSocket, backgroundListenAddress.c_str(), nullptr, 0)) != 0) {
         throw NngError(rv, "Listening on " + backgroundListenAddress);
     }
-    this->lowestPort ++;
 
     this->backgroundThread = std::thread(backgroundListen,this);
 
+}
+
+void Component::startBackgroundListen() {
+
+    for(int i; i < 5 ; i++) {
+        try {
+            startBackgroundListen(this->lowestPort);
+            this->lowestPort++;
+            return;
+        } catch (NngError &e) {
+            if(e.errorCode == NNG_EADDRINUSE){
+                this->lowestPort = generateRandomPort();
+            }else{
+                throw;
+            }
+        }
+    }
+    throw std::logic_error("Could not find valid port to start on");
 }
 
 
@@ -156,11 +176,22 @@ void Component::backgroundListen(Component *component) {
         try {
             component->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(sm);
             if (sm.getString("socketType") == PAIR) {
-                std::string url = component->baseAddress + ":" + std::to_string(component->lowestPort);
+                std::string socketId = component->generateNewSocketId();
 
                 std::shared_ptr<DataSenderEndpoint> e = component->createNewPairEndpoint(
-                        sm.getString("endpointType"), std::to_string(component->lowestPort));
-                e->listenForConnection(url.c_str());
+                        sm.getString("endpointType"), socketId);
+
+                std::string url;
+                rv = 1;
+                while(rv != 0) {
+                    url = component->baseAddress + ":" + std::to_string(component->lowestPort);
+                    rv = e->listenForConnectionWithRV(url.c_str());
+                    if (rv == EADDRINUSE){
+                        component->lowestPort = component->generateRandomPort();
+                    }else if (rv != 0){
+                        throw NngError(rv, "Create pair listener at " + url);
+                    }
+                }
 
                 component->lowestPort++;
 
@@ -177,11 +208,22 @@ void Component::backgroundListen(Component *component) {
                 std::string url;
                 auto existingPublishers = component->getSenderEndpointsByType(sm.getString("endpointType"));
                 if (existingPublishers->empty()) {
-                    url = component->baseAddress + ":"+ std::to_string(component->lowestPort);
-                    std::shared_ptr<DataSenderEndpoint> e =
-                            component->createNewPublisherEndpoint(sm.getString("endpointType"), std::to_string(component->lowestPort));
-                    e->listenForConnection(url.c_str());
-                    component->lowestPort++;
+                    std::string socketId = component->generateNewSocketId();
+
+                    std::shared_ptr<DataSenderEndpoint> e = component->createNewPublisherEndpoint(
+                            sm.getString("endpointType"), socketId);
+
+                    rv = 1;
+                    while(rv != 0) {
+                        url = component->baseAddress + ":" + std::to_string(component->lowestPort);
+                        rv = e->listenForConnectionWithRV(url.c_str());
+                        if (rv == EADDRINUSE){
+                            component->lowestPort = component->generateRandomPort();
+                        }else if (rv != 0){
+                            throw NngError(rv, "Create pair listener at " + url);
+                        }
+                    }
+                    component->lowestPort ++;
                 }else{
                     url = existingPublishers->at(0)->getListenUrl();
                 }
@@ -234,10 +276,11 @@ void Component::requestAndCreateConnection(const std::string& localEndpointType,
     try{
         url = requestConnection(connectionComponentAddress,sm.stringify());
         std::shared_ptr<DataReceiverEndpoint> e;
+        std::string socketId = generateNewSocketId();
         if (requestSocketType == PAIR){
-            e = this->createNewPairEndpoint(localEndpointType, std::to_string(this->lowestPort));
+            e = this->createNewPairEndpoint(localEndpointType, socketId);
         }else if (requestSocketType == SUBSCRIBER){
-            e = this->createNewSubscriberEndpoint(localEndpointType, std::to_string(this->lowestPort));
+            e = this->createNewSubscriberEndpoint(localEndpointType, socketId);
         }
 
         this->lowestPort ++;

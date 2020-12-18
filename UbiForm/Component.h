@@ -36,6 +36,13 @@ private:
 
     SystemSchemas systemSchemas;
 
+    std::minstd_rand0 generator;
+    std::string generateNewSocketId(){
+        return std::to_string(generator());
+    }
+    int generateRandomPort(){
+        return static_cast<int>(generator() % 60000 + 2000);
+    }
 
     static void backgroundListen(Component *component);
     int lowestPort = 8001;
@@ -61,6 +68,7 @@ public:
     }
 
     void startBackgroundListen(int port);
+    void startBackgroundListen();
 
     // We create a new Pair Endpoint and store it in our map as a SHARED pointer
     std::shared_ptr<PairEndpoint> createNewPairEndpoint(std::string type, std::string id);

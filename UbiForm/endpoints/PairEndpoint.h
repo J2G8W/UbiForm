@@ -28,7 +28,7 @@ public:
     }
 
     void listenForConnection(const char *url) override ;
-    int listenForConnectionWithRV(const char *url) overrid;
+    int listenForConnectionWithRV(const char *url) override;
     void dialConnection(const char *url) override;
 
 
