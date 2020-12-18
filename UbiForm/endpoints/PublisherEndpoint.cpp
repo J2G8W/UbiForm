@@ -2,17 +2,18 @@
 #include "PublisherEndpoint.h"
 
 void PublisherEndpoint::listenForConnection(const char *url) {
-    int rv;
-    if ((rv = nng_pub0_open(senderSocket)) != 0) {
-        throw NngError(rv, "Creation of publisher socket");
-    }else{
-        socketOpen = true;
+    int rv = listenForConnectionWithRV(url);
+    if (rv != 0){
+        throw NngError(rv, "Publisher listen at " + std::string(url));
     }
-
+}
+int PublisherEndpoint::listenForConnectionWithRV(const char *url) {
+    int rv;
     if ((rv = nng_listen(*senderSocket, url, nullptr, 0)) != 0) {
-        throw NngError(rv, "Listening on " + std::string(url) + " for publisher");
+        return rv;
     }
     this->listenUrl = url;
+    return rv;
 }
 
 // Destructor waits a short time before closing socket such that any unsent messages are released

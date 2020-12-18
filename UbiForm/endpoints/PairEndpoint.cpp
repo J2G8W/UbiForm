@@ -13,13 +13,6 @@
 // Note that outgoing means it dials an external URL
 void PairEndpoint::dialConnection(const char *url) {
     int rv;
-    if ((rv = nng_pair0_open(senderSocket)) != 0) {
-        throw NngError(rv, "Making pair connection");
-    }else{
-        socketOpen = true;
-    }
-    // Use the same socket for sending and receiving
-    receiverSocket = senderSocket;
     if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
         throw NngError(rv, "Dialing " + std::string(url) + " for a pair connection");
     }
@@ -30,21 +23,21 @@ void PairEndpoint::dialConnection(const char *url) {
 
 // Incoming means it will listen on an internal URL
 void PairEndpoint::listenForConnection(const char *url){
-    int rv;
-    if ((rv = nng_pair0_open(senderSocket)) != 0) {
-        throw NngError(rv, "Pair socket creation");
-    }else{
-        socketOpen = true;
+    int rv = listenForConnectionWithRV(url);
+    if (rv != 0){
+        throw NngError(rv,"Listening on " std::string(url));
     }
-    // Use the same socket for sending and receiving
-    receiverSocket = senderSocket;
-
-    if ((rv = nng_listen(*senderSocket, url, nullptr, 0)) != 0) {
-        throw NngError(rv, "Listening on " + std::string(url) + " for pair connection");
+}
+int PairEndpoint::listenForConnectionWithRV(const char *url) {
+    int rv;
+    if((rv = nng_listen(*senderSocket, url, nullptr, 0)) != 0) {
+        return rv;
     }
     this->listenUrl = url;
     this->dialUrl = url;
+    return rv;
 }
+
 
 // Destructor waits a short time before closing socket such that any unsent messages are released
 PairEndpoint::~PairEndpoint() {
@@ -62,3 +55,4 @@ PairEndpoint::~PairEndpoint() {
     // Note that we only delete once as the senderSocket points to the same place as the receiverSocket
     delete senderSocket;
 }
+
