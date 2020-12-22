@@ -39,37 +39,28 @@ private:
     }
 
 public:
-    // Base constructor creates an empty object
+    /**
+     * Create an empty socket message that we can add to
+     */
     SocketMessage() : JSON_document() {
         JSON_document.SetObject();
     };
 
+    /**
+     * Create socket message from string input, largely for use from networks
+     * @param jsonString - string input
+     */
     explicit SocketMessage(const char *jsonString);
 
-    // Add a string value
-    void addMember(const std::string &attributeName, const std::string &value) {
-        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
-        rapidjson::Value valueContainer(value, JSON_document.GetAllocator());
-        addOrSwap(key, valueContainer);
-    }
-
-    void addMember(const std::string &attributeName, const char * value){
-        addMember(attributeName, std::string(value));
-    }
-
-    // Add an integer value
-    void addMember(const std::string &attributeName, int value) {
-        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
-        rapidjson::Value valueContainer(value);
-        addOrSwap(key, valueContainer);
-    }
-
-    // Add a boolean value
-    void addMember(const std::string &attributeName, bool value) {
-        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
-        rapidjson::Value valueContainer(value);
-        addOrSwap(key, valueContainer);
-    }
+    ///@{
+    /**
+     * @name addMember
+     * These methods add or change attributes in the SocketMessage, we don't allow repeated attribute names (it overwrites)
+     */
+    void addMember(const std::string &attributeName, const std::string &value);
+    void addMember(const std::string &attributeName, const char * value);
+    void addMember(const std::string &attributeName, int value);
+    void addMember(const std::string &attributeName, bool value);
 
     // Add an array
     // Note that this has to be defined in the header as templates are compiled here
@@ -86,65 +77,38 @@ public:
         addOrSwap(key,valueArray);
     }
 
-    // Add an array of strings
-    void addMember(const std::string &attributeName, std::vector<std::string> inputArray){
-        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+    void addMember(const std::string &attributeName, const std::vector<std::string>& inputArray);
 
-        rapidjson::Value valueArray(rapidjson::kArrayType);
-        valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
-        for (std::string item : inputArray){
-            rapidjson::Value v(item,JSON_document.GetAllocator());
-            valueArray.PushBack(v, JSON_document.GetAllocator());
-        }
-        addOrSwap(key,valueArray);
-    }
-
-    // Add an array of SocketMessages
+    /// @brief Copy constructs the SocketMessages
     // TODO - No copy constructing
-    void addMember(const std::string &attributeName, std::vector<SocketMessage*> inputArray){
-        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+    void addMember(const std::string &attributeName, const std::vector<SocketMessage*>& inputArray);
+    /// @brief Copy constructs the given SocketMessage
+    // TODO - make this more efficient by getting rid of copy and figuring out relevant MemoryPool semantics
+    void addMember(const std::string &attributeName, SocketMessage &socketMessage);
 
-        rapidjson::Value valueArray(rapidjson::kArrayType);
-        valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
-        for (auto object : inputArray){
-            rapidjson::Value v;
-            v.SetObject();
-            v.CopyFrom(object->JSON_document, JSON_document.GetAllocator());
-            valueArray.PushBack(v, JSON_document.GetAllocator());
-        }
-        addOrSwap(key,valueArray);
-    }
+    void setNull(const std::string &attributeName);
+    ///@}
 
-    // This will COPY the message to become an object in our main document
-    // TODO - make this more efficient by getting rid of copy and figuring out relevant MemoryPool
-    //  semantics
-    void addMember(const std::string &attributeName, SocketMessage &socketMessage){
-        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
-        rapidjson::Value v;
-        v.CopyFrom(socketMessage.JSON_document,JSON_document.GetAllocator());
-        addOrSwap(key,v);
-    }
 
-    void setNull(const std::string &attributeName){
-        rapidjson::Value v;
-        v.SetNull();
-        rapidjson::Value key(attributeName, JSON_document.GetAllocator());
-        addOrSwap(key, v);
-    }
 
+    ///@{
+    /**
+     * @name Getters from the SocketMessage
+     */
     int getInteger(const std::string &attributeName);
     bool getBoolean(const std::string &attributeName);
     std::string getString(const std::string &attributeName);
-    // Note that this will set the attributeName to null and return a new POINTER which will need memory handling
+    /// @brief This uses copy constructing
     SocketMessage *getObject(const std::string &attributeName);
 
+    // TODO - sort documentation for this (looks wierd)
     template <class T>
     std::vector<T> getArray(const std::string &attributeName);
 
     bool isNull(const std::string &attributeName){
         return JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsNull();
     }
-
+    ///@}
 
     std::string stringify() { return stringifyDocument(JSON_document); };
 

@@ -48,6 +48,81 @@ SocketMessage* SocketMessage::getObject(const std::string &attributeName) {
     }
 }
 
+
+SocketMessage::SocketMessage(const char *jsonString) {
+    rapidjson::StringStream stream(jsonString);
+    JSON_document.ParseStream(stream);
+    if (JSON_document.HasParseError()){
+        std::ostringstream error;
+        error << "Error parsing manifest, offset: " << JSON_document.GetErrorOffset();
+        error << " , error: " << rapidjson::GetParseError_En(JSON_document.GetParseError()) << std::endl;
+        throw ParsingError(error.str());
+    }
+}
+
+void SocketMessage::addMember(const std::string &attributeName, const std::string &value) {
+    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+    rapidjson::Value valueContainer(value, JSON_document.GetAllocator());
+    addOrSwap(key, valueContainer);
+}
+
+void SocketMessage::addMember(const std::string &attributeName, const char *value) {
+    addMember(attributeName, std::string(value));
+}
+
+void SocketMessage::addMember(const std::string &attributeName, int value) {
+    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+    rapidjson::Value valueContainer(value);
+    addOrSwap(key, valueContainer);
+}
+
+void SocketMessage::addMember(const std::string &attributeName, bool value) {
+    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+    rapidjson::Value valueContainer(value);
+    addOrSwap(key, valueContainer);
+}
+
+void SocketMessage::addMember(const std::string &attributeName, SocketMessage &socketMessage) {
+    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+    rapidjson::Value v;
+    v.CopyFrom(socketMessage.JSON_document,JSON_document.GetAllocator());
+    addOrSwap(key,v);
+}
+
+void SocketMessage::setNull(const std::string &attributeName) {
+    rapidjson::Value v;
+    v.SetNull();
+    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+    addOrSwap(key, v);
+}
+
+void SocketMessage::addMember(const std::string &attributeName, const std::vector<SocketMessage *>& inputArray) {
+    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+
+    rapidjson::Value valueArray(rapidjson::kArrayType);
+    valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
+    for (auto object : inputArray){
+        rapidjson::Value v;
+        v.SetObject();
+        v.CopyFrom(object->JSON_document, JSON_document.GetAllocator());
+        valueArray.PushBack(v, JSON_document.GetAllocator());
+    }
+    addOrSwap(key,valueArray);
+}
+
+void SocketMessage::addMember(const std::string &attributeName, const std::vector<std::string>& inputArray) {
+    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+
+    rapidjson::Value valueArray(rapidjson::kArrayType);
+    valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
+    for (const std::string& item : inputArray){
+        rapidjson::Value v(item,JSON_document.GetAllocator());
+        valueArray.PushBack(v, JSON_document.GetAllocator());
+    }
+    addOrSwap(key,valueArray);
+}
+
+
 template<>
 std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
@@ -65,17 +140,6 @@ std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) 
         }
     }else{
         throw AccessError("The message has no attribute " + attributeName);
-    }
-}
-
-SocketMessage::SocketMessage(const char *jsonString) {
-    rapidjson::StringStream stream(jsonString);
-    JSON_document.ParseStream(stream);
-    if (JSON_document.HasParseError()){
-        std::ostringstream error;
-        error << "Error parsing manifest, offset: " << JSON_document.GetErrorOffset();
-        error << " , error: " << rapidjson::GetParseError_En(JSON_document.GetParseError()) << std::endl;
-        throw ParsingError(error.str());
     }
 }
 
