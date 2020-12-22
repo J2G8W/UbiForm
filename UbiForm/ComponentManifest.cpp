@@ -1,9 +1,4 @@
 #include "ComponentManifest.h"
-#include <sstream>
-#include <memory>
-
-#include "rapidjson/schema.h"
-
 
 
 // Constructors
@@ -15,7 +10,7 @@ ComponentManifest::ComponentManifest(FILE *jsonFP,SystemSchemas &ss): systemSche
 
     checkParse();
     fillSchemaMaps();
-};
+}
 
 ComponentManifest::ComponentManifest(const char *jsonString, SystemSchemas &ss) : systemSchemas(ss) {
     rapidjson::StringStream stream(jsonString);
@@ -23,7 +18,7 @@ ComponentManifest::ComponentManifest(const char *jsonString, SystemSchemas &ss) 
 
     checkParse();
     fillSchemaMaps();
-};
+}
 
 // Check if we have parsed our manifest okay
 // Throws ParseError for parsing issues and ValidationError when manifest doesn't line up
@@ -101,7 +96,7 @@ std::shared_ptr<EndpointSchema> ComponentManifest::getSenderSchema(const std::st
     }
 }
 
-std::string ComponentManifest::getSocketType(std::string endpointType) {
+std::string ComponentManifest::getSocketType(const std::string& endpointType) {
     const auto & schemas = JSON_document["schemas"].GetObject();
     if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())){
         throw AccessError("No endpoint of type: " + endpointType + " in manifest");

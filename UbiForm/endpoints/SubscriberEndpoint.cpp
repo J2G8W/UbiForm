@@ -1,6 +1,5 @@
 #include "SubscriberEndpoint.h"
 
-#include <nng/nng.h>
 #include <nng/protocol/pubsub0/sub.h>
 #include <unistd.h>
 
@@ -25,13 +24,12 @@ void SubscriberEndpoint::dialConnection(const char *url){
 
 // Destructor waits a short time before closing socket such that any unsent messages are released
 SubscriberEndpoint::~SubscriberEndpoint() {
-    int rv;
     // We have to check if we ever initialised the receiverSocket before trying to close it
     if (receiverSocket != nullptr && socketOpen) {
         // Make sure that the messages are flushed
         sleep(1);
         // We only have one actual socket so only need to close 1.
-        if ((rv = nng_close(*receiverSocket)) == NNG_ECLOSED) {
+        if ( nng_close(*receiverSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
         }
 

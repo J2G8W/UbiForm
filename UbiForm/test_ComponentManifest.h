@@ -40,7 +40,7 @@ TEST_F(ComponentManifestBasics, MalformedManifest){
 
 TEST_F(ComponentManifestBasics, CreationFromSocketMessage){
     const char *jsonString = R"({"name":"TEST1","schemas":{}})";
-    SocketMessage * sm = new SocketMessage(jsonString);
+    auto * sm = new SocketMessage(jsonString);
 
     ComponentManifest testManifest(sm,systemSchemas);
     EXPECT_EQ(testManifest.stringify(), std::string(jsonString));
@@ -51,13 +51,13 @@ TEST_F(ComponentManifestBasics, CreationFromSocketMessage){
 class ManifestExample : public testing::Test{
 protected:
     ManifestExample() : systemSchemas(){
-        if (pFile == NULL){
+        if (pFile == nullptr){
             std::cerr << "Error finding requisite file" << "TestManifests/Component1.json" << std::endl;
         }
         componentManifest = new ComponentManifest(pFile,systemSchemas);
     }
 
-    ~ManifestExample(){
+    ~ManifestExample() override{
         delete componentManifest;
     }
 

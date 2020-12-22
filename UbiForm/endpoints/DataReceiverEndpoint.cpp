@@ -1,5 +1,4 @@
 #include "DataReceiverEndpoint.h"
-#include <nng/nng.h>
 
 
 // Receive a message, validate it against the socketManifest and return a pointer to the object.

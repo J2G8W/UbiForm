@@ -1,5 +1,4 @@
 #include "DataSenderEndpoint.h"
-#include "../general_functions.h"
 
 // Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(SocketMessage &s) {
@@ -40,9 +39,8 @@ void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
 
 void DataSenderEndpoint::asyncCleanup(void * data) {
     auto * asyncInput = static_cast<DataSenderEndpoint *>(data);
-    int rv;
 
-    if ((rv = nng_aio_result(asyncInput->nngAioPointer)) != 0){
+    if (nng_aio_result(asyncInput->nngAioPointer) != 0){
         // Failed message send, we do cleanup
         asyncInput->numSendFails ++;
         nng_msg * msg = nng_aio_get_msg(asyncInput->nngAioPointer);

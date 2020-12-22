@@ -2,7 +2,6 @@
 #include <algorithm>
 #include "../UbiForm/Component.h"
 
-#include <chrono>
 #include <iomanip>
 
 #define SUBSCRIBER "SUBSCRIBER"

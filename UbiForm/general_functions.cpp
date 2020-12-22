@@ -1,11 +1,6 @@
-#include <iostream>
-#include <set>
-
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/document.h"
-
-#include "nng/nng.h"
 
 #include "general_functions.h"
 

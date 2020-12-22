@@ -39,11 +39,11 @@ public:
 
     std::string getUrl(){return url;}
 
-    bool isEqual(std::string endpointId,bool recv, SocketMessage &sm);
+    bool isEqual(const std::string& endpointId,bool recv, SocketMessage &sm);
 
     std::vector<std::string> findEquals(bool recv, SocketMessage &sm);
 
-    SocketMessage * getSchema(std::string endpointId, bool recv);
+    SocketMessage * getSchema(const std::string& endpointId, bool recv);
 
 
 };

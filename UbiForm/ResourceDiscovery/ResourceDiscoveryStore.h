@@ -21,7 +21,7 @@ private:
 public:
     static SocketMessage * generateRDResponse(SocketMessage *sm, ResourceDiscoveryStore & rds);
 
-    ResourceDiscoveryStore(SystemSchemas & ss);
+    explicit ResourceDiscoveryStore(SystemSchemas & ss);
 };
 
 

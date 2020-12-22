@@ -2,16 +2,15 @@
 
 class SimpleCR : public testing::Test{
 protected:
-    SimpleCR():ss(){
-    }
+
     void loadComponentRepresentation(const char * location){
         FILE* pFile = fopen(location, "r");
-        if (pFile == NULL){
+        if (pFile == nullptr){
             std::cerr << "Error finding requisite file ("<<location <<")" << std::endl;
         }
         componentRepresentation = new ComponentRepresentation(pFile,ss);
     }
-    void loadSocketMessage(std::string location){
+    void loadSocketMessage(const std::string& location){
         try {
             std::ifstream in(location);
             std::string contents((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());

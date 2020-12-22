@@ -1,10 +1,8 @@
 #include <cstring>
-#include <cstdlib>
 
 #include "../UbiForm/Component.h"
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
-#include <nng/supplemental/util/platform.h>
 
 int main(int argc, char ** argv){
     if (argc >= 2){
@@ -22,7 +20,7 @@ int main(int argc, char ** argv){
                                                 "pairExample");
             auto endpoints = receiver.getReceiverEndpointsByType("pairExample");
             while(true){
-                for(auto e: *endpoints){
+                for(const auto& e: *endpoints){
                     auto msg = e->receiveMessage();
                     std::cout << msg->getInteger("temp") << std::endl;
                 }

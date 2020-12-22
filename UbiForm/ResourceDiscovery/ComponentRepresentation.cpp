@@ -1,6 +1,6 @@
 #include "ComponentRepresentation.h"
 
-bool ComponentRepresentation::isEqual(std::string endpointId, bool recv, SocketMessage &sm) {
+bool ComponentRepresentation::isEqual(const std::string& endpointId, bool recv, SocketMessage &sm) {
     const auto & schemas = JSON_document["schemas"].GetObject();
     if (schemas.HasMember(endpointId) && schemas[endpointId].IsObject()){
         if (recv && schemas[endpointId].GetObject().HasMember("receive") && schemas[endpointId].GetObject()["receive"].IsObject()){
@@ -24,7 +24,7 @@ std::vector<std::string> ComponentRepresentation::findEquals(bool recv, SocketMe
     return returnIds;
 }
 
-SocketMessage *ComponentRepresentation::getSchema(std::string endpointId, bool recv) {
+SocketMessage *ComponentRepresentation::getSchema(const std::string& endpointId, bool recv) {
     if (JSON_document["schemas"].GetObject().HasMember(endpointId)){
         SocketMessage *schema;
         if (recv) {

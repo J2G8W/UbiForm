@@ -6,13 +6,13 @@ protected:
     // Note we aren't REALLY testing the inputting of the manifest as this is done automatically
     SimpleComponent(){
         component = new Component();
-        if (pFile == NULL){
+        if (pFile == nullptr){
             std::cerr << "Error finding requisite file - " << "TestManifests/Component1.json" << std::endl;
         }
         component->specifyManifest(pFile);
     }
 
-    ~SimpleComponent(){
+    ~SimpleComponent() override{
         delete component;
     }
 
@@ -49,7 +49,7 @@ protected:
     PairBasedComponent(){
         receiverComponent = new Component("ipc:///tmp/comp1");
         senderComponent = new Component("ipc:///tmp/comp2");
-        if (pFile == NULL){
+        if (pFile == nullptr){
             std::cerr << "Error finding requisite file - " << "TestManifests/Component1.json" << std::endl;
         }
         receiverComponent->specifyManifest(pFile);
@@ -58,7 +58,7 @@ protected:
 
     }
 
-    ~PairBasedComponent(){
+    ~PairBasedComponent() override{
         delete receiverComponent;
         delete senderComponent;
     }

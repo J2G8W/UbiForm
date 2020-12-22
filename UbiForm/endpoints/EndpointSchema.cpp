@@ -1,6 +1,4 @@
 #include "EndpointSchema.h"
-#include "../SocketMessage.h"
-#include "../general_functions.h"
 
 
 // Validate a socket message against the manifest

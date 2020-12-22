@@ -7,7 +7,7 @@ class SimpleRDS : public testing::Test{
 protected:
     // Note we aren't REALLY testing the inputting of the manifest as this is done automatically
     SimpleRDS(): ss(), resourceDiscoveryStore(ss){
-        if (pFile == NULL){
+        if (pFile == nullptr){
             std::cerr << "Error finding requisite file (JsonFiles/PairManifest1.json)";
         }
         exampleManifest = new ComponentManifest(pFile,ss);
@@ -17,7 +17,7 @@ protected:
         delete exampleManifest;
     }
 
-    SocketMessage* addDummyComponent(std::string listenUrl){
+    SocketMessage* addDummyComponent(const std::string& listenUrl){
         SocketMessage sm;
         sm.addMember("request", ADDITION);
 
@@ -32,7 +32,7 @@ protected:
         return returnMsg;
     }
 
-    SocketMessage * loadSocketMessage(std::string location){
+    SocketMessage * loadSocketMessage(const std::string& location){
         try {
             std::ifstream in(location);
             std::string contents((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());

@@ -1,13 +1,8 @@
 
 #include "ResourceDiscoveryHubEndpoint.h"
-#include "../general_functions.h"
-#include "../SocketMessage.h"
-#include "../ComponentManifest.h"
-#include "ComponentRepresentation.h"
 #include <nng/protocol/reqrep0/rep.h>
-#include <random>
 
-void ResourceDiscoveryHubEndpoint::startResourceDiscover(std::string urlInit){
+void ResourceDiscoveryHubEndpoint::startResourceDiscover(const std::string& urlInit){
     int rv;
     if ((rv = nng_rep0_open(&rdSocket)) != 0) {
         throw NngError(rv, "Opening socket for RDH");
@@ -24,7 +19,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
     while (true){
         char *buf = nullptr;
         size_t sz;
-        if (nng_recv(rdhe->rdSocket, &buf, &sz, NNG_FLAG_ALLOC) != 0) {
+        if ((rv = nng_recv(rdhe->rdSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
             std::cerr << "NNG error RDH receiving message - " <<  nng_strerror(rv) << std::endl << "CARRY ONE" << std::endl;
             nng_free(buf,sz);
             continue;

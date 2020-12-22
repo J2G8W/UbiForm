@@ -31,12 +31,12 @@ public:
 
         for (int i =0; i < 11; i++){
             FILE* pFile = fopen(files[i], "r");
-            if (pFile == NULL){
+            if (pFile == nullptr){
                 std::cerr << "Error finding requisite file - " << files[i] << std::endl;
                 exit(1);
             }
-            EndpointSchema* es = new EndpointSchema(pFile);
-            systemSchemas.insert(std::make_pair(static_cast<SystemSchemaName>(i), std::move(es)));
+            auto* es = new EndpointSchema(pFile);
+            systemSchemas.insert(std::make_pair(static_cast<SystemSchemaName>(i), es));
             fclose(pFile);
         }
 

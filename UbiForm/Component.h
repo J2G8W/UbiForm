@@ -56,7 +56,7 @@ private:
     static std::string requestConnection(const std::string& address, const std::string& requestText);
 
 public:
-    Component(const std::string & baseAddress);
+    explicit Component(const std::string & baseAddress);
     Component() : Component("tcp://127.0.0.1"){}
 
     void specifyManifest(FILE *jsonFP) {
@@ -71,10 +71,10 @@ public:
     void startBackgroundListen();
 
     // We create a new Pair Endpoint and store it in our map as a SHARED pointer
-    std::shared_ptr<PairEndpoint> createNewPairEndpoint(std::string type, std::string id);
+    std::shared_ptr<PairEndpoint> createNewPairEndpoint(const std::string& type, const std::string& id);
 
-    std::shared_ptr<SubscriberEndpoint> createNewSubscriberEndpoint(std::string type, std::string id);
-    std::shared_ptr<PublisherEndpoint> createNewPublisherEndpoint(std::string type, std::string id);
+    std::shared_ptr<SubscriberEndpoint> createNewSubscriberEndpoint(const std::string& type, const std::string& id);
+    std::shared_ptr<PublisherEndpoint> createNewPublisherEndpoint(const std::string& type, const std::string& id);
 
     // We rethrow an out_of_range exception if the request fails
     std::shared_ptr<DataReceiverEndpoint> getReceiverEndpointById(const std::string& id);

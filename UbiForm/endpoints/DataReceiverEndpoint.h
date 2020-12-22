@@ -22,7 +22,7 @@ private:
         void *furtherUserData;
 
         AsyncData(void (*cb)(SocketMessage *, void*), std::shared_ptr<EndpointSchema> endpointSchema, void *furtherUserData) :
-            callback(cb), endpointSchema(endpointSchema){
+            callback(cb), endpointSchema(endpointSchema), nngAioPointer(){
 
             // So we allocate the async_io with a pointer to our asyncCallback and a pointer to this object
             nng_aio_alloc(&(this->nngAioPointer), asyncCallback, this);

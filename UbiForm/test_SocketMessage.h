@@ -22,7 +22,7 @@ TEST(SocketMessage, AddMember) {
 
 TEST(SocketMessage, RecursiveObject){
     // Our recursive Object
-    SocketMessage *miniInput = new SocketMessage;
+    auto *miniInput = new SocketMessage;
     miniInput->addMember("B", 100);
 
     // Our main object

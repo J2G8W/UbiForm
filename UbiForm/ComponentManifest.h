@@ -87,7 +87,7 @@ public:
      * @return string of what type the socket is (e.g. pair)
      * @throws std::out_of_range - when typeOfEndpoint does not exist
      */
-    std::string getSocketType(std::string endpointType);
+    std::string getSocketType(const std::string& endpointType);
 
     std::string stringify() { return stringifyDocument(JSON_document); };
 

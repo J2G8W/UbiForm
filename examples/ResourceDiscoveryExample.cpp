@@ -2,7 +2,6 @@
 #include "../UbiForm/Component.h"
 #include "../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
-#include <chrono>
 #include <iomanip>
 
 // Hub is a Publisher and an RDH

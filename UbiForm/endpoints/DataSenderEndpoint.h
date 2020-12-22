@@ -20,7 +20,7 @@ protected:
     std::shared_ptr<EndpointSchema>senderSchema;
     std::string listenUrl;
 public:
-    explicit DataSenderEndpoint( std::shared_ptr<EndpointSchema>& es){
+    explicit DataSenderEndpoint( std::shared_ptr<EndpointSchema>& es) : nngAioPointer(){
         senderSchema = es;
         nng_aio_alloc(&(this->nngAioPointer), asyncCleanup, this);
         nng_aio_set_timeout(nngAioPointer, 50);

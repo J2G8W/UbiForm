@@ -1,16 +1,11 @@
 
 #include "Component.h"
 
-#include "endpoints/PairEndpoint.h"
-#include "endpoints/PublisherEndpoint.h"
-#include "endpoints/SubscriberEndpoint.h"
-
 #include "ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
 #include <nng/protocol/reqrep0/rep.h>
 #include <nng/protocol/reqrep0/req.h>
 #include <nng/supplemental/util/platform.h>
-#include <thread>
 
 
 // NOTE THAT these strings are defined in the various schemas in SystemSchemas
@@ -21,7 +16,7 @@
 // CONSTRUCTOR
 Component::Component(const std::string &baseAddress) : backgroundSocket(), systemSchemas() {
     this->baseAddress = baseAddress;
-    unsigned randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
+    long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
     // Create the background socket;
     int rv;
@@ -33,7 +28,7 @@ Component::Component(const std::string &baseAddress) : backgroundSocket(), syste
 
 
 // CREATE ENDPOINTS (don't connect)
-std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(std::string typeOfEndpoint, std::string id){
+std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(const std::string& typeOfEndpoint, const std::string& id){
     std::shared_ptr<EndpointSchema>recvSchema = componentManifest->getReceiverSchema(typeOfEndpoint);
     std::shared_ptr<EndpointSchema>sendSchema = componentManifest->getSenderSchema(typeOfEndpoint);
 
@@ -57,7 +52,7 @@ std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(std::string typeO
     return pe;
 }
 
-std::shared_ptr<PublisherEndpoint> Component::createNewPublisherEndpoint(std::string typeOfEndpoint, std::string id) {
+std::shared_ptr<PublisherEndpoint> Component::createNewPublisherEndpoint(const std::string& typeOfEndpoint, const std::string& id) {
     std::shared_ptr<EndpointSchema>sendSchema = componentManifest->getSenderSchema(typeOfEndpoint);
 
     std::shared_ptr<PublisherEndpoint> pe = std::make_shared<PublisherEndpoint>(sendSchema);
@@ -72,7 +67,7 @@ std::shared_ptr<PublisherEndpoint> Component::createNewPublisherEndpoint(std::st
     return pe;
 }
 
-std::shared_ptr<SubscriberEndpoint> Component::createNewSubscriberEndpoint(std::string typeOfEndpoint, std::string id) {
+std::shared_ptr<SubscriberEndpoint> Component::createNewSubscriberEndpoint(const std::string& typeOfEndpoint, const std::string& id) {
     std::shared_ptr<EndpointSchema>receiveSchema = componentManifest->getReceiverSchema(typeOfEndpoint);
 
     std::shared_ptr<SubscriberEndpoint> pe = std::make_shared<SubscriberEndpoint>(receiveSchema);
@@ -145,7 +140,7 @@ void Component::startBackgroundListen(int port) {
 
 void Component::startBackgroundListen() {
 
-    for(int i; i < 5 ; i++) {
+    for(int i = 0; i < 5 ; i++) {
         try {
             startBackgroundListen(this->lowestPort);
             this->lowestPort++;
@@ -245,7 +240,7 @@ void Component::backgroundListen(Component *component) {
             reply.setNull("url");
             component->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(reply);
             std::string replyText = reply.stringify();
-            if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
+            if (nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0) != 0) {
                // IGNORE
             }
         }catch(ValidationError &e){
