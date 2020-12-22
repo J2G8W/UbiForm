@@ -1,6 +1,13 @@
 #include "gtest/gtest.h"
 
 #include "Component.h"
+
+TEST(EmptyComponent, NoManifest){
+    Component component;
+    ASSERT_THROW(component.getComponentManifest(), std::logic_error);
+    ASSERT_THROW(component.getReceiverEndpointById("some_type"), std::out_of_range);
+}
+
 class SimpleComponent : public testing::Test{
 protected:
     // Note we aren't REALLY testing the inputting of the manifest as this is done automatically

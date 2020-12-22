@@ -93,9 +93,16 @@ public:
 
     ResourceDiscoveryConnEndpoint* createResourceDiscoveryConnectionEndpoint();
 
-    std::shared_ptr<ComponentManifest> getComponentManifest(){return componentManifest;}
+    std::shared_ptr<ComponentManifest> getComponentManifest(){
+        if (componentManifest == nullptr){
+            throw std::logic_error("No Component Manifest specified");
+        }
+        return componentManifest;
+    }
 
     std::string & getBackgroundListenAddress(){return backgroundListenAddress;}
+
+    SystemSchemas & getSystemSchemas(){return systemSchemas;}
 
     ~Component();
 };
