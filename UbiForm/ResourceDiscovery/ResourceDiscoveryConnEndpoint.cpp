@@ -3,7 +3,7 @@
 
 #include <nng/nng.h>
 #include <nng/protocol/reqrep0/req.h>
-SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(std::string url, SocketMessage *request) {
+SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(const std::string& url, SocketMessage *request) {
 
     int rv;
     nng_socket requestSocket;
@@ -48,7 +48,7 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
     return request;
 }
 
-void ResourceDiscoveryConnEndpoint::registerWithHub(std::string url) {
+void ResourceDiscoveryConnEndpoint::registerWithHub(const std::string& url) {
     SocketMessage * request = generateRegisterRequest();
 
     systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*request);
@@ -56,12 +56,14 @@ void ResourceDiscoveryConnEndpoint::registerWithHub(std::string url) {
     SocketMessage * reply = sendRequest(url, request);
 
     systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
-    std::cout << reply->getString("newID") << std::endl;
+
+    resourceDiscoveryHubs.insert(std::pair<std::string,std::string>(url, reply->getString("newID")));
+
     delete request;
     delete reply;
 }
 
-std::vector<std::string> ResourceDiscoveryConnEndpoint::getComponentIdsFromHub(std::string url) {
+std::vector<std::string> ResourceDiscoveryConnEndpoint::getComponentIdsFromHub(const std::string& url) {
     SocketMessage request;
     request.addMember("request",REQUEST_COMPONENTS);
 
@@ -74,7 +76,7 @@ std::vector<std::string> ResourceDiscoveryConnEndpoint::getComponentIdsFromHub(s
     return reply->getArray<std::string>("components");
 }
 
-ComponentRepresentation *ResourceDiscoveryConnEndpoint::getComponentById(std::string url, std::string id) {
+ComponentRepresentation *ResourceDiscoveryConnEndpoint::getComponentById(const std::string& url, const std::string& id) {
     SocketMessage request;
     request.addMember("request", REQUEST_BY_ID);
     request.addMember("id",id);
@@ -101,7 +103,7 @@ ComponentRepresentation *ResourceDiscoveryConnEndpoint::getComponentById(std::st
     }
 }
 
-SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(std::string endpointType) {
+SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const std::string& endpointType) {
     auto * request = new SocketMessage;
     request->addMember("request",REQUEST_BY_SCHEMA);
 
@@ -117,15 +119,15 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(std::s
     return request;
 }
 
-std::vector<SocketMessage *> ResourceDiscoveryConnEndpoint::getComponentsBySchema(std::string endpointType) {
+std::vector<SocketMessage *> ResourceDiscoveryConnEndpoint::getComponentsBySchema(const std::string& endpointType) {
     std::vector<SocketMessage *> returnEndpoints;
 
     SocketMessage* request = generateFindBySchemaRequest(endpointType);
 
     systemSchemas.getSystemSchema(SystemSchemaName::bySchemaRequest).validate(*request);
 
-    for (const auto& rdh : RDHUrls){
-        SocketMessage* reply = sendRequest(rdh,request);
+    for (const auto& rdh : resourceDiscoveryHubs){
+        SocketMessage* reply = sendRequest(rdh.first,request);
 
         systemSchemas.getSystemSchema(SystemSchemaName::bySchemaResponse).validate(*reply);
 
@@ -143,7 +145,7 @@ std::vector<SocketMessage *> ResourceDiscoveryConnEndpoint::getComponentsBySchem
 }
 
 
-void ResourceDiscoveryConnEndpoint::createEndpointBySchema(std::string endpointType){
+void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& endpointType){
     std::vector<SocketMessage *> validLocations = getComponentsBySchema(endpointType);
 
     for (const auto & location: validLocations) {

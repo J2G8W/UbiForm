@@ -117,7 +117,6 @@ int main(int argc, char ** argv){
             const char * locationOfRDH = RDHAddress;
 
             ResourceDiscoveryConnEndpoint* rdc = component.createResourceDiscoveryConnectionEndpoint();
-            rdc->addResourceDiscoveryHub(locationOfRDH);
 
             rdc->registerWithHub(locationOfRDH);
             std::vector<std::string> ids = rdc->getComponentIdsFromHub(locationOfRDH);
