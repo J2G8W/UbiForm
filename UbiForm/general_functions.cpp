@@ -9,8 +9,6 @@
 
 #include "general_functions.h"
 
-bool compareSchemaArrays(rapidjson::GenericValue<rapidjson::UTF8<>>::Object object,
-                         rapidjson::GenericValue<rapidjson::UTF8<>>::Object object1);
 
 
 // TODO - optimise this for speed
