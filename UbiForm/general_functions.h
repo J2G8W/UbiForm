@@ -14,6 +14,8 @@ std::string stringifyDocument(rapidjson::Document &JSON_document);
  */
 bool compareSchemaObjects(rapidjson::Value &schema1, rapidjson::Value &schema2);
 
+bool compareSchemaArrays(rapidjson::Value &schema1, rapidjson::Value &schema2);
+
 /**
  * Represents an error made in nng system.
  * Text of the error uses nng's standard reporting mechanism.

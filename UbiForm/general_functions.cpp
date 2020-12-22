@@ -1,4 +1,5 @@
 #include <iostream>
+#include <set>
 
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
@@ -28,10 +29,10 @@ std::string stringifyDocument(rapidjson::Document &JSON_document) {
 
 bool compareSchemaObjects(rapidjson::Value &schema1, rapidjson::Value &schema2) {
     if (!schema1.IsObject() || !schema2.IsObject()){ return false;}
-    if (! (schema1.HasMember("type") && schema1["type"].IsString() && strncmp(schema1["type"].GetString(),"object",7) == 0)){
+    if (! (schema1.HasMember("type") && schema1["type"].IsString() && strncmp(schema1["type"].GetString(),"object",6) == 0)){
         return false;
     }
-    if (! (schema2.HasMember("type") && schema2["type"].IsString() && strncmp(schema2["type"].GetString(),"object",7) == 0)){
+    if (! (schema2.HasMember("type") && schema2["type"].IsString() && strncmp(schema2["type"].GetString(),"object",6) == 0)){
         return false;
     }
     if (!(schema1.HasMember("properties") && schema1["properties"].IsObject()
@@ -54,10 +55,10 @@ bool compareSchemaObjects(rapidjson::Value &schema1, rapidjson::Value &schema2) 
         }
         const char * v1Type = v.value.GetObject()["type"].GetString();
         const char * v2Type = properties2[name].GetObject()["type"].GetString();
-        if (strncmp(v1Type,"object",7) == 0){
+        if (strncmp(v1Type,"object",6) == 0){
             if (! compareSchemaObjects(v.value,properties2[name])){ return false;}
-        }else if (strncmp(v1Type, "array",6) == 0){
-            if (! compareSchemaArrays(v.value.GetObject(),properties2[name].GetObject())){return false;}
+        }else if (strncmp(v1Type, "array",5) == 0){
+            if (! compareSchemaArrays(v.value,properties2[name])){return false;}
         }else{
             if (strncmp(v1Type,v2Type, strlen(v1Type)) != 0){return false;}
         }
@@ -69,13 +70,37 @@ bool compareSchemaObjects(rapidjson::Value &schema1, rapidjson::Value &schema2) 
         auto required2 = schema2["required"].GetArray();
         if (required1.Size() != required2.Size()){return  false;}
         // TODO
+
     }else if(schema1.HasMember("required") || schema2.HasMember("required")){return false;}
 
     return true;
 }
 
-bool compareSchemaArrays(rapidjson::GenericValue<rapidjson::UTF8<>>::Object object,
-                         rapidjson::GenericValue<rapidjson::UTF8<>>::Object object1) {
-    //TODO
+
+
+bool compareSchemaArrays(rapidjson::Value &schema1, rapidjson::Value &schema2) {
+    // We assume we have been given Values which have type = array
+
+    // Neither thing has an "items"
+    if (!(schema1.HasMember("items") || schema1.HasMember("items"))){return true;}
+
+    if (!(schema1.HasMember("items") && schema1["items"].IsObject() && schema2.HasMember("items") && schema2["items"].IsObject())){
+        return false;
+    }
+
+    auto items1 = schema1["items"].GetObject();
+    auto items2 = schema2["items"].GetObject();
+
+    if (!(items1.HasMember("type") && items1["type"].IsString() && items2.HasMember("type") && items2["type"].IsString())){
+        return false;
+    }
+    if (strncmp(items1["type"].GetString(),items2["type"].GetString(), items1["type"].GetStringLength()) != 0){
+        return false;
+    }
+
+    if (strncmp(items1["type"].GetString(),"object", 6) == 0){
+        return compareSchemaObjects(schema1["items"],schema2["items"]);
+    }
+
     return true;
 }
