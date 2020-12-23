@@ -3,7 +3,6 @@
 
 #include <nng/nng.h>
 #include <nng/protocol/pair0/pair.h>
-#include <unistd.h>
 #include "DataReceiverEndpoint.h"
 #include "DataSenderEndpoint.h"
 

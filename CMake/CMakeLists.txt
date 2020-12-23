@@ -13,11 +13,22 @@ option(BUILD_EXAMPLES "Build examples programs" OFF)
 
 # Note that both of these libraries need to be pre-installed at the moment, they don't come with
 
-# Find library nng and set to variable NNG
-find_library(NNG nng)
-# Find package RapidJSON and it is included straight away
+# Directory of NNG in relation to current location
+set(nng_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../nng)
+
+# Setup nng library
+add_library(NNG SHARED IMPORTED)
+set_target_properties(NNG PROPERTIES IMPORTED_LOCATION
+       ${nng_dir}/build/libnng.a)
+
+
+
+# Setup rapidjson
 ADD_DEFINITIONS(-DRAPIDJSON_HAS_STDSTRING)
-find_package(RapidJSON)
+set(rapidjson_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../rapidjson)
+
+include_directories(${nng_dir}/include)
+include_directories(${rapidjson_dir}/include)
 
 
 #We use googletest for our testing. This downloads and sets it up using CmakeList.txt.in
@@ -79,23 +90,23 @@ if (BUILD_TESTS)
             ../UbiForm/endpoints/test_EndpointSchema.h ../UbiForm/test_Component.h
             ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
-    target_link_libraries(run_tests gtest_main gmock_main UbiForm ${NNG})
+    target_link_libraries(run_tests gtest_main gmock_main UbiForm NNG)
     file(COPY ../tests/TestManifests DESTINATION .)
 endif(BUILD_TESTS)
 
 # Create examples
 if (BUILD_EXAMPLES)
     add_executable(pair_example ../examples/PairConnectionExample.cpp)
-    target_link_libraries(pair_example UbiForm ${NNG})
+    target_link_libraries(pair_example UbiForm NNG)
 
     add_executable(pubsub_example ../examples/PubSubExample.cpp)
-    target_link_libraries(pubsub_example UbiForm ${NNG})
+    target_link_libraries(pubsub_example UbiForm NNG)
 
     add_executable(async_recv_example ../examples/AsyncRecvExample.cpp)
-    target_link_libraries(async_recv_example UbiForm ${NNG})
+    target_link_libraries(async_recv_example UbiForm NNG)
 
     add_executable(resource_discovery_example ../examples/ResourceDiscoveryExample.cpp)
-    target_link_libraries(resource_discovery_example UbiForm ${NNG})
+    target_link_libraries(resource_discovery_example UbiForm NNG)
 
     # Copy over our base JSON files for our examples to use
     file(COPY ../examples/JsonFiles DESTINATION .)
