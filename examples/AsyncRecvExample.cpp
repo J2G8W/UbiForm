@@ -1,6 +1,10 @@
 #include <cstring>
 #include <cstdlib>
 
+
+#include <windows.h>
+
+
 #include "../UbiForm/Component.h"
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
@@ -43,7 +47,7 @@ int main(int argc, char ** argv){
 
     receiverEndpoint->asyncReceiveMessage(testCallback, new AsyncExtraInfo(receiverEndpoint));
     while(true){
-        sleep(5);
+        Sleep(5);
     }
 
 }

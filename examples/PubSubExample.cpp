@@ -2,6 +2,10 @@
 #include <algorithm>
 #include "../UbiForm/Component.h"
 
+
+#include <windows.h>
+
+
 #include <iomanip>
 
 #define SUBSCRIBER "SUBSCRIBER"
@@ -71,7 +75,7 @@ int main(int argc, char ** argv){
 
                     publisherEndpoints->at(0)->sendMessage(s);
                 }
-                sleep(1);
+                Sleep(1);
             }
         }
     }

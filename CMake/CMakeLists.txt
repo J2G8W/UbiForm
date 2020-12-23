@@ -16,12 +16,15 @@ option(BUILD_EXAMPLES "Build examples programs" OFF)
 # Directory of NNG in relation to current location
 set(nng_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../nng)
 
+message(${nng_dir}/build/libnng.a)
+
 # Setup nng library
 add_library(NNG SHARED IMPORTED)
-set_target_properties(NNG PROPERTIES IMPORTED_LOCATION
-       ${nng_dir}/build/libnng.a)
+set_target_properties(NNG PROPERTIES IMPORTED_IMPLIB  ${nng_dir}/build/libnng.a)
+set_target_properties(NNG PROPERTIES IMPORTED_LOCATION  ${nng_dir}/build/libnng.a)
 
 
+find_package(nng CONFIG REQUIRED)
 
 # Setup rapidjson
 ADD_DEFINITIONS(-DRAPIDJSON_HAS_STDSTRING)
@@ -31,38 +34,6 @@ include_directories(${nng_dir}/include)
 include_directories(${rapidjson_dir}/include)
 
 
-#We use googletest for our testing. This downloads and sets it up using CmakeList.txt.in
-# Download and unpack googletest at configure time
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-endif()
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-    message(FATAL_ERROR "Build step for googletest failed: ${result}")
-endif()
-
-# Prevent overriding the parent project's compiler/linker
-# settings on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-# Add googletest directly to our build. This defines
-# the gtest and gtest_main targets.
-add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-        ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-        EXCLUDE_FROM_ALL)
-
-# The gtest/gtest_main targets carry header search path
-# dependencies automatically when using CMake 2.8.11 or
-# later. Otherwise we have to add them here ourselves.
-if (CMAKE_VERSION VERSION_LESS 2.8.11)
-    include_directories("${gtest_SOURCE_DIR}/include")
-endif()
 
 set(generalFunctions ../UbiForm/general_functions.h ../UbiForm/general_functions.cpp)
 set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
@@ -81,32 +52,66 @@ set(resourceDiscovery ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.
 
 # Create library
 file(COPY ../UbiForm/SystemSchemas DESTINATION .)
-add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h ${componentFiles} ${generalFunctions} ${endpointFiles} ${resourceDiscovery})
-target_link_libraries(UbiForm gtest_main gmock_main)
+add_library(UbiForm STATIC ../UbiForm/library.cpp ../UbiForm/library.h ${componentFiles} ${generalFunctions} ${endpointFiles} ${resourceDiscovery})
+target_link_libraries(UbiForm nng::nng)
+
 
 # Create tests
 if (BUILD_TESTS)
+	#We use googletest for our testing. This downloads and sets it up using CmakeList.txt.in
+	# Download and unpack googletest at configure time
+	configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+	execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+			RESULT_VARIABLE result
+			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+	if(result)
+		message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+	endif()
+	execute_process(COMMAND ${CMAKE_COMMAND} --build .
+			RESULT_VARIABLE result
+			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+	if(result)
+		message(FATAL_ERROR "Build step for googletest failed: ${result}")
+	endif()
+
+	# Prevent overriding the parent project's compiler/linker
+	# settings on Windows
+	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+	# Add googletest directly to our build. This defines
+	# the gtest and gtest_main targets.
+	add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+			${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+			EXCLUDE_FROM_ALL)
+
+	# The gtest/gtest_main targets carry header search path
+	# dependencies automatically when using CMake 2.8.11 or
+	# later. Otherwise we have to add them here ourselves.
+	if (CMAKE_VERSION VERSION_LESS 2.8.11)
+		include_directories("${gtest_SOURCE_DIR}/include")
+	endif()
+	
     set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h
             ../UbiForm/endpoints/test_EndpointSchema.h ../UbiForm/test_Component.h
             ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
-    target_link_libraries(run_tests gtest_main gmock_main UbiForm NNG)
+    target_link_libraries(run_tests gtest_main gmock_main UbiForm)
     file(COPY ../tests/TestManifests DESTINATION .)
 endif(BUILD_TESTS)
 
 # Create examples
 if (BUILD_EXAMPLES)
     add_executable(pair_example ../examples/PairConnectionExample.cpp)
-    target_link_libraries(pair_example UbiForm NNG)
+    target_link_libraries(pair_example UbiForm)
 
     add_executable(pubsub_example ../examples/PubSubExample.cpp)
-    target_link_libraries(pubsub_example UbiForm NNG)
+    target_link_libraries(pubsub_example UbiForm)
 
     add_executable(async_recv_example ../examples/AsyncRecvExample.cpp)
-    target_link_libraries(async_recv_example UbiForm NNG)
+    target_link_libraries(async_recv_example UbiForm)
 
     add_executable(resource_discovery_example ../examples/ResourceDiscoveryExample.cpp)
-    target_link_libraries(resource_discovery_example UbiForm NNG)
+    target_link_libraries(resource_discovery_example UbiForm)
 
     # Copy over our base JSON files for our examples to use
     file(COPY ../examples/JsonFiles DESTINATION .)

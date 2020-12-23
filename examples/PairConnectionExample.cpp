@@ -1,5 +1,7 @@
 #include <cstring>
 
+#include <windows.h>
+
 #include "../UbiForm/Component.h"
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
@@ -41,7 +43,7 @@ int main(int argc, char ** argv){
             auto endpointVector = sender.getSenderEndpointsByType("pairExample");
             int i =0;
             while(true){
-                sleep(1);
+                Sleep(1);
                 try {
                     SocketMessage sm;
                     sm.addMember("temp", i++);

@@ -1,6 +1,6 @@
-
 #include "ResourceDiscoveryHubEndpoint.h"
 #include <nng/protocol/reqrep0/rep.h>
+#include <nng/nng.h>
 
 void ResourceDiscoveryHubEndpoint::startResourceDiscover(const std::string& urlInit){
     int rv;

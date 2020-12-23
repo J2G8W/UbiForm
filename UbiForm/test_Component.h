@@ -1,5 +1,7 @@
 #include "gtest/gtest.h"
 
+#include <windows.h>
+
 #include "Component.h"
 
 TEST(EmptyComponent, NoManifest){
@@ -80,7 +82,7 @@ TEST_F(PairBasedComponent, FindEachOther){
     senderComponent->startBackgroundListen(8000);
     ASSERT_NO_THROW(receiverComponent->requestAndCreateConnection("pairExample",senderComponent->getBackgroundListenAddress(), "pairExample"));
 
-    sleep(1);
+    Sleep(1);
     // No throw means that there is in fact a pair connection being created in our component
     ASSERT_NO_THROW(receiverComponent->getReceiverEndpointsByType("pairExample")->at(0));
     ASSERT_NO_THROW(senderComponent->getSenderEndpointsByType("pairExample")->at(0));

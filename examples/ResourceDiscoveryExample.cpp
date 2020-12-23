@@ -4,6 +4,10 @@
 
 #include <iomanip>
 
+
+#include <windows.h>
+
+
 // Hub is a Publisher and an RDH
 #define HUB "HUB"
 // Connection is a subscriber
@@ -61,7 +65,7 @@ int main(int argc, char ** argv){
 
                     publisherEndpoints->at(0)->sendMessage(s);
                 }
-                sleep(1);
+                Sleep(1);
             }
         }if (strcmp(argv[1], PUBLISHER) == 0){
             Component component(componentAddress);
@@ -98,7 +102,7 @@ int main(int argc, char ** argv){
 
                     publisherEndpoints->at(0)->sendMessage(s);
                 }
-                sleep(1);
+                Sleep(1);
             }
         }
         if (strcmp(argv[1], CONNECTION) == 0){
