@@ -14,7 +14,7 @@ enum SystemSchemaName{
 
 class SystemSchemas{
 private:
-    std::map<SystemSchemaName, GenericSchema *> systemSchemas;
+    std::map<SystemSchemaName, std::shared_ptr<GenericSchema> > systemSchemas;
 public:
     static int numberOfInstances;
     SystemSchemas(){
@@ -36,7 +36,7 @@ public:
                 std::string errorMsg = "Error opening file - " + std::string(files[i]);
                 throw AccessError(errorMsg);
             }
-            auto* es = new GenericSchema(pFile);
+            auto es = std::make_shared<GenericSchema>(pFile);
             systemSchemas.insert(std::make_pair(static_cast<SystemSchemaName>(i), es));
             fclose(pFile);
         }
