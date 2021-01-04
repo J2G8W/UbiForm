@@ -19,11 +19,13 @@ private:
     rapidjson::MemoryPoolAllocator<> & allocator;
 
 public:
+    // Note that the passed in pointer is up to parent to handle memory
     explicit EndpointSchema(rapidjson::Value *doc, rapidjson::MemoryPoolAllocator<> & al) : allocator(al) {
         JSON_rep = doc;
         schema = new rapidjson::SchemaDocument(*JSON_rep);
     }
 
+    // Copy constructor
     void updateSchema(rapidjson::Value &doc);
 
     SocketMessage * getSchemaObject();
@@ -32,6 +34,11 @@ public:
     void validate(const rapidjson::Value &doc);
 
     ValueType getValueType(const std::string& fieldName);
+
+    ~EndpointSchema(){
+        delete schema;
+        // The JSON_rep pointer is handled by parent
+    }
 };
 
 

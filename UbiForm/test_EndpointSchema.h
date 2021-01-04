@@ -40,6 +40,7 @@ TEST_F(EndpointSchemaSimpleChecks, CorrectValidationOfMessage){
 TEST_F(EndpointSchemaSimpleChecks, GetSchema){
     SocketMessage * schemaRep = endpointSchema.getSchemaObject();
     ASSERT_EQ(schemaRep->stringify(), std::string(schemaInput));
+    delete schemaRep;
 }
 
 TEST_F(EndpointSchemaSimpleChecks, GetType){
@@ -50,6 +51,7 @@ TEST_F(EndpointSchemaSimpleChecks, GetType){
     // Make sure the schema hasn't been changed
     SocketMessage * schemaRep = endpointSchema.getSchemaObject();
     ASSERT_EQ(schemaRep->stringify(), std::string(schemaInput));
+    delete schemaRep;
 }
 
 TEST_F(EndpointSchemaSimpleChecks, SimpleUpdate){
@@ -61,4 +63,6 @@ TEST_F(EndpointSchemaSimpleChecks, SimpleUpdate){
 
     // The base document has been changed
     ASSERT_NE(stringifyDocument(schemaDoc), schemaInput);
+
+    delete JSON_document;
 }
