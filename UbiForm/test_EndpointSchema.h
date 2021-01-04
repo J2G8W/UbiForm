@@ -11,7 +11,7 @@ protected:
     const char *schemaInput = R"({"properties":{)"
                                 R"("temperature":{"type":"number"},)"
                                 R"("value":{"type":"string"})"
-                                R"(}})";
+                                R"(},"required":["value"]})";
     rapidjson::Document schemaDoc;
     EndpointSchema endpointSchema;
 };
@@ -65,4 +65,14 @@ TEST_F(EndpointSchemaSimpleChecks, SimpleUpdate){
     ASSERT_NE(stringifyDocument(schemaDoc), schemaInput);
 
     delete JSON_document;
+}
+
+TEST_F(EndpointSchemaSimpleChecks, GetNames){
+    std::vector<std::string> requiredAttributes = endpointSchema.getRequired();
+    std::vector<std::string> correctRequiredAttributes{"value"};
+    ASSERT_EQ(requiredAttributes,correctRequiredAttributes);
+
+    std::vector<std::string> attributes = endpointSchema.getAllProperties();
+    std::vector<std::string> correctPropertyAttributes{"temperature","value"};
+    ASSERT_EQ(attributes,correctPropertyAttributes);
 }

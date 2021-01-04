@@ -35,6 +35,9 @@ public:
 
     ValueType getValueType(const std::string& fieldName);
 
+    std::vector<std::string> getRequired();
+    std::vector<std::string> getAllProperties();
+
     ~EndpointSchema(){
         delete schema;
         // The JSON_rep pointer is handled by parent

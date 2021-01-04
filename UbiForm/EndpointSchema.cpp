@@ -52,3 +52,28 @@ ValueType EndpointSchema::getValueType(const std::string& fieldName) {
     else if (valueType == "null"){return ValueType::Null;}
     else{throw ValidationError("No valid type in the schema");}
 }
+
+std::vector<std::string> EndpointSchema::getAllProperties() {
+    std::vector<std::string> propertyNames;
+    auto propertiesJSON = (*JSON_rep)["properties"].GetObject();
+    propertyNames.reserve(propertiesJSON.MemberCount());
+
+    for (auto& v : propertiesJSON) {
+        propertyNames.emplace_back(v.name.GetString());
+    }
+    return propertyNames;
+}
+
+std::vector<std::string> EndpointSchema::getRequired() {
+    if (!(JSON_rep->HasMember("required") && (*JSON_rep)["required"].IsArray())){
+        return std::vector<std::string>();
+    }
+    std::vector<std::string> requiredAttributes;
+    auto requiredJSON = (*JSON_rep)["required"].GetArray();
+    requiredAttributes.reserve(requiredJSON.Size());
+
+    for (auto& v : requiredJSON) {
+        requiredAttributes.emplace_back(v.GetString());
+    }
+    return requiredAttributes;
+}
