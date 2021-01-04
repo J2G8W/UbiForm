@@ -121,3 +121,9 @@ TEST_F(EndpointSchemaSimpleChecks, ArrayAddition){
     sm.addMember("msgs", falseMsgs);
     ASSERT_THROW(endpointSchema.validate(sm), ValidationError);
 }
+
+TEST_F(EndpointSchemaSimpleChecks, SubObjects){
+    // DUMB TEST
+    endpointSchema.setSubObject("sub",endpointSchema);
+    std::cout << stringifyDocument(schemaDoc) << std::endl;
+}

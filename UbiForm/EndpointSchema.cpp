@@ -1,5 +1,22 @@
 #include "EndpointSchema.h"
 
+std::string EndpointSchema::convertValueType(ValueType vt) {
+    rapidjson::Value newValue;
+    switch (vt) {
+        case Number:
+            return "number";
+        case String:
+            return "string";
+        case Boolean:
+            return "boolean";
+        case Object:
+            return "object";
+        case Array:
+            return "array";
+        case Null:
+            return "null";
+    }
+}
 
 // Validate a socket message against the manifest
 void EndpointSchema::validate(const SocketMessage &messageToValidate) {
@@ -138,9 +155,9 @@ void EndpointSchema::addRequired(const std::string &name) {
 
 void EndpointSchema::setArrayType(const std::string &name, ValueType type) {
     auto properties = (*JSON_rep)["properties"].GetObject();
-    if (!properties.HasMember(name)){
-        addProperty(name, ValueType::Array);
-    }
+
+    addProperty(name, ValueType::Array);
+
     if (properties[name].HasMember("items")){
         properties[name].GetObject()["items"].GetObject()["type"] = rapidjson::Value(convertValueType(type),allocator);
     }else {
@@ -157,20 +174,17 @@ void EndpointSchema::setArrayObject(const std::string &name, EndpointSchema &es)
 
 }
 
-std::string EndpointSchema::convertValueType(ValueType vt) {
-    rapidjson::Value newValue;
-    switch (vt) {
-        case Number:
-            return "number";
-        case String:
-            return "string";
-        case Boolean:
-            return "boolean";
-        case Object:
-            return "object";
-        case Array:
-            return "array";
-        case Null:
-            return "null";
+
+void EndpointSchema::setSubObject(const std::string &name, EndpointSchema &es) {
+    auto properties = (*JSON_rep)["properties"].GetObject();
+
+    addProperty(name, ValueType::Object);
+    rapidjson::Value subObjectProperties(rapidjson::kObjectType);
+    subObjectProperties.CopyFrom((*es.JSON_rep)["properties"],allocator);
+
+    if(properties[name].HasMember("properties")){
+        properties[name].GetObject()["properties"] = subObjectProperties;
+    }else {
+        properties[name].AddMember("properties", subObjectProperties, allocator);
     }
 }

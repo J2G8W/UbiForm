@@ -53,6 +53,7 @@ public:
 
     void setArrayType(const std::string& name, ValueType type);
     void setArrayObject(const std::string& name, EndpointSchema& es);
+    void setSubObject(const std::string& name, EndpointSchema& es);
 
     ~EndpointSchema(){
         delete schema;
