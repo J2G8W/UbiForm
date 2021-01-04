@@ -7,6 +7,7 @@
 #include "../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h"
 #include "../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h"
 #include "../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h"
+#include "../UbiForm/SystemSchemas/test_SystemSchemas.h"
 
 int main(int argc, char **argv)
 {

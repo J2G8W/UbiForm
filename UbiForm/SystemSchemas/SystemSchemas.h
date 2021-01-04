@@ -33,8 +33,8 @@ public:
         for (int i =0; i < 11; i++){
             FILE* pFile = fopen(files[i], "r");
             if (pFile == nullptr){
-                std::cerr << "Error finding requisite file - " << files[i] << std::endl;
-                exit(1);
+                std::string errorMsg = "Error opening file - " + std::string(files[i]);
+                throw AccessError(errorMsg);
             }
             auto* es = new GenericSchema(pFile);
             systemSchemas.insert(std::make_pair(static_cast<SystemSchemaName>(i), es));
