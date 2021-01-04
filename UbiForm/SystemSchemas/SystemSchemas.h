@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <map>
-#include "../endpoints/EndpointSchema.h"
+#include "../EndpointSchema.h"
 #include "../GenericSchema.h"
 
 enum SystemSchemaName{

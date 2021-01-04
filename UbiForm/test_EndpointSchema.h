@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "EndpointSchema.h"
-#include "../SocketMessage.h"
+#include "SocketMessage.h"
 
 
 class SchemaTest : public ::testing::Test{

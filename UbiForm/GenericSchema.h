@@ -2,7 +2,7 @@
 #define UBIFORM_GENERICSCHEMA_H
 
 #include "SocketMessage.h"
-#include "endpoints/EndpointSchema.h"
+#include "EndpointSchema.h"
 
 class GenericSchema {
 private:

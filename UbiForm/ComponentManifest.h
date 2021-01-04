@@ -11,7 +11,7 @@
 #include "rapidjson/error/en.h"
 
 #include "general_functions.h"
-#include "endpoints/EndpointSchema.h"
+#include "EndpointSchema.h"
 #include "SystemSchemas/SystemSchemas.h"
 
 /**

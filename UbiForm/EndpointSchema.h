@@ -6,7 +6,7 @@
 #include <rapidjson/filereadstream.h>
 #include <rapidjson/writer.h>
 
-#include "../SocketMessage.h"
+#include "SocketMessage.h"
 
 class EndpointSchema {
 private:
