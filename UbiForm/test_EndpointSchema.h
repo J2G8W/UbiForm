@@ -57,7 +57,7 @@ TEST_F(EndpointSchemaSimpleChecks, GetType){
 TEST_F(EndpointSchemaSimpleChecks, SimpleUpdate){
     rapidjson::Document * JSON_document = parseFromFile("TestManifests/Endpoint1.json");
 
-    endpointSchema.updateSchema(*JSON_document);
+    endpointSchema.completeUpdate(*JSON_document);
     ASSERT_EQ(endpointSchema.getValueType("temp"),ValueType::Number);
     ASSERT_THROW(endpointSchema.getValueType("temperature"), AccessError);
 
@@ -75,4 +75,22 @@ TEST_F(EndpointSchemaSimpleChecks, GetNames){
     std::vector<std::string> attributes = endpointSchema.getAllProperties();
     std::vector<std::string> correctPropertyAttributes{"temperature","value"};
     ASSERT_EQ(attributes,correctPropertyAttributes);
+}
+
+TEST_F(EndpointSchemaSimpleChecks, AddAttribute){
+    endpointSchema.addProperty("msg", ValueType::String);
+    ASSERT_EQ(endpointSchema.getValueType("msg"), ValueType::String);
+    endpointSchema.addProperty("msg", ValueType::Number);
+    ASSERT_EQ(endpointSchema.getValueType("msg"), ValueType::Number);
+
+    SocketMessage sm;
+    sm.addMember("msg", 20);
+    sm.addMember("value", "HELLO");
+    sm.addMember("temperature", 1000);
+
+    ASSERT_NO_THROW(endpointSchema.validate(sm));
+
+    sm.addMember("msg", "HELLO");
+
+    ASSERT_THROW(endpointSchema.validate(sm), ValidationError);
 }

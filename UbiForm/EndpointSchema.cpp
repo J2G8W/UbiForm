@@ -22,11 +22,10 @@ void EndpointSchema::validate(const rapidjson::Value &doc) {
     }
 }
 
-void EndpointSchema::updateSchema(rapidjson::Value &doc) {
-    delete schema;
+void EndpointSchema::completeUpdate(rapidjson::Value &doc) {
     JSON_rep->RemoveAllMembers();
     JSON_rep->CopyFrom(doc, allocator);
-    schema = new rapidjson::SchemaDocument(*JSON_rep);
+    changeSchema();
 }
 
 SocketMessage *EndpointSchema::getSchemaObject() {
@@ -76,4 +75,38 @@ std::vector<std::string> EndpointSchema::getRequired() {
         requiredAttributes.emplace_back(v.GetString());
     }
     return requiredAttributes;
+}
+
+void EndpointSchema::addProperty(const std::string& name, ValueType type) {
+    auto properties = (*JSON_rep)["properties"].GetObject();
+    rapidjson::Value newValue;
+    switch (type) {
+        case Number:
+            newValue.SetString("number", allocator);
+            break;
+        case String:
+            newValue.SetString("string", allocator);
+            break;
+        case Boolean:
+            newValue.SetString("boolean", allocator);
+            break;
+        case Object:
+            newValue.SetString("object", allocator);
+            break;
+        case Array:
+            newValue.SetString("array", allocator);
+            break;
+        case Null:
+            newValue.SetString("null", allocator);
+            break;
+    }
+    if (properties.HasMember(name)){
+        properties[name].GetObject()["type"] = newValue;
+    }else{
+        rapidjson::Value newObject(rapidjson::kObjectType);
+        newObject.AddMember(rapidjson::Value("type").Move(), newValue, allocator);
+        rapidjson::Value nameValue(name, allocator);
+        properties.AddMember(nameValue,newObject,allocator);
+    }
+    changeSchema();
 }
