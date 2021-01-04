@@ -4,6 +4,7 @@
 #include <memory>
 #include <map>
 #include "../endpoints/EndpointSchema.h"
+#include "../GenericSchema.h"
 
 enum SystemSchemaName{
     componentManifest,endpointCreationRequest, endpointCreationResponse,
@@ -13,7 +14,7 @@ enum SystemSchemaName{
 
 class SystemSchemas{
 private:
-    std::map<SystemSchemaName, EndpointSchema *> systemSchemas;
+    std::map<SystemSchemaName, GenericSchema *> systemSchemas;
 public:
     static int numberOfInstances;
     SystemSchemas(){
@@ -35,7 +36,7 @@ public:
                 std::cerr << "Error finding requisite file - " << files[i] << std::endl;
                 exit(1);
             }
-            auto* es = new EndpointSchema(pFile);
+            auto* es = new GenericSchema(pFile);
             systemSchemas.insert(std::make_pair(static_cast<SystemSchemaName>(i), es));
             fclose(pFile);
         }
@@ -46,7 +47,7 @@ public:
 
     SystemSchemas(const SystemSchemas& obj) {if(this != &obj) ++numberOfInstances;}
 
-    EndpointSchema & getSystemSchema(SystemSchemaName name) {
+    GenericSchema & getSystemSchema(SystemSchemaName name) {
         return *(systemSchemas.at(name));
     }
 };
