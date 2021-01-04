@@ -19,4 +19,5 @@ protected:
 TEST_F(test_RDC, GenerateRegisterRequest){
     SocketMessage *request = nullptr;
     ASSERT_NO_THROW(request =rdc.generateRegisterRequest());
+    delete request;
 }

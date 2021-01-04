@@ -27,6 +27,10 @@ public:
     void validate(const rapidjson::Value &doc){
         es->validate(doc);
     }
+
+    ~GenericSchema(){
+        delete es;
+    }
 };
 
 
