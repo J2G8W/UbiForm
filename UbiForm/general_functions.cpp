@@ -97,3 +97,18 @@ bool compareSchemaArrays(rapidjson::Value &schema1, rapidjson::Value &schema2) {
 
     return true;
 }
+
+rapidjson::Document *parseFromFile(const char *address) {
+    FILE* pFile = fopen(address, "r");
+    if (pFile == nullptr){
+        std::string errorMsg = "Error opening file - " + std::string(address);
+        throw AccessError(errorMsg);
+    }
+
+    auto * JSON_document = new rapidjson::Document ;
+    char readBuffer[65536];
+    rapidjson::FileReadStream inputStream(pFile, readBuffer, sizeof(readBuffer));
+    JSON_document->ParseStream(inputStream);
+    fclose(pFile);
+    return JSON_document;
+}

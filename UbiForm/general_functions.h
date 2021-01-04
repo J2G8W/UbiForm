@@ -2,6 +2,7 @@
 #define UBIFORM_GENERALFUNC_H
 
 #include <rapidjson/document.h>
+#include <rapidjson/filereadstream.h>
 #include <nng/nng.h>
 
 std::string stringifyDocument(rapidjson::Document &JSON_document);
@@ -54,5 +55,9 @@ class ParsingError : public std::logic_error{
 public:
     explicit ParsingError(const std::string& error) : std::logic_error(error){}
 };
+
+
+// USE ONLY FOR TESTING PURPOSES
+rapidjson::Document* parseFromFile(const char * address);
 
 #endif //UBIFORM_GENERALFUNC_H

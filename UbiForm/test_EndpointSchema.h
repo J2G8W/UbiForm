@@ -52,3 +52,13 @@ TEST_F(EndpointSchemaSimpleChecks, GetType){
     ASSERT_EQ(schemaRep->stringify(), std::string(schemaInput));
 }
 
+TEST_F(EndpointSchemaSimpleChecks, SimpleUpdate){
+    rapidjson::Document * JSON_document = parseFromFile("TestManifests/Endpoint1.json");
+
+    endpointSchema.updateSchema(*JSON_document);
+    ASSERT_EQ(endpointSchema.getValueType("temp"),ValueType::Number);
+    ASSERT_THROW(endpointSchema.getValueType("temperature"), AccessError);
+
+    // The base document has been changed
+    ASSERT_NE(stringifyDocument(schemaDoc), schemaInput);
+}
