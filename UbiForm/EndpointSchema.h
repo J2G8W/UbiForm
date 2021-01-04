@@ -23,6 +23,8 @@ private:
         schema = new rapidjson::SchemaDocument(*JSON_rep);
     }
 
+    static std::string convertValueType(ValueType vt);
+
 public:
     // Note that the passed in pointer is up to parent to handle memory
     explicit EndpointSchema(rapidjson::Value *doc, rapidjson::MemoryPoolAllocator<> & al) : allocator(al) {
@@ -44,11 +46,20 @@ public:
     std::vector<std::string> getAllProperties();
 
     void addProperty(const std::string& name, ValueType type);
+    void removeProperty(const std::string& name);
+
+    void addRequired(const std::string& name);
+    void removeRequired(const std::string &name);
+
+    void setArrayType(const std::string& name, ValueType type);
+    void setArrayObject(const std::string& name, EndpointSchema& es);
 
     ~EndpointSchema(){
         delete schema;
         // The JSON_rep pointer is handled by parent
     }
+
+
 };
 
 

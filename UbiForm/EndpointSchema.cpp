@@ -80,26 +80,7 @@ std::vector<std::string> EndpointSchema::getRequired() {
 void EndpointSchema::addProperty(const std::string& name, ValueType type) {
     auto properties = (*JSON_rep)["properties"].GetObject();
     rapidjson::Value newValue;
-    switch (type) {
-        case Number:
-            newValue.SetString("number", allocator);
-            break;
-        case String:
-            newValue.SetString("string", allocator);
-            break;
-        case Boolean:
-            newValue.SetString("boolean", allocator);
-            break;
-        case Object:
-            newValue.SetString("object", allocator);
-            break;
-        case Array:
-            newValue.SetString("array", allocator);
-            break;
-        case Null:
-            newValue.SetString("null", allocator);
-            break;
-    }
+    newValue.SetString(convertValueType(type), allocator);
     if (properties.HasMember(name)){
         properties[name].GetObject()["type"] = newValue;
     }else{
@@ -109,4 +90,87 @@ void EndpointSchema::addProperty(const std::string& name, ValueType type) {
         properties.AddMember(nameValue,newObject,allocator);
     }
     changeSchema();
+}
+
+void EndpointSchema::removeProperty(const std::string& name){
+    auto properties = (*JSON_rep)["properties"].GetObject();
+    if (properties.HasMember(name)){
+        properties.RemoveMember(name);
+    }
+    changeSchema();
+}
+
+void EndpointSchema::removeRequired(const std::string &name){
+    bool changeMade = false;
+    if (JSON_rep->HasMember("required") && (*JSON_rep)["required"].IsArray()){
+        auto jsonArray = (*JSON_rep)["required"].GetArray();
+        // Rapidjson issue 1316 shows method here.
+        // We don't iterate in for loop as we don't want to "double jump" on erase
+        for(auto itr = jsonArray.Begin(); itr != jsonArray.End() ; ){
+            if (strncmp(name.c_str(),itr->GetString(), name.size()) == 0){
+                itr = jsonArray.Erase(itr);
+                changeMade = true;
+            }else{
+                itr ++;
+            }
+        }
+    }
+    if (changeMade){changeSchema();}
+}
+
+void EndpointSchema::addRequired(const std::string &name) {
+    bool changeNeeded = true;
+    if (JSON_rep->HasMember("required") && (*JSON_rep)["required"].IsArray()) {
+        auto jsonArray = (*JSON_rep)["required"].GetArray();
+        for (auto &v : jsonArray){
+            if (strncmp(name.c_str(), v.GetString(), name.size()) == 0){
+                changeNeeded = false;
+                break;
+            }
+        }
+        if (changeNeeded){
+            rapidjson::Value v(name, allocator);
+            jsonArray.PushBack(v, allocator);
+            changeSchema();
+        }
+    }
+}
+
+void EndpointSchema::setArrayType(const std::string &name, ValueType type) {
+    auto properties = (*JSON_rep)["properties"].GetObject();
+    if (!properties.HasMember(name)){
+        addProperty(name, ValueType::Array);
+    }
+    if (properties[name].HasMember("items")){
+        properties[name].GetObject()["items"].GetObject()["type"] = rapidjson::Value(convertValueType(type),allocator);
+    }else {
+        rapidjson::Value items(rapidjson::kObjectType);
+        items.AddMember(rapidjson::Value("type", allocator).Move(),
+                        rapidjson::Value(convertValueType(type), allocator).Move(),
+                        allocator);
+        properties[name].AddMember("items", items, allocator);
+    }
+    changeSchema();
+}
+
+void EndpointSchema::setArrayObject(const std::string &name, EndpointSchema &es) {
+
+}
+
+std::string EndpointSchema::convertValueType(ValueType vt) {
+    rapidjson::Value newValue;
+    switch (vt) {
+        case Number:
+            return "number";
+        case String:
+            return "string";
+        case Boolean:
+            return "boolean";
+        case Object:
+            return "object";
+        case Array:
+            return "array";
+        case Null:
+            return "null";
+    }
 }

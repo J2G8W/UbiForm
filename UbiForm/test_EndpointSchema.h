@@ -94,3 +94,30 @@ TEST_F(EndpointSchemaSimpleChecks, AddAttribute){
 
     ASSERT_THROW(endpointSchema.validate(sm), ValidationError);
 }
+
+TEST_F(EndpointSchemaSimpleChecks, RemoveRequired){
+    endpointSchema.removeRequired("value");
+    SocketMessage sm;
+    ASSERT_NO_THROW(endpointSchema.validate(sm));
+
+    endpointSchema.addRequired("temperature");
+    ASSERT_THROW(endpointSchema.validate(sm), ValidationError);
+
+    sm.addMember("temperature", 0);
+    ASSERT_NO_THROW(endpointSchema.validate(sm));
+}
+
+TEST_F(EndpointSchemaSimpleChecks, ArrayAddition){
+    endpointSchema.setArrayType("msgs",ValueType::String);
+    endpointSchema.setArrayType("msgs", ValueType::Number);
+
+    SocketMessage sm;
+    sm.addMember("value", "HELLO");
+    std::vector<int> msgs{1,2,3,4};
+    sm.addMember("msgs",msgs);
+    ASSERT_NO_THROW(endpointSchema.validate(sm));
+
+    std::vector<bool> falseMsgs{false,false,false};
+    sm.addMember("msgs", falseMsgs);
+    ASSERT_THROW(endpointSchema.validate(sm), ValidationError);
+}
