@@ -37,12 +37,12 @@ void ComponentManifest::fillSchemaMaps() {
     assert(JSON_document["schemas"].IsObject());
     for (auto &m : JSON_document["schemas"].GetObject()){
         if (m.value.IsObject() && m.value.HasMember("send")){
-            std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(m.value["send"]);
+            std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&m.value["send"], JSON_document.GetAllocator());
             auto p1 = std::make_pair(std::string(m.name.GetString()), endpointSchema);
             senderSchemas.insert(p1);
         }
         if (m.value.IsObject() && m.value.HasMember("receive")){
-            std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(m.value["receive"]);
+            std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&m.value["receive"], JSON_document.GetAllocator());
             auto p1 = std::make_pair(std::string(m.name.GetString()), endpointSchema);
             receiverSchemas.insert(p1);
         }
@@ -58,23 +58,18 @@ std::string ComponentManifest::getName() {
 }
 
 SocketMessage *ComponentManifest::getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema) {
-    const auto & schemas = JSON_document["schemas"].GetObject();
-    if (schemas.HasMember(typeOfEndpoint) && schemas[typeOfEndpoint].IsObject()){
-        if(receiveSchema){
-            if (schemas[typeOfEndpoint].GetObject().HasMember("receive")){
-                return new SocketMessage(schemas[typeOfEndpoint].GetObject()["receive"]);
-            }else{
-                throw std::logic_error("The endpoint has no receive member");
-            }
-        }else{
-            if (schemas[typeOfEndpoint].GetObject().HasMember("send")){
-                return new SocketMessage(schemas[typeOfEndpoint].GetObject()["send"]);
-            }else{
-                throw std::logic_error("The endpoint has no send member");
-            }
+    if (receiveSchema){
+        try{
+            return getReceiverSchema(typeOfEndpoint)->getSchemaObject();
+        }catch(std::out_of_range &e){
+            throw AccessError("No receive endpoint of that type found");
         }
     }else{
-        throw std::logic_error("No endpoint of that type found");
+        try{
+            return getSenderSchema(typeOfEndpoint)->getSchemaObject();
+        }catch(std::out_of_range &e){
+            throw AccessError("No sender endpoint of that type found");
+        }
     }
 }
 

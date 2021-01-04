@@ -5,7 +5,7 @@
 
 class SchemaTest : public ::testing::Test{
 protected:
-    SchemaTest():endpointSchema(schemaDoc.Parse(schemaInput)){
+    SchemaTest():endpointSchema(&schemaDoc.Parse(schemaInput), schemaDoc.GetAllocator()){
     }
 
     const char *schemaInput = R"({"properties":{)"

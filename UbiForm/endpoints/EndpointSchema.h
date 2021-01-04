@@ -10,22 +10,19 @@
 
 class EndpointSchema {
 private:
-    rapidjson::SchemaDocument schema;
+    rapidjson::SchemaDocument * schema;
+    rapidjson::Value * JSON_rep;
+    rapidjson::MemoryPoolAllocator<> & allocator;
 
 public:
-    explicit EndpointSchema(rapidjson::Value &doc) : schema(doc) { }
-    explicit EndpointSchema(FILE *jsonFP) : schema(InitiateFromFile(jsonFP)){
+    explicit EndpointSchema(rapidjson::Value *doc, rapidjson::MemoryPoolAllocator<> & al) : allocator(al) {
+        JSON_rep = doc;
+        schema = new rapidjson::SchemaDocument(*JSON_rep);
     }
 
-    // TODO - make this less nasty
-    // TODO - get rid of possible memory leak
-    static rapidjson::Document InitiateFromFile(FILE *jsonFP){
-        rapidjson::Document JSON_document;
-        char readBuffer[65536];
-        rapidjson::FileReadStream inputStream(jsonFP, readBuffer, sizeof(readBuffer));
-        JSON_document.ParseStream(inputStream);
-        return JSON_document;
-    }
+    void updateSchema(rapidjson::Value &doc);
+
+    SocketMessage * getSchemaObject();
 
     void validate(const SocketMessage &messageToValidate);
     void validate(const rapidjson::Value &doc);
