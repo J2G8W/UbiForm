@@ -8,6 +8,10 @@
 
 #include "SocketMessage.h"
 
+enum ValueType{
+    Number, String, Boolean, Object, Array, Null
+};
+
 class EndpointSchema {
 private:
     rapidjson::SchemaDocument * schema;
@@ -26,6 +30,8 @@ public:
 
     void validate(const SocketMessage &messageToValidate);
     void validate(const rapidjson::Value &doc);
+
+    ValueType getValueType(const std::string& fieldName);
 };
 
 

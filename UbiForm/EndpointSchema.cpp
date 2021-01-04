@@ -34,3 +34,21 @@ SocketMessage *EndpointSchema::getSchemaObject() {
     return returnObject;
 }
 
+ValueType EndpointSchema::getValueType(const std::string& fieldName) {
+    auto properties = (*JSON_rep)["properties"].GetObject();
+
+    if(!(properties.HasMember(fieldName))){ throw AccessError("There is no field of name - " + fieldName);}
+    if(!properties[fieldName].IsObject()){throw AccessError("That field is not an object - " + fieldName);}
+    auto fieldObj = properties[fieldName].GetObject();
+    if(!(fieldObj.HasMember("type"))){throw AccessError("There is no type field - " + fieldName);}
+    std::string valueType = fieldObj["type"].GetString();
+
+
+    if (valueType == "number"){return ValueType::Number;}
+    else if (valueType == "string"){return ValueType::String;}
+    else if(valueType == "boolean"){return ValueType::Boolean;}
+    else if (valueType == "object"){return ValueType::Object;}
+    else if (valueType == "array"){return ValueType::Array;}
+    else if (valueType == "null"){return ValueType::Null;}
+    else{throw ValidationError("No valid type in the schema");}
+}
