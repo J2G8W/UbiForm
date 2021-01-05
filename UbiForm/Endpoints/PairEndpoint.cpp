@@ -1,6 +1,7 @@
 #include <string>
 
 #include <nng/nng.h>
+#include <nng/supplemental/util/platform.h>
 
 
 #include "../Utilities/UtilityFunctions.h"
@@ -15,7 +16,6 @@ void PairEndpoint::dialConnection(const char *url) {
     }
     this->listenUrl = url;
     this->dialUrl = url;
-
 }
 
 // Incoming means it will listen on an internal URL
@@ -41,12 +41,11 @@ PairEndpoint::~PairEndpoint() {
     // We have to check if we ever initialised the receiverSocket before trying to close it
     if (senderSocket != nullptr && DataSenderEndpoint::socketOpen && DataReceiverEndpoint::socketOpen) {
         // Make sure that the messages are flushed
-        sleep(1);
+        nng_msleep(300);
         // We only have one actual socket so only need to close 1.
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
         }
-
     }
     // Note that we only delete once as the senderSocket points to the same place as the receiverSocket
     delete senderSocket;
