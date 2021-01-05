@@ -41,7 +41,7 @@ SocketMessage* SocketMessage::getObject(const std::string &attributeName) {
         if(JSON_document[attributeName].IsObject()) {
             return new SocketMessage(JSON_document[attributeName]);
         }else{
-            throw AccessError("Attribute " + attributeName + "exists but not type boolean");
+            throw AccessError("Attribute " + attributeName + "exists but not type object");
         }
     }else{
         throw AccessError("The message has no attribute " + attributeName);
