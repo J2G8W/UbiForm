@@ -5,23 +5,22 @@
 #include <nng/nng.h>
 #include <nng/protocol/reqrep0/rep.h>
 #include "../SystemSchemas/SystemSchemas.h"
+#include "../Endpoints/ReplyEndpoint.h"
+
+#define REQ_CONN "req_conn"
 
 class Component;
 class BackgroundListener {
 private:
     std::thread backgroundThread;
     std::string backgroundListenAddress;
-    nng_socket backgroundSocket;
     Component * component;
     SystemSchemas & systemSchemas;
+    ReplyEndpoint replyEndpoint;
 
 public:
-    BackgroundListener(Component * c, SystemSchemas & ss) : backgroundSocket(), component(c), systemSchemas(ss){
-        // Create the background socket;
-        int rv;
-        if ((rv = nng_rep0_open(&backgroundSocket)) != 0) {
-            throw NngError(rv, "Opening background socket");
-        }
+    BackgroundListener(Component * c, SystemSchemas & ss) : component(c), systemSchemas(ss),
+    replyEndpoint(std::make_shared<EndpointSchema>(), std::make_shared<EndpointSchema>()){
     }
 
     void startBackgroundListen(const std::string& listenAddress);
@@ -31,6 +30,8 @@ public:
     std::string getBackgroundListenAddress(){return backgroundListenAddress;}
 
     ~BackgroundListener();
+
+    std::unique_ptr<SocketMessage> handleConnectionRequest(SocketMessage &request);
 };
 
 

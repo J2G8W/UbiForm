@@ -61,6 +61,7 @@ void BackgroundRequester::requestAndCreateConnection(const std::string& localEnd
     }
 
     sm.addMember("endpointType",remoteEndpointType);
+    sm.addMember("requestType", REQ_CONN);
 
     systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(sm);
 
