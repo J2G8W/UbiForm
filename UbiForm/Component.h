@@ -55,7 +55,6 @@ private:
 
     ResourceDiscoveryConnEndpoint * resourceDiscoveryConnEndpoint {nullptr};
 
-    static std::string requestConnection(const std::string& address, const std::string& requestText);
 
 public:
     explicit Component(const std::string & baseAddress);
@@ -107,6 +106,9 @@ public:
     std::string getBackgroundListenAddress(){return backgroundListener.getBackgroundListenAddress();}
     SystemSchemas & getSystemSchemas(){return systemSchemas;}
     BackgroundRequester & getBackgroundRequester(){return backgroundRequester;}
+    ResourceDiscoveryConnEndpoint& getResourceDiscoveryConnectionEndpoint(){
+        return *resourceDiscoveryConnEndpoint;
+    }
 
     void closeSocketsOfType(const std::string& endpointType);
 

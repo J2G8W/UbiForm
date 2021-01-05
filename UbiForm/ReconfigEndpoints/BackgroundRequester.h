@@ -16,6 +16,8 @@ public:
 
     void requestAndCreateConnection(const std::string &localEndpointType, const std::string &connectionComponentAddress,
                                     const std::string &remoteEndpointType);
+
+    void requestAddRDH(const std::string &rdhUrl, const std::string &componentUrl);
 };
 
 

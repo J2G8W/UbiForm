@@ -39,3 +39,16 @@ void BackgroundRequester::requestAndCreateConnection(const std::string& localEnd
         std::cerr << e.what() << std::endl;
     }
 }
+
+void BackgroundRequester::requestAddRDH(const std::string& rdhUrl, const std::string& componentUrl){
+    SocketMessage sm;
+    sm.addMember("requestType",ADD_RDH);
+    sm.addMember("url",rdhUrl);
+    try{
+        requestEndpoint.dialConnection(componentUrl.c_str());
+        requestEndpoint.sendMessage(sm);
+        requestEndpoint.receiveMessage();
+    }catch (std::logic_error &e){
+        std::cerr << e.what() << std::endl;
+    }
+}

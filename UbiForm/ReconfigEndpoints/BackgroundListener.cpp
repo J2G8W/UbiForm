@@ -2,24 +2,26 @@
 #include <nng/supplemental/util/platform.h>
 #include "BackgroundListener.h"
 #include "../Component.h"
+#include "../ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
 void BackgroundListener::startBackgroundListen(const std::string& listenAddress) {
-    int rv;
-
     replyEndpoint.listenForConnection(listenAddress.c_str());
     backgroundListenAddress = listenAddress;
     this->backgroundThread = std::thread(backgroundListen,this);
-
 }
 
 void BackgroundListener::backgroundListen(BackgroundListener * backgroundListener) {
-    int rv;
     while (true){
         auto request = backgroundListener->replyEndpoint.receiveMessage();
         try{
             if (request->getString("requestType") == REQ_CONN) {
+                backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(*request);
                 auto reply = backgroundListener->handleConnectionRequest((*request));
                 backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(*reply);
+                backgroundListener->replyEndpoint.sendMessage(*reply);
+            }else if(request->getString("requestType") == ADD_RDH){
+                //TODO - validate
+                auto reply = backgroundListener->handleAddRDH(*request);
                 backgroundListener->replyEndpoint.sendMessage(*reply);
             }
         }catch(ValidationError &e){
@@ -60,6 +62,11 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleConnectionRequest(Socke
         reply->setNull("url");
         return reply;
     }
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleAddRDH(SocketMessage &request){
+    component->getResourceDiscoveryConnectionEndpoint().registerWithHub(request.getString("url"));
+    return std::make_unique<SocketMessage>();
 }
 
 BackgroundListener::~BackgroundListener() {

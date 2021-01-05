@@ -8,6 +8,7 @@
 #include "../Endpoints/ReplyEndpoint.h"
 
 #define REQ_CONN "req_conn"
+#define ADD_RDH "add_rdh"
 
 class Component;
 class BackgroundListener {
@@ -32,6 +33,8 @@ public:
     ~BackgroundListener();
 
     std::unique_ptr<SocketMessage> handleConnectionRequest(SocketMessage &request);
+
+    std::unique_ptr<SocketMessage> handleAddRDH(SocketMessage &request);
 };
 
 
