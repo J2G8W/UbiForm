@@ -4,7 +4,7 @@
 
 #include <memory>
 
-#include "../EndpointSchema.h"
+#include "../SchemaRepresentation/EndpointSchema.h"
 #include "DataReceiverEndpoint.h"
 
 class SubscriberEndpoint : public DataReceiverEndpoint {

@@ -6,8 +6,8 @@
 #include <rapidjson/filereadstream.h>
 #include <rapidjson/writer.h>
 
-#include "SocketMessage.h"
-#include "SystemEnums.h"
+#include "../SocketMessage.h"
+#include "../Utilities/SystemEnums.h"
 
 
 class EndpointSchema {

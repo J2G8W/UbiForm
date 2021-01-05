@@ -10,10 +10,10 @@
 #include "rapidjson/schema.h"
 #include "rapidjson/error/en.h"
 
-#include "general_functions.h"
-#include "EndpointSchema.h"
+#include "Utilities/UtilityFunctions.h"
+#include "SchemaRepresentation/EndpointSchema.h"
 #include "SystemSchemas/SystemSchemas.h"
-#include "SystemEnums.h"
+#include "Utilities/SystemEnums.h"
 
 /**
  * Used to represent the manifest (that is the description) of a component

@@ -6,7 +6,7 @@
 #include <nng/nng.h>
 #include "../SocketMessage.h"
 
-#include "../EndpointSchema.h"
+#include "../SchemaRepresentation/EndpointSchema.h"
 
 class DataSenderEndpoint {
 private:

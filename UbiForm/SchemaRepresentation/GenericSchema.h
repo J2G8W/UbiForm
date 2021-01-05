@@ -1,7 +1,7 @@
 #ifndef UBIFORM_GENERICSCHEMA_H
 #define UBIFORM_GENERICSCHEMA_H
 
-#include "SocketMessage.h"
+#include "../SocketMessage.h"
 #include "EndpointSchema.h"
 
 class GenericSchema {

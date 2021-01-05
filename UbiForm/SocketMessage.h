@@ -9,7 +9,7 @@
 #include "rapidjson/document.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/error/en.h"
-#include "general_functions.h"
+#include "Utilities/UtilityFunctions.h"
 
 
 // Note that we need RAPIDJSON_HAS_STDSTRING turned on as we need std string usage

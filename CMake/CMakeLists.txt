@@ -53,13 +53,13 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
-set(generalFunctions ../UbiForm/general_functions.h ../UbiForm/general_functions.cpp ../UbiForm/SystemEnums.h ../UbiForm/SystemEnums.cpp)
+set(generalFunctions ../UbiForm/Utilities/UtilityFunctions.h ../UbiForm/Utilities/UtilityFunctions.cpp ../UbiForm/Utilities/SystemEnums.h ../UbiForm/Utilities/SystemEnums.cpp)
 set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
         ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp ../UbiForm/SystemSchemas/SystemSchemas.h
-        ../UbiForm/SystemSchemas/SystemSchemas.cpp ../UbiForm/GenericSchema.cpp ../UbiForm/GenericSchema.h)
+        ../UbiForm/SystemSchemas/SystemSchemas.cpp ../UbiForm/SchemaRepresentation/GenericSchema.cpp ../UbiForm/SchemaRepresentation/GenericSchema.h)
 set(endpointFiles ../UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoints/DataReceiverEndpoint.cpp
         ../UbiForm/Endpoints/DataSenderEndpoint.h ../UbiForm/Endpoints/DataSenderEndpoint.cpp
-        ../UbiForm/EndpointSchema.h ../UbiForm/EndpointSchema.cpp
+        ../UbiForm/SchemaRepresentation/EndpointSchema.h ../UbiForm/SchemaRepresentation/EndpointSchema.cpp
         ../UbiForm/Endpoints/PairEndpoint.h ../UbiForm/Endpoints/PairEndpoint.cpp
         ../UbiForm/Endpoints/SubscriberEndpoint.cpp ../UbiForm/Endpoints/SubscriberEndpoint.h
         ../UbiForm/Endpoints/PublisherEndpoint.cpp ../UbiForm/Endpoints/PublisherEndpoint.h)
@@ -77,7 +77,7 @@ target_link_libraries(UbiForm gtest_main gmock_main)
 # Create tests
 if (BUILD_TESTS)
     set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h
-            ../UbiForm/test_EndpointSchema.h ../UbiForm/test_Component.h
+            ../UbiForm/SchemaRepresentation/test_EndpointSchema.h ../UbiForm/test_Component.h
             ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h ../UbiForm/SystemSchemas/test_SystemSchemas.h)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm ${NNG})

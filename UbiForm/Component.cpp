@@ -1,6 +1,6 @@
 
 #include "Component.h"
-#include "SystemEnums.h"
+#include "Utilities/SystemEnums.h"
 
 #include "ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
