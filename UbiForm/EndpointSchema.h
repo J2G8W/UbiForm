@@ -13,6 +13,7 @@ enum ValueType{
 };
 
 class EndpointSchema {
+    friend class ComponentManifest;
 private:
     rapidjson::SchemaDocument * schema;
     rapidjson::Value * JSON_rep;

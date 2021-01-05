@@ -95,3 +95,26 @@ TEST_F(ManifestExample, SenderSchemasTest){
     socketMessage.addMember("msg", false);
     ASSERT_ANY_THROW(endpointSchema->validate(socketMessage));
 }
+
+
+TEST_F(ManifestExample, AddSchema){
+    std::shared_ptr<EndpointSchema> sendSchema = std::make_shared<EndpointSchema>();
+    std::shared_ptr<EndpointSchema> receiveSchema = std::make_shared<EndpointSchema>();
+    receiveSchema->addProperty("TEST",ValueType::Number);
+    receiveSchema->addRequired("TEST");
+    componentManifest->addPairSchema("secondExample", receiveSchema,sendSchema);
+
+    SocketMessage sm;
+    sm.addMember("TEST",42);
+    ASSERT_NO_THROW(componentManifest->getReceiverSchema("secondExample")->validate(sm));
+
+    SocketMessage sm2;
+    sm.addMember("TEST","HELLO");
+    ASSERT_THROW(componentManifest->getReceiverSchema("secondExample")->validate(sm),ValidationError);
+
+    SocketMessage* schemaRep = componentManifest->getSchemaObject("secondExample",true);
+    auto requiredArray = schemaRep->getArray<std::string>("required");
+
+    ASSERT_EQ(requiredArray.size(), 1);
+    ASSERT_EQ(requiredArray.at(0), "TEST");
+}

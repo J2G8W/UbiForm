@@ -102,6 +102,45 @@ std::string ComponentManifest::getSocketType(const std::string& endpointType) {
     return socketType;
 }
 
+void ComponentManifest::addPairSchema(const std::string& typeOfEndpoint, std::shared_ptr<EndpointSchema> receiveSchema,
+                                      std::shared_ptr<EndpointSchema> sendSchema) {
+    auto schemas = JSON_document["schemas"].GetObject();
+
+    rapidjson::Value newEndpoint(rapidjson::kObjectType);
+    newEndpoint.AddMember(rapidjson::Value("socketType", JSON_document.GetAllocator()),
+                          rapidjson::Value("pair", JSON_document.GetAllocator()), JSON_document.GetAllocator());
+
+    rapidjson::Value jsonReceiveSchema(rapidjson::kObjectType);
+    jsonReceiveSchema.CopyFrom(*(receiveSchema->JSON_rep), JSON_document.GetAllocator());
+    newEndpoint.AddMember(rapidjson::Value("receive", JSON_document.GetAllocator()),
+                         jsonReceiveSchema, JSON_document.GetAllocator());
+
+    rapidjson::Value jsonSendSchema(rapidjson::kObjectType);
+    jsonSendSchema.CopyFrom(*(sendSchema->JSON_rep), JSON_document.GetAllocator());
+    newEndpoint.AddMember(rapidjson::Value("send", JSON_document.GetAllocator()),
+                          jsonSendSchema, JSON_document.GetAllocator());
+
+    if (schemas.HasMember(typeOfEndpoint)){
+        schemas.RemoveMember(typeOfEndpoint);
+    }
+    schemas.AddMember(rapidjson::Value(typeOfEndpoint,JSON_document.GetAllocator()), newEndpoint.Move(),
+                      JSON_document.GetAllocator());
+
+    std::pair<std::string, std::shared_ptr<EndpointSchema>> receivePair (typeOfEndpoint,receiveSchema);
+    receiverSchemas.insert(receivePair);
+
+    std::pair<std::string, std::shared_ptr<EndpointSchema>> senderPair (typeOfEndpoint,sendSchema);
+    senderSchemas.insert(senderPair);
+}
+
+void ComponentManifest::addPubSchema(const std::string& typeOfEndpoint, EndpointSchema &sendSchema) {
+
+}
+
+void ComponentManifest::addSubSchema(const std::string& typeOfEndpoint, EndpointSchema &receiveSchema) {
+
+}
+
 
 ComponentManifest::~ComponentManifest()= default;
 

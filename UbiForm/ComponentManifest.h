@@ -99,6 +99,10 @@ public:
      */
     SocketMessage * getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema);
 
+    void addPairSchema(const std::string& typeOfEndpoint, std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema);
+    void addPubSchema(const std::string& typeOfEndpoint, EndpointSchema& sendSchema);
+    void addSubSchema(const std::string& typeOfEndpoint, EndpointSchema& receiveSchema);
+
     ~ComponentManifest();
 };
 
