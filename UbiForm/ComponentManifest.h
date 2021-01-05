@@ -100,9 +100,16 @@ public:
      */
     SocketMessage * getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema);
 
-    void addPairSchema(const std::string& typeOfEndpoint, std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema);
-    void addPubSchema(const std::string& typeOfEndpoint, EndpointSchema& sendSchema);
-    void addSubSchema(const std::string& typeOfEndpoint, EndpointSchema& receiveSchema);
+
+    /**
+     * @param socketType - specify the socketType of the new endpoint
+     * @param typeOfEndpoint - specify the name of the endpoint (will replace previous endpoints of same name
+     * @param receiveSchema - either a pointer to the schema for the endpoint or nullptr if relevant socketType doesn't need receiveSchema
+     * @param sendSchema - either a pointer to the schema for the endpoint of nullptr if relevant socketType doens't need sendSchema
+     * @throws std::logic_error - when there aren't enough schemas given for the socketType
+     */
+    void addSchema(SocketType socketType, const std::string& typeOfEndpoint,
+                   std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema);
 
     ~ComponentManifest();
 };

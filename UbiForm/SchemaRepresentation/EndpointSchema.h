@@ -36,6 +36,7 @@ public:
         rapidjson::Document * d = new rapidjson::Document();
         allocator = &(d->GetAllocator());
         d->SetObject();
+        d->AddMember("type", rapidjson::Value("object",*allocator), *allocator);
         d->AddMember("properties",rapidjson::Value(rapidjson::kObjectType), *allocator);
         d->AddMember("required", rapidjson::Value(rapidjson::kArrayType), *allocator);
         JSON_rep = d;

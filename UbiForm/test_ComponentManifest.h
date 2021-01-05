@@ -97,24 +97,36 @@ TEST_F(ManifestExample, SenderSchemasTest){
 }
 
 
-TEST_F(ManifestExample, AddSchema){
+TEST_F(ManifestExample, AddPairSchema){
     std::shared_ptr<EndpointSchema> sendSchema = std::make_shared<EndpointSchema>();
     std::shared_ptr<EndpointSchema> receiveSchema = std::make_shared<EndpointSchema>();
     receiveSchema->addProperty("TEST",ValueType::Number);
     receiveSchema->addRequired("TEST");
-    componentManifest->addPairSchema("secondExample", receiveSchema,sendSchema);
+    componentManifest->addSchema(SocketType::Pair,"pairExample", receiveSchema,sendSchema);
+    std::cout << receiveSchema->stringify() << std::endl;
 
     SocketMessage sm;
     sm.addMember("TEST",42);
-    ASSERT_NO_THROW(componentManifest->getReceiverSchema("secondExample")->validate(sm));
+    ASSERT_NO_THROW(componentManifest->getReceiverSchema("pairExample")->validate(sm));
 
     SocketMessage sm2;
     sm.addMember("TEST","HELLO");
-    ASSERT_THROW(componentManifest->getReceiverSchema("secondExample")->validate(sm),ValidationError);
+    ASSERT_THROW(componentManifest->getReceiverSchema("pairExample")->validate(sm),ValidationError);
 
-    SocketMessage* schemaRep = componentManifest->getSchemaObject("secondExample",true);
+    SocketMessage* schemaRep = componentManifest->getSchemaObject("pairExample",true);
     auto requiredArray = schemaRep->getArray<std::string>("required");
 
     ASSERT_EQ(requiredArray.size(), 1);
     ASSERT_EQ(requiredArray.at(0), "TEST");
+}
+
+TEST_F(ManifestExample, AddSubscriberSchema){
+    std::shared_ptr<EndpointSchema> receiveSchema = std::make_shared<EndpointSchema>();
+    receiveSchema->addProperty("TEST",ValueType::Number);
+    receiveSchema->addRequired("TEST");
+    componentManifest->addSchema(SocketType::Subscriber, "subExample", receiveSchema, nullptr);
+
+    SocketMessage sm;
+    ASSERT_THROW(componentManifest->getReceiverSchema("subExample")->validate(sm), ValidationError);
+
 }
