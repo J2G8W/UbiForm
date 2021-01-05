@@ -57,7 +57,7 @@ set(endpointFiles ../UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoin
         ../UbiForm/Endpoints/DataSenderEndpoint.h ../UbiForm/Endpoints/DataSenderEndpoint.cpp
         ../UbiForm/Endpoints/PairEndpoint.h ../UbiForm/Endpoints/PairEndpoint.cpp
         ../UbiForm/Endpoints/SubscriberEndpoint.cpp ../UbiForm/Endpoints/SubscriberEndpoint.h
-        ../UbiForm/Endpoints/PublisherEndpoint.cpp ../UbiForm/Endpoints/PublisherEndpoint.h)
+        ../UbiForm/Endpoints/PublisherEndpoint.cpp ../UbiForm/Endpoints/PublisherEndpoint.h ../UbiForm/Endpoints/RequestEndpoint.cpp ../UbiForm/Endpoints/RequestEndpoint.h ../UbiForm/Endpoints/ReplyEndpoint.cpp ../UbiForm/Endpoints/ReplyEndpoint.h)
 
 set(reconfigEndpoints ../UbiForm/ReconfigEndpoints/BackgroundListener.h ../UbiForm/ReconfigEndpoints/BackgroundListener.cpp ../UbiForm/ReconfigEndpoints/BackgroundRequester.cpp ../UbiForm/ReconfigEndpoints/BackgroundRequester.h)
 
