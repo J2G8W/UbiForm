@@ -9,8 +9,6 @@ class BackgroundRequester {
     Component * component;
     SystemSchemas& systemSchemas;
     RequestEndpoint requestEndpoint;
-private:
-    static std::string requestConnection(const std::string &address, const std::string &requestText);
 public:
     BackgroundRequester(Component* c , SystemSchemas& ss):component(c), systemSchemas(ss),
     // Purposely make the request endpoint have an empty schema
