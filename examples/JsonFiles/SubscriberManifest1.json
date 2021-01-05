@@ -13,7 +13,8 @@
           "reverse": {
             "type": "boolean"
           }
-        }
+        },
+        "required": ["date","reverse"]
       }
     }
   }
