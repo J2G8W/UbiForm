@@ -57,12 +57,12 @@ set(generalFunctions ../UbiForm/general_functions.h ../UbiForm/general_functions
 set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
         ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp ../UbiForm/SystemSchemas/SystemSchemas.h
         ../UbiForm/SystemSchemas/SystemSchemas.cpp ../UbiForm/GenericSchema.cpp ../UbiForm/GenericSchema.h)
-set(endpointFiles ../UbiForm/endpoints/DataReceiverEndpoint.h ../UbiForm/endpoints/DataReceiverEndpoint.cpp
-        ../UbiForm/endpoints/DataSenderEndpoint.h ../UbiForm/endpoints/DataSenderEndpoint.cpp
+set(endpointFiles ../UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoints/DataReceiverEndpoint.cpp
+        ../UbiForm/Endpoints/DataSenderEndpoint.h ../UbiForm/Endpoints/DataSenderEndpoint.cpp
         ../UbiForm/EndpointSchema.h ../UbiForm/EndpointSchema.cpp
-        ../UbiForm/endpoints/PairEndpoint.h ../UbiForm/endpoints/PairEndpoint.cpp
-        ../UbiForm/endpoints/SubscriberEndpoint.cpp ../UbiForm/endpoints/SubscriberEndpoint.h
-        ../UbiForm/endpoints/PublisherEndpoint.cpp ../UbiForm/endpoints/PublisherEndpoint.h)
+        ../UbiForm/Endpoints/PairEndpoint.h ../UbiForm/Endpoints/PairEndpoint.cpp
+        ../UbiForm/Endpoints/SubscriberEndpoint.cpp ../UbiForm/Endpoints/SubscriberEndpoint.h
+        ../UbiForm/Endpoints/PublisherEndpoint.cpp ../UbiForm/Endpoints/PublisherEndpoint.h)
 
 set(resourceDiscovery ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.h
         ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h

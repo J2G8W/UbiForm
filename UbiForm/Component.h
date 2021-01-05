@@ -12,9 +12,9 @@
 
 #include "ComponentManifest.h"
 #include "SocketMessage.h"
-#include "endpoints/PairEndpoint.h"
-#include "endpoints/PublisherEndpoint.h"
-#include "endpoints/SubscriberEndpoint.h"
+#include "Endpoints/PairEndpoint.h"
+#include "Endpoints/PublisherEndpoint.h"
+#include "Endpoints/SubscriberEndpoint.h"
 #include "ResourceDiscovery/ResourceDiscoveryHubEndpoint.h"
 #include "SystemSchemas/SystemSchemas.h"
 
