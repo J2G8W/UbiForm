@@ -124,6 +124,15 @@ TEST_F(EndpointSchemaSimpleChecks, ArrayAddition){
 
 TEST_F(EndpointSchemaSimpleChecks, SubObjects){
     // DUMB TEST
-    endpointSchema.setSubObject("sub",endpointSchema);
-    std::cout << stringifyDocument(schemaDoc) << std::endl;
+    EndpointSchema subEndpoint;
+    subEndpoint.addProperty("TEST", ValueType::Number);
+    subEndpoint.addRequired("TEST");
+    endpointSchema.setSubObject("sub",subEndpoint);
+
+    SocketMessage sm;
+    sm.addMember("value","HELLO");
+    ASSERT_NO_THROW(endpointSchema.validate(sm));
+    SocketMessage subSM;
+    sm.addMember("sub",subSM);
+    ASSERT_THROW(endpointSchema.validate(sm), ValidationError);
 }

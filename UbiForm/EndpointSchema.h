@@ -16,7 +16,8 @@ class EndpointSchema {
 private:
     rapidjson::SchemaDocument * schema;
     rapidjson::Value * JSON_rep;
-    rapidjson::MemoryPoolAllocator<> & allocator;
+    rapidjson::MemoryPoolAllocator<> * allocator;
+    bool responsibleForJson;
 
     void changeSchema(){
         delete schema;
@@ -27,9 +28,21 @@ private:
 
 public:
     // Note that the passed in pointer is up to parent to handle memory
-    explicit EndpointSchema(rapidjson::Value *doc, rapidjson::MemoryPoolAllocator<> & al) : allocator(al) {
+    explicit EndpointSchema(rapidjson::Value *doc, rapidjson::MemoryPoolAllocator<> & al) {
+        allocator = &al;
         JSON_rep = doc;
         schema = new rapidjson::SchemaDocument(*JSON_rep);
+        responsibleForJson = false;
+    }
+    EndpointSchema(){
+        rapidjson::Document * d = new rapidjson::Document();
+        allocator = &(d->GetAllocator());
+        d->SetObject();
+        d->AddMember("properties",rapidjson::Value(rapidjson::kObjectType), *allocator);
+        d->AddMember("required", rapidjson::Value(rapidjson::kArrayType), *allocator);
+        JSON_rep = d;
+        schema = new rapidjson::SchemaDocument (*JSON_rep);
+        responsibleForJson = true;
     }
 
     // Copy constructor
@@ -57,6 +70,11 @@ public:
 
     ~EndpointSchema(){
         delete schema;
+        if (responsibleForJson){
+            // Recast to document so we can do proper cleanup AS a doc rather than as a value
+            rapidjson::Document * JSON_doc = static_cast<rapidjson::Document*>(JSON_rep);
+            delete JSON_doc;
+        }
         // The JSON_rep pointer is handled by parent
     }
 
