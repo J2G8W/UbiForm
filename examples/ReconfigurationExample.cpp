@@ -4,7 +4,7 @@
 // Hub is a Publisher and an RDH
 #define HUB "HUB"
 // Connection is a subscriber
-#define CONNECTION "CONNECTION"
+#define SUBSCRIBER_CONNECTION "CONNECTION"
 
 int main(int argc, char **argv){
     const char * componentAddress;
@@ -44,16 +44,20 @@ int main(int argc, char **argv){
             auto publisherEndpoints = component.getSenderEndpointsByType("publisherExample");
             while (true) {
                 auto relevantSchema = component.getComponentManifest()->getSenderSchema("publisherExample");
+                std::cout << relevantSchema->stringify() << std::endl;
                 std::vector<std::string> requiredValues = relevantSchema->getRequired();
                 if (!publisherEndpoints->empty()) {
                     SocketMessage sm;
                     for (auto& attributeName : requiredValues){
                         switch(relevantSchema->getValueType(attributeName)){
                             case Number:
-                                sm.addMember(attributeName, counter++);
+                                sm.addMember(attributeName, counter);
                                 break;
                             case String:
                                 sm.addMember(attributeName,"HELLO");
+                                break;
+                            case Boolean:
+                                sm.addMember(attributeName, true);
                                 break;
                             default:
                                 throw AccessError("Don't know what to do with non-number/string");
@@ -61,17 +65,52 @@ int main(int argc, char **argv){
                     }
                     publisherEndpoints->at(0)->sendMessage(sm);
                 }
-                if (counter % 2 == 0){
+                counter++;
+                if (counter == 4){
                     std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
                     component.getComponentManifest()->addSchema(SocketType::Publisher, "publisherExample", nullptr, es);
+                    component.closeSocketsOfType("publisherExample");
                     rdc->updateManifestWithHubs();
                     std::cout << "BORING MANIFEST" << std::endl;
                 }
                 sleep(1);
             }
+        }if (strcmp(argv[1], SUBSCRIBER_CONNECTION) == 0) {
+            Component component(componentAddress);
+            component.startBackgroundListen();
+
+            FILE *pFile = fopen("JsonFiles/SubscriberManifest1.json", "r");
+            if (pFile == nullptr) perror("ERROR");
+            component.specifyManifest(pFile);
+            fclose(pFile);
+
+            std::cout << "MANIFEST SPECIFIED" << "\n";
+
+            const char *locationOfRDH = RDHAddress;
+
+            ResourceDiscoveryConnEndpoint *rdc = component.createResourceDiscoveryConnectionEndpoint();
+
+            rdc->registerWithHub(locationOfRDH);
+            std::vector<std::string> ids = rdc->getComponentIdsFromHub(locationOfRDH);
+
+            std::cout << "Available ids: ";
+            for (const auto &i: ids) { std::cout << i << ' '; }
+            std::cout << std::endl;
+
+            rdc->createEndpointBySchema("subscriberExample");
+
+            std::unique_ptr<SocketMessage> s;
+            auto subscriberEndpoints = component.getReceiverEndpointsByType("subscriberExample");
+            while (true) {
+                for (const auto &endpoint : *subscriberEndpoints) {
+                    s = endpoint->receiveMessage();
+                    std::cout << s->stringify() << std::endl;
+
+                }
+            }
         }
     }else{
-        std::cerr << "Error usage is " << argv[0] << " " << HUB <<"|"<< CONNECTION ;
+        std::cerr << "Error usage is " << argv[0] << " " << HUB <<"|"<< SUBSCRIBER_CONNECTION ;
         std::cerr << " RDHlocation " << "[componentAddress]" << std::endl;
     }
 }
