@@ -1,22 +1,6 @@
 #include "EndpointSchema.h"
 
-std::string EndpointSchema::convertValueType(ValueType vt) {
-    rapidjson::Value newValue;
-    switch (vt) {
-        case Number:
-            return "number";
-        case String:
-            return "string";
-        case Boolean:
-            return "boolean";
-        case Object:
-            return "object";
-        case Array:
-            return "array";
-        case Null:
-            return "null";
-    }
-}
+
 
 // Validate a socket message against the manifest
 void EndpointSchema::validate(const SocketMessage &messageToValidate) {

@@ -7,10 +7,8 @@
 #include <rapidjson/writer.h>
 
 #include "SocketMessage.h"
+#include "SystemEnums.h"
 
-enum ValueType{
-    Number, String, Boolean, Object, Array, Null
-};
 
 class EndpointSchema {
     friend class ComponentManifest;
@@ -25,7 +23,6 @@ private:
         schema = new rapidjson::SchemaDocument(*JSON_rep);
     }
 
-    static std::string convertValueType(ValueType vt);
 
 public:
     // Note that the passed in pointer is up to parent to handle memory

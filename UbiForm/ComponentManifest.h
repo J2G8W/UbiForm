@@ -1,18 +1,19 @@
 #ifndef UBIFORM_COMPONENTMANIFEST_H
 #define UBIFORM_COMPONENTMANIFEST_H
 
+#include <map>
 #include <memory>
 
 #include <rapidjson/document.h>
 #include <rapidjson/filereadstream.h>
 #include <rapidjson/writer.h>
-#include <map>
 #include "rapidjson/schema.h"
 #include "rapidjson/error/en.h"
 
 #include "general_functions.h"
 #include "EndpointSchema.h"
 #include "SystemSchemas/SystemSchemas.h"
+#include "SystemEnums.h"
 
 /**
  * Used to represent the manifest (that is the description) of a component

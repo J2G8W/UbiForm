@@ -53,9 +53,10 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
-set(generalFunctions ../UbiForm/general_functions.h ../UbiForm/general_functions.cpp)
+set(generalFunctions ../UbiForm/general_functions.h ../UbiForm/general_functions.cpp ../UbiForm/SystemEnums.h ../UbiForm/SystemEnums.cpp)
 set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
-        ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp ../UbiForm/SystemSchemas/SystemSchemas.h ../UbiForm/SystemSchemas/SystemSchemas.cpp ../UbiForm/GenericSchema.cpp ../UbiForm/GenericSchema.h)
+        ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp ../UbiForm/SystemSchemas/SystemSchemas.h
+        ../UbiForm/SystemSchemas/SystemSchemas.cpp ../UbiForm/GenericSchema.cpp ../UbiForm/GenericSchema.h)
 set(endpointFiles ../UbiForm/endpoints/DataReceiverEndpoint.h ../UbiForm/endpoints/DataReceiverEndpoint.cpp
         ../UbiForm/endpoints/DataSenderEndpoint.h ../UbiForm/endpoints/DataSenderEndpoint.cpp
         ../UbiForm/EndpointSchema.h ../UbiForm/EndpointSchema.cpp

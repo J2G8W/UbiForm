@@ -5,12 +5,7 @@
 #include <map>
 #include "../EndpointSchema.h"
 #include "../GenericSchema.h"
-
-enum SystemSchemaName{
-    componentManifest,endpointCreationRequest, endpointCreationResponse,
-    additionRequest,additionResponse,byIdRequest,byIdResponse,
-    bySchemaRequest, bySchemaResponse, componentIdsRequest, componentIdsResponse,
-};
+#include "../SystemEnums.h"
 
 class SystemSchemas{
 private:

@@ -1,5 +1,6 @@
 
 #include "Component.h"
+#include "SystemEnums.h"
 
 #include "ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
@@ -8,10 +9,7 @@
 #include <nng/supplemental/util/platform.h>
 
 
-// NOTE THAT these strings are defined in the various schemas in SystemSchemas
-#define PAIR "pair"
-#define PUBLISHER "publisher"
-#define SUBSCRIBER "subscriber"
+
 
 // CONSTRUCTOR
 Component::Component(const std::string &baseAddress) : backgroundSocket(), systemSchemas() {
