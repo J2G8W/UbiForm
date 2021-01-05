@@ -3,6 +3,7 @@
 #include "../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
 #include <iomanip>
+#include <nng/supplemental/util/platform.h>
 
 // Hub is a Publisher and an RDH
 #define HUB "HUB"
@@ -61,7 +62,7 @@ int main(int argc, char ** argv){
 
                     publisherEndpoints->at(0)->sendMessage(s);
                 }
-                sleep(1);
+                nng_msleep(1000);
             }
         }if (strcmp(argv[1], PUBLISHER_CONNECTION) == 0){
             Component component(componentAddress);
@@ -98,7 +99,7 @@ int main(int argc, char ** argv){
 
                     publisherEndpoints->at(0)->sendMessage(s);
                 }
-                sleep(1);
+                nng_msleep(1000);
             }
         }
         if (strcmp(argv[1], SUBSCRIBER_CONNECTION) == 0){

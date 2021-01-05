@@ -3,13 +3,14 @@
 #include "../UbiForm/Component.h"
 
 #include <iomanip>
+#include <nng/supplemental/util/platform.h>
 
-#define SUBSCRIBER "SUBSCRIBER"
-#define PUBLISHER "PUBLISHER"
+#define SUBSCRIBER_COMPONENT "SUBSCRIBER"
+#define PUBLISHER_COMPONENT "PUBLISHER"
 
 int main(int argc, char ** argv){
     if (argc >= 2){
-        if (strcmp(argv[1], SUBSCRIBER) == 0){
+        if (strcmp(argv[1], SUBSCRIBER_COMPONENT) == 0){
             Component component;
 
             FILE* pFile = fopen("JsonFiles/SubscriberManifest1.json", "r");
@@ -43,7 +44,7 @@ int main(int argc, char ** argv){
             }
 
         }
-        if (strcmp(argv[1], PUBLISHER) == 0){
+        if (strcmp(argv[1], PUBLISHER_COMPONENT) == 0){
             Component component;
 
             FILE* pFile = fopen("JsonFiles/PublisherManifest1.json", "r");
@@ -71,12 +72,12 @@ int main(int argc, char ** argv){
 
                     publisherEndpoints->at(0)->sendMessage(s);
                 }
-                sleep(1);
+                nng_msleep(1000);
             }
         }
     }
     else{
-        std::cerr << "Error usage is " << argv[0] << " " << PUBLISHER <<"|"<< SUBSCRIBER << "\n";
+        std::cerr << "Error usage is " << argv[0] << " " << PUBLISHER_COMPONENT <<"|"<< SUBSCRIBER_COMPONENT << "\n";
     }
 }
 

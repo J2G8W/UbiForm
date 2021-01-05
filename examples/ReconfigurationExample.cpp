@@ -1,5 +1,7 @@
+
 #include "../UbiForm/Component.h"
 #include "../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
+#include <nng/supplemental/util/platform.h>
 
 // Hub is a Publisher and an RDH
 #define HUB "HUB"
@@ -73,7 +75,7 @@ int main(int argc, char **argv){
                     rdc->updateManifestWithHubs();
                     std::cout << "BORING MANIFEST" << std::endl;
                 }
-                sleep(1);
+                nng_msleep(1000);
             }
         }if (strcmp(argv[1], SUBSCRIBER_CONNECTION) == 0) {
             Component component(componentAddress);
