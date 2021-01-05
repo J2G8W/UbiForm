@@ -37,6 +37,9 @@ public:
     std::string getId(const std::string& RdhUrl){
         return resourceDiscoveryHubs.at(RdhUrl);
     }
+
+    void updateManifestWithHubs();
+
 };
 
 

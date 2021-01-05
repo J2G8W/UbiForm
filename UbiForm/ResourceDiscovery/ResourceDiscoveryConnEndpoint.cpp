@@ -38,11 +38,12 @@ SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(const std::string& url
 SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
     auto * request = new SocketMessage;
     request->addMember("request",ADDITION);
-    // TODO - turn into something better
-    SocketMessage sm(component->getComponentManifest()->stringify().c_str());
-    sm.addMember("url",component->getBackgroundListenAddress());
+    SocketMessage * sm = component->getComponentManifest()->getComponentRepresentation();
+    sm->addMember("url",component->getBackgroundListenAddress());
 
-    request->addMember("manifest",sm);
+    // TODO - Consider creating move constructor specifically for this case
+    request->addMember("manifest",*sm);
+    delete sm;
     return request;
 }
 
@@ -149,4 +150,18 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& en
     for (const auto & location: validLocations) {
         component->requestAndCreateConnection(endpointType,location->getString("url"), location->getString("endpointType"));
     }
+}
+
+void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
+    SocketMessage * newManifest = component->getComponentManifest()->getComponentRepresentation();
+    newManifest->addMember("url",component->getBackgroundListenAddress());
+    auto * request = new SocketMessage;
+    request->addMember("request",UPDATE);
+    request->addMember("newManifest", *newManifest);
+    for(auto& locationIdPair : resourceDiscoveryHubs){
+        request->addMember("id",locationIdPair.second);
+        SocketMessage* reply = sendRequest(locationIdPair.first, request);
+    }
+    delete request;
+    delete newManifest;
 }

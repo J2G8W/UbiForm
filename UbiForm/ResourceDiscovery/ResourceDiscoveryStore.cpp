@@ -78,6 +78,20 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
         }
         returnMsg->addMember("components", componentIds);
         rds.systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*returnMsg);
+    }else if (request == UPDATE){
+        //TODO - validate
+        SocketMessage *manifest = sm->getObject("newManifest");
+        auto newCR = std::make_shared<ComponentRepresentation>(manifest, rds.systemSchemas);
+        delete manifest;
+
+        std::string id = sm->getString("id");
+
+        rds.componentById[id] = newCR;
+
+        returnMsg->addMember("newID",id);
+
+        rds.systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*returnMsg);
+
     }
     return returnMsg.release();
 }
