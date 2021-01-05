@@ -1,0 +1,10 @@
+#ifndef UBIFORM_BACKGROUNDLISTENER_H
+#define UBIFORM_BACKGROUNDLISTENER_H
+
+
+class BackgroundListener {
+
+};
+
+
+#endif //UBIFORM_BACKGROUNDLISTENER_H

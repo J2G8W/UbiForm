@@ -1,0 +1,10 @@
+#ifndef UBIFORM_BACKGROUNDREQUESTER_H
+#define UBIFORM_BACKGROUNDREQUESTER_H
+
+
+class BackgroundRequester {
+
+};
+
+
+#endif //UBIFORM_BACKGROUNDREQUESTER_H

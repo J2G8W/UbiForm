@@ -53,25 +53,35 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
-set(generalFunctions ../UbiForm/Utilities/UtilityFunctions.h ../UbiForm/Utilities/UtilityFunctions.cpp ../UbiForm/Utilities/SystemEnums.h ../UbiForm/Utilities/SystemEnums.cpp)
-set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
-        ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp ../UbiForm/SystemSchemas/SystemSchemas.h
-        ../UbiForm/SystemSchemas/SystemSchemas.cpp ../UbiForm/SchemaRepresentation/GenericSchema.cpp ../UbiForm/SchemaRepresentation/GenericSchema.h)
 set(endpointFiles ../UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoints/DataReceiverEndpoint.cpp
         ../UbiForm/Endpoints/DataSenderEndpoint.h ../UbiForm/Endpoints/DataSenderEndpoint.cpp
-        ../UbiForm/SchemaRepresentation/EndpointSchema.h ../UbiForm/SchemaRepresentation/EndpointSchema.cpp
         ../UbiForm/Endpoints/PairEndpoint.h ../UbiForm/Endpoints/PairEndpoint.cpp
         ../UbiForm/Endpoints/SubscriberEndpoint.cpp ../UbiForm/Endpoints/SubscriberEndpoint.h
         ../UbiForm/Endpoints/PublisherEndpoint.cpp ../UbiForm/Endpoints/PublisherEndpoint.h)
+
+set(reconfigEndpoints ../UbiForm/ReconfigEndpoints/BackgroundListener.h ../UbiForm/ReconfigEndpoints/BackgroundListener.cpp ../UbiForm/ReconfigEndpoints/BackgroundRequester.cpp ../UbiForm/ReconfigEndpoints/BackgroundRequester.h)
 
 set(resourceDiscovery ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.h
         ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h
         ../UbiForm/ResourceDiscovery/ComponentRepresentation.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.cpp
         ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.h)
 
+set(schemaFiles ../UbiForm/SchemaRepresentation/EndpointSchema.h ../UbiForm/SchemaRepresentation/EndpointSchema.cpp
+        ../UbiForm/SystemSchemas/SystemSchemas.h  ../UbiForm/SystemSchemas/SystemSchemas.cpp
+        ../UbiForm/SchemaRepresentation/GenericSchema.cpp ../UbiForm/SchemaRepresentation/GenericSchema.h)
+
+set(utilityFiles ../UbiForm/Utilities/UtilityFunctions.h ../UbiForm/Utilities/UtilityFunctions.cpp
+        ../UbiForm/Utilities/SystemEnums.h ../UbiForm/Utilities/SystemEnums.cpp)
+
+set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
+        ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp  )
+
+
+
+
 # Create library
 file(COPY ../UbiForm/SystemSchemas DESTINATION .)
-add_library(UbiForm ../UbiForm/library.cpp ../UbiForm/library.h ${componentFiles} ${generalFunctions} ${endpointFiles} ${resourceDiscovery})
+add_library(UbiForm  ${endpointFiles} ${reconfigEndpoints} ${resourceDiscovery} ${schemaFiles} ${utilityFiles} ${componentFiles})
 target_link_libraries(UbiForm gtest_main gmock_main)
 
 # Create tests
