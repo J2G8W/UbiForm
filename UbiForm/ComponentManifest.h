@@ -113,6 +113,11 @@ public:
     void addSchema(SocketType socketType, const std::string& typeOfEndpoint,
                    std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema);
 
+
+    SocketMessage* getComponentRepresentation(){
+        return new SocketMessage(this->JSON_document);
+    }
+
     ~ComponentManifest();
 };
 
