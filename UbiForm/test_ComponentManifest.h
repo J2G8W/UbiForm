@@ -103,7 +103,6 @@ TEST_F(ManifestExample, AddPairSchema){
     receiveSchema->addProperty("TEST",ValueType::Number);
     receiveSchema->addRequired("TEST");
     componentManifest->addSchema(SocketType::Pair,"pairExample", receiveSchema,sendSchema);
-    std::cout << receiveSchema->stringify() << std::endl;
 
     SocketMessage sm;
     sm.addMember("TEST",42);
