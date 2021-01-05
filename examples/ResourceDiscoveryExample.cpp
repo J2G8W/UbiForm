@@ -7,9 +7,9 @@
 // Hub is a Publisher and an RDH
 #define HUB "HUB"
 // Connection is a subscriber
-#define CONNECTION "CONNECTION"
+#define SUBSCRIBER_CONNECTION "CONNECTION"
 // Publisher is JUST a publisher (different to Hub)
-#define PUBLISHER "PUBLISHER"
+#define PUBLISHER_CONNECTION "PUBLISHER"
 
 
 int main(int argc, char ** argv){
@@ -63,7 +63,7 @@ int main(int argc, char ** argv){
                 }
                 sleep(1);
             }
-        }if (strcmp(argv[1], PUBLISHER) == 0){
+        }if (strcmp(argv[1], PUBLISHER_CONNECTION) == 0){
             Component component(componentAddress);
 
             FILE* pFile = fopen("JsonFiles/PublisherManifest1.json", "r");
@@ -101,7 +101,7 @@ int main(int argc, char ** argv){
                 sleep(1);
             }
         }
-        if (strcmp(argv[1], CONNECTION) == 0){
+        if (strcmp(argv[1], SUBSCRIBER_CONNECTION) == 0){
             Component component(componentAddress);
             component.startBackgroundListen();
 
@@ -144,7 +144,7 @@ int main(int argc, char ** argv){
         }
     }
     else{
-        std::cerr << "Error usage is " << argv[0] << " " << HUB <<"|"<< CONNECTION << "|" << PUBLISHER;
+        std::cerr << "Error usage is " << argv[0] << " " << HUB <<"|"<< SUBSCRIBER_CONNECTION << "|" << PUBLISHER_CONNECTION;
         std::cerr << " RDHlocation " << "[componentAddress]" << std::endl;
     }
 }
