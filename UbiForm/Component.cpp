@@ -12,15 +12,12 @@
 
 
 // CONSTRUCTOR
-Component::Component(const std::string &baseAddress) : backgroundSocket(), systemSchemas() {
-    this->baseAddress = baseAddress;
+Component::Component(const std::string &baseAddress) :  systemSchemas(),
+    backgroundListener(this,systemSchemas),
+    baseAddress(baseAddress){
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
-    // Create the background socket;
-    int rv;
-    if ((rv = nng_rep0_open(&backgroundSocket)) != 0) {
-        throw NngError(rv, "Opening background socket");
-    }
+
 }
 
 
@@ -125,22 +122,11 @@ Component::getSenderEndpointsByType(const std::string &endpointType) {
 }
 
 // THIS IS OUR COMPONENT LISTENING FOR REQUESTS TO MAKE SOCKETS
-void Component::startBackgroundListen(int port) {
-    int rv;
-    this->backgroundListenAddress = this->baseAddress + ":" + std::to_string(port);
-    if ((rv = nng_listen(backgroundSocket, backgroundListenAddress.c_str(), nullptr, 0)) != 0) {
-        throw NngError(rv, "Listening on " + backgroundListenAddress);
-    }
-
-    this->backgroundThread = std::thread(backgroundListen,this);
-
-}
-
 void Component::startBackgroundListen() {
 
     for(int i = 0; i < 5 ; i++) {
         try {
-            startBackgroundListen(this->lowestPort);
+            backgroundListener.startBackgroundListen(this->baseAddress + ":" + std::to_string(this->lowestPort));
             this->lowestPort++;
             return;
         } catch (NngError &e) {
@@ -154,99 +140,33 @@ void Component::startBackgroundListen() {
     throw std::logic_error("Could not find valid port to start on");
 }
 
+std::string Component::createAndOpenConnection(SocketType st, const std::string& endpointType){
+    std::string socketId = generateNewSocketId();
+    std::shared_ptr<DataSenderEndpoint> e;
+    switch (st) {
+        case Pair:
+            e = createNewPairEndpoint(endpointType, socketId);
+            break;
+        case Publisher:
+            e = createNewPublisherEndpoint(endpointType, socketId);
+            break;
+        default:
+            throw std::logic_error("Cannot open a connection for type " + std::to_string(st));
+    }
 
-void Component::backgroundListen(Component *component) {
-    int rv;
-    while (true){
-        char *buf = nullptr;
-        size_t sz;
-        if ((rv = nng_recv(component->backgroundSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
-            std::cerr << "NNG error receiving component request - " << nng_strerror(rv) << std::endl;
-            continue;
-        }
-        SocketMessage sm(buf);
-        nng_free(buf, sz);
-        try {
-            component->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(sm);
-            if (sm.getString("socketType") == PAIR) {
-                std::string socketId = component->generateNewSocketId();
-
-                std::shared_ptr<DataSenderEndpoint> e = component->createNewPairEndpoint(
-                        sm.getString("endpointType"), socketId);
-
-                std::string url;
-                rv = 1;
-                while(rv != 0) {
-                    url = component->baseAddress + ":" + std::to_string(component->lowestPort);
-                    rv = e->listenForConnectionWithRV(url.c_str());
-                    if (rv == EADDRINUSE){
-                        component->lowestPort = component->generateRandomPort();
-                    }else if (rv != 0){
-                        throw NngError(rv, "Create pair listener at " + url);
-                    }
-                }
-
-                component->lowestPort++;
-
-                SocketMessage reply;
-                reply.addMember("url",url);
-                component->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(reply);
-                std::string replyText = reply.stringify();
-
-                // Send reply on regrep with url for the component to dial
-                if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
-                    throw NngError(rv, "Replying to Pair creation request");
-                }
-            } else if (sm.getString("socketType") == PUBLISHER) {
-                std::string url;
-                auto existingPublishers = component->getSenderEndpointsByType(sm.getString("endpointType"));
-                if (existingPublishers->empty()) {
-                    std::string socketId = component->generateNewSocketId();
-
-                    std::shared_ptr<DataSenderEndpoint> e = component->createNewPublisherEndpoint(
-                            sm.getString("endpointType"), socketId);
-
-                    rv = 1;
-                    while(rv != 0) {
-                        url = component->baseAddress + ":" + std::to_string(component->lowestPort);
-                        rv = e->listenForConnectionWithRV(url.c_str());
-                        if (rv == EADDRINUSE){
-                            component->lowestPort = component->generateRandomPort();
-                        }else if (rv != 0){
-                            throw NngError(rv, "Create pair listener at " + url);
-                        }
-                    }
-                    component->lowestPort ++;
-                }else{
-                    url = existingPublishers->at(0)->getListenUrl();
-                }
-
-                SocketMessage reply;
-                reply.addMember("url",url);
-                component->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(reply);
-                std::string replyText = reply.stringify();
-
-                // Send reply on regrep with url for the component to dial
-                if ((rv = nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0)) != 0) {
-                    throw NngError(rv, "Replying to Publisher creation request");
-                }
-            }
-        }catch (std::out_of_range &e){
-            std::cerr << "No schema of type " << sm.getString("endpointType") << " found in this component." <<  std::endl;
-            // Return a simple reply, any errors on send are IGNORED
-            SocketMessage reply;
-            reply.setNull("url");
-            component->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(reply);
-            std::string replyText = reply.stringify();
-            if (nng_send(component->backgroundSocket, (void *) replyText.c_str(), replyText.size() + 1, 0) != 0) {
-               // IGNORE
-            }
-        }catch(ValidationError &e){
-            std::cerr << "Invalid creation request - " << e.what() <<std::endl;
-        }catch(NngError &e){
-            std::cerr << "NNG error in handling creation request - " << e.what() <<std::endl;
+    std::string url;
+    int rv = 1;
+    while(rv != 0) {
+        url = baseAddress + ":" + std::to_string(lowestPort);
+        rv = e->listenForConnectionWithRV(url.c_str());
+        if (rv == EADDRINUSE){
+            lowestPort = generateRandomPort();
+        }else if (rv != 0){
+            throw NngError(rv, "Create " + convertSocketType(st) + " listener at " + url);
         }
     }
+    lowestPort ++;
+    return url;
 }
 
 // THIS IS OUR COMPONENT MAKING REQUESTS FOR A NEW CONNECTION
@@ -342,18 +262,6 @@ void Component::startResourceDiscoveryHub(int port) {
 
 
 Component::~Component(){
-    // We detach our background thread so termination of the thread happens safely
-    if (backgroundThread.joinable()) {
-        backgroundThread.detach();
-    }
-
-    // Make sure that the messages are flushed
-    nng_msleep(300);
-
-
-    // Close our background socket, and don't really care what return value is
-    // TODO - sort problem of closing socket while backgroundThread uses it
-    //nng_close(backgroundSocket);
 }
 
 void Component::closeSocketsOfType(const std::string &endpointType) {
@@ -374,4 +282,11 @@ void Component::closeSocketsOfType(const std::string &endpointType) {
             it = vec->erase(it);
         }
     }
+}
+
+std::shared_ptr<ComponentManifest> Component::getComponentManifest() {
+    if (componentManifest == nullptr){
+        throw std::logic_error("No Component Manifest specified");
+    }
+    return componentManifest;
 }

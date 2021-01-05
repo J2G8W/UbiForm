@@ -17,6 +17,7 @@
 #include "Endpoints/SubscriberEndpoint.h"
 #include "ResourceDiscovery/ResourceDiscoveryHubEndpoint.h"
 #include "SystemSchemas/SystemSchemas.h"
+#include "ReconfigEndpoints/BackgroundListener.h"
 
 
 class ResourceDiscoveryConnEndpoint;
@@ -32,7 +33,6 @@ private:
     std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > > typeReceiverEndpoints;
     std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > > typeSenderEndpoints;
 
-    nng_socket backgroundSocket;
 
     SystemSchemas systemSchemas;
 
@@ -44,12 +44,12 @@ private:
         return static_cast<int>(generator() % 60000 + 2000);
     }
 
-    static void backgroundListen(Component *component);
+
     int lowestPort = 8001;
-    std::thread backgroundThread;
-    std::string backgroundListenAddress;
 
     std::string baseAddress;
+
+    BackgroundListener backgroundListener;
 
     ResourceDiscoveryConnEndpoint * resourceDiscoveryConnEndpoint {nullptr};
 
@@ -67,14 +67,18 @@ public:
         componentManifest = std::make_shared<ComponentManifest>(jsonString,systemSchemas);
     }
 
-    void startBackgroundListen(int port);
+    void startBackgroundListen(int port){
+        backgroundListener.startBackgroundListen(this->baseAddress + ":" + std::to_string(port));
+    }
     void startBackgroundListen();
 
     // We create a new Pair Endpoint and store it in our map as a SHARED pointer
     std::shared_ptr<PairEndpoint> createNewPairEndpoint(const std::string& type, const std::string& id);
-
     std::shared_ptr<SubscriberEndpoint> createNewSubscriberEndpoint(const std::string& type, const std::string& id);
     std::shared_ptr<PublisherEndpoint> createNewPublisherEndpoint(const std::string& type, const std::string& id);
+
+    // Generalised start of listeners (returns URL of where connection is)
+    std::string createAndOpenConnection(SocketType st, const std::string &endpointType);
 
     // We rethrow an out_of_range exception if the request fails
     std::shared_ptr<DataReceiverEndpoint> getReceiverEndpointById(const std::string& id);
@@ -84,24 +88,17 @@ public:
     std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > getReceiverEndpointsByType(const std::string &endpointType);
     std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > getSenderEndpointsByType(const std::string &endpointType);
 
+
     void requestAndCreateConnection(const std::string& localEndpointType, const std::string &connectionComponentAddress,
                                     const std::string &remoteEndpointType);
-
 
 
     void startResourceDiscoveryHub(int port);
 
     ResourceDiscoveryConnEndpoint* createResourceDiscoveryConnectionEndpoint();
 
-    std::shared_ptr<ComponentManifest> getComponentManifest(){
-        if (componentManifest == nullptr){
-            throw std::logic_error("No Component Manifest specified");
-        }
-        return componentManifest;
-    }
-
-    std::string & getBackgroundListenAddress(){return backgroundListenAddress;}
-
+    std::shared_ptr<ComponentManifest> getComponentManifest();
+    std::string getBackgroundListenAddress(){return backgroundListener.getBackgroundListenAddress();}
     SystemSchemas & getSystemSchemas(){return systemSchemas;}
 
     void closeSocketsOfType(const std::string& endpointType);
