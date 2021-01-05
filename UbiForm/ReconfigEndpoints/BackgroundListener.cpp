@@ -29,11 +29,13 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
             backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(sm);
             std::string url;
             if (sm.getString("socketType") == PAIR) {
-                url = backgroundListener->component->createAndOpenConnection(SocketType::Pair, sm.getString("endpointType"));
+                url = backgroundListener->component->createEndpointAndListen(SocketType::Pair,
+                                                                             sm.getString("endpointType"));
             } else if (sm.getString("socketType") == PUBLISHER) {
                 auto existingPublishers = backgroundListener->component->getSenderEndpointsByType(sm.getString("endpointType"));
                 if (existingPublishers->empty()) {
-                    url = backgroundListener->component->createAndOpenConnection(SocketType::Publisher, sm.getString("endpointType"));
+                    url = backgroundListener->component->createEndpointAndListen(SocketType::Publisher,
+                                                                                 sm.getString("endpointType"));
                 }else{
                     url = existingPublishers->at(0)->getListenUrl();
                 }

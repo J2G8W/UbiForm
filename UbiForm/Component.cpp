@@ -13,7 +13,7 @@
 
 // CONSTRUCTOR
 Component::Component(const std::string &baseAddress) :  systemSchemas(),
-    backgroundListener(this,systemSchemas),
+    backgroundListener(this,systemSchemas), backgroundRequester(this, systemSchemas),
     baseAddress(baseAddress){
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
@@ -140,7 +140,7 @@ void Component::startBackgroundListen() {
     throw std::logic_error("Could not find valid port to start on");
 }
 
-std::string Component::createAndOpenConnection(SocketType st, const std::string& endpointType){
+std::string Component::createEndpointAndListen(SocketType st, const std::string& endpointType){
     std::string socketId = generateNewSocketId();
     std::shared_ptr<DataSenderEndpoint> e;
     switch (st) {
@@ -169,81 +169,19 @@ std::string Component::createAndOpenConnection(SocketType st, const std::string&
     return url;
 }
 
-// THIS IS OUR COMPONENT MAKING REQUESTS FOR A NEW CONNECTION
-void Component::requestAndCreateConnection(const std::string& localEndpointType, const std::string &connectionComponentAddress,
-                                           const std::string &remoteEndpointType) {
-    std::string requestSocketType = componentManifest->getSocketType(localEndpointType);
-    SocketMessage sm;
-    if (requestSocketType == SUBSCRIBER){
-        sm.addMember("socketType",PUBLISHER);
-    }else{
-        sm.addMember("socketType",requestSocketType);
+void Component::createEndpointAndDial(const std::string& socketType, const std::string& localEndpointType, const std::string& url){
+    std::shared_ptr<DataReceiverEndpoint> e;
+    std::string socketId = generateNewSocketId();
+    if (socketType == PAIR){
+        e = this->createNewPairEndpoint(localEndpointType, socketId);
+    }else if (socketType == SUBSCRIBER){
+        e = this->createNewSubscriberEndpoint(localEndpointType, socketId);
     }
 
-    sm.addMember("endpointType",remoteEndpointType);
-
-    systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(sm);
-
-    std::string url;
-
-    try{
-        url = requestConnection(connectionComponentAddress,sm.stringify());
-        std::shared_ptr<DataReceiverEndpoint> e;
-        std::string socketId = generateNewSocketId();
-        if (requestSocketType == PAIR){
-            e = this->createNewPairEndpoint(localEndpointType, socketId);
-        }else if (requestSocketType == SUBSCRIBER){
-            e = this->createNewSubscriberEndpoint(localEndpointType, socketId);
-        }
-
-        this->lowestPort ++;
-        e->dialConnection(url.c_str());
-    }catch (std::logic_error &e){
-        std::cerr << e.what() << std::endl;
-    }
+    this->lowestPort ++;
+    e->dialConnection(url.c_str());
 }
 
-std::string Component::requestConnection(const std::string &address, const std::string& requestText) {
-    int rv;
-
-    nng_socket tempSocket;
-    if ((rv = nng_req0_open(&tempSocket)) != 0) {
-        throw NngError(rv, "Opening temporary socket for connection request");
-    }
-
-    if ((rv = nng_dial(tempSocket, address.c_str(), nullptr, 0)) != 0) {
-        throw NngError(rv, "Dialing " + address + " for connection request");
-    }
-
-    if ((rv = nng_send(tempSocket, (void *) requestText.c_str(), requestText.size() + 1, 0)) != 0) {
-        throw NngError(rv, "Sending to " + address + " for connection request");
-    }
-
-    char *buf = nullptr;
-    size_t sz;
-    if ((rv = nng_recv(tempSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
-        throw NngError(rv, "Receiving response from connection request");
-    }
-    try{
-        SocketMessage response(buf);
-        nng_free(buf,sz);
-
-        if (response.isNull("url")){
-            throw std::logic_error("No valid endpoint of: " + requestText);
-        }else{
-            try {
-                // Basically validation of response (CBA for using schemas for one field)
-                return response.getString("url");
-            }catch (AccessError &e){
-                throw std::logic_error("No endpoint returned");
-            }
-        }
-    } catch (std::logic_error &e) {
-        std::cerr << "Error in handling response" << std::endl;
-        throw;
-    }
-
-}
 
 // CREATE RDCONNECTION
 ResourceDiscoveryConnEndpoint *Component::createResourceDiscoveryConnectionEndpoint() {
