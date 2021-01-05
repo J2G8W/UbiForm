@@ -22,7 +22,6 @@ class ComponentManifest {
 protected:
     rapidjson::Document JSON_document;
 
-    // TODO -  combine into one map at some point
     // Note that these maps will "auto delete" as we are using shared pointers so we don't need to worry about their memory
     std::map<std::string, std::shared_ptr<EndpointSchema> > receiverSchemas;
     std::map<std::string, std::shared_ptr<EndpointSchema> > senderSchemas;
@@ -54,7 +53,7 @@ public:
      */
     explicit ComponentManifest(FILE *jsonFP, SystemSchemas &es);
 
-    // TODO - don't copy, use move constructors - far more efficient
+
     /**
      * @brief This is a copy constructor not a move
      *
@@ -64,8 +63,7 @@ public:
      * @throws ParsingError - when input is malformed
      * @throws ValidationError - when input does not conform to SystemsSchemas
      */
-    explicit ComponentManifest(SocketMessage* sm,SystemSchemas &es ) : ComponentManifest(sm->stringify().c_str(), es) {
-    }
+    explicit ComponentManifest(SocketMessage* sm,SystemSchemas &ss );
 
 
     /**
@@ -83,6 +81,7 @@ public:
 
     std::string getName();
 
+
     /**
      * @param typeOfEndpoint - specify typeOfEndpoint as described in Manifest
      * @return string of what type the socket is (e.g. pair)
@@ -90,6 +89,9 @@ public:
      */
     std::string getSocketType(const std::string& endpointType);
 
+    /**
+     * @return string representation of the component manifest
+     */
     std::string stringify() { return stringifyValue(JSON_document); };
 
 

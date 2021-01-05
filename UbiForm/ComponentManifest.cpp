@@ -19,6 +19,12 @@ ComponentManifest::ComponentManifest(const char *jsonString, SystemSchemas &ss) 
     checkParse();
     fillSchemaMaps();
 }
+ComponentManifest::ComponentManifest(SocketMessage *sm, SystemSchemas &ss) : systemSchemas(ss) {
+    JSON_document.CopyFrom(sm->JSON_document, JSON_document.GetAllocator());
+
+    checkParse();
+    fillSchemaMaps();
+}
 
 // Check if we have parsed our manifest okay
 // Throws ParseError for parsing issues and ValidationError when manifest doesn't line up
@@ -144,6 +150,8 @@ void ComponentManifest::addSchema(SocketType socketType, const std::string &type
     schemas.AddMember(rapidjson::Value(typeOfEndpoint,JSON_document.GetAllocator()), newEndpoint.Move(),
                       JSON_document.GetAllocator());
 }
+
+
 
 
 ComponentManifest::~ComponentManifest()= default;
