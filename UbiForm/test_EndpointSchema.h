@@ -62,7 +62,7 @@ TEST_F(EndpointSchemaSimpleChecks, SimpleUpdate){
     ASSERT_THROW(endpointSchema.getValueType("temperature"), AccessError);
 
     // The base document has been changed
-    ASSERT_NE(stringifyDocument(schemaDoc), schemaInput);
+    ASSERT_NE(stringifyValue(schemaDoc), schemaInput);
 
     delete JSON_document;
 }

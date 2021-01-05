@@ -89,7 +89,7 @@ public:
      */
     std::string getSocketType(const std::string& endpointType);
 
-    std::string stringify() { return stringifyDocument(JSON_document); };
+    std::string stringify() { return stringifyValue(JSON_document); };
 
 
     /**

@@ -5,7 +5,8 @@
 #include <rapidjson/filereadstream.h>
 #include <nng/nng.h>
 
-std::string stringifyDocument(rapidjson::Document &JSON_document);
+
+std::string stringifyValue(rapidjson::Value &JSON_document);
 
 /**
  * @brief Compare whether our objects are "equal" according to the rules defined by Julian, that is, functionally equivalent

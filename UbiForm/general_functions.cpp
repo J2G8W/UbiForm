@@ -7,7 +7,7 @@
 
 
 // TODO - optimise this for speed
-std::string stringifyDocument(rapidjson::Document &JSON_document) {
+std::string stringifyValue(rapidjson::Value &JSON_document) {
     rapidjson::StringBuffer buffer;
 
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);

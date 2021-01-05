@@ -68,6 +68,8 @@ public:
     void setArrayObject(const std::string& name, EndpointSchema& es);
     void setSubObject(const std::string& name, EndpointSchema& es);
 
+    std::string stringify();
+
     ~EndpointSchema(){
         delete schema;
         if (responsibleForJson){

@@ -110,7 +110,7 @@ public:
     }
     ///@}
 
-    std::string stringify() { return stringifyDocument(JSON_document); };
+    std::string stringify() { return stringifyValue(JSON_document); };
 
     ~SocketMessage();
 };

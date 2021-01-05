@@ -171,7 +171,7 @@ void EndpointSchema::setArrayType(const std::string &name, ValueType type) {
 }
 
 void EndpointSchema::setArrayObject(const std::string &name, EndpointSchema &es) {
-
+// TODO
 }
 
 
@@ -196,4 +196,8 @@ void EndpointSchema::setSubObject(const std::string &name, EndpointSchema &es) {
         properties[name].AddMember("required", subObjectProperties, *allocator);
     }
     changeSchema();
+}
+
+std::string EndpointSchema::stringify() {
+    return stringifyValue(*JSON_rep);
 }
