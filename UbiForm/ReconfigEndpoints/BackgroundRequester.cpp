@@ -66,8 +66,15 @@ void BackgroundRequester::requestAndCreateConnection(const std::string& localEnd
 
     std::string url;
     try{
-        url = requestConnection(connectionComponentAddress,sm.stringify());
-        component->createEndpointAndDial(requestSocketType, localEndpointType, url);
+        requestEndpoint.dialConnection(connectionComponentAddress.c_str());
+        requestEndpoint.sendMessage(sm);
+        auto reply = requestEndpoint.receiveMessage();
+        if (reply->isNull("url")){
+            throw std::logic_error("No valid endpoint of: " + remoteEndpointType);
+        }else{
+            url = reply->getString("url");
+            component->createEndpointAndDial(requestSocketType, localEndpointType, url);
+        }
     }catch (std::logic_error &e){
         std::cerr << e.what() << std::endl;
     }
