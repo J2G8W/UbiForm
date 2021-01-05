@@ -4,6 +4,10 @@
 // Receive a message, validate it against the socketManifest and return a pointer to the object.
 // Use smart pointers to avoid complex memory management
 std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
+    if(!socketOpen){
+        std::cerr << "SocketClosed" << std::endl;
+        throw SocketOpenError("Could not receive message, socket is closed");
+    }
     int rv;
     char *buffer = nullptr;
 
@@ -31,6 +35,10 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
 // This is the public interface for asynchronously receiving messages
 // TODO - improve type safety here - templates rather than void*
 void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *furtherUserData) {
+    if(!socketOpen){
+        std::cerr << "SocketClosed" << std::endl;
+        throw SocketOpenError("Could not async-receive message, socket is closed");
+    }
     auto *asyncData = new AsyncData(callb, this->receiverSchema, furtherUserData);
 
     nng_recv_aio(*receiverSocket, asyncData->nngAioPointer);

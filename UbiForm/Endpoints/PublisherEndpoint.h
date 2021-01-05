@@ -8,8 +8,6 @@
 #include "DataSenderEndpoint.h"
 
 class PublisherEndpoint : public DataSenderEndpoint {
-private:
-    bool socketOpen = false;
 
 public:
     explicit PublisherEndpoint(std::shared_ptr<EndpointSchema> sendSchema) : DataSenderEndpoint(sendSchema){
@@ -18,12 +16,14 @@ public:
         if ((rv = nng_pub0_open(senderSocket)) != 0) {
             throw NngError(rv, "Creation of publisher socket");
         }else{
-            socketOpen = true;
+            DataSenderEndpoint::socketOpen = true;
         }
     }
 
     void listenForConnection(const char* url) override;
     int listenForConnectionWithRV(const char *url) override;
+
+    void closeSocket() override;
 
     ~PublisherEndpoint();
 };

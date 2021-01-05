@@ -57,6 +57,10 @@ public:
     explicit ParsingError(const std::string& error) : std::logic_error(error){}
 };
 
+class SocketOpenError : public std::logic_error{
+public:
+    explicit SocketOpenError(const std::string & error) : std::logic_error(error){}
+};
 
 // USE ONLY FOR TESTING PURPOSES
 rapidjson::Document* parseFromFile(const char * address);

@@ -39,7 +39,7 @@ int PairEndpoint::listenForConnectionWithRV(const char *url) {
 // Destructor waits a short time before closing socket such that any unsent messages are released
 PairEndpoint::~PairEndpoint() {
     // We have to check if we ever initialised the receiverSocket before trying to close it
-    if (senderSocket != nullptr && socketOpen) {
+    if (senderSocket != nullptr && DataSenderEndpoint::socketOpen && DataReceiverEndpoint::socketOpen) {
         // Make sure that the messages are flushed
         sleep(1);
         // We only have one actual socket so only need to close 1.
@@ -50,5 +50,15 @@ PairEndpoint::~PairEndpoint() {
     }
     // Note that we only delete once as the senderSocket points to the same place as the receiverSocket
     delete senderSocket;
+}
+
+void PairEndpoint::closeSocket() {
+    if (DataReceiverEndpoint::socketOpen && DataSenderEndpoint::socketOpen) {
+        if (nng_close(*senderSocket) == NNG_ECLOSED) {
+            std::cerr << "This socket had already been closed" << std::endl;
+        }
+        DataReceiverEndpoint::socketOpen = false;
+        DataSenderEndpoint::socketOpen = false;
+    }
 }
 

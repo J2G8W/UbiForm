@@ -40,6 +40,7 @@ protected:
     // Schema is shared with the parent that houses this endpoint
     std::shared_ptr<EndpointSchema>receiverSchema;
 
+    bool socketOpen = false;
     std::string dialUrl;
 public:
     explicit DataReceiverEndpoint( std::shared_ptr<EndpointSchema>& es){
@@ -58,6 +59,9 @@ public:
     void asyncReceiveMessage(void (*callb)(SocketMessage *, void*), void*);
 
     std::string getDialUrl(){return dialUrl;}
+
+    virtual void closeSocket() = 0;
+    virtual ~DataReceiverEndpoint() = default;
 };
 
 

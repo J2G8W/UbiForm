@@ -2,6 +2,10 @@
 
 // Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(SocketMessage &s) {
+    if(!socketOpen){
+        std::cerr << "SocketClosed" << std::endl;
+        throw SocketOpenError("Could not send message, socket is closed");
+    }
     int rv;
     std::string messageTextObject = s.stringify();
     // Effectively treat this as cast, as the pointer is still to stack memory
@@ -18,6 +22,10 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
 }
 
 void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
+    if(!socketOpen){
+        std::cerr << "SocketClosed" << std::endl;
+        throw SocketOpenError("Could not async-send message, socket is closed");
+    }
     nng_aio_wait(nngAioPointer);
     std::string text = s.stringify();
     const char * textArray = text.c_str();

@@ -5,11 +5,6 @@
 
 void SubscriberEndpoint::dialConnection(const char *url){
     int rv;
-    if ((rv = nng_sub0_open(receiverSocket)) != 0) {
-        throw NngError(rv, "Opening subscriber socket");
-    }else{
-        socketOpen = true;
-    }
     if ((rv = nng_dial(*receiverSocket, url, nullptr, 0)) != 0) {
         throw NngError(rv, "Dialing " + std::string(url) + " for a subscriber connection");
     }
@@ -35,4 +30,11 @@ SubscriberEndpoint::~SubscriberEndpoint() {
 
     }
     delete receiverSocket;
+}
+
+void SubscriberEndpoint::closeSocket() {
+    if ( nng_close(*receiverSocket) == NNG_ECLOSED) {
+        std::cerr << "This socket had already been closed" << std::endl;
+    }
+    socketOpen = false;
 }

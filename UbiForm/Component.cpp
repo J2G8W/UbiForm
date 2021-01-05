@@ -355,3 +355,23 @@ Component::~Component(){
     // TODO - sort problem of closing socket while backgroundThread uses it
     //nng_close(backgroundSocket);
 }
+
+void Component::closeSocketsOfType(const std::string &endpointType) {
+    if(typeReceiverEndpoints.count(endpointType) > 0){
+        auto vec = typeReceiverEndpoints.at(endpointType);
+        auto it = vec->begin();
+        while(it != vec->end()){
+            (*it)->closeSocket();
+            it = vec->erase(it);
+        }
+    }
+    if(typeSenderEndpoints.count(endpointType) > 0){
+        auto vec = typeSenderEndpoints.at(endpointType);
+        auto it = vec->begin();
+        while(it != vec->end()){
+            (*it)->closeSocket();
+            std::cout << "Remaining references: " << (*it).use_count() << std::endl;
+            it = vec->erase(it);
+        }
+    }
+}

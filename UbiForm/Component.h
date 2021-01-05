@@ -104,6 +104,8 @@ public:
 
     SystemSchemas & getSystemSchemas(){return systemSchemas;}
 
+    void closeSocketsOfType(const std::string& endpointType);
+
     ~Component();
 };
 
