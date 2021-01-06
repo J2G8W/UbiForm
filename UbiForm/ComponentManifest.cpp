@@ -108,9 +108,9 @@ std::string ComponentManifest::getSocketType(const std::string& endpointType) {
     return socketType;
 }
 
-void ComponentManifest::addSchema(SocketType socketType, const std::string &typeOfEndpoint,
-                                  std::shared_ptr<EndpointSchema> receiveSchema,
-                                  std::shared_ptr<EndpointSchema> sendSchema) {
+void ComponentManifest::addEndpoint(SocketType socketType, const std::string &typeOfEndpoint,
+                                    std::shared_ptr<EndpointSchema> receiveSchema,
+                                    std::shared_ptr<EndpointSchema> sendSchema) {
     auto schemas = JSON_document["schemas"].GetObject();
 
     rapidjson::Value newEndpoint(rapidjson::kObjectType);

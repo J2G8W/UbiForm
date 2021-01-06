@@ -75,9 +75,9 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleAddRDH(SocketMessage &r
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionRequest(SocketMessage &request){
     try {
-        component->requestAndCreateConnection(request.getString("reqEndpointType"),
-                                              request.getString("remoteAddress"),
-                                              request.getString("remoteEndpointType"));
+        component->requestAndCreateConnection(
+                request.getString("remoteAddress"), request.getString("reqEndpointType"),
+                request.getString("remoteEndpointType"));
         auto reply = std::make_unique<SocketMessage>();
         reply->addMember("error",false);
         reply->addMember("errorMsg", "All good");
@@ -86,6 +86,54 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionReq
         auto reply = std::make_unique<SocketMessage>();
         reply->addMember("error",true);
         reply->addMember("errorMsg", e.what());
+        return reply;
+    }
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleAddEndpointRequest(SocketMessage &request){
+    SocketMessage* sendSchema;
+    SocketMessage* receiveSchema;
+    try{
+        std::shared_ptr<EndpointSchema> esSendSchema;
+        std::shared_ptr<EndpointSchema> esReceiveSchema;
+
+
+        if (request.isNull("sendSchema")){
+            sendSchema = nullptr;
+            esSendSchema = nullptr;
+        }
+        else{
+            sendSchema = request.getObject("sendSchema");
+            esSendSchema = std::make_shared<EndpointSchema>(*sendSchema);
+        }
+
+        if (request.isNull("receiveSchema")){
+            receiveSchema = nullptr;
+            esSendSchema = nullptr;
+        }
+        else{
+            receiveSchema = request.getObject("receiveSchema");
+            esReceiveSchema = std::make_shared<EndpointSchema>(*receiveSchema);
+        }
+
+        component->getComponentManifest()->addEndpoint(static_cast<SocketType>(request.getInteger("socketType")),
+                                                       request.getString("endpointType"), esReceiveSchema, esSendSchema);
+
+        auto reply = std::make_unique<SocketMessage>();
+        reply->addMember("error",false);
+        reply->addMember("errorMsg", "All good");
+
+        delete sendSchema;
+        delete receiveSchema;
+
+        return reply;
+    }catch(std::logic_error &e){
+        auto reply = std::make_unique<SocketMessage>();
+        reply->addMember("error",true);
+        reply->addMember("errorMsg", e.what());
+
+        delete sendSchema;
+        delete receiveSchema;
         return reply;
     }
 }

@@ -17,9 +17,9 @@ int main(int argc, char ** argv){
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            receiver.requestAndCreateConnection("pairExample",
-                                                "tcp://127.0.0.1:8000",
-                                                "pairExample");
+            receiver.requestAndCreateConnection(
+                    "tcp://127.0.0.1:8000", "pairExample",
+                    "pairExample");
             auto endpoints = receiver.getReceiverEndpointsByType("pairExample");
             while(true){
                 for(const auto& e: *endpoints){

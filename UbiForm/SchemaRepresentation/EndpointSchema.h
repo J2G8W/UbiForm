@@ -26,9 +26,16 @@ private:
 
 public:
     // Note that the passed in pointer is up to parent to handle memory
-    explicit EndpointSchema(rapidjson::Value *doc, rapidjson::MemoryPoolAllocator<> & al) {
+    EndpointSchema(rapidjson::Value *doc, rapidjson::MemoryPoolAllocator<> & al) {
         allocator = &al;
         JSON_rep = doc;
+        schema = new rapidjson::SchemaDocument(*JSON_rep);
+        responsibleForJson = false;
+    }
+
+    EndpointSchema(SocketMessage& sm){
+        JSON_rep = &sm.JSON_document;
+        allocator = &(sm.JSON_document.GetAllocator());
         schema = new rapidjson::SchemaDocument(*JSON_rep);
         responsibleForJson = false;
     }

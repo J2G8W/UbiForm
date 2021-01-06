@@ -78,7 +78,8 @@ protected:
 TEST_F(PairBasedComponent, FindEachOther){
     // We use IPC to test our component - concept of ports is less clear, but it works
     senderComponent->startBackgroundListen(8000);
-    ASSERT_NO_THROW(receiverComponent->requestAndCreateConnection("pairExample",senderComponent->getBackgroundListenAddress(), "pairExample"));
+    ASSERT_NO_THROW(receiverComponent->requestAndCreateConnection(senderComponent->getBackgroundListenAddress(),
+                                                                  "pairExample", "pairExample"));
 
     sleep(1);
     // No throw means that there is in fact a pair connection being created in our component

@@ -70,7 +70,8 @@ int main(int argc, char **argv){
                 counter++;
                 if (counter == 4){
                     std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
-                    component.getComponentManifest()->addSchema(SocketType::Publisher, "publisherExample", nullptr, es);
+                    component.getComponentManifest()->addEndpoint(SocketType::Publisher, "publisherExample", nullptr,
+                                                                  es);
                     component.closeSocketsOfType("publisherExample");
                     rdc->updateManifestWithHubs();
                     std::cout << "BORING MANIFEST" << std::endl;

@@ -20,12 +20,12 @@ int main(int argc, char ** argv){
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            component.requestAndCreateConnection("subscriberExample",
-                                                 "tcp://127.0.0.1:8000",
-                                                 "publisherExample");
-            component.requestAndCreateConnection("subscriberExample",
-                                                 "tcp://127.0.0.1:8000",
-                                                 "publisherExample");
+            component.requestAndCreateConnection(
+                    "tcp://127.0.0.1:8000", "subscriberExample",
+                    "publisherExample");
+            component.requestAndCreateConnection(
+                    "tcp://127.0.0.1:8000", "subscriberExample",
+                    "publisherExample");
             std::unique_ptr<SocketMessage> s;
 
             auto subscriberEndpoints = component.getReceiverEndpointsByType("subscriberExample");

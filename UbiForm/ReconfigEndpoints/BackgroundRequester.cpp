@@ -9,8 +9,9 @@
 #include "../Component.h"
 
 // THIS IS OUR COMPONENT MAKING REQUESTS FOR A NEW CONNECTION
-void BackgroundRequester::requestAndCreateConnection(const std::string& localEndpointType, const std::string &connectionComponentAddress,
-                                           const std::string &remoteEndpointType) {
+void BackgroundRequester::requestAndCreateConnection(const std::string &connectionComponentAddress,
+                                                     const std::string &localEndpointType,
+                                                     const std::string &remoteEndpointType) {
     std::string requestSocketType = component->getComponentManifest()->getSocketType(localEndpointType);
     SocketMessage sm;
     if (requestSocketType == SUBSCRIBER){
@@ -40,7 +41,7 @@ void BackgroundRequester::requestAndCreateConnection(const std::string& localEnd
     }
 }
 
-void BackgroundRequester::requestAddRDH(const std::string& rdhUrl, const std::string& componentUrl){
+void BackgroundRequester::requestAddRDH(const std::string &componentUrl, const std::string &rdhUrl) {
     SocketMessage sm;
     sm.addMember("requestType",ADD_RDH);
     sm.addMember("url",rdhUrl);
@@ -48,13 +49,16 @@ void BackgroundRequester::requestAddRDH(const std::string& rdhUrl, const std::st
         requestEndpoint.dialConnection(componentUrl.c_str());
         requestEndpoint.sendMessage(sm);
         requestEndpoint.receiveMessage();
+
     }catch (std::logic_error &e){
         std::cerr << e.what() << std::endl;
     }
 }
 
-void BackgroundRequester::tellToRequestAndCreateConnection(const std::string& requesterEndpointType, const std::string &requesterAddress,
-                                                           const std::string& remoteEndpointType, const std::string &remoteAddress){
+void BackgroundRequester::tellToRequestAndCreateConnection(const std::string &requesterAddress,
+                                                           const std::string &requesterEndpointType,
+                                                           const std::string &remoteEndpointType,
+                                                           const std::string &remoteAddress) {
     SocketMessage sm;
     sm.addMember("requestType", TELL_REQ_CONN);
     sm.addMember("reqEndpointType", requesterEndpointType);
@@ -65,7 +69,40 @@ void BackgroundRequester::tellToRequestAndCreateConnection(const std::string& re
         requestEndpoint.sendMessage(sm);
         auto reply = requestEndpoint.receiveMessage();
         if (reply->getBoolean("error")){
-            throw std::logic_error(reply->getString("errorMsg"));
+            throw std::logic_error("Error with remote request and create connection: " +reply->getString("errorMsg"));
+        }
+    }catch (std::logic_error &e){
+        std::cerr << e.what() << std::endl;
+    }
+}
+
+void BackgroundRequester::requestAddEndpoint(const std::string &componentAddress, const std::string &endpointType,
+                                             EndpointSchema *sendSchema, EndpointSchema *receiverSchema,
+                                             SocketType socketType) {
+    SocketMessage sm;
+    sm.addMember("requestType", ADD_ENDPOINT_SCHEMA);
+    sm.addMember("endpointType", endpointType);
+    if (receiverSchema == nullptr){sm.setNull("receiveSchema");}
+    else{
+        auto schemaObj = receiverSchema->getSchemaObject();
+        // TODO - move
+        sm.addMember("receiveSchema", *schemaObj);
+        delete schemaObj;
+    }
+    if (sendSchema == nullptr){sm.setNull("sendSchema");}
+    else{
+        auto schemaObj = sendSchema->getSchemaObject();
+        // TODO - move
+        sm.addMember("sendSchema", *schemaObj);
+    }
+    sm.addMember("socketType",socketType);
+
+    try{
+        requestEndpoint.dialConnection(componentAddress.c_str());
+        requestEndpoint.sendMessage(sm);
+        auto reply = requestEndpoint.receiveMessage();
+        if (reply->getBoolean("error")){
+            throw std::logic_error("Error with request add endpoint schema: " + reply->getString("errorMsg"));
         }
     }catch (std::logic_error &e){
         std::cerr << e.what() << std::endl;

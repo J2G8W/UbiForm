@@ -102,7 +102,7 @@ TEST_F(ManifestExample, AddPairSchema){
     std::shared_ptr<EndpointSchema> receiveSchema = std::make_shared<EndpointSchema>();
     receiveSchema->addProperty("TEST",ValueType::Number);
     receiveSchema->addRequired("TEST");
-    componentManifest->addSchema(SocketType::Pair,"pairExample", receiveSchema,sendSchema);
+    componentManifest->addEndpoint(SocketType::Pair, "pairExample", receiveSchema, sendSchema);
 
     SocketMessage sm;
     sm.addMember("TEST",42);
@@ -123,7 +123,7 @@ TEST_F(ManifestExample, AddSubscriberSchema){
     std::shared_ptr<EndpointSchema> receiveSchema = std::make_shared<EndpointSchema>();
     receiveSchema->addProperty("TEST",ValueType::Number);
     receiveSchema->addRequired("TEST");
-    componentManifest->addSchema(SocketType::Subscriber, "subExample", receiveSchema, nullptr);
+    componentManifest->addEndpoint(SocketType::Subscriber, "subExample", receiveSchema, nullptr);
 
     SocketMessage sm;
     ASSERT_THROW(componentManifest->getReceiverSchema("subExample")->validate(sm), ValidationError);

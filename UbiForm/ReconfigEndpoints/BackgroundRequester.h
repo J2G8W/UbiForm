@@ -14,13 +14,20 @@ public:
     // Purposely make the request endpoint have an empty schema
         requestEndpoint(std::make_shared<EndpointSchema>(),std::make_shared<EndpointSchema>()){}
 
-    void requestAndCreateConnection(const std::string &localEndpointType, const std::string &connectionComponentAddress,
+    void requestAndCreateConnection(const std::string &connectionComponentAddress,
+                                    const std::string &localEndpointType,
                                     const std::string &remoteEndpointType);
 
-    void requestAddRDH(const std::string &rdhUrl, const std::string &componentUrl);
+    void requestAddRDH(const std::string &componentUrl, const std::string &rdhUrl);
 
-    void tellToRequestAndCreateConnection(const std::string &requesterEndpointType, const std::string &requesterAddress,
-                                          const std::string &remoteEndpointType, const std::string &remoteAddress);
+    void tellToRequestAndCreateConnection(const std::string &requesterAddress,
+                                          const std::string &requesterEndpointType,
+                                          const std::string &remoteEndpointType,
+                                          const std::string &remoteAddress);
+
+    void requestAddEndpoint(const std::string &componentAddress, const std::string &endpointType,
+                            EndpointSchema *sendSchema, EndpointSchema *receiverSchema,
+                            SocketType socketType);
 };
 
 

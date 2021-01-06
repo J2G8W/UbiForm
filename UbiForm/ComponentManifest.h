@@ -110,8 +110,8 @@ public:
      * @param sendSchema - either a pointer to the schema for the endpoint of nullptr if relevant socketType doens't need sendSchema
      * @throws std::logic_error - when there aren't enough schemas given for the socketType
      */
-    void addSchema(SocketType socketType, const std::string& typeOfEndpoint,
-                   std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema);
+    void addEndpoint(SocketType socketType, const std::string& typeOfEndpoint,
+                     std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema);
 
 
     SocketMessage* getComponentRepresentation(){

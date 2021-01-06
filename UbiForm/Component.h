@@ -92,9 +92,10 @@ public:
     }
     void startBackgroundListen();
 
-    void requestAndCreateConnection(const std::string& localEndpointType, const std::string &connectionComponentAddress,
-                                    const std::string &remoteEndpointType){
-        backgroundRequester.requestAndCreateConnection(localEndpointType, connectionComponentAddress, remoteEndpointType);
+    void requestAndCreateConnection(const std::string &connectionComponentAddress, const std::string &localEndpointType,
+                                    const std::string &remoteEndpointType) {
+        backgroundRequester.requestAndCreateConnection(connectionComponentAddress, localEndpointType,
+                                                       remoteEndpointType);
     }
 
 

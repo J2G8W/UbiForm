@@ -148,7 +148,8 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& en
     std::vector<SocketMessage *> validLocations = getComponentsBySchema(endpointType);
 
     for (const auto & location: validLocations) {
-        component->requestAndCreateConnection(endpointType,location->getString("url"), location->getString("endpointType"));
+        component->requestAndCreateConnection(location->getString("url"), endpointType,
+                                              location->getString("endpointType"));
     }
 }
 
