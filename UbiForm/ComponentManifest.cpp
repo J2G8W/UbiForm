@@ -44,13 +44,11 @@ void ComponentManifest::fillSchemaMaps() {
     for (auto &m : JSON_document["schemas"].GetObject()){
         if (m.value.IsObject() && m.value.HasMember("send")){
             std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&m.value["send"], JSON_document.GetAllocator());
-            auto p1 = std::make_pair(std::string(m.name.GetString()), endpointSchema);
-            senderSchemas.insert(p1);
+            senderSchemas[std::string(m.name.GetString())] = endpointSchema;
         }
         if (m.value.IsObject() && m.value.HasMember("receive")){
             std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&m.value["receive"], JSON_document.GetAllocator());
-            auto p1 = std::make_pair(std::string(m.name.GetString()), endpointSchema);
-            receiverSchemas.insert(p1);
+            receiverSchemas[std::string(m.name.GetString())] = endpointSchema;
         }
     }
 }
@@ -127,8 +125,6 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
         newEndpoint.AddMember(rapidjson::Value("receive", JSON_document.GetAllocator()),
                               jsonReceiveSchema, JSON_document.GetAllocator());
 
-        // Adds with replacement
-        receiverSchemas[typeOfEndpoint] = receiveSchema;
     }
 
     if (socketType == SocketType::Pair || socketType == SocketType::Publisher) {
@@ -149,6 +145,18 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
     }
     schemas.AddMember(rapidjson::Value(typeOfEndpoint,JSON_document.GetAllocator()), newEndpoint.Move(),
                       JSON_document.GetAllocator());
+
+
+    if (socketType == SocketType::Pair || socketType == SocketType::Subscriber) {
+        std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&(schemas[typeOfEndpoint].GetObject()["receive"]),
+                                                                                          JSON_document.GetAllocator());
+        receiverSchemas[typeOfEndpoint] = endpointSchema;
+    }
+    if (socketType == SocketType::Pair || socketType == SocketType::Publisher) {
+        std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&(schemas[typeOfEndpoint].GetObject()["send"]),
+                                                                                          JSON_document.GetAllocator());
+        receiverSchemas[typeOfEndpoint] = endpointSchema;
+    }
 }
 
 

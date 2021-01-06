@@ -9,6 +9,8 @@
 #include "../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h"
 #include "../UbiForm/SystemSchemas/test_SystemSchemas.h"
 
+#include "ReconfigurationIntegrationTest.h"
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
