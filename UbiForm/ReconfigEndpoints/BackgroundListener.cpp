@@ -95,7 +95,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleConnectionRequest(Socke
 }
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleAddRDH(SocketMessage &request){
-    component->getResourceDiscoveryConnectionEndpoint().registerWithHub(request.getString("url"));
+    component->getResourceDiscoveryConnectionEndpoint()->registerWithHub(request.getString("url"));
     return std::make_unique<SocketMessage>();
 }
 

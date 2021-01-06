@@ -53,7 +53,8 @@ private:
     BackgroundListener backgroundListener;
     BackgroundRequester backgroundRequester;
 
-    ResourceDiscoveryConnEndpoint * resourceDiscoveryConnEndpoint {nullptr};
+    ResourceDiscoveryHubEndpoint * resourceDiscoveryHubEndpoint{nullptr};
+    std::shared_ptr<ResourceDiscoveryConnEndpoint> resourceDiscoveryConnEndpoint;
 
 
 public:
@@ -101,15 +102,13 @@ public:
 
     void startResourceDiscoveryHub(int port);
 
-    ResourceDiscoveryConnEndpoint* createResourceDiscoveryConnectionEndpoint();
+    std::shared_ptr<ResourceDiscoveryConnEndpoint> getResourceDiscoveryConnectionEndpoint();
 
     std::shared_ptr<ComponentManifest> getComponentManifest();
     std::string getBackgroundListenAddress(){return backgroundListener.getBackgroundListenAddress();}
     SystemSchemas & getSystemSchemas(){return systemSchemas;}
     BackgroundRequester & getBackgroundRequester(){return backgroundRequester;}
-    ResourceDiscoveryConnEndpoint& getResourceDiscoveryConnectionEndpoint(){
-        return *resourceDiscoveryConnEndpoint;
-    }
+
 
     void closeSocketsOfType(const std::string& endpointType);
 

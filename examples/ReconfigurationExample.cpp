@@ -36,7 +36,7 @@ int main(int argc, char **argv){
 
             std::cout << "Resource discovery started" << std::endl;
 
-            ResourceDiscoveryConnEndpoint *rdc = component.createResourceDiscoveryConnectionEndpoint();
+            std::shared_ptr<ResourceDiscoveryConnEndpoint> rdc = component.getResourceDiscoveryConnectionEndpoint();
             rdc->registerWithHub(RDHAddress);
 
             std::cout << "Registered successfully" << std::endl;
@@ -91,7 +91,7 @@ int main(int argc, char **argv){
 
             const char *locationOfRDH = RDHAddress;
 
-            ResourceDiscoveryConnEndpoint *rdc = component.createResourceDiscoveryConnectionEndpoint();
+            std::shared_ptr<ResourceDiscoveryConnEndpoint> rdc = component.getResourceDiscoveryConnectionEndpoint();
 
             rdc->registerWithHub(locationOfRDH);
             std::vector<std::string> ids = rdc->getComponentIdsFromHub(locationOfRDH);

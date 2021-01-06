@@ -187,22 +187,23 @@ void Component::createEndpointAndDial(const std::string& socketType, const std::
 
 
 // CREATE RDCONNECTION
-ResourceDiscoveryConnEndpoint *Component::createResourceDiscoveryConnectionEndpoint() {
+std::shared_ptr<ResourceDiscoveryConnEndpoint> Component::getResourceDiscoveryConnectionEndpoint() {
     if(this->resourceDiscoveryConnEndpoint == nullptr) {
-        this->resourceDiscoveryConnEndpoint = new ResourceDiscoveryConnEndpoint(this, systemSchemas);
+        this->resourceDiscoveryConnEndpoint = std::make_shared<ResourceDiscoveryConnEndpoint>(this, systemSchemas);
     }
     return this->resourceDiscoveryConnEndpoint;
 }
 
 // CREATE RDHUB
 void Component::startResourceDiscoveryHub(int port) {
-    auto* rdh = new ResourceDiscoveryHubEndpoint(systemSchemas);
+    this->resourceDiscoveryHubEndpoint = new ResourceDiscoveryHubEndpoint(systemSchemas);
     std::string listenAddress = baseAddress + ":" + std::to_string(port);
-    rdh->startResourceDiscover(listenAddress);
+    resourceDiscoveryHubEndpoint->startResourceDiscover(listenAddress);
 }
 
 
 Component::~Component(){
+    delete resourceDiscoveryHubEndpoint;
 }
 
 void Component::closeSocketsOfType(const std::string &endpointType) {
