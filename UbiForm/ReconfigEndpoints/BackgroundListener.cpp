@@ -16,7 +16,13 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
         try {
             request = backgroundListener->replyEndpoint.receiveMessage();
         }catch(NngError &e){
-            break;
+            if (e.errorCode == NNG_ECLOSED){
+                std::cout << "Background Listener socket was closed" << std::endl;
+                break;
+            }else{
+                std::cerr << "Background Listener - " <<  e.what() << std::endl;
+                break;
+            }
         }
 
         std::unique_ptr<SocketMessage> reply;
@@ -45,15 +51,14 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
             backgroundListener->replyEndpoint.sendMessage(*reply);
         }catch(NngError &e){
             if (e.errorCode == NNG_ECLOSED){
-                std::cout << "Underlying socket was closed" << std::endl;
+                std::cout << "Background Listener socket was closed" << std::endl;
                 break;
-            }
-            else{
-                std::cerr << e.what() << std::endl;
+            }else{
+                std::cerr << "Background Listener - " <<  e.what() << std::endl;
                 break;
             }
         }catch(SocketOpenError &e){
-            std::cout << "Underlying socket was closed" << std::endl;
+            std::cout << "Background Listener socket was closed" << std::endl;
             break;
         }
     }
@@ -161,7 +166,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleAddEndpointRequest(Sock
 }
 
 BackgroundListener::~BackgroundListener() {
-    std::cout << "CLOSE SOCKET" << std::endl;
+    std::cout << "CLOSE BACKGROUND LISTENER SOCKET" << std::endl;
     replyEndpoint.closeSocket();
     nng_msleep(300);
 

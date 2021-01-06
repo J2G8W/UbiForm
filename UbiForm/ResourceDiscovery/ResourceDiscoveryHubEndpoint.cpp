@@ -1,53 +1,65 @@
 
 #include "ResourceDiscoveryHubEndpoint.h"
+#include <nng/nng.h>
+#include <nng/supplemental/util/platform.h>
 #include <nng/protocol/reqrep0/rep.h>
 
 void ResourceDiscoveryHubEndpoint::startResourceDiscover(const std::string& urlInit){
-    int rv;
-    if ((rv = nng_rep0_open(&rdSocket)) != 0) {
-        throw NngError(rv, "Opening socket for RDH");
-    }
+    replyEndpoint.listenForConnection(urlInit.c_str());
 
-    if ((rv = nng_listen(rdSocket, urlInit.c_str(), nullptr, 0)) != 0) {
-        throw NngError(rv, "Listening on " + urlInit + " for RDH");
-    }
     this->rdThread = std::thread(rdBackground, this);
 }
 
 void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * rdhe) {
-    int rv;
     while (true){
-        char *buf = nullptr;
-        size_t sz;
-        if ((rv = nng_recv(rdhe->rdSocket, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
-            std::cerr << "NNG error RDH receiving message - " <<  nng_strerror(rv) << std::endl << "CARRY ONE" << std::endl;
-            nng_free(buf,sz);
-            continue;
-        }
-
+        std::unique_ptr<SocketMessage> request;
         try {
-            auto * requestMsg = new SocketMessage(buf);
-            SocketMessage * returnMsg = ResourceDiscoveryStore::generateRDResponse(requestMsg, rdhe->rdStore);
-            std::string msgText = returnMsg->stringify();
-            if ((rv = nng_send(rdhe->rdSocket, (void *) msgText.c_str(), msgText.size() + 1, 0)) != 0) {
-                throw NngError(rv, "RDHub sending reply");
+            request = rdhe->replyEndpoint.receiveMessage();
+        }catch(NngError &e){
+            if (e.errorCode == NNG_ECLOSED){
+                std::cout << "Resource Discovery Hub socket was closed" << std::endl;
+                break;
+            }else{
+                std::cerr << "Resource Discovery Hub - " <<  e.what() << std::endl;
+                break;
             }
-
-            delete requestMsg;
-            delete returnMsg;
-            nng_free(buf,sz);
+        }
+        std::unique_ptr<SocketMessage> returnMsg;
+        try {
+            returnMsg = std::unique_ptr<SocketMessage>(ResourceDiscoveryStore::generateRDResponse(request.get(), rdhe->rdStore));
         }catch (ParsingError &e){
             std::cerr << "Parsing error of request - " << e.what() <<std::endl;
-            nng_free(buf,sz);
             continue;
         }catch (ValidationError &e){
             std::cerr << "Validation error of request - " << e.what() <<std::endl;
-            nng_free(buf,sz);
-            continue;
-        }catch (NngError &e){
-            std::cerr << "NNG error of request - " << e.what() <<std::endl;
-            nng_free(buf,sz);
             continue;
         }
+
+        try{
+            rdhe->replyEndpoint.sendMessage(*returnMsg);
+        }catch(NngError &e){
+            if (e.errorCode == NNG_ECLOSED){
+                std::cout << "Resource Discovery Hub socket was closed" << std::endl;
+                break;
+            }else{
+                std::cerr << "Resource Discovery Hub - " <<  e.what() << std::endl;
+                continue;
+            }
+        }catch(SocketOpenError &e){
+            std::cout << "Resource Discovery Hub socket was closed" << std::endl;
+            break;
+        }
+    }
+}
+
+ResourceDiscoveryHubEndpoint::~ResourceDiscoveryHubEndpoint() {
+    std::cout << "CLOSE RDH SOCKET" << std::endl;
+    replyEndpoint.closeSocket();
+    nng_msleep(300);
+
+    // We detach our background thread so termination of the thread happens safely
+    if(rdThread.joinable()) {
+        std::cout << "JOINING" << std::endl;
+        rdThread.join();
     }
 }
