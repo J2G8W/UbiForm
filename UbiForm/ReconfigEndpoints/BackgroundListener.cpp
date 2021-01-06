@@ -170,9 +170,5 @@ BackgroundListener::~BackgroundListener() {
         std::cout << "JOINING" << std::endl;
         backgroundThread.join();
     }
-
-    // Close our background socket, and don't really care what return value is
-    // TODO - sort problem of closing socket while backgroundThread uses it
-    //nng_close(backgroundSocket);
 }
 

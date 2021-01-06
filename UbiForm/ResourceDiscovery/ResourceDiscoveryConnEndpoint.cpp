@@ -41,7 +41,6 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
     auto sm = std::unique_ptr<SocketMessage>(component->getComponentManifest()->getComponentRepresentation());
     sm->addMember("url",component->getBackgroundListenAddress());
 
-    // TODO - Consider creating move constructor specifically for this case
     request->moveMember("manifest",std::move(sm));
     return request;
 }
