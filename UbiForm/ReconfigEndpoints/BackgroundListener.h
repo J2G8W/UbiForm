@@ -9,6 +9,7 @@
 
 #define REQ_CONN "req_conn"
 #define ADD_RDH "add_rdh"
+#define TELL_REQ_CONN "tell_req_conn"
 
 class Component;
 class BackgroundListener {
@@ -35,6 +36,8 @@ public:
     std::unique_ptr<SocketMessage> handleConnectionRequest(SocketMessage &request);
 
     std::unique_ptr<SocketMessage> handleAddRDH(SocketMessage &request);
+
+    std::unique_ptr<SocketMessage> handleTellCreateConnectionRequest(SocketMessage &request);
 };
 
 

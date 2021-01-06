@@ -52,3 +52,22 @@ void BackgroundRequester::requestAddRDH(const std::string& rdhUrl, const std::st
         std::cerr << e.what() << std::endl;
     }
 }
+
+void BackgroundRequester::tellToRequestAndCreateConnection(const std::string& requesterEndpointType, const std::string &requesterAddress,
+                                                           const std::string& remoteEndpointType, const std::string &remoteAddress){
+    SocketMessage sm;
+    sm.addMember("requestType", TELL_REQ_CONN);
+    sm.addMember("reqEndpointType", requesterEndpointType);
+    sm.addMember("remoteEndpointType",remoteEndpointType);
+    sm.addMember("remoteAddress", remoteAddress);
+    try{
+        requestEndpoint.dialConnection(requesterAddress.c_str());
+        requestEndpoint.sendMessage(sm);
+        auto reply = requestEndpoint.receiveMessage();
+        if (reply->getBoolean("error")){
+            throw std::logic_error(reply->getString("errorMsg"));
+        }
+    }catch (std::logic_error &e){
+        std::cerr << e.what() << std::endl;
+    }
+}

@@ -23,6 +23,10 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
                 //TODO - validate
                 auto reply = backgroundListener->handleAddRDH(*request);
                 backgroundListener->replyEndpoint.sendMessage(*reply);
+            }else if(request->getString("requestType") == TELL_REQ_CONN){
+                // TODO - validate
+                auto reply = backgroundListener->handleTellCreateConnectionRequest(*request);
+                backgroundListener->replyEndpoint.sendMessage(*reply);
             }
         }catch(ValidationError &e){
             std::cerr << "Invalid creation request - " << e.what() <<std::endl;
@@ -67,6 +71,23 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleConnectionRequest(Socke
 std::unique_ptr<SocketMessage> BackgroundListener::handleAddRDH(SocketMessage &request){
     component->getResourceDiscoveryConnectionEndpoint().registerWithHub(request.getString("url"));
     return std::make_unique<SocketMessage>();
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionRequest(SocketMessage &request){
+    try {
+        component->requestAndCreateConnection(request.getString("reqEndpointType"),
+                                              request.getString("remoteAddress"),
+                                              request.getString("remoteEndpointType"));
+        auto reply = std::make_unique<SocketMessage>();
+        reply->addMember("error",false);
+        reply->addMember("errorMsg", "All good");
+        return reply;
+    }catch(std::logic_error &e){
+        auto reply = std::make_unique<SocketMessage>();
+        reply->addMember("error",true);
+        reply->addMember("errorMsg", e.what());
+        return reply;
+    }
 }
 
 BackgroundListener::~BackgroundListener() {
