@@ -12,7 +12,7 @@
 void BackgroundRequester::requestAndCreateConnection(const std::string &connectionComponentAddress,
                                                      const std::string &localEndpointType,
                                                      const std::string &remoteEndpointType) {
-    std::cout << "REQUESTING CONNECTION: " << connectionComponentAddress << std::endl;
+
     std::string requestSocketType = component->getComponentManifest()->getSocketType(localEndpointType);
     SocketMessage sm;
     if (requestSocketType == SUBSCRIBER){
@@ -29,10 +29,8 @@ void BackgroundRequester::requestAndCreateConnection(const std::string &connecti
     std::string url;
     try{
         requestEndpoint.dialConnection(connectionComponentAddress.c_str());
-        std::cout << "Sedning: " << sm.stringify() << std::endl;
         requestEndpoint.sendMessage(sm);
         auto reply = requestEndpoint.receiveMessage();
-        std::cout << "RECEIVED REPLY: " << reply->stringify() << std::endl;
         if (reply->isNull("url")){
             throw std::logic_error("No valid endpoint of: " + remoteEndpointType);
         }else{

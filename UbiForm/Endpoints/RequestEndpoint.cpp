@@ -12,6 +12,22 @@ int RequestEndpoint::listenForConnectionWithRV(const char *url) {
 
 void RequestEndpoint::dialConnection(const char *url) {
     int rv;
+    nng_msleep(300);
+    // Before dialling a new location we close the old socket (means same endpoint can be reused)
+    if(nng_close(*senderSocket) == 0){
+        std::cout << "Request Socket closed to dial: " << url << std::endl;
+        DataReceiverEndpoint::socketOpen = false;
+        DataSenderEndpoint::socketOpen = false;
+    }
+
+    if ((rv = nng_req0_open(senderSocket)) != 0) {
+        throw NngError(rv, "Open RD connection request socket");
+    }else{
+        DataReceiverEndpoint::socketOpen = true;
+        DataSenderEndpoint::socketOpen = true;
+    }
+    // Use the same socket for sending and receiving
+    receiverSocket = senderSocket;
     if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
         throw NngError(rv, "Dialing " + std::string(url) + " for a pair connection");
     }

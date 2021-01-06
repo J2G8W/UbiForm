@@ -165,6 +165,7 @@ std::string Component::createEndpointAndListen(SocketType st, const std::string&
             throw NngError(rv, "Create " + convertSocketType(st) + " listener at " + url);
         }
     }
+    std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << std::endl;
     lowestPort ++;
     return url;
 }
@@ -180,6 +181,8 @@ void Component::createEndpointAndDial(const std::string& socketType, const std::
 
     this->lowestPort ++;
     e->dialConnection(url.c_str());
+    std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << url << std::endl;
+
 }
 
 
