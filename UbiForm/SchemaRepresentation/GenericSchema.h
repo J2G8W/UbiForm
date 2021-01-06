@@ -30,6 +30,7 @@ public:
 
     ~GenericSchema(){
         delete es;
+        document.Clear();
     }
 };
 
