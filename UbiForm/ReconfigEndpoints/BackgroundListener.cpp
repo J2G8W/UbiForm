@@ -27,6 +27,9 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
                 // TODO - validate
                 auto reply = backgroundListener->handleTellCreateConnectionRequest(*request);
                 backgroundListener->replyEndpoint.sendMessage(*reply);
+            }else if(request->getString("requestType") == ADD_ENDPOINT_SCHEMA){
+                auto reply = backgroundListener->handleAddEndpointRequest(*request);
+                backgroundListener->replyEndpoint.sendMessage(*reply);
             }
         }catch(ValidationError &e){
             std::cerr << "Invalid creation request - " << e.what() <<std::endl;
@@ -134,6 +137,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleAddEndpointRequest(Sock
 
         delete sendSchema;
         delete receiveSchema;
+
         return reply;
     }
 }
