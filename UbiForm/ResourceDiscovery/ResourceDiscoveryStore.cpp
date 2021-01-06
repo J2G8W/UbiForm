@@ -60,7 +60,6 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
                 endpoint->addMember("componentId", componentRep.first);
                 endpoint->addMember("url",componentRep.second->getUrl());
                 endpoint->addMember("endpointType", id);
-                endpoint->addMember("socketType", "pair");
                 returnEndpoints.emplace_back(endpoint);
             }
         }

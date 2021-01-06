@@ -16,13 +16,9 @@
           },
           "endpointType": {
             "type": "string"
-          },
-          "socketType": {
-            "type": "string",
-            "enum": ["pair","publisher","subscriber"]
           }
         },
-        "required": ["componentId","url","endpointType","socketType"]
+        "required": ["componentId","url","endpointType"]
       }
     }
   },
