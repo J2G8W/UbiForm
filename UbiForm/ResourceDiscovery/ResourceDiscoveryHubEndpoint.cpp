@@ -23,6 +23,9 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
                 std::cerr << "Resource Discovery Hub - " <<  e.what() << std::endl;
                 break;
             }
+        }catch(SocketOpenError &e){
+            std::cout << "Resource Discovery Hub socket was closed" << std::endl;
+            break;
         }
         std::unique_ptr<SocketMessage> returnMsg;
         try {
@@ -59,7 +62,7 @@ ResourceDiscoveryHubEndpoint::~ResourceDiscoveryHubEndpoint() {
 
     // We detach our background thread so termination of the thread happens safely
     if(rdThread.joinable()) {
-        std::cout << "JOINING" << std::endl;
+        std::cout << "JOINING BACKGROUND THREAD" << std::endl;
         rdThread.join();
     }
 }

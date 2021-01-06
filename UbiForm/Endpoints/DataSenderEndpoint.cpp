@@ -3,7 +3,6 @@
 // Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(SocketMessage &s) {
     if(!socketOpen){
-        std::cerr << "SocketClosed" << std::endl;
         throw SocketOpenError("Could not send message, socket is closed");
     }
     int rv;
@@ -23,7 +22,6 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
 
 void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
     if(!socketOpen){
-        std::cerr << "SocketClosed" << std::endl;
         throw SocketOpenError("Could not async-send message, socket is closed");
     }
     nng_aio_wait(nngAioPointer);

@@ -5,7 +5,6 @@
 // Use smart pointers to avoid complex memory management
 std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
     if(!socketOpen){
-        std::cerr << "SocketClosed" << std::endl;
         throw SocketOpenError("Could not receive message, socket is closed");
     }
     int rv;
@@ -39,7 +38,6 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
 // TODO - improve type safety here - templates rather than void*
 void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *furtherUserData) {
     if(!socketOpen){
-        std::cerr << "SocketClosed" << std::endl;
         throw SocketOpenError("Could not async-receive message, socket is closed");
     }
     auto *asyncData = new AsyncData(callb, this->receiverSchema, furtherUserData);

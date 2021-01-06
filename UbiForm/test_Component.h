@@ -9,6 +9,15 @@ TEST(EmptyComponent, NoManifest){
     ASSERT_THROW(component.getReceiverEndpointById("some_type"), std::out_of_range);
 }
 
+TEST(EmptyComponent, DeleteComponent){
+    Component component;
+    component.specifyManifest("{\"name\":\"TEST1\",\"schemas\":{}}");
+    component.startBackgroundListen();
+    component.startResourceDiscoveryHub(7999);
+    component.getResourceDiscoveryConnectionEndpoint();
+    component.getBackgroundRequester();
+}
+
 class SimpleComponent : public testing::Test{
 protected:
     // Note we aren't REALLY testing the inputting of the manifest as this is done automatically
@@ -50,6 +59,7 @@ TEST_F(SimpleComponent, GetEndpoints){
 TEST_F(SimpleComponent, WrongEndpointType){
     ASSERT_ANY_THROW(component->createNewPairEndpoint("NotAType","TestEndpoint"));
 }
+
 
 class PairBasedComponent : public testing::Test{
 protected:

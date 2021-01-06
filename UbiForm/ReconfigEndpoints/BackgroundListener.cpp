@@ -23,6 +23,9 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
                 std::cerr << "Background Listener - " <<  e.what() << std::endl;
                 break;
             }
+        }catch(SocketOpenError &e){
+            std::cout << "Background Listener socket was closed" << std::endl;
+            break;
         }
 
         std::unique_ptr<SocketMessage> reply;
@@ -172,7 +175,7 @@ BackgroundListener::~BackgroundListener() {
 
     // We detach our background thread so termination of the thread happens safely
     if(backgroundThread.joinable()) {
-        std::cout << "JOINING" << std::endl;
+        std::cout << "JOINING BACKGROUND THREAD" << std::endl;
         backgroundThread.join();
     }
 }

@@ -34,7 +34,6 @@ private:
 
 
     // COPY CONSTRUCTOR - needed for sensible memory allocation!
-    // TODO - Consider making a move constructor
     explicit SocketMessage(rapidjson::Value &inputObject){
         JSON_document.SetObject();
         JSON_document.CopyFrom(inputObject,JSON_document.GetAllocator());
