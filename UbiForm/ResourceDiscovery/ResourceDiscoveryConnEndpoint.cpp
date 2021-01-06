@@ -38,12 +38,11 @@ SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(const std::string& url
 SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
     auto * request = new SocketMessage;
     request->addMember("request",ADDITION);
-    SocketMessage * sm = component->getComponentManifest()->getComponentRepresentation();
+    auto sm = std::unique_ptr<SocketMessage>(component->getComponentManifest()->getComponentRepresentation());
     sm->addMember("url",component->getBackgroundListenAddress());
 
     // TODO - Consider creating move constructor specifically for this case
-    request->addMember("manifest",*sm);
-    delete sm;
+    request->moveMember("manifest",std::move(sm));
     return request;
 }
 
@@ -110,11 +109,9 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const 
     request->addMember("dataReceiverEndpoint",false);
 
     // We want our schema to be receiving data
-    SocketMessage* schema = component->getComponentManifest()->getSchemaObject(endpointType, true);
+    auto schema = std::unique_ptr<SocketMessage>(component->getComponentManifest()->getSchemaObject(endpointType, true));
 
-    request->addMember("schema", *schema);
-    delete schema;
-
+    request->moveMember("schema", std::move(schema));
     return request;
 }
 
@@ -154,15 +151,15 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& en
 }
 
 void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
-    SocketMessage * newManifest = component->getComponentManifest()->getComponentRepresentation();
+    auto newManifest = std::unique_ptr<SocketMessage>(component->getComponentManifest()->getComponentRepresentation());
     newManifest->addMember("url",component->getBackgroundListenAddress());
     auto * request = new SocketMessage;
     request->addMember("request",UPDATE);
-    request->addMember("newManifest", *newManifest);
+    request->moveMember("newManifest", std::move(newManifest));
     for(auto& locationIdPair : resourceDiscoveryHubs){
         request->addMember("id",locationIdPair.second);
         SocketMessage* reply = sendRequest(locationIdPair.first, request);
     }
     delete request;
-    delete newManifest;
+
 }

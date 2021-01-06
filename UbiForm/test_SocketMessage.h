@@ -45,6 +45,16 @@ TEST(SocketMessage, RecursiveObject){
     delete miniOutput;
 }
 
+TEST(SocketMessage, MoveObject){
+    SocketMessage sm;
+    auto subSM = std::make_unique<SocketMessage>();
+    subSM->addMember("HELLO",50);
+    sm.moveMember("sub",std::move(subSM));
+
+    ASSERT_EQ(subSM, nullptr);
+    ASSERT_EQ(sm.stringify(), R"({"sub":{"HELLO":50}})");
+}
+
 TEST(SocketMessage, OverwriteInteger) {
     SocketMessage socketMessage;
     socketMessage.addMember("A", 42);

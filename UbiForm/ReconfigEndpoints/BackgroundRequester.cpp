@@ -12,6 +12,7 @@
 void BackgroundRequester::requestAndCreateConnection(const std::string &connectionComponentAddress,
                                                      const std::string &localEndpointType,
                                                      const std::string &remoteEndpointType) {
+    std::cout << "REQUESTING CONNECTION: " << connectionComponentAddress << std::endl;
     std::string requestSocketType = component->getComponentManifest()->getSocketType(localEndpointType);
     SocketMessage sm;
     if (requestSocketType == SUBSCRIBER){
@@ -28,8 +29,10 @@ void BackgroundRequester::requestAndCreateConnection(const std::string &connecti
     std::string url;
     try{
         requestEndpoint.dialConnection(connectionComponentAddress.c_str());
+        std::cout << "Sedning: " << sm.stringify() << std::endl;
         requestEndpoint.sendMessage(sm);
         auto reply = requestEndpoint.receiveMessage();
+        std::cout << "RECEIVED REPLY: " << reply->stringify() << std::endl;
         if (reply->isNull("url")){
             throw std::logic_error("No valid endpoint of: " + remoteEndpointType);
         }else{
@@ -84,16 +87,13 @@ void BackgroundRequester::requestAddEndpoint(const std::string &componentAddress
     sm.addMember("endpointType", endpointType);
     if (receiverSchema == nullptr){sm.setNull("receiveSchema");}
     else{
-        auto schemaObj = receiverSchema->getSchemaObject();
-        // TODO - move
-        sm.addMember("receiveSchema", *schemaObj);
-        delete schemaObj;
+        auto schemaObj = std::unique_ptr<SocketMessage>(receiverSchema->getSchemaObject());
+        sm.moveMember("receiveSchema", std::move(schemaObj));
     }
     if (sendSchema == nullptr){sm.setNull("sendSchema");}
     else{
-        auto schemaObj = sendSchema->getSchemaObject();
-        // TODO - move
-        sm.addMember("sendSchema", *schemaObj);
+        auto schemaObj = std::unique_ptr<SocketMessage>(sendSchema->getSchemaObject());
+        sm.moveMember("sendSchema", std::move(schemaObj));
     }
     sm.addMember("socketType",socketType);
 

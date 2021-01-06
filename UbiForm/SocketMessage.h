@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <memory>
 
 
 #include "rapidjson/document.h"
@@ -20,6 +21,7 @@ class SocketMessage {
 
 private:
     rapidjson::Document JSON_document;
+    std::vector<std::unique_ptr<SocketMessage>> dependants;
 
     // Takes in a key, value pair (of special type) and either replace the member, or add it
     void addOrSwap(rapidjson::Value &key, rapidjson::Value &valueContainer) {
@@ -83,13 +85,17 @@ public:
     // TODO - No copy constructing
     void addMember(const std::string &attributeName, const std::vector<SocketMessage*>& inputArray);
     /// @brief Copy constructs the given SocketMessage
-    // TODO - make this more efficient by getting rid of copy and figuring out relevant MemoryPool semantics
     void addMember(const std::string &attributeName, SocketMessage &socketMessage);
 
     void setNull(const std::string &attributeName);
     ///@}
 
-
+    /**
+     * @brief Moves the value from the the input socketMessage into us, use unique_ptr such that users can't mess with this
+     * @param attributeName - name of attribute
+     * @param socketMessage - thing to be moved into us
+     */
+    void moveMember(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage);
 
     ///@{
     /**
@@ -109,6 +115,13 @@ public:
         return JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsNull();
     }
     ///@}
+
+    /**
+     * @return whether the socketMessage itself is a null value
+     */
+    bool isNull(){
+        return JSON_document.IsNull();
+    }
 
     std::string stringify() { return stringifyValue(JSON_document); };
 

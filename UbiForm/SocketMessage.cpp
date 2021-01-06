@@ -1,5 +1,7 @@
+#include <memory>
 #include "SocketMessage.h"
 
+// Note that dependants is handled automatically by unique_ptr
 SocketMessage::~SocketMessage() = default;
 
 int SocketMessage::getInteger(const std::string &attributeName){
@@ -141,6 +143,14 @@ std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) 
     }else{
         throw AccessError("The message has no attribute " + attributeName);
     }
+}
+
+void SocketMessage::moveMember(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage) {
+    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+
+    addOrSwap(key,socketMessage->JSON_document);
+    // So dependants now has the UNQIUE POINTER to the socket message, meaning only it can free it
+    dependants.push_back(std::move(socketMessage));
 }
 
 template<>

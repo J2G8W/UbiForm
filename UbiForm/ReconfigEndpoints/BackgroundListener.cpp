@@ -13,11 +13,13 @@ void BackgroundListener::startBackgroundListen(const std::string& listenAddress)
 void BackgroundListener::backgroundListen(BackgroundListener * backgroundListener) {
     while (true){
         auto request = backgroundListener->replyEndpoint.receiveMessage();
+        std::cout << "RECEIVED: " << request->stringify() << std::endl;
         try{
             if (request->getString("requestType") == REQ_CONN) {
                 backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(*request);
                 auto reply = backgroundListener->handleConnectionRequest((*request));
                 backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(*reply);
+                std::cout << "SENDING: " << reply->stringify() << std::endl;
                 backgroundListener->replyEndpoint.sendMessage(*reply);
             }else if(request->getString("requestType") == ADD_RDH){
                 //TODO - validate
