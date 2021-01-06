@@ -25,6 +25,8 @@ class ResourceDiscoveryConnEndpoint;
 
 class Component {
 private:
+    SystemSchemas systemSchemas;
+
     std::shared_ptr<ComponentManifest> componentManifest{nullptr};
     // Note that we use shared pointers so there can be multiple active pointers, but there memory management is handled automatically
     std::map<std::string, std::shared_ptr<DataReceiverEndpoint> > idReceiverEndpoints;
@@ -34,8 +36,6 @@ private:
     std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > > typeReceiverEndpoints;
     std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > > typeSenderEndpoints;
 
-
-    SystemSchemas systemSchemas;
 
     std::minstd_rand0 generator;
     std::string generateNewSocketId(){
