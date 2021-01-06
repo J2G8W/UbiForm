@@ -24,8 +24,11 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
             }else{
                 throw NngError(rv, "nng_recv");
             }
-        } catch(std::logic_error &e) {
-            std::cerr << "Failed message receive as: " << e.what() << std::endl;
+        }catch(NngError &e){
+            throw;
+        }
+        catch(std::logic_error &e) {
+            std::cerr << "Failed message receive as:\n" << e.what() << "- retrying" << std::endl ;
         }
     }
 }

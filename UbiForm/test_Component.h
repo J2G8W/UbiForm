@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "Component.h"
+#include <nng/supplemental/util/platform.h>
 
 TEST(EmptyComponent, NoManifest){
     Component component;
@@ -62,6 +63,7 @@ protected:
         receiverComponent->specifyManifest(pFile);
         fseek(pFile,0, SEEK_SET);
         senderComponent->specifyManifest(pFile);
+        fclose(pFile);
 
     }
 
@@ -81,9 +83,8 @@ TEST_F(PairBasedComponent, FindEachOther){
     ASSERT_NO_THROW(receiverComponent->requestAndCreateConnection(senderComponent->getBackgroundListenAddress(),
                                                                   "pairExample", "pairExample"));
 
-    sleep(1);
+    nng_msleep(1000);
     // No throw means that there is in fact a pair connection being created in our component
     ASSERT_NO_THROW(receiverComponent->getReceiverEndpointsByType("pairExample")->at(0));
     ASSERT_NO_THROW(senderComponent->getSenderEndpointsByType("pairExample")->at(0));
-
 }

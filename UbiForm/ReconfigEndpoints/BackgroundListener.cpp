@@ -12,31 +12,49 @@ void BackgroundListener::startBackgroundListen(const std::string& listenAddress)
 
 void BackgroundListener::backgroundListen(BackgroundListener * backgroundListener) {
     while (true){
-        auto request = backgroundListener->replyEndpoint.receiveMessage();
+        std::unique_ptr<SocketMessage> request;
+        try {
+            request = backgroundListener->replyEndpoint.receiveMessage();
+        }catch(NngError &e){
+            break;
+        }
+
+        std::unique_ptr<SocketMessage> reply;
         try{
             if (request->getString("requestType") == REQ_CONN) {
                 backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(*request);
-                auto reply = backgroundListener->handleConnectionRequest((*request));
+                reply = backgroundListener->handleConnectionRequest((*request));
                 backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(*reply);
-                backgroundListener->replyEndpoint.sendMessage(*reply);
             }else if(request->getString("requestType") == ADD_RDH){
                 //TODO - validate
-                auto reply = backgroundListener->handleAddRDH(*request);
-                backgroundListener->replyEndpoint.sendMessage(*reply);
+                reply = backgroundListener->handleAddRDH(*request);
             }else if(request->getString("requestType") == TELL_REQ_CONN){
                 // TODO - validate
-                auto reply = backgroundListener->handleTellCreateConnectionRequest(*request);
-                backgroundListener->replyEndpoint.sendMessage(*reply);
+                reply = backgroundListener->handleTellCreateConnectionRequest(*request);
             }else if(request->getString("requestType") == ADD_ENDPOINT_SCHEMA){
-                auto reply = backgroundListener->handleAddEndpointRequest(*request);
-                backgroundListener->replyEndpoint.sendMessage(*reply);
+                reply = backgroundListener->handleAddEndpointRequest(*request);
             }
         }catch(ValidationError &e){
             std::cerr << "Invalid creation request - " << e.what() <<std::endl;
-        }catch(NngError &e){
-            std::cerr << "NNG error in handling creation request - " << e.what() <<std::endl;
         }catch(std::logic_error &e){
             std::cerr << e.what() << std::endl;
+        }
+
+
+        try {
+            backgroundListener->replyEndpoint.sendMessage(*reply);
+        }catch(NngError &e){
+            if (e.errorCode == NNG_ECLOSED){
+                std::cout << "Underlying socket was closed" << std::endl;
+                break;
+            }
+            else{
+                std::cerr << e.what() << std::endl;
+                break;
+            }
+        }catch(SocketOpenError &e){
+            std::cout << "Underlying socket was closed" << std::endl;
+            break;
         }
     }
 }
@@ -143,14 +161,15 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleAddEndpointRequest(Sock
 }
 
 BackgroundListener::~BackgroundListener() {
-// We detach our background thread so termination of the thread happens safely
-    if (backgroundThread.joinable()) {
-        backgroundThread.detach();
-    }
-
-    // Make sure that the messages are flushed
+    std::cout << "CLOSE SOCKET" << std::endl;
+    replyEndpoint.closeSocket();
     nng_msleep(300);
 
+    // We detach our background thread so termination of the thread happens safely
+    if(backgroundThread.joinable()) {
+        std::cout << "JOINING" << std::endl;
+        backgroundThread.join();
+    }
 
     // Close our background socket, and don't really care what return value is
     // TODO - sort problem of closing socket while backgroundThread uses it
