@@ -73,7 +73,7 @@ std::vector<std::string> ResourceDiscoveryConnEndpoint::getComponentIdsFromHub(c
     return reply->getArray<std::string>("components");
 }
 
-ComponentRepresentation *ResourceDiscoveryConnEndpoint::getComponentById(const std::string& url, const std::string& id) {
+std::unique_ptr<ComponentRepresentation> ResourceDiscoveryConnEndpoint::getComponentById(const std::string& url, const std::string& id) {
     SocketMessage request;
     request.addMember("request", REQUEST_BY_ID);
     request.addMember("id",id);
@@ -90,7 +90,7 @@ ComponentRepresentation *ResourceDiscoveryConnEndpoint::getComponentById(const s
     }
     try{
         SocketMessage* compRep = reply->getObject("component");
-        auto * componentRepresentation = new ComponentRepresentation(compRep, systemSchemas);
+        auto componentRepresentation = std::make_unique<ComponentRepresentation>(compRep, systemSchemas);
         delete compRep;
         delete reply;
         return componentRepresentation;

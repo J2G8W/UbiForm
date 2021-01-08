@@ -27,7 +27,7 @@ public:
 
     std::vector<std::string> getComponentIdsFromHub(const std::string& url);
 
-    ComponentRepresentation * getComponentById(const std::string& url, const std::string& id);
+    std::unique_ptr<ComponentRepresentation> getComponentById(const std::string& url, const std::string& id);
 
     SocketMessage *generateFindBySchemaRequest(const std::string& endpointType);
     std::vector<SocketMessage *> getComponentsBySchema(const std::string& endpointType);
@@ -36,6 +36,13 @@ public:
 
     std::string getId(const std::string& RdhUrl){
         return resourceDiscoveryHubs.at(RdhUrl);
+    }
+    std::vector<std::string> getResourceDiscoveryHubs(){
+        std::vector<std::string> rdhs;
+        for(auto url : resourceDiscoveryHubs){
+            rdhs.push_back(url.first);
+        }
+        return rdhs;
     }
 
     void updateManifestWithHubs();

@@ -25,9 +25,9 @@ public:
                                           const std::string &remoteEndpointType,
                                           const std::string &remoteAddress);
 
-    void requestAddEndpoint(const std::string &componentAddress, const std::string &endpointType,
-                            EndpointSchema *sendSchema, EndpointSchema *receiverSchema,
-                            SocketType socketType);
+    void requestChangeEndpoint(const std::string &componentAddress, SocketType socketType,
+                               const std::string &endpointType, EndpointSchema *receiverSchema,
+                               EndpointSchema *sendSchema);
 };
 
 

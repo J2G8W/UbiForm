@@ -77,11 +77,11 @@ void BackgroundRequester::tellToRequestAndCreateConnection(const std::string &re
     }
 }
 
-void BackgroundRequester::requestAddEndpoint(const std::string &componentAddress, const std::string &endpointType,
-                                             EndpointSchema *sendSchema, EndpointSchema *receiverSchema,
-                                             SocketType socketType) {
+void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddress, SocketType socketType,
+                                                const std::string &endpointType, EndpointSchema *receiverSchema,
+                                                EndpointSchema *sendSchema) {
     SocketMessage sm;
-    sm.addMember("requestType", ADD_ENDPOINT_SCHEMA);
+    sm.addMember("requestType", CHANGE_ENDPOINT_SCHEMA);
     sm.addMember("endpointType", endpointType);
     if (receiverSchema == nullptr){sm.setNull("receiveSchema");}
     else{

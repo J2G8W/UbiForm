@@ -103,6 +103,7 @@ public:
     void startResourceDiscoveryHub(int port);
 
     std::shared_ptr<ResourceDiscoveryConnEndpoint> getResourceDiscoveryConnectionEndpoint();
+    void updateManifestAtResourceDiscoveryHubs();
 
     std::shared_ptr<ComponentManifest> getComponentManifest();
     std::string getBackgroundListenAddress(){return backgroundListener.getBackgroundListenAddress();}

@@ -40,8 +40,8 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
             }else if(request->getString("requestType") == TELL_REQ_CONN){
                 // TODO - validate
                 reply = backgroundListener->handleTellCreateConnectionRequest(*request);
-            }else if(request->getString("requestType") == ADD_ENDPOINT_SCHEMA){
-                reply = backgroundListener->handleAddEndpointRequest(*request);
+            }else if(request->getString("requestType") == CHANGE_ENDPOINT_SCHEMA){
+                reply = backgroundListener->handleChangeEndpointRequest(*request);
             }
         }catch(ValidationError &e){
             std::cerr << "Invalid creation request - " << e.what() <<std::endl;
@@ -119,7 +119,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionReq
     }
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleAddEndpointRequest(SocketMessage &request){
+std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(SocketMessage &request){
     SocketMessage* sendSchema;
     SocketMessage* receiveSchema;
     try{
@@ -138,7 +138,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleAddEndpointRequest(Sock
 
         if (request.isNull("receiveSchema")){
             receiveSchema = nullptr;
-            esSendSchema = nullptr;
+            esReceiveSchema = nullptr;
         }
         else{
             receiveSchema = request.getObject("receiveSchema");
@@ -147,6 +147,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleAddEndpointRequest(Sock
 
         component->getComponentManifest()->addEndpoint(static_cast<SocketType>(request.getInteger("socketType")),
                                                        request.getString("endpointType"), esReceiveSchema, esSendSchema);
+        component->updateManifestAtResourceDiscoveryHubs();
 
         auto reply = std::make_unique<SocketMessage>();
         reply->addMember("error",false);

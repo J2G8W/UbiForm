@@ -189,6 +189,7 @@ void Component::createEndpointAndDial(const std::string& socketType, const std::
 // CREATE RDCONNECTION
 std::shared_ptr<ResourceDiscoveryConnEndpoint> Component::getResourceDiscoveryConnectionEndpoint() {
     if(this->resourceDiscoveryConnEndpoint == nullptr) {
+        std::cout << "Starting resource discovery connection endpoint" << std::endl;
         this->resourceDiscoveryConnEndpoint = std::make_shared<ResourceDiscoveryConnEndpoint>(this, systemSchemas);
     }
     return this->resourceDiscoveryConnEndpoint;
@@ -231,4 +232,10 @@ std::shared_ptr<ComponentManifest> Component::getComponentManifest() {
         throw std::logic_error("No Component Manifest specified");
     }
     return componentManifest;
+}
+
+void Component::updateManifestAtResourceDiscoveryHubs() {
+    if (resourceDiscoveryConnEndpoint != nullptr){
+        resourceDiscoveryConnEndpoint->updateManifestWithHubs();
+    }
 }

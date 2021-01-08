@@ -127,5 +127,4 @@ TEST_F(ManifestExample, AddSubscriberSchema){
 
     SocketMessage sm;
     ASSERT_THROW(componentManifest->getReceiverSchema("subExample")->validate(sm), ValidationError);
-
 }
