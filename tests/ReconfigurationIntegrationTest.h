@@ -150,7 +150,6 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest3){
     senderComponent.getBackgroundRequester().requestUpdateComponentManifest(receiverComponent.getBackgroundListenAddress(), cm);
 
     ASSERT_EQ(receiverComponent.getComponentManifest().getName(), newName);
-    std::cout << "MADE HERE" << std::endl;
 
     cr = senderComponent.getResourceDiscoveryConnectionEndpoint().getComponentById(url, receiverID);
     ASSERT_EQ(cr->getUrl(),receiverComponent.getBackgroundListenAddress());

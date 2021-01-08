@@ -27,6 +27,8 @@ void ReplyEndpoint::closeSocket() {
     if (DataReceiverEndpoint::socketOpen && DataSenderEndpoint::socketOpen) {
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
+        }else{
+            std::cout << "Reply socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
         DataReceiverEndpoint::socketOpen = false;
         DataSenderEndpoint::socketOpen = false;
@@ -41,6 +43,8 @@ ReplyEndpoint::~ReplyEndpoint() {
         // We only have one actual socket so only need to close 1.
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
+        }else{
+            std::cout << "Reply socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
     }
     // Note that we only delete once as the senderSocket points to the same place as the receiverSocket

@@ -26,8 +26,9 @@ PublisherEndpoint::~PublisherEndpoint() {
         // We only have one actual socket so only need to close 1.
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
+        }else{
+            std::cout << "Publisher socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
-
     }
     // Note that we only delete once as the senderSocket points to the same place as the receiverSocket
     delete senderSocket;
@@ -36,6 +37,8 @@ PublisherEndpoint::~PublisherEndpoint() {
 void PublisherEndpoint::closeSocket() {
     if (nng_close(*senderSocket) == NNG_ECLOSED) {
         std::cerr << "This socket had already been closed" << std::endl;
+    }else{
+        std::cout << "Publisher socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
     }
     DataSenderEndpoint::socketOpen = false;
 }

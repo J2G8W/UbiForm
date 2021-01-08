@@ -17,14 +17,12 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
             request = backgroundListener->replyEndpoint.receiveMessage();
         }catch(NngError &e){
             if (e.errorCode == NNG_ECLOSED){
-                std::cout << "Background Listener socket was closed" << std::endl;
                 break;
             }else{
                 std::cerr << "Background Listener - " <<  e.what() << std::endl;
                 break;
             }
         }catch(SocketOpenError &e){
-            std::cout << "Background Listener socket was closed" << std::endl;
             break;
         }
 
@@ -70,14 +68,12 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
             backgroundListener->replyEndpoint.sendMessage(*reply);
         }catch(NngError &e){
             if (e.errorCode == NNG_ECLOSED){
-                std::cout << "Background Listener socket was closed" << std::endl;
                 break;
             }else{
                 std::cerr << "Background Listener - " <<  e.what() << std::endl;
                 break;
             }
         }catch(SocketOpenError &e){
-            std::cout << "Background Listener socket was closed" << std::endl;
             break;
         }
     }
@@ -178,13 +174,11 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeManifestRequest(S
 }
 
 BackgroundListener::~BackgroundListener() {
-    std::cout << "CLOSE BACKGROUND LISTENER SOCKET" << std::endl;
     replyEndpoint.closeSocket();
     nng_msleep(300);
 
     // We detach our background thread so termination of the thread happens safely
     if(backgroundThread.joinable()) {
-        std::cout << "JOINING BACKGROUND THREAD" << std::endl;
         backgroundThread.join();
     }
 }

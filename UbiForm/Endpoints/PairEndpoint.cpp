@@ -45,6 +45,8 @@ PairEndpoint::~PairEndpoint() {
         // We only have one actual socket so only need to close 1.
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
+        }else{
+            std::cout << "Pair socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
     }
     // Note that we only delete once as the senderSocket points to the same place as the receiverSocket
@@ -55,6 +57,8 @@ void PairEndpoint::closeSocket() {
     if (DataReceiverEndpoint::socketOpen && DataSenderEndpoint::socketOpen) {
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
+        }else{
+            std::cout << "Pair socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
         DataReceiverEndpoint::socketOpen = false;
         DataSenderEndpoint::socketOpen = false;

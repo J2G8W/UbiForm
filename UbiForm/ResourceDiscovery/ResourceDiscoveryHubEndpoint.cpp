@@ -18,14 +18,12 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
             request = rdhe->replyEndpoint.receiveMessage();
         }catch(NngError &e){
             if (e.errorCode == NNG_ECLOSED){
-                std::cout << "Resource Discovery Hub socket was closed" << std::endl;
                 break;
             }else{
                 std::cerr << "Resource Discovery Hub - " <<  e.what() << std::endl;
                 break;
             }
         }catch(SocketOpenError &e){
-            std::cout << "Resource Discovery Hub socket was closed" << std::endl;
             break;
         }
         std::unique_ptr<SocketMessage> returnMsg;
@@ -43,27 +41,23 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
             rdhe->replyEndpoint.sendMessage(*returnMsg);
         }catch(NngError &e){
             if (e.errorCode == NNG_ECLOSED){
-                std::cout << "Resource Discovery Hub socket was closed" << std::endl;
                 break;
             }else{
                 std::cerr << "Resource Discovery Hub - " <<  e.what() << std::endl;
                 continue;
             }
         }catch(SocketOpenError &e){
-            std::cout << "Resource Discovery Hub socket was closed" << std::endl;
             break;
         }
     }
 }
 
 ResourceDiscoveryHubEndpoint::~ResourceDiscoveryHubEndpoint() {
-    std::cout << "CLOSE RDH SOCKET" << std::endl;
     replyEndpoint.closeSocket();
     nng_msleep(300);
 
     // We detach our background thread so termination of the thread happens safely
     if(rdThread.joinable()) {
-        std::cout << "JOINING BACKGROUND THREAD" << std::endl;
         rdThread.join();
     }
 }
