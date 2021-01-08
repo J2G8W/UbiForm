@@ -144,20 +144,40 @@ void EndpointSchema::setArrayType(const std::string &name, ValueType type) {
 
     addProperty(name, ValueType::Array);
 
+    rapidjson::Value items(rapidjson::kObjectType);
+    items.AddMember(rapidjson::Value("type", *allocator).Move(),
+                    rapidjson::Value(convertValueType(type), *allocator).Move(),
+                    *allocator);
     if (properties[name].HasMember("items")){
-        properties[name].GetObject()["items"].GetObject()["type"] = rapidjson::Value(convertValueType(type),*allocator);
+        properties[name].GetObject()["items"] = items;
+
     }else {
-        rapidjson::Value items(rapidjson::kObjectType);
-        items.AddMember(rapidjson::Value("type", *allocator).Move(),
-                        rapidjson::Value(convertValueType(type), *allocator).Move(),
-                        *allocator);
         properties[name].AddMember("items", items, *allocator);
     }
     changeSchema();
 }
 
 void EndpointSchema::setArrayObject(const std::string &name, EndpointSchema &es) {
-// TODO
+    auto properties = (*JSON_rep)["properties"].GetObject();
+    addProperty(name, ValueType::Array);
+
+    rapidjson::Value items(rapidjson::kObjectType);
+    items.AddMember("type","object", *allocator);
+
+    rapidjson::Value subObjectProperties(rapidjson::kObjectType);
+    subObjectProperties.CopyFrom((*es.JSON_rep)["properties"],*allocator);
+    items.AddMember("properties",subObjectProperties,*allocator);
+
+    rapidjson::Value subObjectRequired(rapidjson::kArrayType);
+    subObjectRequired.CopyFrom((*es.JSON_rep)["required"],*allocator);
+    items.AddMember("required", subObjectRequired, *allocator);
+
+    if (properties[name].HasMember("items")){
+        properties[name].GetObject()["items"] = items;
+    }else {
+        properties[name].AddMember("items", items, *allocator);
+    }
+    changeSchema();
 }
 
 
@@ -175,11 +195,11 @@ void EndpointSchema::setSubObject(const std::string &name, EndpointSchema &es) {
     }
 
     rapidjson::Value subObjectRequired(rapidjson::kArrayType);
-    subObjectProperties.CopyFrom((*es.JSON_rep)["required"],*allocator);
+    subObjectRequired.CopyFrom((*es.JSON_rep)["required"],*allocator);
     if(properties[name].HasMember("required")){
-        properties[name].GetObject()["required"] = subObjectProperties;
+        properties[name].GetObject()["required"] = subObjectRequired;
     }else {
-        properties[name].AddMember("required", subObjectProperties, *allocator);
+        properties[name].AddMember("required", subObjectRequired, *allocator);
     }
     changeSchema();
 }

@@ -123,7 +123,6 @@ TEST_F(EndpointSchemaSimpleChecks, ArrayAddition){
 }
 
 TEST_F(EndpointSchemaSimpleChecks, SubObjects){
-    // DUMB TEST
     EndpointSchema subEndpoint;
     subEndpoint.addProperty("TEST", ValueType::Number);
     subEndpoint.addRequired("TEST");
@@ -135,4 +134,32 @@ TEST_F(EndpointSchemaSimpleChecks, SubObjects){
     SocketMessage subSM;
     sm.addMember("sub",subSM);
     ASSERT_THROW(endpointSchema.validate(sm), ValidationError);
+}
+TEST_F(EndpointSchemaSimpleChecks, SubArrayObjects){
+    EndpointSchema subEndpoint;
+    subEndpoint.addProperty("TEST", ValueType::Number);
+    subEndpoint.addRequired("TEST");
+    endpointSchema.setArrayObject("sub",subEndpoint);
+
+    SocketMessage sm;
+    sm.addMember("value","HELLO");
+
+    SocketMessage* subSm = new SocketMessage;
+    subSm->addMember("TEST",10);
+
+    std::vector<SocketMessage *> arrayS = {subSm,subSm};
+    sm.addMember("sub",arrayS);
+    delete subSm;
+
+    ASSERT_NO_THROW(endpointSchema.validate(sm));
+
+    SocketMessage* wrongSub = new SocketMessage;
+    wrongSub->addMember("TEST","NOT ALLOWED");
+    arrayS = {wrongSub,wrongSub};
+    sm.addMember("sub",arrayS);
+    delete wrongSub;
+
+    ASSERT_THROW(endpointSchema.validate(sm),ValidationError);
+
+
 }
