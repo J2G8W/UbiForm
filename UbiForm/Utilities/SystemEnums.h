@@ -9,9 +9,11 @@
 #define PAIR "pair"
 #define PUBLISHER "publisher"
 #define SUBSCRIBER "subscriber"
+#define REPLY "reply"
+#define REQUEST "request"
 
 enum SocketType{
-    Pair,Publisher,Subscriber
+    Pair,Publisher,Subscriber, Reply, Request
 };
 std::string convertSocketType(SocketType st);
 

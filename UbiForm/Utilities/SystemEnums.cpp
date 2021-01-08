@@ -25,5 +25,9 @@ std::string convertSocketType(SocketType st) {
             return PUBLISHER;
         case Subscriber:
             return SUBSCRIBER;
+        case Reply:
+            return REPLY;
+        case Request:
+            return REQUEST;
     }
 }
