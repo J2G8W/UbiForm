@@ -26,7 +26,7 @@ class Component {
 private:
     SystemSchemas systemSchemas;
 
-    std::shared_ptr<ComponentManifest> componentManifest{nullptr};
+    ComponentManifest componentManifest;
     // Note that we use shared pointers so there can be multiple active pointers, but there memory management is handled automatically
     std::map<std::string, std::shared_ptr<DataReceiverEndpoint> > idReceiverEndpoints;
     std::map<std::string, std::shared_ptr<DataSenderEndpoint> > idSenderEndpoints;
@@ -61,11 +61,11 @@ public:
     Component() : Component("tcp://127.0.0.1"){}
 
     void specifyManifest(FILE *jsonFP) {
-        componentManifest = std::make_shared<ComponentManifest>(jsonFP,systemSchemas);
+        componentManifest.setManifest(jsonFP);
     }
 
     void specifyManifest(const char *jsonString) {
-        componentManifest = std::make_shared<ComponentManifest>(jsonString,systemSchemas);
+        componentManifest.setManifest(jsonString);
     }
 
 
@@ -103,7 +103,7 @@ public:
 
 
     ResourceDiscoveryConnEndpoint & getResourceDiscoveryConnectionEndpoint(){return resourceDiscoveryConnEndpoint;}
-    std::shared_ptr<ComponentManifest> getComponentManifest();
+    ComponentManifest& getComponentManifest(){return componentManifest;}
     std::string getBackgroundListenAddress(){return backgroundListener.getBackgroundListenAddress();}
     SystemSchemas & getSystemSchemas(){return systemSchemas;}
     BackgroundRequester & getBackgroundRequester(){return backgroundRequester;}

@@ -3,6 +3,18 @@
 
 // Constructors
 ComponentManifest::ComponentManifest(FILE *jsonFP,SystemSchemas &ss): systemSchemas(ss) {
+    setManifest(jsonFP);
+}
+
+ComponentManifest::ComponentManifest(const char *jsonString, SystemSchemas &ss) : systemSchemas(ss) {
+    setManifest(jsonString);
+}
+ComponentManifest::ComponentManifest(SocketMessage *sm, SystemSchemas &ss) : systemSchemas(ss) {
+    setManifest(sm);
+}
+
+
+void ComponentManifest::setManifest(FILE *jsonFP) {
     // Arbitrary size of read buffer - only changes efficiency of the inputStream constructor
     char readBuffer[65536];
     rapidjson::FileReadStream inputStream(jsonFP, readBuffer, sizeof(readBuffer));
@@ -12,19 +24,21 @@ ComponentManifest::ComponentManifest(FILE *jsonFP,SystemSchemas &ss): systemSche
     fillSchemaMaps();
 }
 
-ComponentManifest::ComponentManifest(const char *jsonString, SystemSchemas &ss) : systemSchemas(ss) {
+void ComponentManifest::setManifest(const char* jsonString){
     rapidjson::StringStream stream(jsonString);
     JSON_document.ParseStream(stream);
 
     checkParse();
     fillSchemaMaps();
 }
-ComponentManifest::ComponentManifest(SocketMessage *sm, SystemSchemas &ss) : systemSchemas(ss) {
+
+void ComponentManifest::setManifest(SocketMessage *sm){
     JSON_document.CopyFrom(sm->JSON_document, JSON_document.GetAllocator());
 
     checkParse();
     fillSchemaMaps();
 }
+
 
 // Check if we have parsed our manifest okay
 // Throws ParseError for parsing issues and ValidationError when manifest doesn't line up
@@ -59,6 +73,9 @@ std::string ComponentManifest::getName() {
     assert(JSON_document["name"].IsString());
 
     return JSON_document["name"].GetString();
+}
+void ComponentManifest::setName(const std::string &name) {
+    JSON_document["name"] = rapidjson::Value(name,JSON_document.GetAllocator());
 }
 
 SocketMessage *ComponentManifest::getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema) {
@@ -158,8 +175,6 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
         senderSchemas[typeOfEndpoint] = endpointSchema;
     }
 }
-
-
 
 
 ComponentManifest::~ComponentManifest()= default;

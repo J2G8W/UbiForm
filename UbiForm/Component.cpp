@@ -14,7 +14,7 @@
 // CONSTRUCTOR
 Component::Component(const std::string &baseAddress) :  systemSchemas(),
     backgroundListener(this,systemSchemas), backgroundRequester(this, systemSchemas),
-    baseAddress(baseAddress), resourceDiscoveryConnEndpoint(this, systemSchemas){
+    baseAddress(baseAddress), resourceDiscoveryConnEndpoint(this, systemSchemas), componentManifest(systemSchemas){
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
 }
@@ -23,8 +23,8 @@ Component::Component(const std::string &baseAddress) :  systemSchemas(),
 
 // CREATE ENDPOINTS (don't connect)
 std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(const std::string& typeOfEndpoint, const std::string& id){
-    std::shared_ptr<EndpointSchema>recvSchema = componentManifest->getReceiverSchema(typeOfEndpoint);
-    std::shared_ptr<EndpointSchema>sendSchema = componentManifest->getSenderSchema(typeOfEndpoint);
+    std::shared_ptr<EndpointSchema>recvSchema = componentManifest.getReceiverSchema(typeOfEndpoint);
+    std::shared_ptr<EndpointSchema>sendSchema = componentManifest.getSenderSchema(typeOfEndpoint);
 
     std::shared_ptr<PairEndpoint> pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema, id);
     idReceiverEndpoints.insert(std::make_pair(id, pe));
@@ -47,7 +47,7 @@ std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(const std::string
 }
 
 std::shared_ptr<PublisherEndpoint> Component::createNewPublisherEndpoint(const std::string& typeOfEndpoint, const std::string& id) {
-    std::shared_ptr<EndpointSchema>sendSchema = componentManifest->getSenderSchema(typeOfEndpoint);
+    std::shared_ptr<EndpointSchema>sendSchema = componentManifest.getSenderSchema(typeOfEndpoint);
 
     std::shared_ptr<PublisherEndpoint> pe = std::make_shared<PublisherEndpoint>(sendSchema, id);
     idSenderEndpoints.insert(std::make_pair(id, pe));
@@ -62,7 +62,7 @@ std::shared_ptr<PublisherEndpoint> Component::createNewPublisherEndpoint(const s
 }
 
 std::shared_ptr<SubscriberEndpoint> Component::createNewSubscriberEndpoint(const std::string& typeOfEndpoint, const std::string& id) {
-    std::shared_ptr<EndpointSchema>receiveSchema = componentManifest->getReceiverSchema(typeOfEndpoint);
+    std::shared_ptr<EndpointSchema>receiveSchema = componentManifest.getReceiverSchema(typeOfEndpoint);
 
     std::shared_ptr<SubscriberEndpoint> pe = std::make_shared<SubscriberEndpoint>(receiveSchema, id);
     idReceiverEndpoints.insert(std::make_pair(id, pe));
@@ -215,11 +215,4 @@ void Component::closeSocketsOfType(const std::string &endpointType) {
             it = vec->erase(it);
         }
     }
-}
-
-std::shared_ptr<ComponentManifest> Component::getComponentManifest() {
-    if (componentManifest == nullptr){
-        throw std::logic_error("No Component Manifest specified");
-    }
-    return componentManifest;
 }

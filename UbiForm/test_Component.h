@@ -3,9 +3,8 @@
 #include "Component.h"
 #include <nng/supplemental/util/platform.h>
 
-TEST(EmptyComponent, NoManifest){
+TEST(EmptyComponent, EmptyManifest){
     Component component;
-    ASSERT_THROW(component.getComponentManifest(), std::logic_error);
     ASSERT_THROW(component.getReceiverEndpointById("some_type"), std::out_of_range);
 }
 

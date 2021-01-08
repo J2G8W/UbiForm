@@ -28,6 +28,12 @@ TEST_F(ComponentManifestBasics, NoSchema){
     ASSERT_THROW(new ComponentManifest(jsonString, systemSchemas), ValidationError);
 }
 
+
+TEST_F(ComponentManifestBasics, EmptyBase){
+    ComponentManifest testManifest(systemSchemas);
+    testManifest.setName("TEST");
+    ASSERT_EQ(testManifest.getName(), "TEST");
+}
 TEST_F(ComponentManifestBasics, MalformedSchema){
     const char *jsonString = R"({"name":"TEST1","schemas":{"TEST":{"socketType":"NOTHING"}}})";
     ASSERT_THROW(new ComponentManifest(jsonString, systemSchemas), ValidationError);
@@ -46,6 +52,20 @@ TEST_F(ComponentManifestBasics, CreationFromSocketMessage){
     EXPECT_EQ(testManifest.stringify(), std::string(jsonString));
 
     delete sm;
+}
+
+TEST_F(ComponentManifestBasics, CreationFromFile){
+    FILE* pFile = fopen("TestManifests/Component1.json", "r");
+    if (pFile == nullptr){
+        std::cerr << "Error finding requisite file" << "TestManifests/Component1.json" << std::endl;
+    }
+    ComponentManifest cm(pFile, systemSchemas);
+    fseek(pFile,SEEK_SET,0);
+
+    ComponentManifest cm2(systemSchemas);
+    cm2.setManifest(pFile);
+
+    ASSERT_EQ(cm.stringify(),cm2.stringify());
 }
 
 class ManifestExample : public testing::Test{

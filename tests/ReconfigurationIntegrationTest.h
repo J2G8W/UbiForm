@@ -17,12 +17,12 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1){
                                                                    "generatedSubscriber",
                                                                    newEs.get(),
                                                                    nullptr);
-    senderComponent.getComponentManifest()->addEndpoint(SocketType::Publisher,"generatedPublisher",
+    senderComponent.getComponentManifest().addEndpoint(SocketType::Publisher,"generatedPublisher",
                                                         nullptr, newEs);
     nng_msleep(300);
 
-    ASSERT_NO_THROW(senderComponent.getComponentManifest()->getSenderSchema("generatedPublisher"));
-    ASSERT_NO_THROW(receiverComponent.getComponentManifest()->getReceiverSchema("generatedSubscriber"));
+    ASSERT_NO_THROW(senderComponent.getComponentManifest().getSenderSchema("generatedPublisher"));
+    ASSERT_NO_THROW(receiverComponent.getComponentManifest().getReceiverSchema("generatedSubscriber"));
 
     senderComponent.getBackgroundRequester().tellToRequestAndCreateConnection(receiverComponent.getBackgroundListenAddress(), "generatedSubscriber",
                                                                               "generatedPublisher", senderComponent.getBackgroundListenAddress());
@@ -80,7 +80,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
     auto newEndpointSchema = std::make_shared<EndpointSchema>();
     newEndpointSchema->addProperty("value", ValueType::Number);
     newEndpointSchema->addRequired("value");
-    receiverComponent.getComponentManifest()->addEndpoint(SocketType::Subscriber, "genSubscriber",
+    receiverComponent.getComponentManifest().addEndpoint(SocketType::Subscriber, "genSubscriber",
                                                           newEndpointSchema, nullptr);
     receiverComponent.getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
 

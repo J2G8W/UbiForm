@@ -145,7 +145,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(S
             esReceiveSchema = std::make_shared<EndpointSchema>(*receiveSchema);
         }
 
-        component->getComponentManifest()->addEndpoint(static_cast<SocketType>(request.getInteger("socketType")),
+        component->getComponentManifest().addEndpoint(static_cast<SocketType>(request.getInteger("socketType")),
                                                        request.getString("endpointType"), esReceiveSchema, esSendSchema);
         component->getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
 

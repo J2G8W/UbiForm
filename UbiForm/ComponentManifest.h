@@ -32,8 +32,6 @@ protected:
     void fillSchemaMaps();
 
 public:
-
-
     /**
      * @param jsonString - text to form manifest from
      * @param es - reference to some SystemSchemas object for validation of manifest
@@ -41,7 +39,7 @@ public:
      * @throws ParsingError - when input is malformed
      * @throws ValidationError - when input does not conform to SystemsSchemas
      */
-    explicit ComponentManifest(const char *jsonString, SystemSchemas & es);
+    ComponentManifest(const char *jsonString, SystemSchemas & es);
 
     /**
      * @param jsonFP - FILE pointer to form manifest from, used instead of file streams as get
@@ -51,7 +49,7 @@ public:
      * @throws ParsingError - when input is malformed
      * @throws ValidationError - when input does not conform to SystemsSchemas
      */
-    explicit ComponentManifest(FILE *jsonFP, SystemSchemas &es);
+    ComponentManifest(FILE *jsonFP, SystemSchemas &es);
 
 
     /**
@@ -63,8 +61,13 @@ public:
      * @throws ParsingError - when input is malformed
      * @throws ValidationError - when input does not conform to SystemsSchemas
      */
-    explicit ComponentManifest(SocketMessage* sm,SystemSchemas &ss );
+    ComponentManifest(SocketMessage* sm,SystemSchemas &ss );
 
+    explicit ComponentManifest(SystemSchemas &ss) : ComponentManifest(R"({"name":"","schemas":{}})",ss){};
+
+    void setManifest(FILE *jsonFP);
+    void setManifest(const char *jsonString);
+    void setManifest(SocketMessage *sm);
 
     /**
      * @param typeOfEndpoint - specify typeOfEndpoint as described in Manifest
@@ -79,6 +82,7 @@ public:
      */
     std::shared_ptr<EndpointSchema> getSenderSchema(const std::string& typeOfEndpoint);
 
+    void setName(const std::string& name);
     std::string getName();
 
 

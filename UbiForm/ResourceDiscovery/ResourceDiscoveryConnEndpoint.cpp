@@ -38,7 +38,7 @@ SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(const std::string& url
 SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
     auto * request = new SocketMessage;
     request->addMember("request",ADDITION);
-    auto sm = std::unique_ptr<SocketMessage>(component->getComponentManifest()->getComponentRepresentation());
+    auto sm = std::unique_ptr<SocketMessage>(component->getComponentManifest().getComponentRepresentation());
     sm->addMember("url",component->getBackgroundListenAddress());
 
     request->moveMember("manifest",std::move(sm));
@@ -108,7 +108,7 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const 
     request->addMember("dataReceiverEndpoint",false);
 
     // We want our schema to be receiving data
-    auto schema = std::unique_ptr<SocketMessage>(component->getComponentManifest()->getSchemaObject(endpointType, true));
+    auto schema = std::unique_ptr<SocketMessage>(component->getComponentManifest().getSchemaObject(endpointType, true));
 
     request->moveMember("schema", std::move(schema));
     return request;
@@ -150,7 +150,7 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& en
 }
 
 void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
-    auto newManifest = std::unique_ptr<SocketMessage>(component->getComponentManifest()->getComponentRepresentation());
+    auto newManifest = std::unique_ptr<SocketMessage>(component->getComponentManifest().getComponentRepresentation());
     newManifest->addMember("url",component->getBackgroundListenAddress());
     auto * request = new SocketMessage;
     request->addMember("request",UPDATE);

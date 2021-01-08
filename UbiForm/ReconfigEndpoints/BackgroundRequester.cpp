@@ -13,7 +13,7 @@ void BackgroundRequester::requestAndCreateConnection(const std::string &connecti
                                                      const std::string &localEndpointType,
                                                      const std::string &remoteEndpointType) {
 
-    std::string requestSocketType = component->getComponentManifest()->getSocketType(localEndpointType);
+    std::string requestSocketType = component->getComponentManifest().getSocketType(localEndpointType);
     SocketMessage sm;
     if (requestSocketType == SUBSCRIBER){
         sm.addMember("socketType",PUBLISHER);

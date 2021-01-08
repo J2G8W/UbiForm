@@ -44,7 +44,7 @@ int main(int argc, char **argv){
             int counter = 0;
             auto publisherEndpoints = component.getSenderEndpointsByType("publisherExample");
             while (true) {
-                auto relevantSchema = component.getComponentManifest()->getSenderSchema("publisherExample");
+                auto relevantSchema = component.getComponentManifest().getSenderSchema("publisherExample");
                 std::cout << relevantSchema->stringify() << std::endl;
                 std::vector<std::string> requiredValues = relevantSchema->getRequired();
                 if (!publisherEndpoints->empty()) {
@@ -69,7 +69,7 @@ int main(int argc, char **argv){
                 counter++;
                 if (counter == 4){
                     std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
-                    component.getComponentManifest()->addEndpoint(SocketType::Publisher, "publisherExample", nullptr,
+                    component.getComponentManifest().addEndpoint(SocketType::Publisher, "publisherExample", nullptr,
                                                                   es);
                     component.closeSocketsOfType("publisherExample");
                     component.getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
