@@ -137,6 +137,7 @@ TEST_F(ManifestExample, AddPairSchema){
 
     ASSERT_EQ(requiredArray.size(), 1);
     ASSERT_EQ(requiredArray.at(0), "TEST");
+    delete schemaRep;
 }
 
 TEST_F(ManifestExample, AddSubscriberSchema){
