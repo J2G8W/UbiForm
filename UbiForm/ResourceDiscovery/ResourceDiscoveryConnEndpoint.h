@@ -14,7 +14,7 @@ private:
 
     SystemSchemas & systemSchemas;
 
-    SocketMessage * sendRequest(const std::string&, SocketMessage * request);
+    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage * request);
 
     ResourceDiscoveryConnEndpoint(ResourceDiscoveryConnEndpoint &) = delete;
     ResourceDiscoveryConnEndpoint& operator=(ResourceDiscoveryConnEndpoint &) = delete;

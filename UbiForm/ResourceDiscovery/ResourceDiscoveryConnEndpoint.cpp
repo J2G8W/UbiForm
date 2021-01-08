@@ -1,7 +1,7 @@
 #include "ResourceDiscoveryConnEndpoint.h"
 #include "../Component.h"
 #include <nng/protocol/reqrep0/req.h>
-SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(const std::string& url, SocketMessage *request) {
+std::unique_ptr<SocketMessage> ResourceDiscoveryConnEndpoint::sendRequest(const std::string& url, SocketMessage *request) {
 
     int rv;
     nng_socket requestSocket;
@@ -23,7 +23,7 @@ SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(const std::string& url
         throw NngError(rv, "Error receiving request from RD hub at " + url);
     }
     try{
-        auto * replyMsg = new SocketMessage(buf);
+        auto replyMsg = std::make_unique<SocketMessage>(buf);
         nng_free(buf,sz);
         return replyMsg;
     }catch(ValidationError &e){
@@ -31,8 +31,6 @@ SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(const std::string& url
         nng_free(buf,sz);
         throw;
     }
-
-
 }
 
 SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
@@ -46,18 +44,19 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
 }
 
 void ResourceDiscoveryConnEndpoint::registerWithHub(const std::string& url) {
-    SocketMessage * request = generateRegisterRequest();
+    auto request = std::unique_ptr<SocketMessage>(generateRegisterRequest());
 
     systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*request);
-
-    SocketMessage * reply = sendRequest(url, request);
-
-    systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
+    std::unique_ptr<SocketMessage> reply;
+    try {
+        reply = sendRequest(url, request.get());
+        systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
+    }catch(std::logic_error &e){
+        std::cerr << "Error registering with " << url << "\n\t" << e.what() << std::endl;
+        return;
+    }
 
     resourceDiscoveryHubs.insert(std::pair<std::string,std::string>(url, reply->getString("newID")));
-
-    delete request;
-    delete reply;
 }
 
 std::vector<std::string> ResourceDiscoveryConnEndpoint::getComponentIdsFromHub(const std::string& url) {
@@ -65,11 +64,16 @@ std::vector<std::string> ResourceDiscoveryConnEndpoint::getComponentIdsFromHub(c
     request.addMember("request",REQUEST_COMPONENTS);
 
     systemSchemas.getSystemSchema(SystemSchemaName::componentIdsRequest).validate(request);
+    std::unique_ptr<SocketMessage> reply;
 
-    SocketMessage * reply = sendRequest(url, &request);
+    try {
+        reply = sendRequest(url, &request);
+        systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*reply);
+    }catch(std::logic_error &e){
+        std::cerr << "Error getting component ids from " << url << "\n\t" << e.what() << std::endl;
+    }
 
-    systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*reply);
-
+    // This is a copy constructor
     return reply->getArray<std::string>("components");
 }
 
@@ -80,19 +84,23 @@ std::unique_ptr<ComponentRepresentation> ResourceDiscoveryConnEndpoint::getCompo
 
     systemSchemas.getSystemSchema(SystemSchemaName::byIdRequest).validate(request);
 
-    SocketMessage* reply = sendRequest(url, &request);
 
-    systemSchemas.getSystemSchema(SystemSchemaName::byIdResponse).validate(*reply);
+    std::unique_ptr<SocketMessage> reply;
+    try {
+        reply = sendRequest(url, &request);
+        systemSchemas.getSystemSchema(SystemSchemaName::byIdResponse).validate(*reply);
+    }catch(std::logic_error &e){
+        throw;
+    }
 
     if (reply->isNull("component")){
-        delete reply;
         throw std::logic_error("RDH did not have a component of that ID");
     }
+    // Here we check if the ComponentRepresentation returned is a valid ComponentRepresentation
     try{
         // We copy compRep when making the ComponentRepresentation object anyway
         auto compRep = reply->getMoveObject("component");
         auto componentRepresentation = std::make_unique<ComponentRepresentation>(compRep.get(), systemSchemas);
-        delete reply;
         return componentRepresentation;
     }catch(std::logic_error &e){
         std::cerr << "Malformed reply from RDH" << std::endl;
@@ -122,12 +130,17 @@ std::vector<SocketMessage *> ResourceDiscoveryConnEndpoint::getComponentsBySchem
     systemSchemas.getSystemSchema(SystemSchemaName::bySchemaRequest).validate(*request);
 
     for (const auto& rdh : resourceDiscoveryHubs){
-        SocketMessage* reply = sendRequest(rdh.first,request);
 
-        systemSchemas.getSystemSchema(SystemSchemaName::bySchemaResponse).validate(*reply);
+        std::unique_ptr<SocketMessage> reply;
+        try {
+            reply = sendRequest(rdh.first, request);
+            systemSchemas.getSystemSchema(SystemSchemaName::bySchemaResponse).validate(*reply);
+        }catch(std::logic_error &e){
+            std::cerr << "Error getting component from " << rdh.first << "\n\t" << e.what() << std::endl;
+            continue;
+        }
 
         std::vector<SocketMessage *> replyEndpoints = reply->getArray<SocketMessage *>("endpoints");
-        delete reply;
 
         returnEndpoints.insert(
                 returnEndpoints.end(),
@@ -144,23 +157,30 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& en
     std::vector<SocketMessage *> validLocations = getComponentsBySchema(endpointType);
 
     for (const auto & location: validLocations) {
-        component->getBackgroundRequester().requestAndCreateConnection(location->getString("url"), endpointType,
-                                              location->getString("endpointType"));
+        try {
+            component->getBackgroundRequester().requestAndCreateConnection(location->getString("url"), endpointType,
+                                                                           location->getString("endpointType"));
+        }catch(std::logic_error &e){
+            std::cerr << "Error connecting to " << location << "\n\t" <<e.what() <<std::endl;
+        }
     }
 }
 
 void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
     auto newManifest = component->getComponentManifest().getComponentRepresentation();
     newManifest->addMember("url",component->getBackgroundListenAddress());
-    auto * request = new SocketMessage;
+    auto request = std::make_unique<SocketMessage>();
     request->addMember("request",UPDATE);
     request->moveMember("newManifest", std::move(newManifest));
     for(auto& locationIdPair : resourceDiscoveryHubs){
         request->addMember("id",locationIdPair.second);
         systemSchemas.getSystemSchema(SystemSchemaName::updateRequest).validate(*request);
-        SocketMessage* reply = sendRequest(locationIdPair.first, request);
-        systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
-    }
-    delete request;
+        try {
+            auto reply = sendRequest(locationIdPair.first, request.get());
+            systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
+        }catch(std::logic_error &e){
+            std::cerr << "Problem connecting to " << locationIdPair.first << "\n\t" << e.what() << std::endl;
+        }
 
+    }
 }
