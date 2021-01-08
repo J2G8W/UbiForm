@@ -61,6 +61,7 @@ public:
     Component() : Component("tcp://127.0.0.1"){}
 
     void specifyManifest(FILE *jsonFP) {
+        // TODO - close open connections?
         componentManifest.setManifest(jsonFP);
         resourceDiscoveryConnEndpoint.updateManifestWithHubs();
     }
@@ -106,6 +107,7 @@ public:
     std::string getBackgroundListenAddress(){return backgroundListener.getBackgroundListenAddress();}
     SystemSchemas & getSystemSchemas(){return systemSchemas;}
     BackgroundRequester & getBackgroundRequester(){return backgroundRequester;}
+    std::string getRDHLocation();
 
 
     void closeSocketsOfType(const std::string& endpointType);

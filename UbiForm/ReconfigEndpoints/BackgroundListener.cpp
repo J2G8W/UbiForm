@@ -51,6 +51,8 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
                 reply = backgroundListener->handleCreateRDHRequest(*request);
             }else if(request->getString("requestType") == CHANGE_MANIFEST){
                 reply = backgroundListener->handleChangeManifestRequest(*request);
+            }else if(request->getString("requestType") == LOCATIONS_OF_RDH){
+                reply = backgroundListener->handleRDHLocationsRequest(*request);
             }else{
                 throw ValidationError("requestType had value: " + request->getString("requestType"));
             }
@@ -170,6 +172,13 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeManifestRequest(S
     auto manifestObject = request.getMoveObject("newManifest");
     component->specifyManifest(manifestObject.get());
     reply->addMember("error", false);
+    return reply;
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleRDHLocationsRequest(SocketMessage &request){
+    auto reply = std::make_unique<SocketMessage>();
+    reply->addMember("locations",component->getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs());
+    reply->addMember("error",false);
     return reply;
 }
 

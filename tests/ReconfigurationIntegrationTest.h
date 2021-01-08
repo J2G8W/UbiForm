@@ -155,3 +155,35 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest3){
     ASSERT_EQ(cr->getUrl(),receiverComponent.getBackgroundListenAddress());
     ASSERT_EQ(cr->getName(), newName);
 }
+
+TEST(ReconfigurationIntegrationTest, IntegrationTest4){
+    Component RDH1("ipc:///tmp/RDH1");
+    Component RDH2("ipc:///tmp/RDH2");
+    Component RDH3("ipc:///tmp/RDH3");
+    Component baby("ipc:///tmp/baby");
+
+    std::string loc1 = RDH1.startResourceDiscoveryHub();
+    std::string loc2 = RDH2.startResourceDiscoveryHub();
+    std::string loc3 = RDH3.startResourceDiscoveryHub();
+
+    RDH1.startBackgroundListen();
+    RDH2.startBackgroundListen();
+    RDH3.startBackgroundListen();
+    baby.startBackgroundListen();
+
+    RDH1.getResourceDiscoveryConnectionEndpoint().registerWithHub(loc1);
+    RDH1.getResourceDiscoveryConnectionEndpoint().registerWithHub(loc2);
+    RDH1.getResourceDiscoveryConnectionEndpoint().registerWithHub(loc3);
+
+    ASSERT_EQ(RDH1.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(), 3);
+    std::vector<std::string> rdhLocations = baby.getBackgroundRequester().requestLocationsOfRDH(RDH1.getBackgroundListenAddress());
+
+    ASSERT_EQ(rdhLocations.size(), 3);
+    bool testers[3]={false,false,false};
+    for(const std::string& loc : rdhLocations){
+        if(loc == RDH1.getRDHLocation()){testers[0] = true;}
+        if(loc == RDH2.getRDHLocation()){testers[1] = true;}
+        if(loc == RDH3.getRDHLocation()){testers[2] = true;}
+    }
+    for(bool & tester : testers){ASSERT_TRUE(tester);}
+}

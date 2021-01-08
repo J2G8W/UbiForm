@@ -13,6 +13,7 @@
 #define CHANGE_ENDPOINT_SCHEMA "add_endpoint_schema"
 #define CREATE_RDH "create_rdh"
 #define CHANGE_MANIFEST "change_manifest"
+#define LOCATIONS_OF_RDH "locations_rdh"
 
 class Component;
 class BackgroundListener {
@@ -47,6 +48,8 @@ public:
     std::unique_ptr<SocketMessage> handleCreateRDHRequest(SocketMessage &request);
 
     std::unique_ptr<SocketMessage> handleChangeManifestRequest(SocketMessage &request);
+
+    std::unique_ptr<SocketMessage> handleRDHLocationsRequest(SocketMessage &request);
 };
 
 

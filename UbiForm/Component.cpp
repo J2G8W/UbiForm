@@ -234,3 +234,11 @@ void Component::closeSocketsOfType(const std::string &endpointType) {
         }
     }
 }
+
+std::string Component::getRDHLocation() {
+    if(resourceDiscoveryHubEndpoint == nullptr){
+        throw std::logic_error("No RDH has been made");
+    }else{
+        return resourceDiscoveryHubEndpoint->getListenAddress();
+    }
+}
