@@ -122,8 +122,8 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const 
     return request;
 }
 
-std::vector<SocketMessage *> ResourceDiscoveryConnEndpoint::getComponentsBySchema(const std::string& endpointType) {
-    std::vector<SocketMessage *> returnEndpoints;
+std::vector<std::unique_ptr<SocketMessage>> ResourceDiscoveryConnEndpoint::getComponentsBySchema(const std::string& endpointType) {
+    std::vector<std::unique_ptr<SocketMessage>> returnEndpoints;
 
     SocketMessage* request = generateFindBySchemaRequest(endpointType);
 
@@ -142,11 +142,15 @@ std::vector<SocketMessage *> ResourceDiscoveryConnEndpoint::getComponentsBySchem
 
         std::vector<SocketMessage *> replyEndpoints = reply->getArray<SocketMessage *>("endpoints");
 
-        returnEndpoints.insert(
-                returnEndpoints.end(),
-                std::make_move_iterator(replyEndpoints.begin()),
-                std::make_move_iterator(replyEndpoints.end())
-        );
+        //returnEndpoints.insert(
+        //        returnEndpoints.end(),
+        //        std::make_move_iterator(replyEndpoints.begin()),
+        //        std::make_move_iterator(replyEndpoints.end())
+        //);
+
+        for (auto s : replyEndpoints){
+            returnEndpoints.push_back(std::unique_ptr<SocketMessage>(s));
+        }
     }
     delete request;
     return returnEndpoints;
@@ -154,14 +158,14 @@ std::vector<SocketMessage *> ResourceDiscoveryConnEndpoint::getComponentsBySchem
 
 
 void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& endpointType){
-    std::vector<SocketMessage *> validLocations = getComponentsBySchema(endpointType);
+    std::vector<std::unique_ptr<SocketMessage>> validLocations = getComponentsBySchema(endpointType);
 
     for (const auto & location: validLocations) {
         try {
             component->getBackgroundRequester().requestAndCreateConnection(location->getString("url"), endpointType,
                                                                            location->getString("endpointType"));
         }catch(std::logic_error &e){
-            std::cerr << "Error connecting to " << location << "\n\t" <<e.what() <<std::endl;
+            std::cerr << "Error connecting to " << location->stringify() << "\n\t" <<e.what() <<std::endl;
         }
     }
 }

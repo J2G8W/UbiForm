@@ -31,7 +31,7 @@ public:
     std::unique_ptr<ComponentRepresentation> getComponentById(const std::string& url, const std::string& id);
 
     SocketMessage *generateFindBySchemaRequest(const std::string& endpointType);
-    std::vector<SocketMessage *> getComponentsBySchema(const std::string& endpointType);
+    std::vector<std::unique_ptr<SocketMessage>> getComponentsBySchema(const std::string& endpointType);
 
     void createEndpointBySchema(const std::string& endpointType);
 
