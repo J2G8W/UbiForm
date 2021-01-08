@@ -6,6 +6,7 @@
 
 void ResourceDiscoveryHubEndpoint::startResourceDiscover(const std::string& urlInit){
     replyEndpoint.listenForConnection(urlInit.c_str());
+    listenAddress = urlInit;
 
     this->rdThread = std::thread(rdBackground, this);
 }

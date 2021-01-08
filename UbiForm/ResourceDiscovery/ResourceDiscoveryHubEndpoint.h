@@ -18,12 +18,22 @@ private:
     ReplyEndpoint replyEndpoint;
     ResourceDiscoveryStore rdStore;
 
+    std::string listenAddress;
+
     static void rdBackground(ResourceDiscoveryHubEndpoint *);
 
 public:
     explicit ResourceDiscoveryHubEndpoint(SystemSchemas &ss) : rdStore(ss),
      replyEndpoint(std::make_shared<EndpointSchema>(), std::make_shared<EndpointSchema>(), "ResourceDiscoveryHub") {}
     void startResourceDiscover(const std::string& urlInit);
+
+    std::string getListenAddress(){
+        if (listenAddress == ""){
+            throw std::logic_error("Resource Discovery Hub has not started yet");
+        }else{
+            return listenAddress;
+        }
+    }
 
     ~ResourceDiscoveryHubEndpoint();
 

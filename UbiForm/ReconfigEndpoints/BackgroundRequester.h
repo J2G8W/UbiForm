@@ -29,13 +29,13 @@ public:
                                const std::string &endpointType, EndpointSchema *receiverSchema,
                                EndpointSchema *sendSchema);
 
-    std::string requestCreateRDH(const std::string& componentUrl){ }
+    std::string requestCreateRDH(const std::string& componentUrl);
     void requestToCreateAndDial(const std::string& componentUrl, const std::string &socketType,
-                                const std::string &endpointType, const std::string &remoteUrl){}
+                                const std::string &endpointType, const std::string &remoteUrl);
 
-    void requestUpdateComponentManifest(const std::string& componentUrl){}
-    std::vector<std::string> requestLocationsOfRDH(const std::string& componentUrl){}
-    void requestCloseSocketOfType(const std::string& componentUrl, const std::string endpointType){}
+    void requestUpdateComponentManifest(const std::string& componentUrl);
+    std::vector<std::string> requestLocationsOfRDH(const std::string& componentUrl);
+    void requestCloseSocketOfType(const std::string& componentUrl, const std::string endpointType);
 
 
 };

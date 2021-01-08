@@ -120,3 +120,26 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
     auto receiverMsg = subscriberEndpoints->at(0)->receiveMessage();
     ASSERT_EQ(receiverMsg->getInteger("value"), 42);
 }
+
+
+TEST(ReconfigurationIntegrationTest, IntegrationTest3){
+    Component receiverComponent("ipc:///tmp/comp1");
+    Component senderComponent("ipc:///tmp/comp2");
+
+    receiverComponent.specifyManifest(R"({"name":"RECEIVER","schemas":{}})");
+    senderComponent.specifyManifest(R"({"name":"SENDER","schemas":{}})");
+
+    receiverComponent.startBackgroundListen();
+    senderComponent.startBackgroundListen();
+
+    std::string url = senderComponent.getBackgroundRequester().requestCreateRDH(receiverComponent.getBackgroundListenAddress());
+
+    ASSERT_NO_THROW(senderComponent.getResourceDiscoveryConnectionEndpoint().registerWithHub(url));
+    senderComponent.getBackgroundRequester().requestAddRDH(receiverComponent.getBackgroundListenAddress(), url);
+
+    std::string receiverID = receiverComponent.getResourceDiscoveryConnectionEndpoint().getId(url);
+
+    auto cr = senderComponent.getResourceDiscoveryConnectionEndpoint().getComponentById(url, receiverID);
+    ASSERT_EQ(cr->getUrl(),receiverComponent.getBackgroundListenAddress());
+    ASSERT_EQ(cr->getName(), receiverComponent.getComponentManifest().getName());
+}

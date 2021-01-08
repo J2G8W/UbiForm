@@ -122,7 +122,6 @@ Component::getSenderEndpointsByType(const std::string &endpointType) {
 
 // THIS IS OUR COMPONENT LISTENING FOR REQUESTS TO MAKE SOCKETS
 void Component::startBackgroundListen() {
-
     for(int i = 0; i < 5 ; i++) {
         try {
             backgroundListener.startBackgroundListen(this->baseAddress + ":" + std::to_string(this->lowestPort));
@@ -186,11 +185,30 @@ void Component::createEndpointAndDial(const std::string& socketType, const std::
 
 
 // CREATE RDHUB
-void Component::startResourceDiscoveryHub(int port) {
-    this->resourceDiscoveryHubEndpoint = new ResourceDiscoveryHubEndpoint(systemSchemas);
-    std::string listenAddress = baseAddress + ":" + std::to_string(port);
-    resourceDiscoveryHubEndpoint->startResourceDiscover(listenAddress);
+std::string Component::startResourceDiscoveryHub(int port) {
+    if (resourceDiscoveryHubEndpoint == nullptr) {
+        this->resourceDiscoveryHubEndpoint = new ResourceDiscoveryHubEndpoint(systemSchemas);
+        std::string listenAddress = baseAddress + ":" + std::to_string(port);
+        resourceDiscoveryHubEndpoint->startResourceDiscover(listenAddress);
+        std::cout << "Started Resource Discovery Hub at - " << listenAddress << std::endl;
+    }
+    return resourceDiscoveryHubEndpoint->getListenAddress();
 }
+std::string Component::startResourceDiscoveryHub() {
+    for(int i = 0; i < 5 ; i++) {
+        try {
+            return startResourceDiscoveryHub(this->lowestPort++);
+        } catch (NngError &e) {
+            if(e.errorCode == NNG_EADDRINUSE){
+                this->lowestPort = generateRandomPort();
+            }else{
+                throw;
+            }
+        }
+    }
+    throw std::logic_error("Could not find valid port to start on");
+}
+
 
 
 Component::~Component(){

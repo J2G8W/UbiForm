@@ -92,7 +92,8 @@ public:
     }
     void startBackgroundListen();
 
-    void startResourceDiscoveryHub(int port);
+    std::string startResourceDiscoveryHub(int port);
+    std::string startResourceDiscoveryHub();
 
 
     ResourceDiscoveryConnEndpoint & getResourceDiscoveryConnectionEndpoint(){return resourceDiscoveryConnEndpoint;}

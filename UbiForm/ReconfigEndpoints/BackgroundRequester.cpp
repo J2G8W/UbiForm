@@ -49,8 +49,10 @@ void BackgroundRequester::requestAddRDH(const std::string &componentUrl, const s
     try{
         requestEndpoint.dialConnection(componentUrl.c_str());
         requestEndpoint.sendMessage(sm);
-        requestEndpoint.receiveMessage();
-
+        auto reply = requestEndpoint.receiveMessage();
+        if(reply->getBoolean("error")){
+            throw std::logic_error("Error in request add RDH: " + reply->getString("errorMsg"));
+        }
     }catch (std::logic_error &e){
         std::cerr << e.what() << std::endl;
     }
@@ -106,3 +108,33 @@ void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddr
         std::cerr << e.what() << std::endl;
     }
 }
+
+std::string BackgroundRequester::requestCreateRDH(const std::string &componentUrl) {
+    SocketMessage sm;
+    sm.addMember("requestType",CREATE_RDH);
+    try{
+        requestEndpoint.dialConnection(componentUrl.c_str());
+        requestEndpoint.sendMessage(sm);
+        auto reply = requestEndpoint.receiveMessage();
+        if(!reply->getBoolean("error")){
+            return reply->getString("url");
+        }else{
+            throw std::logic_error("Error with request to create RDH: " + reply->getString("errorMsg"));
+        }
+    }catch(std::logic_error &e){
+        std::cerr << e.what() << std::endl;
+        // Should return empty or throw exception?
+        return "";
+    }
+}
+
+void BackgroundRequester::requestToCreateAndDial(const std::string &componentUrl, const std::string &socketType,
+                                                 const std::string &endpointType, const std::string &remoteUrl) {
+
+}
+
+void BackgroundRequester::requestUpdateComponentManifest(const std::string &componentUrl) {}
+
+std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::string &componentUrl) {}
+
+void BackgroundRequester::requestCloseSocketOfType(const std::string &componentUrl, const std::string endpointType) {}

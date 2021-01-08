@@ -11,6 +11,7 @@
 #define ADD_RDH "add_rdh"
 #define TELL_REQ_CONN "tell_req_conn"
 #define CHANGE_ENDPOINT_SCHEMA "add_endpoint_schema"
+#define CREATE_RDH "create_rdh"
 
 class Component;
 class BackgroundListener {
@@ -41,6 +42,8 @@ public:
     std::unique_ptr<SocketMessage> handleTellCreateConnectionRequest(SocketMessage &request);
 
     std::unique_ptr<SocketMessage> handleChangeEndpointRequest(SocketMessage &request);
+
+    std::unique_ptr<SocketMessage> handleCreateRDHRequest(SocketMessage &request);
 };
 
 

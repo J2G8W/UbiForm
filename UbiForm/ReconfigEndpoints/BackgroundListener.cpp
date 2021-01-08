@@ -28,6 +28,13 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
             break;
         }
 
+        try{
+            request->getString("requestType");
+        }catch(AccessError &e){
+            std::cerr << e.what() << std::endl;
+            continue;
+        }
+
         std::unique_ptr<SocketMessage> reply;
         try{
             if (request->getString("requestType") == REQ_CONN) {
@@ -42,11 +49,17 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
                 reply = backgroundListener->handleTellCreateConnectionRequest(*request);
             }else if(request->getString("requestType") == CHANGE_ENDPOINT_SCHEMA){
                 reply = backgroundListener->handleChangeEndpointRequest(*request);
+            }else if(request->getString("requestType") == CREATE_RDH){
+                reply = backgroundListener->handleCreateRDHRequest(*request);
+            }else{
+                throw ValidationError("requestType had value: " + request->getString("requestType"));
             }
         }catch(ValidationError &e){
             std::cerr << "Invalid creation request - " << e.what() <<std::endl;
+            continue;
         }catch(std::logic_error &e){
             std::cerr << e.what() << std::endl;
+            continue;
         }
 
 
@@ -98,8 +111,16 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleConnectionRequest(Socke
 }
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleAddRDH(SocketMessage &request){
-    component->getResourceDiscoveryConnectionEndpoint().registerWithHub(request.getString("url"));
-    return std::make_unique<SocketMessage>();
+    auto reply = std::make_unique<SocketMessage>();
+    try {
+        component->getResourceDiscoveryConnectionEndpoint().registerWithHub(request.getString("url"));
+        reply->addMember("error",false);
+        return reply;
+    }catch(std::logic_error &e){
+        reply->addMember("error",true);
+        reply->addMember("errorMsg",e.what());
+        return reply;
+    }
 }
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionRequest(SocketMessage &request){
@@ -109,7 +130,6 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionReq
                 request.getString("remoteEndpointType"));
         auto reply = std::make_unique<SocketMessage>();
         reply->addMember("error",false);
-        reply->addMember("errorMsg", "All good");
         return reply;
     }catch(std::logic_error &e){
         auto reply = std::make_unique<SocketMessage>();
@@ -170,5 +190,18 @@ BackgroundListener::~BackgroundListener() {
         std::cout << "JOINING BACKGROUND THREAD" << std::endl;
         backgroundThread.join();
     }
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleCreateRDHRequest(SocketMessage &request) {
+    auto reply = std::make_unique<SocketMessage>();
+    try {
+        std::string url = component->startResourceDiscoveryHub();
+        reply->addMember("url",url);
+        reply->addMember("error",false);
+    }catch(std::logic_error &e){
+        reply->addMember("error",true);
+        reply->addMember("errorMsg",e.what());
+    }
+    return reply;
 }
 
