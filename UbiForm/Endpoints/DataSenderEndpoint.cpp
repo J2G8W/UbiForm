@@ -31,14 +31,13 @@ void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
     nng_msg * msg;
     int rv;
     if ((rv = nng_msg_alloc(&msg, 0)) !=0){
-        throw NngError(rv, "Allocating message space");
+        throw NngError(rv, "Allocating async message space");
     }
     if ((rv =nng_msg_append(msg, (void*) textArray, text.size()+1)) != 0){
-        throw NngError(rv, "Creating Message");
+        throw NngError(rv, "Creating Async Message");
     }
     nng_aio_set_msg(nngAioPointer, msg);
 
-    std::cout << "SENDING " << text << std::endl;
     nng_send_aio(*senderSocket, nngAioPointer);
 
 }

@@ -24,10 +24,12 @@ TEST_F(ReconfigurationIntegrationTest, IntegrationTest1){
     senderComponent.getComponentManifest()->addEndpoint(SocketType::Publisher,"generatedPublisher",
                                                         nullptr, newEs);
     nng_msleep(300);
-    std::cout << senderComponent.getComponentManifest()->stringify() << std::endl;
-    std::cout << receiverComponent.getComponentManifest()->getReceiverSchema("generatedSubscriber")->stringify() << std::endl;
-    senderComponent.requestAndCreateConnection(receiverComponent.getBackgroundListenAddress(),
-                                               "generatedPublisher", "generatedSubscriber");
+
+    ASSERT_NO_THROW(senderComponent.getComponentManifest()->getSenderSchema("generatedPublisher"));
+    ASSERT_NO_THROW(receiverComponent.getComponentManifest()->getReceiverSchema("generatedSubscriber"));
+
+    senderComponent.getBackgroundRequester().tellToRequestAndCreateConnection(receiverComponent.getBackgroundListenAddress(), "generatedSubscriber",
+                                                                              "generatedPublisher", senderComponent.getBackgroundListenAddress());
 
     SocketMessage original;
     original.addMember("msg","HELLO WORLD");
