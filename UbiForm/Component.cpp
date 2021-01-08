@@ -27,7 +27,7 @@ std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(const std::string
     std::shared_ptr<EndpointSchema>recvSchema = componentManifest->getReceiverSchema(typeOfEndpoint);
     std::shared_ptr<EndpointSchema>sendSchema = componentManifest->getSenderSchema(typeOfEndpoint);
 
-    std::shared_ptr<PairEndpoint> pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema);
+    std::shared_ptr<PairEndpoint> pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema, id);
     idReceiverEndpoints.insert(std::make_pair(id, pe));
     idSenderEndpoints.insert(std::make_pair(id, pe));
 
@@ -50,7 +50,7 @@ std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(const std::string
 std::shared_ptr<PublisherEndpoint> Component::createNewPublisherEndpoint(const std::string& typeOfEndpoint, const std::string& id) {
     std::shared_ptr<EndpointSchema>sendSchema = componentManifest->getSenderSchema(typeOfEndpoint);
 
-    std::shared_ptr<PublisherEndpoint> pe = std::make_shared<PublisherEndpoint>(sendSchema);
+    std::shared_ptr<PublisherEndpoint> pe = std::make_shared<PublisherEndpoint>(sendSchema, id);
     idSenderEndpoints.insert(std::make_pair(id, pe));
 
     if (typeSenderEndpoints.count(typeOfEndpoint) == 1) {
@@ -65,7 +65,7 @@ std::shared_ptr<PublisherEndpoint> Component::createNewPublisherEndpoint(const s
 std::shared_ptr<SubscriberEndpoint> Component::createNewSubscriberEndpoint(const std::string& typeOfEndpoint, const std::string& id) {
     std::shared_ptr<EndpointSchema>receiveSchema = componentManifest->getReceiverSchema(typeOfEndpoint);
 
-    std::shared_ptr<SubscriberEndpoint> pe = std::make_shared<SubscriberEndpoint>(receiveSchema);
+    std::shared_ptr<SubscriberEndpoint> pe = std::make_shared<SubscriberEndpoint>(receiveSchema, id);
     idReceiverEndpoints.insert(std::make_pair(id, pe));
 
     if (typeReceiverEndpoints.count(typeOfEndpoint) == 1) {

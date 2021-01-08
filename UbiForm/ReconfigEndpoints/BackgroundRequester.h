@@ -12,7 +12,7 @@ class BackgroundRequester {
 public:
     BackgroundRequester(Component* c , SystemSchemas& ss):component(c), systemSchemas(ss),
     // Purposely make the request endpoint have an empty schema
-        requestEndpoint(std::make_shared<EndpointSchema>(),std::make_shared<EndpointSchema>()){}
+        requestEndpoint(std::make_shared<EndpointSchema>(),std::make_shared<EndpointSchema>(), "BackgroundRequester"){}
 
     void requestAndCreateConnection(const std::string &connectionComponentAddress,
                                     const std::string &localEndpointType,

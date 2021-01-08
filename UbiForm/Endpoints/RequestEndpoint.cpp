@@ -3,11 +3,13 @@
 #include "RequestEndpoint.h"
 
 void RequestEndpoint::listenForConnection(const char *url) {
-    throw SocketOpenError("Request socket trying to listen for connection");
+    throw SocketOpenError("Request socket trying to listen for connection",
+                          DataSenderEndpoint::endpointType, DataSenderEndpoint::endpointIdentifier);
 }
 
 int RequestEndpoint::listenForConnectionWithRV(const char *url) {
-    throw SocketOpenError("Request socket trying to listen for connection");
+    throw SocketOpenError("Request socket trying to listen for connection",
+                          DataSenderEndpoint::endpointType, DataSenderEndpoint::endpointIdentifier);
 }
 
 void RequestEndpoint::dialConnection(const char *url) {

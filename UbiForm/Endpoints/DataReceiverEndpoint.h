@@ -35,6 +35,9 @@ private:
         }
     };
 protected:
+    std::string endpointIdentifier;
+    SocketType endpointType;
+
     // Socket is initialised in extending class
     nng_socket * receiverSocket = nullptr;
     // Schema is shared with the parent that houses this endpoint
@@ -43,7 +46,8 @@ protected:
     bool socketOpen = false;
     std::string dialUrl;
 public:
-    explicit DataReceiverEndpoint( std::shared_ptr<EndpointSchema>& es){
+    explicit DataReceiverEndpoint( std::shared_ptr<EndpointSchema>& es, const std::string & endpointIdentifier, SocketType endpointType):
+        endpointIdentifier(endpointIdentifier), endpointType(endpointType){
         receiverSchema = es;
     };
 

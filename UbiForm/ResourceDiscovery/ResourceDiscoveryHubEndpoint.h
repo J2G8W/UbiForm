@@ -22,7 +22,7 @@ private:
 
 public:
     explicit ResourceDiscoveryHubEndpoint(SystemSchemas &ss) : rdStore(ss),
-     replyEndpoint(std::make_shared<EndpointSchema>(), std::make_shared<EndpointSchema>()) {}
+     replyEndpoint(std::make_shared<EndpointSchema>(), std::make_shared<EndpointSchema>(), "ResourceDiscoveryHub") {}
     void startResourceDiscover(const std::string& urlInit);
 
     ~ResourceDiscoveryHubEndpoint();

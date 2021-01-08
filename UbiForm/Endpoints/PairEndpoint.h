@@ -10,8 +10,10 @@ class PairEndpoint : public DataReceiverEndpoint, public DataSenderEndpoint {
 private:
 
 public:
-    PairEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema):
-    DataReceiverEndpoint(receiveSchema), DataSenderEndpoint(sendSchema){
+    PairEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema, const std::string& endpointIdentifier="Pair"):
+        DataReceiverEndpoint(receiveSchema,endpointIdentifier,SocketType::Pair),
+        DataSenderEndpoint(sendSchema,endpointIdentifier, SocketType::Pair){
+
         senderSocket = new nng_socket;
 
         int rv;

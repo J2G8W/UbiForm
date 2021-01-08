@@ -4,6 +4,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/filereadstream.h>
 #include <nng/nng.h>
+#include "SystemEnums.h"
 
 
 std::string stringifyValue(rapidjson::Value &JSON_document);
@@ -59,7 +60,8 @@ public:
 
 class SocketOpenError : public std::logic_error{
 public:
-    explicit SocketOpenError(const std::string & error) : std::logic_error(error){}
+    SocketOpenError(const std::string &error, SocketType socketType, const std::string &endpointId)
+            : std::logic_error("Socket type: " + convertSocketType(socketType) + "\nEndpoint ID: " + endpointId + "\nError: " + error){}
 };
 
 // USE ONLY FOR TESTING PURPOSES
