@@ -118,8 +118,9 @@ public:
                      std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema);
 
 
-    SocketMessage* getComponentRepresentation(){
-        return new SocketMessage(this->JSON_document);
+    std::unique_ptr<SocketMessage> getComponentRepresentation(){
+        // Gets around private constructor
+        return std::unique_ptr<SocketMessage>(new SocketMessage(this->JSON_document));
     }
 
     ~ComponentManifest();

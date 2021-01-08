@@ -38,7 +38,7 @@ SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(const std::string& url
 SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
     auto * request = new SocketMessage;
     request->addMember("request",ADDITION);
-    auto sm = std::unique_ptr<SocketMessage>(component->getComponentManifest().getComponentRepresentation());
+    auto sm = component->getComponentManifest().getComponentRepresentation();
     sm->addMember("url",component->getBackgroundListenAddress());
 
     request->moveMember("manifest",std::move(sm));
@@ -150,7 +150,7 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& en
 }
 
 void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
-    auto newManifest = std::unique_ptr<SocketMessage>(component->getComponentManifest().getComponentRepresentation());
+    auto newManifest = component->getComponentManifest().getComponentRepresentation();
     newManifest->addMember("url",component->getBackgroundListenAddress());
     auto * request = new SocketMessage;
     request->addMember("request",UPDATE);
