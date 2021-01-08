@@ -13,7 +13,7 @@ private:
 public:
     static int numberOfInstances;
     SystemSchemas(){
-        const char* files[11] = {"SystemSchemas/component_schema.json",
+        const char* files[12] = {"SystemSchemas/component_schema.json",
                                 "SystemSchemas/endpoint_creation_request.json",
                                 "SystemSchemas/endpoint_creation_response.json",
                                 "SystemSchemas/resource_discovery_addition_request.json",
@@ -23,9 +23,10 @@ public:
                                 "SystemSchemas/resource_discovery_by_schema_request.json",
                                 "SystemSchemas/resource_discovery_by_schema_response.json",
                                 "SystemSchemas/resource_discovery_component_ids_request.json",
-                                "SystemSchemas/resource_discovery_component_ids_response.json"};
+                                "SystemSchemas/resource_discovery_component_ids_response.json",
+                                "SystemSchemas/resource_discovery_update_request.json"};
 
-        for (int i =0; i < 11; i++){
+        for (int i =0; i < 12; i++){
             FILE* pFile = fopen(files[i], "r");
             if (pFile == nullptr){
                 std::string errorMsg = "Error opening file - " + std::string(files[i]);

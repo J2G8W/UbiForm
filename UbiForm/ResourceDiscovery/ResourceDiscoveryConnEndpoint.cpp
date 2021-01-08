@@ -157,7 +157,9 @@ void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
     request->moveMember("newManifest", std::move(newManifest));
     for(auto& locationIdPair : resourceDiscoveryHubs){
         request->addMember("id",locationIdPair.second);
+        systemSchemas.getSystemSchema(SystemSchemaName::updateRequest).validate(*request);
         SocketMessage* reply = sendRequest(locationIdPair.first, request);
+        systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
     }
     delete request;
 

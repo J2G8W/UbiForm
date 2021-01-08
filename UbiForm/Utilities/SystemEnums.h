@@ -25,7 +25,7 @@ std::string convertValueType(ValueType vt);
 enum SystemSchemaName{
     componentManifest,endpointCreationRequest, endpointCreationResponse,
     additionRequest,additionResponse,byIdRequest,byIdResponse,
-    bySchemaRequest, bySchemaResponse, componentIdsRequest, componentIdsResponse,
+    bySchemaRequest, bySchemaResponse, componentIdsRequest, componentIdsResponse,updateRequest
 };
 
 

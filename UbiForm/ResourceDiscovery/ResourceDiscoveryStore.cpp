@@ -77,7 +77,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
         returnMsg->addMember("components", componentIds);
         rds.systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*returnMsg);
     }else if (request == UPDATE){
-        //TODO - validate
+        rds.systemSchemas.getSystemSchema(SystemSchemaName::updateRequest).validate(*sm);
         auto manifest = sm->getMoveObject("newManifest");
         auto newCR = std::make_shared<ComponentRepresentation>(manifest.get(), rds.systemSchemas);
 
