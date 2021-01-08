@@ -38,10 +38,10 @@ std::string SocketMessage::getString(const std::string &attributeName){
     }
 }
 
-SocketMessage* SocketMessage::getObject(const std::string &attributeName) {
+SocketMessage* SocketMessage::getCopyObject(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)){
         if(JSON_document[attributeName].IsObject()) {
-            return new SocketMessage(JSON_document[attributeName]);
+            return new SocketMessage(JSON_document[attributeName], true);
         }else{
             throw AccessError("Attribute " + attributeName + "exists but not type object");
         }
@@ -153,6 +153,18 @@ void SocketMessage::moveMember(const std::string &attributeName, std::unique_ptr
     dependants.push_back(std::move(socketMessage));
 }
 
+std::unique_ptr<SocketMessage> SocketMessage::getMoveObject(const std::string &attributeName) {
+    if (JSON_document.HasMember(attributeName)){
+        if(JSON_document[attributeName].IsObject()) {
+            return std::unique_ptr<SocketMessage>(new SocketMessage(JSON_document[attributeName], false));
+        }else{
+            throw AccessError("Attribute " + attributeName + "exists but not type object");
+        }
+    }else{
+        throw AccessError("The message has no attribute " + attributeName);
+    }
+}
+
 template<>
 std::vector<bool> SocketMessage::getArray<bool>(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
@@ -202,7 +214,7 @@ std::vector<SocketMessage *> SocketMessage::getArray<SocketMessage *>(const std:
             returnVector.reserve(memberArray.Size());
             for (auto &v: memberArray) {
                 if (!v.IsObject()){throw AccessError("Array contains a non-object value");}
-                returnVector.push_back(new SocketMessage(v));
+                returnVector.push_back(new SocketMessage(v, true));
             }
             return returnVector;
         }else{

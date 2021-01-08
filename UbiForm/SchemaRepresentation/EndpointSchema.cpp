@@ -32,7 +32,7 @@ void EndpointSchema::completeUpdate(rapidjson::Value &doc) {
 }
 
 SocketMessage *EndpointSchema::getSchemaObject() {
-    auto * returnObject = new SocketMessage(*JSON_rep);
+    auto * returnObject = new SocketMessage(*JSON_rep, true);
     return returnObject;
 }
 

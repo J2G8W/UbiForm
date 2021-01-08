@@ -120,7 +120,7 @@ public:
 
     std::unique_ptr<SocketMessage> getComponentRepresentation(){
         // Gets around private constructor
-        return std::unique_ptr<SocketMessage>(new SocketMessage(this->JSON_document));
+        return std::unique_ptr<SocketMessage>(new SocketMessage(this->JSON_document, true));
     }
 
     ~ComponentManifest();

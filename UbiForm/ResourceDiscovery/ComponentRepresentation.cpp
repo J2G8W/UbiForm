@@ -28,9 +28,9 @@ SocketMessage *ComponentRepresentation::getSchema(const std::string& endpointId,
     if (JSON_document["schemas"].GetObject().HasMember(endpointId)){
         SocketMessage *schema;
         if (recv) {
-            schema = new SocketMessage(JSON_document["schemas"].GetObject()[endpointId].GetObject()["receive"]);
+            schema = new SocketMessage(JSON_document["schemas"].GetObject()[endpointId].GetObject()["receive"], true);
         }else{
-            schema = new SocketMessage(JSON_document["schemas"].GetObject()[endpointId].GetObject()["send"]);
+            schema = new SocketMessage(JSON_document["schemas"].GetObject()[endpointId].GetObject()["send"], true);
         }
         return schema;
     }

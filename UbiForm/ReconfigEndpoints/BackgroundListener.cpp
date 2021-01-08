@@ -132,7 +132,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(S
             esSendSchema = nullptr;
         }
         else{
-            sendSchema = request.getObject("sendSchema");
+            sendSchema = request.getCopyObject("sendSchema");
             esSendSchema = std::make_shared<EndpointSchema>(*sendSchema);
         }
 
@@ -141,7 +141,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(S
             esReceiveSchema = nullptr;
         }
         else{
-            receiveSchema = request.getObject("receiveSchema");
+            receiveSchema = request.getCopyObject("receiveSchema");
             esReceiveSchema = std::make_shared<EndpointSchema>(*receiveSchema);
         }
 

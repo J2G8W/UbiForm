@@ -19,7 +19,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
         rds.systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*sm);
 
 
-        SocketMessage *manifest = sm->getObject("manifest");
+        SocketMessage *manifest = sm->getCopyObject("manifest");
         auto newCR = std::make_shared<ComponentRepresentation>(manifest, rds.systemSchemas);
         delete manifest;
 
@@ -48,7 +48,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
     }else if (request == REQUEST_BY_SCHEMA){
         rds.systemSchemas.getSystemSchema(SystemSchemaName::bySchemaRequest).validate(*sm);
 
-        SocketMessage * schemaRequest = sm->getObject("schema");
+        SocketMessage * schemaRequest = sm->getCopyObject("schema");
         bool receiveData = sm->getBoolean("dataReceiverEndpoint");
         std::vector<SocketMessage *> returnEndpoints;
 
@@ -79,7 +79,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
         rds.systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*returnMsg);
     }else if (request == UPDATE){
         //TODO - validate
-        SocketMessage *manifest = sm->getObject("newManifest");
+        SocketMessage *manifest = sm->getCopyObject("newManifest");
         auto newCR = std::make_shared<ComponentRepresentation>(manifest, rds.systemSchemas);
         delete manifest;
 

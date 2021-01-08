@@ -34,9 +34,14 @@ private:
 
 
     // COPY CONSTRUCTOR - needed for sensible memory allocation!
-    explicit SocketMessage(rapidjson::Value &inputObject){
-        JSON_document.SetObject();
-        JSON_document.CopyFrom(inputObject,JSON_document.GetAllocator());
+    SocketMessage(rapidjson::Value &inputObject, bool copyConstruct=true) {
+        if (copyConstruct) {
+            JSON_document.SetObject();
+            JSON_document.CopyFrom(inputObject, JSON_document.GetAllocator());
+        }else{
+            JSON_document.SetNull();
+            JSON_document.Swap(inputObject);
+        }
     }
 
 public:
@@ -104,7 +109,7 @@ public:
     bool getBoolean(const std::string &attributeName);
     std::string getString(const std::string &attributeName);
     /// @brief This uses copy constructing
-    SocketMessage *getObject(const std::string &attributeName);
+    SocketMessage *getCopyObject(const std::string &attributeName);
 
     // TODO - sort documentation for this (looks wierd)
     template <class T>
@@ -114,6 +119,10 @@ public:
         return JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsNull();
     }
     ///@}
+
+    // WARNING - the returned socket message is still tied to the message it comes from,
+    // so the returned message must not be used after parent is deleted
+    std::unique_ptr<SocketMessage> getMoveObject(const std::string &attributeName);
 
     /**
      * @return whether the socketMessage itself is a null value

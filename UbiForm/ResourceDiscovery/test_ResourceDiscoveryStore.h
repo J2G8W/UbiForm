@@ -92,7 +92,7 @@ TEST_F(SimpleRDS,GetManifestById){
 
 
     SocketMessage * componentObject = nullptr;
-    ASSERT_NO_THROW(componentObject = returnMsg->getObject("component"));
+    ASSERT_NO_THROW(componentObject = returnMsg->getCopyObject("component"));
 
     ComponentRepresentation componentRepresentation(componentObject,ss);
 
