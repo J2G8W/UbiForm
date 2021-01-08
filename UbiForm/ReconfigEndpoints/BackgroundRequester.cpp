@@ -152,7 +152,21 @@ std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::s
     }
 }
 
-void BackgroundRequester::requestCloseSocketOfType(const std::string &componentUrl, const std::string endpointType) {}
+void BackgroundRequester::requestCloseSocketOfType(const std::string &componentUrl, const std::string endpointType) {
+    SocketMessage sm;
+    sm.addMember("requestType",CLOSE_SOCKETS);
+    sm.addMember("endpointType",endpointType);
+    try{
+        requestEndpoint.dialConnection(componentUrl.c_str());
+        requestEndpoint.sendMessage(sm);
+        auto reply = requestEndpoint.receiveMessage();
+        if(reply->getBoolean("error")){
+            throw std::logic_error("Error with request to close sockets " + reply->getString("errorMsg"));
+        }
+    }catch(std::logic_error &e){
+        std::cerr << e.what() << std::endl;
+    }
+}
 
 void BackgroundRequester::requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest) {
     SocketMessage sm;

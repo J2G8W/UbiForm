@@ -7,6 +7,7 @@
 
 class Component;
 class BackgroundRequester {
+    // TODO - have some time out and a nice way of handling bad responses
     Component * component;
     SystemSchemas& systemSchemas;
     RequestEndpoint requestEndpoint;
@@ -38,7 +39,6 @@ public:
 
     std::vector<std::string> requestLocationsOfRDH(const std::string& componentUrl);
     void requestCloseSocketOfType(const std::string& componentUrl, const std::string endpointType);
-
 
 };
 

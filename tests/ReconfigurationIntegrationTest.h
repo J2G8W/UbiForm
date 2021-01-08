@@ -41,6 +41,11 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1){
     auto receiveOriginal = receiverEndpoints->at(0)->receiveMessage();
 
     ASSERT_EQ(original.getString("msg"),receiveOriginal->getString("msg"));
+
+    auto subEndpoint = receiverEndpoints->at(0);
+    senderComponent.getBackgroundRequester().requestCloseSocketOfType(receiverComponent.getBackgroundListenAddress(),"generatedSubscriber");
+    ASSERT_EQ(receiverEndpoints->size(), 0);
+    ASSERT_THROW(subEndpoint->receiveMessage(),SocketOpenError);
 }
 
 

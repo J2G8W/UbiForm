@@ -53,6 +53,8 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
                 reply = backgroundListener->handleChangeManifestRequest(*request);
             }else if(request->getString("requestType") == LOCATIONS_OF_RDH){
                 reply = backgroundListener->handleRDHLocationsRequest(*request);
+            }else if(request->getString("requestType") == CLOSE_SOCKETS){
+                reply = backgroundListener->handleCloseSocketsRequest(*request);
             }else{
                 throw ValidationError("requestType had value: " + request->getString("requestType"));
             }
@@ -178,6 +180,13 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeManifestRequest(S
 std::unique_ptr<SocketMessage> BackgroundListener::handleRDHLocationsRequest(SocketMessage &request){
     auto reply = std::make_unique<SocketMessage>();
     reply->addMember("locations",component->getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs());
+    reply->addMember("error",false);
+    return reply;
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleCloseSocketsRequest(SocketMessage &request){
+    auto reply = std::make_unique<SocketMessage>();
+    component->closeSocketsOfType(request.getString("endpointType"));
     reply->addMember("error",false);
     return reply;
 }
