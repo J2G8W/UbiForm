@@ -54,7 +54,7 @@ private:
     BackgroundRequester backgroundRequester;
 
     ResourceDiscoveryHubEndpoint * resourceDiscoveryHubEndpoint{nullptr};
-    std::shared_ptr<ResourceDiscoveryConnEndpoint> resourceDiscoveryConnEndpoint;
+    ResourceDiscoveryConnEndpoint * resourceDiscoveryConnEndpoint{nullptr};
 
 
 public:
@@ -102,7 +102,7 @@ public:
 
     void startResourceDiscoveryHub(int port);
 
-    std::shared_ptr<ResourceDiscoveryConnEndpoint> getResourceDiscoveryConnectionEndpoint();
+    ResourceDiscoveryConnEndpoint & getResourceDiscoveryConnectionEndpoint();
     void updateManifestAtResourceDiscoveryHubs();
 
     std::shared_ptr<ComponentManifest> getComponentManifest();

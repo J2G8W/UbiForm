@@ -17,7 +17,6 @@ Component::Component(const std::string &baseAddress) :  systemSchemas(),
     baseAddress(baseAddress){
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
-
 }
 
 
@@ -187,12 +186,12 @@ void Component::createEndpointAndDial(const std::string& socketType, const std::
 
 
 // CREATE RDCONNECTION
-std::shared_ptr<ResourceDiscoveryConnEndpoint> Component::getResourceDiscoveryConnectionEndpoint() {
+ResourceDiscoveryConnEndpoint & Component::getResourceDiscoveryConnectionEndpoint() {
     if(this->resourceDiscoveryConnEndpoint == nullptr) {
         std::cout << "Starting resource discovery connection endpoint" << std::endl;
-        this->resourceDiscoveryConnEndpoint = std::make_shared<ResourceDiscoveryConnEndpoint>(this, systemSchemas);
+        this->resourceDiscoveryConnEndpoint = new ResourceDiscoveryConnEndpoint(this, systemSchemas);
     }
-    return this->resourceDiscoveryConnEndpoint;
+    return *resourceDiscoveryConnEndpoint;
 }
 
 // CREATE RDHUB

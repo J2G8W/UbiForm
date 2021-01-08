@@ -18,6 +18,9 @@ private:
 
     SocketMessage * sendRequest(const std::string&, SocketMessage * request);
 
+    ResourceDiscoveryConnEndpoint(ResourceDiscoveryConnEndpoint &) = delete;
+    ResourceDiscoveryConnEndpoint& operator=(ResourceDiscoveryConnEndpoint &) = delete;
+
 public:
     ResourceDiscoveryConnEndpoint(Component *component, SystemSchemas & ss) : component(component), systemSchemas(ss) {}
 

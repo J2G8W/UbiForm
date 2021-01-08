@@ -40,8 +40,8 @@ int main(int argc, char ** argv){
 
             std::cout << "Resource discovery started" << std::endl;
 
-            std::shared_ptr<ResourceDiscoveryConnEndpoint> rdc = component.getResourceDiscoveryConnectionEndpoint();
-            rdc->registerWithHub(RDHAddress);
+
+            component.getResourceDiscoveryConnectionEndpoint().registerWithHub(RDHAddress);
 
             std::cout << "Registered successfully" << std::endl;
 
@@ -77,8 +77,7 @@ int main(int argc, char ** argv){
             component.startBackgroundListen();
             std::cout << "Component Listening" << std::endl;
 
-            std::shared_ptr<ResourceDiscoveryConnEndpoint> rdc = component.getResourceDiscoveryConnectionEndpoint();
-            rdc->registerWithHub(RDHAddress);
+            component.getResourceDiscoveryConnectionEndpoint().registerWithHub(RDHAddress);
 
             std::cout << "Registered successfully" << std::endl;
 
@@ -116,17 +115,17 @@ int main(int argc, char ** argv){
 
             const char * locationOfRDH = RDHAddress;
 
-            std::shared_ptr<ResourceDiscoveryConnEndpoint> rdc = component.getResourceDiscoveryConnectionEndpoint();
 
-            rdc->registerWithHub(locationOfRDH);
+
+            component.getResourceDiscoveryConnectionEndpoint().registerWithHub(locationOfRDH);
             std::cout << "REGISTERED SUCCESSFULLY" << std::endl;
-            std::vector<std::string> ids = rdc->getComponentIdsFromHub(locationOfRDH);
+            std::vector<std::string> ids = component.getResourceDiscoveryConnectionEndpoint().getComponentIdsFromHub(locationOfRDH);
 
             std::cout << "Available ids: ";
             for (const auto& i: ids){ std::cout << i << ' ';}
             std::cout << std::endl;
 
-            rdc->createEndpointBySchema("subscriberExample");
+            component.getResourceDiscoveryConnectionEndpoint().createEndpointBySchema("subscriberExample");
 
             std::unique_ptr<SocketMessage> s;
             auto subscriberEndpoints = component.getReceiverEndpointsByType("subscriberExample");

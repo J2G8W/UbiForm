@@ -60,19 +60,19 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
     receiverComponent.startBackgroundListen();
     senderComponent.startBackgroundListen();
 
-    RDH.getResourceDiscoveryConnectionEndpoint()->registerWithHub(rdhLocation);
-    receiverComponent.getResourceDiscoveryConnectionEndpoint()->registerWithHub(rdhLocation);
-    senderComponent.getResourceDiscoveryConnectionEndpoint()->registerWithHub(rdhLocation);
+    RDH.getResourceDiscoveryConnectionEndpoint().registerWithHub(rdhLocation);
+    receiverComponent.getResourceDiscoveryConnectionEndpoint().registerWithHub(rdhLocation);
+    senderComponent.getResourceDiscoveryConnectionEndpoint().registerWithHub(rdhLocation);
 
 
-    ASSERT_EQ(RDH.getResourceDiscoveryConnectionEndpoint()->getResourceDiscoveryHubs().size(),1);
-    ASSERT_EQ(receiverComponent.getResourceDiscoveryConnectionEndpoint()->getResourceDiscoveryHubs().size(),1);
-    ASSERT_EQ(senderComponent.getResourceDiscoveryConnectionEndpoint()->getResourceDiscoveryHubs().size(),1);
+    ASSERT_EQ(RDH.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(),1);
+    ASSERT_EQ(receiverComponent.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(),1);
+    ASSERT_EQ(senderComponent.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(),1);
 
-    std::string receiverComponentId = receiverComponent.getResourceDiscoveryConnectionEndpoint()->getId(
-            receiverComponent.getResourceDiscoveryConnectionEndpoint()->getResourceDiscoveryHubs().at(0));
+    std::string receiverComponentId = receiverComponent.getResourceDiscoveryConnectionEndpoint().getId(
+            receiverComponent.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().at(0));
 
-    auto receiverRep = receiverComponent.getResourceDiscoveryConnectionEndpoint()->getComponentById(rdhLocation, receiverComponentId);
+    auto receiverRep = receiverComponent.getResourceDiscoveryConnectionEndpoint().getComponentById(rdhLocation, receiverComponentId);
 
     ASSERT_NO_THROW(receiverRep->getName());
     ASSERT_EQ(receiverRep->getName(), "RECEIVER");
@@ -84,7 +84,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
                                                           newEndpointSchema, nullptr);
     receiverComponent.updateManifestAtResourceDiscoveryHubs();
 
-    receiverRep = receiverComponent.getResourceDiscoveryConnectionEndpoint()->getComponentById(rdhLocation, receiverComponentId);
+    receiverRep = receiverComponent.getResourceDiscoveryConnectionEndpoint().getComponentById(rdhLocation, receiverComponentId);
 
     ASSERT_NO_THROW(receiverRep->getReceiverSchema("genSubscriber"));
     ASSERT_EQ(newEndpointSchema->stringify(), receiverRep->getReceiverSchema("genSubscriber")->stringify());
@@ -96,7 +96,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
     // Takes time for the background senderComponent to register with RDH
     nng_msleep(300);
 
-    auto locations = receiverComponent.getResourceDiscoveryConnectionEndpoint()->getComponentsBySchema("genSubscriber");
+    auto locations = receiverComponent.getResourceDiscoveryConnectionEndpoint().getComponentsBySchema("genSubscriber");
     ASSERT_EQ(locations.size(),1);
     ASSERT_EQ(locations.at(0)->getString("url"), senderComponent.getBackgroundListenAddress());
 
