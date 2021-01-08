@@ -99,4 +99,24 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
     auto locations = receiverComponent.getResourceDiscoveryConnectionEndpoint()->getComponentsBySchema("genSubscriber");
     ASSERT_EQ(locations.size(),1);
     ASSERT_EQ(locations.at(0)->getString("url"), senderComponent.getBackgroundListenAddress());
+
+    // Make two subscribers (but only one publisher)
+    receiverComponent.getBackgroundRequester().requestAndCreateConnection(locations.at(0)->getString("url"),
+                                                                          "genSubscriber", "genPublisher");
+    receiverComponent.getBackgroundRequester().requestAndCreateConnection(locations.at(0)->getString("url"),
+                                                                          "genSubscriber", "genPublisher");
+
+
+    auto subscriberEndpoints = receiverComponent.getReceiverEndpointsByType("genSubscriber");
+    ASSERT_EQ(subscriberEndpoints->size(),2);
+
+    auto publisherEndpoints = senderComponent.getSenderEndpointsByType("genPublisher");
+    ASSERT_EQ(publisherEndpoints->size(), 1);
+
+    SocketMessage sm;
+    sm.addMember("value", 42);
+    publisherEndpoints->at(0)->asyncSendMessage(sm);
+
+    auto receiverMsg = subscriberEndpoints->at(0)->receiveMessage();
+    ASSERT_EQ(receiverMsg->getInteger("value"), 42);
 }
