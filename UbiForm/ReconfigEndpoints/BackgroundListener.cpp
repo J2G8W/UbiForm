@@ -120,28 +120,25 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionReq
 }
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(SocketMessage &request){
-    SocketMessage* sendSchema;
-    SocketMessage* receiveSchema;
     try{
+        std::unique_ptr<SocketMessage> sendSchema;
+        std::unique_ptr<SocketMessage> receiveSchema;
+
         std::shared_ptr<EndpointSchema> esSendSchema;
         std::shared_ptr<EndpointSchema> esReceiveSchema;
 
 
         if (request.isNull("sendSchema")){
-            sendSchema = nullptr;
             esSendSchema = nullptr;
-        }
-        else{
-            sendSchema = request.getCopyObject("sendSchema");
+        }else{
+            sendSchema = request.getMoveObject("sendSchema");
             esSendSchema = std::make_shared<EndpointSchema>(*sendSchema);
         }
 
         if (request.isNull("receiveSchema")){
-            receiveSchema = nullptr;
             esReceiveSchema = nullptr;
-        }
-        else{
-            receiveSchema = request.getCopyObject("receiveSchema");
+        }else{
+            receiveSchema = request.getMoveObject("receiveSchema");
             esReceiveSchema = std::make_shared<EndpointSchema>(*receiveSchema);
         }
 
@@ -153,17 +150,11 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(S
         reply->addMember("error",false);
         reply->addMember("errorMsg", "All good");
 
-        delete sendSchema;
-        delete receiveSchema;
-
         return reply;
     }catch(std::logic_error &e){
         auto reply = std::make_unique<SocketMessage>();
         reply->addMember("error",true);
         reply->addMember("errorMsg", e.what());
-
-        delete sendSchema;
-        delete receiveSchema;
 
         return reply;
     }

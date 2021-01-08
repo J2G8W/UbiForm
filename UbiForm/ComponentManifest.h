@@ -108,6 +108,7 @@ public:
 
 
     /**
+     * Note that this copies from the schemas given to it, it doesn't use the same schemas
      * @param socketType - specify the socketType of the new endpoint
      * @param typeOfEndpoint - specify the name of the endpoint (will replace previous endpoints of same name
      * @param receiveSchema - either a pointer to the schema for the endpoint or nullptr if relevant socketType doesn't need receiveSchema
