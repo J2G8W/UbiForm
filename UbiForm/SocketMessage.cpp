@@ -165,6 +165,25 @@ std::unique_ptr<SocketMessage> SocketMessage::getMoveObject(const std::string &a
     }
 }
 
+std::vector<std::unique_ptr<SocketMessage> > SocketMessage::getMoveArrayOfObjects(const std::string &attributeName) {
+    if (JSON_document.HasMember(attributeName)) {
+        if (JSON_document[attributeName].IsArray()) {
+            auto memberArray = JSON_document[attributeName].GetArray();
+            std::vector<std::unique_ptr<SocketMessage>> returnVector;
+            returnVector.reserve(memberArray.Size());
+            for (auto &v: memberArray) {
+                if (!v.IsObject()){throw AccessError("Array contains a non-object value");}
+                returnVector.push_back(std::unique_ptr<SocketMessage>(new SocketMessage(v, false)));
+            }
+            return returnVector;
+        }else{
+            throw AccessError("Attribute " + attributeName + "exists but not type array");
+        }
+    }else{
+        throw AccessError("The message has no attribute " + attributeName);
+    }
+}
+
 template<>
 std::vector<bool> SocketMessage::getArray<bool>(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {

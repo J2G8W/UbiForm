@@ -123,6 +123,7 @@ public:
     // WARNING - the returned socket message is still tied to the message it comes from,
     // so the returned message must not be used after parent is deleted
     std::unique_ptr<SocketMessage> getMoveObject(const std::string &attributeName);
+    std::vector<std::unique_ptr<SocketMessage> > getMoveArrayOfObjects(const std::string &attributeName);
 
     /**
      * @return whether the socketMessage itself is a null value

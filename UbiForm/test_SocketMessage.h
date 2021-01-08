@@ -66,6 +66,19 @@ TEST(SocketMessage, GetMoveObject){
     ASSERT_EQ(retSocketMessage->getInteger("HELLO"),50);
     ASSERT_TRUE(sm.isNull("sub"));
 }
+TEST(SocketMessage, GetMoveArrayOfObjects){
+    SocketMessage sm;
+    auto subSm = new SocketMessage;
+    subSm->addMember("HELLO",50);
+    std::vector<SocketMessage *> lilVec = {subSm};
+    sm.addMember("sub",lilVec);
+
+    ASSERT_EQ(sm.stringify(), R"({"sub":[{"HELLO":50}]})");
+
+    auto retSocketMessages = sm.getMoveArrayOfObjects("sub");
+    ASSERT_EQ(retSocketMessages.size(), 1);
+    ASSERT_EQ(retSocketMessages.at(0)->getInteger("HELLO"), 50);
+}
 
 TEST(SocketMessage, OverwriteInteger) {
     SocketMessage socketMessage;
