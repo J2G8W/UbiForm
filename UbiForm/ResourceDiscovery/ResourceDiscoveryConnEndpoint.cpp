@@ -1,5 +1,5 @@
 #include "ResourceDiscoveryConnEndpoint.h"
-
+#include "../Component.h"
 #include <nng/protocol/reqrep0/req.h>
 SocketMessage* ResourceDiscoveryConnEndpoint::sendRequest(const std::string& url, SocketMessage *request) {
 

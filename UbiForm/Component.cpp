@@ -14,7 +14,7 @@
 // CONSTRUCTOR
 Component::Component(const std::string &baseAddress) :  systemSchemas(),
     backgroundListener(this,systemSchemas), backgroundRequester(this, systemSchemas),
-    baseAddress(baseAddress){
+    baseAddress(baseAddress), resourceDiscoveryConnEndpoint(this, systemSchemas){
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
 }
@@ -185,15 +185,6 @@ void Component::createEndpointAndDial(const std::string& socketType, const std::
 }
 
 
-// CREATE RDCONNECTION
-ResourceDiscoveryConnEndpoint & Component::getResourceDiscoveryConnectionEndpoint() {
-    if(this->resourceDiscoveryConnEndpoint == nullptr) {
-        std::cout << "Starting resource discovery connection endpoint" << std::endl;
-        this->resourceDiscoveryConnEndpoint = new ResourceDiscoveryConnEndpoint(this, systemSchemas);
-    }
-    return *resourceDiscoveryConnEndpoint;
-}
-
 // CREATE RDHUB
 void Component::startResourceDiscoveryHub(int port) {
     this->resourceDiscoveryHubEndpoint = new ResourceDiscoveryHubEndpoint(systemSchemas);
@@ -231,10 +222,4 @@ std::shared_ptr<ComponentManifest> Component::getComponentManifest() {
         throw std::logic_error("No Component Manifest specified");
     }
     return componentManifest;
-}
-
-void Component::updateManifestAtResourceDiscoveryHubs() {
-    if (resourceDiscoveryConnEndpoint != nullptr){
-        resourceDiscoveryConnEndpoint->updateManifestWithHubs();
-    }
 }

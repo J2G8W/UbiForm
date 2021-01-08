@@ -147,7 +147,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(S
 
         component->getComponentManifest()->addEndpoint(static_cast<SocketType>(request.getInteger("socketType")),
                                                        request.getString("endpointType"), esReceiveSchema, esSendSchema);
-        component->updateManifestAtResourceDiscoveryHubs();
+        component->getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
 
         auto reply = std::make_unique<SocketMessage>();
         reply->addMember("error",false);

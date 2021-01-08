@@ -19,9 +19,8 @@
 #include "SystemSchemas/SystemSchemas.h"
 #include "ReconfigEndpoints/BackgroundListener.h"
 #include "ReconfigEndpoints/BackgroundRequester.h"
+#include "ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
-
-class ResourceDiscoveryConnEndpoint;
 
 class Component {
 private:
@@ -54,7 +53,7 @@ private:
     BackgroundRequester backgroundRequester;
 
     ResourceDiscoveryHubEndpoint * resourceDiscoveryHubEndpoint{nullptr};
-    ResourceDiscoveryConnEndpoint * resourceDiscoveryConnEndpoint{nullptr};
+    ResourceDiscoveryConnEndpoint resourceDiscoveryConnEndpoint;
 
 
 public:
@@ -102,9 +101,8 @@ public:
 
     void startResourceDiscoveryHub(int port);
 
-    ResourceDiscoveryConnEndpoint & getResourceDiscoveryConnectionEndpoint();
-    void updateManifestAtResourceDiscoveryHubs();
 
+    ResourceDiscoveryConnEndpoint & getResourceDiscoveryConnectionEndpoint(){return resourceDiscoveryConnEndpoint;}
     std::shared_ptr<ComponentManifest> getComponentManifest();
     std::string getBackgroundListenAddress(){return backgroundListener.getBackgroundListenAddress();}
     SystemSchemas & getSystemSchemas(){return systemSchemas;}

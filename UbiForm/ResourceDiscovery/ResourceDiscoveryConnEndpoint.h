@@ -1,10 +1,8 @@
 #ifndef UBIFORM_RESOURCEDISCOVERYCONNENDPOINT_H
 #define UBIFORM_RESOURCEDISCOVERYCONNENDPOINT_H
 
-
 #include <vector>
 #include <string>
-#include "../Component.h"
 #include "ComponentRepresentation.h"
 
 class Component ;

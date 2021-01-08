@@ -82,7 +82,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
     newEndpointSchema->addRequired("value");
     receiverComponent.getComponentManifest()->addEndpoint(SocketType::Subscriber, "genSubscriber",
                                                           newEndpointSchema, nullptr);
-    receiverComponent.updateManifestAtResourceDiscoveryHubs();
+    receiverComponent.getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
 
     receiverRep = receiverComponent.getResourceDiscoveryConnectionEndpoint().getComponentById(rdhLocation, receiverComponentId);
 
