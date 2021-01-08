@@ -67,6 +67,7 @@ public:
 
     void setManifest(FILE *jsonFP);
     void setManifest(const char *jsonString);
+    // Copy set
     void setManifest(SocketMessage *sm);
 
     /**

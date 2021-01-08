@@ -89,9 +89,9 @@ std::unique_ptr<ComponentRepresentation> ResourceDiscoveryConnEndpoint::getCompo
         throw std::logic_error("RDH did not have a component of that ID");
     }
     try{
-        SocketMessage* compRep = reply->getCopyObject("component");
-        auto componentRepresentation = std::make_unique<ComponentRepresentation>(compRep, systemSchemas);
-        delete compRep;
+        // We copy compRep when making the ComponentRepresentation object anyway
+        auto compRep = reply->getMoveObject("component");
+        auto componentRepresentation = std::make_unique<ComponentRepresentation>(compRep.get(), systemSchemas);
         delete reply;
         return componentRepresentation;
     }catch(std::logic_error &e){

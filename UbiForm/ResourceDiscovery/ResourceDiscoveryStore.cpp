@@ -18,10 +18,9 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
 
         rds.systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*sm);
 
-
-        SocketMessage *manifest = sm->getCopyObject("manifest");
-        auto newCR = std::make_shared<ComponentRepresentation>(manifest, rds.systemSchemas);
-        delete manifest;
+        // We copy the manifest object when creating ComponentRepresentation anyway
+        auto manifest = sm->getMoveObject("manifest");
+        auto newCR = std::make_shared<ComponentRepresentation>(manifest.get(), rds.systemSchemas);
 
         std::string id = std::to_string(rds.generator());
 
@@ -48,7 +47,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
     }else if (request == REQUEST_BY_SCHEMA){
         rds.systemSchemas.getSystemSchema(SystemSchemaName::bySchemaRequest).validate(*sm);
 
-        SocketMessage * schemaRequest = sm->getCopyObject("schema");
+        auto schemaRequest = sm->getMoveObject("schema");
         bool receiveData = sm->getBoolean("dataReceiverEndpoint");
         std::vector<SocketMessage *> returnEndpoints;
 
@@ -67,7 +66,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
         for (auto rs: returnEndpoints){
             delete rs;
         }
-        delete schemaRequest;
+
         rds.systemSchemas.getSystemSchema(SystemSchemaName::bySchemaResponse).validate(*returnMsg);
     }else if (request == REQUEST_COMPONENTS){
         rds.systemSchemas.getSystemSchema(SystemSchemaName::componentIdsRequest).validate(*sm);
@@ -79,9 +78,8 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
         rds.systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*returnMsg);
     }else if (request == UPDATE){
         //TODO - validate
-        SocketMessage *manifest = sm->getCopyObject("newManifest");
-        auto newCR = std::make_shared<ComponentRepresentation>(manifest, rds.systemSchemas);
-        delete manifest;
+        auto manifest = sm->getMoveObject("newManifest");
+        auto newCR = std::make_shared<ComponentRepresentation>(manifest.get(), rds.systemSchemas);
 
         std::string id = sm->getString("id");
 
