@@ -155,7 +155,7 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
     if (socketType == SocketType::Pair || socketType == SocketType::Publisher) {
         std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&(schemas[typeOfEndpoint].GetObject()["send"]),
                                                                                           JSON_document.GetAllocator());
-        receiverSchemas[typeOfEndpoint] = endpointSchema;
+        senderSchemas[typeOfEndpoint] = endpointSchema;
     }
 }
 
