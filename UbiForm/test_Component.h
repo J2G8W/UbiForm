@@ -89,7 +89,7 @@ protected:
 TEST_F(PairBasedComponent, FindEachOther){
     // We use IPC to test our component - concept of ports is less clear, but it works
     senderComponent->startBackgroundListen(8000);
-    ASSERT_NO_THROW(receiverComponent->requestAndCreateConnection(senderComponent->getBackgroundListenAddress(),
+    ASSERT_NO_THROW(receiverComponent->getBackgroundRequester().requestAndCreateConnection(senderComponent->getBackgroundListenAddress(),
                                                                   "pairExample", "pairExample"));
 
     nng_msleep(1000);

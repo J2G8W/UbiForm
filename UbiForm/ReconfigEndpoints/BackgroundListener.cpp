@@ -104,7 +104,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleAddRDH(SocketMessage &r
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionRequest(SocketMessage &request){
     try {
-        component->requestAndCreateConnection(
+        component->getBackgroundRequester().requestAndCreateConnection(
                 request.getString("remoteAddress"), request.getString("reqEndpointType"),
                 request.getString("remoteEndpointType"));
         auto reply = std::make_unique<SocketMessage>();

@@ -32,7 +32,7 @@ void RequestEndpoint::dialConnection(const char *url) {
     // Use the same socket for sending and receiving
     receiverSocket = senderSocket;
     if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
-        throw NngError(rv, "Dialing " + std::string(url) + " for a pair connection");
+        throw NngError(rv, "Dialing " + std::string(url) + " for a request connection");
     }
     this->listenUrl = url;
     this->dialUrl = url;
