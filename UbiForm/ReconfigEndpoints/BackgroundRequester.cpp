@@ -128,13 +128,30 @@ std::string BackgroundRequester::requestCreateRDH(const std::string &componentUr
     }
 }
 
+// Is necceassry?
 void BackgroundRequester::requestToCreateAndDial(const std::string &componentUrl, const std::string &socketType,
                                                  const std::string &endpointType, const std::string &remoteUrl) {
 
 }
 
-void BackgroundRequester::requestUpdateComponentManifest(const std::string &componentUrl) {}
 
 std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::string &componentUrl) {}
 
 void BackgroundRequester::requestCloseSocketOfType(const std::string &componentUrl, const std::string endpointType) {}
+
+void BackgroundRequester::requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest) {
+    SocketMessage sm;
+    sm.addMember("requestType",CHANGE_MANIFEST);
+    auto compRep = newManifest.getComponentRepresentation();
+    sm.moveMember("newManifest",std::move(compRep));
+    try{
+        requestEndpoint.dialConnection(componentUrl.c_str());
+        requestEndpoint.sendMessage(sm);
+        auto reply = requestEndpoint.receiveMessage();
+        if(reply->getBoolean("error")){
+            throw std::logic_error("Error with request to update component manifest " + reply->getString("errorMsg"));
+        }
+    }catch(std::logic_error &e){
+        std::cerr << e.what() << std::endl;
+    }
+}

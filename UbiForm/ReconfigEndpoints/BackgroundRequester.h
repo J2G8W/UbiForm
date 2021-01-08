@@ -3,6 +3,7 @@
 
 #include "../SystemSchemas/SystemSchemas.h"
 #include "../Endpoints/RequestEndpoint.h"
+#include "../ComponentManifest.h"
 
 class Component;
 class BackgroundRequester {
@@ -33,7 +34,8 @@ public:
     void requestToCreateAndDial(const std::string& componentUrl, const std::string &socketType,
                                 const std::string &endpointType, const std::string &remoteUrl);
 
-    void requestUpdateComponentManifest(const std::string& componentUrl);
+    void requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest& newManifest);
+
     std::vector<std::string> requestLocationsOfRDH(const std::string& componentUrl);
     void requestCloseSocketOfType(const std::string& componentUrl, const std::string endpointType);
 

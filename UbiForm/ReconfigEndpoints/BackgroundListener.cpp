@@ -51,17 +51,20 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
                 reply = backgroundListener->handleChangeEndpointRequest(*request);
             }else if(request->getString("requestType") == CREATE_RDH){
                 reply = backgroundListener->handleCreateRDHRequest(*request);
+            }else if(request->getString("requestType") == CHANGE_MANIFEST){
+                reply = backgroundListener->handleChangeManifestRequest(*request);
             }else{
                 throw ValidationError("requestType had value: " + request->getString("requestType"));
             }
         }catch(ValidationError &e){
-            std::cerr << "Invalid creation request - " << e.what() <<std::endl;
-            continue;
+            reply = std::make_unique<SocketMessage>();
+            reply->addMember("error",true);
+            reply->addMember("errorMsg","Validation error - " + std::string(e.what()));
         }catch(std::logic_error &e){
-            std::cerr << e.what() << std::endl;
-            continue;
+            reply = std::make_unique<SocketMessage>();
+            reply->addMember("error",true);
+            reply->addMember("errorMsg",e.what());
         }
-
 
         try {
             backgroundListener->replyEndpoint.sendMessage(*reply);
@@ -101,83 +104,77 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleConnectionRequest(Socke
         reply->addMember("url",url);
         return reply;
     }catch (std::out_of_range &e) {
-        std::cerr << "No schema of type " << request.getString("endpointType") << " found in this component."
-                  << std::endl;
-        // Return a simple reply, any errors on send are IGNORED
-        auto reply = std::make_unique<SocketMessage>();
-        reply->setNull("url");
-        return reply;
+        throw std::logic_error("No schema of type " + request.getString("endpointType") + " found in this component.");
     }
 }
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleAddRDH(SocketMessage &request){
     auto reply = std::make_unique<SocketMessage>();
-    try {
-        component->getResourceDiscoveryConnectionEndpoint().registerWithHub(request.getString("url"));
-        reply->addMember("error",false);
-        return reply;
-    }catch(std::logic_error &e){
-        reply->addMember("error",true);
-        reply->addMember("errorMsg",e.what());
-        return reply;
-    }
+    component->getResourceDiscoveryConnectionEndpoint().registerWithHub(request.getString("url"));
+    reply->addMember("error",false);
+    return reply;
 }
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionRequest(SocketMessage &request){
-    try {
-        component->getBackgroundRequester().requestAndCreateConnection(
-                request.getString("remoteAddress"), request.getString("reqEndpointType"),
-                request.getString("remoteEndpointType"));
-        auto reply = std::make_unique<SocketMessage>();
-        reply->addMember("error",false);
-        return reply;
-    }catch(std::logic_error &e){
-        auto reply = std::make_unique<SocketMessage>();
-        reply->addMember("error",true);
-        reply->addMember("errorMsg", e.what());
-        return reply;
-    }
+    component->getBackgroundRequester().requestAndCreateConnection(
+            request.getString("remoteAddress"), request.getString("reqEndpointType"),
+            request.getString("remoteEndpointType"));
+    auto reply = std::make_unique<SocketMessage>();
+    reply->addMember("error",false);
+    return reply;
+
 }
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(SocketMessage &request){
-    try{
-        std::unique_ptr<SocketMessage> sendSchema;
-        std::unique_ptr<SocketMessage> receiveSchema;
+    std::unique_ptr<SocketMessage> sendSchema;
+    std::unique_ptr<SocketMessage> receiveSchema;
 
-        std::shared_ptr<EndpointSchema> esSendSchema;
-        std::shared_ptr<EndpointSchema> esReceiveSchema;
+    std::shared_ptr<EndpointSchema> esSendSchema;
+    std::shared_ptr<EndpointSchema> esReceiveSchema;
 
 
-        if (request.isNull("sendSchema")){
-            esSendSchema = nullptr;
-        }else{
-            sendSchema = request.getMoveObject("sendSchema");
-            esSendSchema = std::make_shared<EndpointSchema>(*sendSchema);
-        }
-
-        if (request.isNull("receiveSchema")){
-            esReceiveSchema = nullptr;
-        }else{
-            receiveSchema = request.getMoveObject("receiveSchema");
-            esReceiveSchema = std::make_shared<EndpointSchema>(*receiveSchema);
-        }
-
-        component->getComponentManifest().addEndpoint(static_cast<SocketType>(request.getInteger("socketType")),
-                                                       request.getString("endpointType"), esReceiveSchema, esSendSchema);
-        component->getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
-
-        auto reply = std::make_unique<SocketMessage>();
-        reply->addMember("error",false);
-        reply->addMember("errorMsg", "All good");
-
-        return reply;
-    }catch(std::logic_error &e){
-        auto reply = std::make_unique<SocketMessage>();
-        reply->addMember("error",true);
-        reply->addMember("errorMsg", e.what());
-
-        return reply;
+    if (request.isNull("sendSchema")){
+        esSendSchema = nullptr;
+    }else{
+        sendSchema = request.getMoveObject("sendSchema");
+        esSendSchema = std::make_shared<EndpointSchema>(*sendSchema);
     }
+
+    if (request.isNull("receiveSchema")){
+        esReceiveSchema = nullptr;
+    }else{
+        receiveSchema = request.getMoveObject("receiveSchema");
+        esReceiveSchema = std::make_shared<EndpointSchema>(*receiveSchema);
+    }
+
+    component->getComponentManifest().addEndpoint(static_cast<SocketType>(request.getInteger("socketType")),
+                                                   request.getString("endpointType"), esReceiveSchema, esSendSchema);
+    component->getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
+
+    auto reply = std::make_unique<SocketMessage>();
+    reply->addMember("error",false);
+    reply->addMember("errorMsg", "All good");
+
+    return reply;
+
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleCreateRDHRequest(SocketMessage &request) {
+    auto reply = std::make_unique<SocketMessage>();
+
+    std::string url = component->startResourceDiscoveryHub();
+    reply->addMember("url",url);
+    reply->addMember("error",false);
+
+    return reply;
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleChangeManifestRequest(SocketMessage &request){
+    auto reply = std::make_unique<SocketMessage>();
+    auto manifestObject = request.getMoveObject("newManifest");
+    component->specifyManifest(manifestObject.get());
+    reply->addMember("error", false);
+    return reply;
 }
 
 BackgroundListener::~BackgroundListener() {
@@ -191,17 +188,3 @@ BackgroundListener::~BackgroundListener() {
         backgroundThread.join();
     }
 }
-
-std::unique_ptr<SocketMessage> BackgroundListener::handleCreateRDHRequest(SocketMessage &request) {
-    auto reply = std::make_unique<SocketMessage>();
-    try {
-        std::string url = component->startResourceDiscoveryHub();
-        reply->addMember("url",url);
-        reply->addMember("error",false);
-    }catch(std::logic_error &e){
-        reply->addMember("error",true);
-        reply->addMember("errorMsg",e.what());
-    }
-    return reply;
-}
-

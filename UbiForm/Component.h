@@ -62,10 +62,15 @@ public:
 
     void specifyManifest(FILE *jsonFP) {
         componentManifest.setManifest(jsonFP);
+        resourceDiscoveryConnEndpoint.updateManifestWithHubs();
     }
-
     void specifyManifest(const char *jsonString) {
         componentManifest.setManifest(jsonString);
+        resourceDiscoveryConnEndpoint.updateManifestWithHubs();
+    }
+    void specifyManifest(SocketMessage* sm) {
+        componentManifest.setManifest(sm);
+        resourceDiscoveryConnEndpoint.updateManifestWithHubs();
     }
 
 
