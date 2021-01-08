@@ -35,7 +35,6 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
 
 
 // This is the public interface for asynchronously receiving messages
-// TODO - improve type safety here - templates rather than void*
 void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *furtherUserData) {
     if(!socketOpen){
         throw SocketOpenError("Could not async-receive message, socket is closed", endpointType, endpointIdentifier);
