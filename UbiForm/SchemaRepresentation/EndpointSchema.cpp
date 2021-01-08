@@ -17,8 +17,10 @@ void EndpointSchema::validate(const rapidjson::Value &doc) {
         validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
 
         std::ostringstream errorText;
-        errorText << "Invalid schema property: " << sb.GetString() << std::endl ;
-        errorText << "Invalid keyword: " <<  validator.GetInvalidSchemaKeyword() ;
+        errorText << "Invalid schema property: " << sb.GetString();
+        errorText << "\nInvalid keyword: " <<  validator.GetInvalidSchemaKeyword();
+        errorText << "\nSchema: " << this->stringify();
+        errorText << "\nDocument: " << stringifyValue((rapidjson::Value&) doc);
         throw ValidationError(errorText.str());
     }
 }
@@ -50,7 +52,7 @@ ValueType EndpointSchema::getValueType(const std::string& fieldName) {
     else if (valueType == "object"){return ValueType::Object;}
     else if (valueType == "array"){return ValueType::Array;}
     else if (valueType == "null"){return ValueType::Null;}
-    else{throw ValidationError("No valid type in the schema");}
+    else{throw ValidationError("No valid type in the schema for field: " + fieldName);}
 }
 
 std::vector<std::string> EndpointSchema::getAllProperties() {
