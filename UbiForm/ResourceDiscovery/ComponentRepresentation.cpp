@@ -36,3 +36,21 @@ SocketMessage *ComponentRepresentation::getSchema(const std::string& endpointId,
     }
     return nullptr;
 }
+
+void ComponentRepresentation::fillSelf() {
+    if(JSON_document.HasMember("urls") && JSON_document["urls"].IsArray()){
+        for(const auto& u: JSON_document["urls"].GetArray()){
+            if(!u.IsString()){throw ValidationError("Urls not of type string");}
+            urls.emplace_back(u.GetString());
+        }
+    }else{
+        throw ValidationError("URLs of ComponentRepresentation not valid");
+    }
+
+    if (JSON_document.HasMember("port") && JSON_document["port"].IsInt()){
+        port = JSON_document["port"].GetInt();
+    }else{
+        throw ValidationError("No valid port for ComponentRepresentation");
+    }
+
+}

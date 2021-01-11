@@ -17,13 +17,12 @@ protected:
         delete exampleManifest;
     }
 
-    SocketMessage* addDummyComponent(const std::string& listenUrl){
+    SocketMessage *addDummyComponent() {
         SocketMessage sm;
         sm.addMember("request", ADDITION);
 
-        SocketMessage manifest(exampleManifest->stringify().c_str());
-        manifest.addMember("url", listenUrl);
-        sm.addMember("manifest",manifest);
+        auto manifest = exampleManifest->getComponentRepresentation();
+        sm.moveMember("manifest",std::move(manifest));
 
 
         SocketMessage * returnMsg;
@@ -55,9 +54,8 @@ TEST_F(SimpleRDS,AdditionOfComponent){
     SocketMessage * sm = new SocketMessage;
     sm->addMember("request", ADDITION);
 
-    SocketMessage manifest(exampleManifest->stringify().c_str());
-    manifest.addMember("url", "tcp://127.0.0.1:8000");
-    sm->addMember("manifest",manifest);
+    auto manifest = exampleManifest->getComponentRepresentation();
+    sm->moveMember("manifest",std::move(manifest));
 
 
     SocketMessage * returnMsg = nullptr;
@@ -71,8 +69,7 @@ TEST_F(SimpleRDS,AdditionOfComponent){
 
 
 TEST_F(SimpleRDS,GetManifestById){
-    std::string listenUrl = "tcp://127.0.0.1:8000";
-    SocketMessage * returnMsg = addDummyComponent(listenUrl);
+    SocketMessage * returnMsg = addDummyComponent();
 
     // Assert that we have a returned ID
     std::string returnID = returnMsg->getString("newID");
@@ -96,20 +93,16 @@ TEST_F(SimpleRDS,GetManifestById){
 
     ComponentRepresentation componentRepresentation(componentObject,ss);
 
-    ASSERT_EQ(componentRepresentation.getUrl(), listenUrl);
-
     delete returnMsg;
     delete componentObject;
 }
 
 TEST_F(SimpleRDS, GetComponentIds){
-    std::string url1 = "tcp://127.0.0.1:8000";
-    std::string url2 = "tcp://127.0.0.2:8001";
 
-    SocketMessage * returnMsg = addDummyComponent(url1);
+    SocketMessage * returnMsg = addDummyComponent();
     std::string id1 = returnMsg->getString("newID");
     delete returnMsg;
-    returnMsg = addDummyComponent(url2);
+    returnMsg = addDummyComponent();
     std::string id2 = returnMsg->getString("newID");
     delete returnMsg;
 
@@ -131,9 +124,8 @@ TEST_F(SimpleRDS, GetComponentIds){
 
 
 TEST_F(SimpleRDS, GetBySchemaValid){
-    std::string url1 = "tcp://127.0.0.1:8000";
 
-    SocketMessage * returnMsg = addDummyComponent(url1);
+    SocketMessage * returnMsg = addDummyComponent();
     std::string id1 = returnMsg->getString("newID");
     delete returnMsg;
 
@@ -152,7 +144,6 @@ TEST_F(SimpleRDS, GetBySchemaValid){
 
     delete reply;
     SocketMessage * firstEndpoint = endpointReturns.at(0);
-    ASSERT_EQ(firstEndpoint->getString("url"), url1);
     ASSERT_EQ(firstEndpoint->getString("componentId"),id1);
 
     for (auto e : endpointReturns){
@@ -164,7 +155,7 @@ TEST_F(SimpleRDS, GetBySchemaValid){
 TEST_F(SimpleRDS, GetBySchemaInvalid){
     std::string url1 = "tcp://127.0.0.1:8000";
 
-    SocketMessage * returnMsg = addDummyComponent(url1);
+    SocketMessage * returnMsg = addDummyComponent();
     std::string id1 = returnMsg->getString("newID");
     delete returnMsg;
 

@@ -2,18 +2,19 @@
 #include <nng/supplemental/util/platform.h>
 #include "PublisherEndpoint.h"
 
-void PublisherEndpoint::listenForConnection(const char *url) {
-    int rv = listenForConnectionWithRV(url);
+void PublisherEndpoint::listenForConnection(const char *base, int port) {
+    int rv = listenForConnectionWithRV(base, 0);
     if (rv != 0){
-        throw NngError(rv, "Publisher listen at " + std::string(url));
+        throw NngError(rv, "Publisher listen at " + std::string(base));
     }
 }
-int PublisherEndpoint::listenForConnectionWithRV(const char *url) {
+int PublisherEndpoint::listenForConnectionWithRV(const char *base, int port) {
     int rv;
-    if ((rv = nng_listen(*senderSocket, url, nullptr, 0)) != 0) {
+    std::string addr = std::string(base) + ":" + std::to_string(port);
+    if ((rv = nng_listen(*senderSocket, addr.c_str(), nullptr, 0)) != 0) {
         return rv;
     }
-    this->listenUrl = url;
+    this->port = port;
     return rv;
 }
 

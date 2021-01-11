@@ -28,5 +28,9 @@ enum SystemSchemaName{
     bySchemaRequest, bySchemaResponse, componentIdsRequest, componentIdsResponse,updateRequest
 };
 
+enum ConnectionType{
+    IPC, TCP, LocalTCP
+};
+
 
 #endif //UBIFORM_SYSTEMENUMS_H

@@ -11,14 +11,20 @@
           "componentId": {
             "type": "string"
           },
-          "url": {
-            "type": "string"
+          "urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "port": {
+            "type": "number"
           },
           "endpointType": {
             "type": "string"
           }
         },
-        "required": ["componentId","url","endpointType"]
+        "required": ["componentId","urls","port","endpointType"]
       }
     }
   },

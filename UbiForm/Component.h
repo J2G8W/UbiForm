@@ -48,12 +48,15 @@ private:
     int lowestPort = 8001;
 
     std::string baseAddress;
+    std::vector<std::string> availableAddresses;
 
     BackgroundListener backgroundListener;
     BackgroundRequester backgroundRequester;
 
     ResourceDiscoveryHubEndpoint * resourceDiscoveryHubEndpoint{nullptr};
     ResourceDiscoveryConnEndpoint resourceDiscoveryConnEndpoint;
+
+    ConnectionType componentConnectionType;
 
 
 public:
@@ -81,7 +84,7 @@ public:
     std::shared_ptr<PublisherEndpoint> createNewPublisherEndpoint(const std::string& type, const std::string& id);
 
     // Generalised start of listeners (returns URL of where connection is)
-    std::string createEndpointAndListen(SocketType st, const std::string &endpointType);
+    int createEndpointAndListen(SocketType st, const std::string &endpointType);
     void createEndpointAndDial(const std::string &socketType, const std::string &localEndpointType, const std::string &url);
 
     // We rethrow an out_of_range exception if the request fails
@@ -93,21 +96,24 @@ public:
     std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > getSenderEndpointsByType(const std::string &endpointType);
 
 
-    void startBackgroundListen(int port){
-        backgroundListener.startBackgroundListen(this->baseAddress + ":" + std::to_string(port));
-    }
+    void startBackgroundListen(int port);
     void startBackgroundListen();
 
-    std::string startResourceDiscoveryHub(int port);
-    std::string startResourceDiscoveryHub();
+    void startResourceDiscoveryHub(int port);
+    int startResourceDiscoveryHub();
 
 
     ResourceDiscoveryConnEndpoint & getResourceDiscoveryConnectionEndpoint(){return resourceDiscoveryConnEndpoint;}
     ComponentManifest& getComponentManifest(){return componentManifest;}
-    std::string getBackgroundListenAddress(){return backgroundListener.getBackgroundListenAddress();}
     SystemSchemas & getSystemSchemas(){return systemSchemas;}
     BackgroundRequester & getBackgroundRequester(){return backgroundRequester;}
     std::string getRDHLocation();
+
+    std::string getBackgroundListenAddress(){return backgroundListener.getBackgroundListenAddress();}
+    int getBackgroundPort(){return backgroundListener.getBackgroundPort();}
+    std::vector<std::string>& getAllAddresses(){
+        return availableAddresses;
+    }
 
 
     void closeSocketsOfType(const std::string& endpointType);

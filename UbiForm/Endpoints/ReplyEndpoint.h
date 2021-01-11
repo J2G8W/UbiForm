@@ -26,8 +26,8 @@ public:
         receiverSocket = senderSocket;
     }
 
-    void listenForConnection(const char *url) override ;
-    int listenForConnectionWithRV(const char *url) override;
+    void listenForConnection(const char *base, int port) override ;
+    int listenForConnectionWithRV(const char *base, int port) override;
 
     // SHOULD NOT DIAL FOR CONNECTION
     void dialConnection(const char *url) override;

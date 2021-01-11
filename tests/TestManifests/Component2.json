@@ -1,6 +1,7 @@
 {
   "name": "PublisherExample",
-  "url": "tcp://127.0.0.1:8000",
+  "urls": ["tcp://127.0.0.1"],
+  "port": 8000,
   "schemas": {
     "publisherExample": {
       "socketType": "publisher",

@@ -19,6 +19,15 @@ Component::Component(const std::string &baseAddress) :  systemSchemas(),
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
     std::cout << "Component made, base address is " << baseAddress << std::endl;
+    if(baseAddress.rfind("tcp",0)==0){
+        componentConnectionType = ConnectionType::LocalTCP;
+        availableAddresses.push_back(baseAddress);
+    }else if (baseAddress.rfind("ipc", 0) ==0){
+        componentConnectionType = ConnectionType::IPC;
+        availableAddresses.push_back(baseAddress);
+    }else{
+        throw std::logic_error("The given address did not have a type of TCP or IPC");
+    }
 }
 
 Component::Component():  systemSchemas(),
@@ -28,21 +37,16 @@ Component::Component():  systemSchemas(),
     generator.seed(randomSeed);
 
     auto addresses = getLinuxIpAddresses();
-    bool addressFound = false;
-    std::vector<std::string> orderOfStarts = {"10.","192."};
-    for(const auto& start : orderOfStarts){
-        for(const auto& address : addresses){
-            if (address.rfind(start,0) == 0){
-                addressFound = true;
-                baseAddress = "tcp://" + address;
-                break;
-            }
+    for (const auto & address: addresses){
+        if(address.rfind("127.",0) != 0){
+            availableAddresses.emplace_back(address);
         }
-        if(addressFound){break;}
     }
-    if (!addressFound){
-        baseAddress = "tcp://127.0.0.1";
+    if (availableAddresses.empty()){
+        throw std::logic_error("Could not find any networks to act on");
     }
+    baseAddress = "tcp://127.0.0.1";
+    componentConnectionType = ConnectionType::TCP;
     std::cout << "Component made, base address is " << baseAddress << std::endl;
 }
 
@@ -151,7 +155,7 @@ Component::getSenderEndpointsByType(const std::string &endpointType) {
 void Component::startBackgroundListen() {
     for(int i = 0; i < 5 ; i++) {
         try {
-            backgroundListener.startBackgroundListen(this->baseAddress + ":" + std::to_string(this->lowestPort));
+            startBackgroundListen(this->lowestPort);
             this->lowestPort++;
             return;
         } catch (NngError &e) {
@@ -164,8 +168,17 @@ void Component::startBackgroundListen() {
     }
     throw std::logic_error("Could not find valid port to start on");
 }
+void Component::startBackgroundListen(int port) {
+    if(componentConnectionType == ConnectionType::TCP) {
+        // Listen on all addresses
+        backgroundListener.startBackgroundListen("tcp://*" , port);
+    }else{
+        // Listen on just the address given (either local or IPC)
+        backgroundListener.startBackgroundListen(baseAddress, port);
+    }
+}
 
-std::string Component::createEndpointAndListen(SocketType st, const std::string& endpointType){
+int Component::createEndpointAndListen(SocketType st, const std::string& endpointType){
     std::string socketId = generateNewSocketId();
     std::shared_ptr<DataSenderEndpoint> e;
     switch (st) {
@@ -179,20 +192,24 @@ std::string Component::createEndpointAndListen(SocketType st, const std::string&
             throw std::logic_error("Cannot open a connection for type " + std::to_string(st));
     }
 
-    std::string url;
+
     int rv = 1;
+    std::string url;
     while(rv != 0) {
-        url = baseAddress + ":" + std::to_string(lowestPort);
-        rv = e->listenForConnectionWithRV(url.c_str());
+        if(componentConnectionType == ConnectionType::TCP){
+            url = "tcp://*";
+        }else {
+            url = baseAddress;
+        }
+        rv = e->listenForConnectionWithRV(url.c_str(), lowestPort);
         if (rv == EADDRINUSE){
             lowestPort = generateRandomPort();
         }else if (rv != 0){
             throw NngError(rv, "Create " + convertSocketType(st) + " listener at " + url);
         }
     }
-    std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << std::endl;
-    lowestPort ++;
-    return url;
+    std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":" << lowestPort << std::endl;
+    return lowestPort++;
 }
 
 void Component::createEndpointAndDial(const std::string& socketType, const std::string& localEndpointType, const std::string& url){
@@ -212,19 +229,24 @@ void Component::createEndpointAndDial(const std::string& socketType, const std::
 
 
 // CREATE RDHUB
-std::string Component::startResourceDiscoveryHub(int port) {
+void Component::startResourceDiscoveryHub(int port) {
     if (resourceDiscoveryHubEndpoint == nullptr) {
         this->resourceDiscoveryHubEndpoint = new ResourceDiscoveryHubEndpoint(systemSchemas);
-        std::string listenAddress = baseAddress + ":" + std::to_string(port);
-        resourceDiscoveryHubEndpoint->startResourceDiscover(listenAddress);
+        std::string listenAddress;
+        if (componentConnectionType == ConnectionType::TCP) {
+            listenAddress = "tcp://*";
+        }else{
+            listenAddress = baseAddress;
+        }
+        resourceDiscoveryHubEndpoint->startResourceDiscover(listenAddress, port);
         std::cout << "Started Resource Discovery Hub at - " << listenAddress << std::endl;
     }
-    return resourceDiscoveryHubEndpoint->getListenAddress();
 }
-std::string Component::startResourceDiscoveryHub() {
+int Component::startResourceDiscoveryHub() {
     for(int i = 0; i < 5 ; i++) {
         try {
-            return startResourceDiscoveryHub(this->lowestPort++);
+            startResourceDiscoveryHub(this->lowestPort);
+            return this->lowestPort++;
         } catch (NngError &e) {
             if(e.errorCode == NNG_EADDRINUSE){
                 this->lowestPort = generateRandomPort();

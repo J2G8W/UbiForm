@@ -21,8 +21,8 @@ public:
         }
     }
 
-    void listenForConnection(const char* url) override;
-    int listenForConnectionWithRV(const char *url) override;
+    void listenForConnection(const char *base, int port) override;
+    int listenForConnectionWithRV(const char *base, int port) override;
 
     void closeSocket() override;
 

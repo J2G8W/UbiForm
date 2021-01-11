@@ -21,6 +21,7 @@ class BackgroundListener {
 private:
     std::thread backgroundThread;
     std::string backgroundListenAddress;
+    int backgroundPort;
     Component * component;
     SystemSchemas & systemSchemas;
     ReplyEndpoint replyEndpoint;
@@ -30,11 +31,12 @@ public:
     replyEndpoint(std::make_shared<EndpointSchema>(), std::make_shared<EndpointSchema>(), "BackgroundListenerReply"){
     }
 
-    void startBackgroundListen(const std::string& listenAddress);
+    void startBackgroundListen(const std::string &baseAddress, int port);
 
     static void backgroundListen(BackgroundListener *backgroundListener);
 
     std::string getBackgroundListenAddress(){return backgroundListenAddress;}
+    int getBackgroundPort(){return backgroundPort;}
 
     ~BackgroundListener();
 

@@ -4,9 +4,9 @@
 #include <nng/supplemental/util/platform.h>
 #include <nng/protocol/reqrep0/rep.h>
 
-void ResourceDiscoveryHubEndpoint::startResourceDiscover(const std::string& urlInit){
-    replyEndpoint.listenForConnection(urlInit.c_str());
-    listenAddress = urlInit;
+void ResourceDiscoveryHubEndpoint::startResourceDiscover(const std::string &baseAddress, int port) {
+    replyEndpoint.listenForConnection(baseAddress.c_str(), port);
+    listenAddress = baseAddress;
 
     this->rdThread = std::thread(rdBackground, this);
 }
@@ -33,7 +33,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
             std::cerr << "Parsing error of request - " << e.what() <<std::endl;
             continue;
         }catch (ValidationError &e){
-            std::cerr << "Validation error of request - " << e.what() <<std::endl;
+            std::cerr << "Validation error of request - " << e.what() << "\n\t" << request->stringify() << std::endl;
             continue;
         }
 

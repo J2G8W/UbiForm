@@ -16,7 +16,7 @@ public:
     // Purposely make the request endpoint have an empty schema
         requestEndpoint(std::make_shared<EndpointSchema>(),std::make_shared<EndpointSchema>(), "BackgroundRequester"){}
 
-    void requestAndCreateConnection(const std::string &connectionComponentAddress,
+    void requestAndCreateConnection(const std::string &baseAddress, int port,
                                     const std::string &localEndpointType,
                                     const std::string &remoteEndpointType);
 
@@ -25,20 +25,20 @@ public:
     void tellToRequestAndCreateConnection(const std::string &requesterAddress,
                                           const std::string &requesterEndpointType,
                                           const std::string &remoteEndpointType,
-                                          const std::string &remoteAddress);
+                                          const std::string &remoteAddress, int newPort);
 
     void requestChangeEndpoint(const std::string &componentAddress, SocketType socketType,
                                const std::string &endpointType, EndpointSchema *receiverSchema,
                                EndpointSchema *sendSchema);
 
-    std::string requestCreateRDH(const std::string& componentUrl);
+    int requestCreateRDH(const std::string& componentUrl);
     void requestToCreateAndDial(const std::string& componentUrl, const std::string &socketType,
                                 const std::string &endpointType, const std::string &remoteUrl);
 
     void requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest& newManifest);
 
     std::vector<std::string> requestLocationsOfRDH(const std::string& componentUrl);
-    void requestCloseSocketOfType(const std::string& componentUrl, const std::string endpointType);
+    void requestCloseSocketOfType(const std::string& componentUrl, const std::string& endpointType);
 
 };
 

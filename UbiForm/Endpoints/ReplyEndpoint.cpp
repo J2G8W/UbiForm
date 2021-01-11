@@ -2,21 +2,22 @@
 #include <nng/supplemental/util/platform.h>
 #include "ReplyEndpoint.h"
 
-void ReplyEndpoint::listenForConnection(const char *url) {
-    int rv = listenForConnectionWithRV(url);
+void ReplyEndpoint::listenForConnection(const char *base, int port) {
+    int rv = listenForConnectionWithRV(base, port);
     if (rv != 0){
-        throw NngError(rv,"Listening on " + std::string(url));
+        throw NngError(rv,"Listening on " + std::string(base));
     }
 }
 
-int ReplyEndpoint::listenForConnectionWithRV(const char *url) {
+int ReplyEndpoint::listenForConnectionWithRV(const char *base, int port) {
     int rv;
     nng_listener l;
-    if((rv = nng_listen(*senderSocket, url, &l, 0)) != 0) {
+    std::string addr = std::string(base) + ":" + std::to_string(port);
+    if((rv = nng_listen(*senderSocket, addr.c_str(), &l, 0)) != 0) {
         return rv;
     }
-    this->listenUrl = url;
-    this->dialUrl = url;
+    this->port = port;
+    this->dialUrl = base;
     return rv;
 }
 

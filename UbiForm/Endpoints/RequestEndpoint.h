@@ -16,8 +16,8 @@ public:
     }
 
     // SHOULD NOT LISTEN FOR CONNECTION
-    void listenForConnection(const char *url) override ;
-    int listenForConnectionWithRV(const char *url) override;
+    void listenForConnection(const char *base, int port) override ;
+    int listenForConnectionWithRV(const char *base, int port) override;
 
 
     void dialConnection(const char *url) override;

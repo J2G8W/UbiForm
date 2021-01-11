@@ -2,12 +2,12 @@
 #include <nng/supplemental/util/platform.h>
 #include "RequestEndpoint.h"
 
-void RequestEndpoint::listenForConnection(const char *url) {
+void RequestEndpoint::listenForConnection(const char *base, int port) {
     throw SocketOpenError("Request socket trying to listen for connection",
                           DataSenderEndpoint::endpointType, DataSenderEndpoint::endpointIdentifier);
 }
 
-int RequestEndpoint::listenForConnectionWithRV(const char *url) {
+int RequestEndpoint::listenForConnectionWithRV(const char *base, int port) {
     throw SocketOpenError("Request socket trying to listen for connection",
                           DataSenderEndpoint::endpointType, DataSenderEndpoint::endpointIdentifier);
 }
@@ -34,7 +34,6 @@ void RequestEndpoint::dialConnection(const char *url) {
     if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
         throw NngError(rv, "Dialing " + std::string(url) + " for a request connection");
     }
-    this->listenUrl = url;
     this->dialUrl = url;
 }
 

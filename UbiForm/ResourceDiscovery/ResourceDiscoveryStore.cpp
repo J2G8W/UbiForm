@@ -57,7 +57,8 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
                 auto * endpoint = new SocketMessage;
 
                 endpoint->addMember("componentId", componentRep.first);
-                endpoint->addMember("url",componentRep.second->getUrl());
+                endpoint->addMember("urls",componentRep.second->getAllUrls());
+                endpoint->addMember("port",componentRep.second->getPort());
                 endpoint->addMember("endpointType", id);
                 returnEndpoints.emplace_back(endpoint);
             }

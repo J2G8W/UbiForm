@@ -21,8 +21,8 @@ protected:
     // Socket is initialised in extending class
     nng_socket * senderSocket = nullptr;
     std::shared_ptr<EndpointSchema>senderSchema;
-    std::string listenUrl;
     bool socketOpen = false;
+    int port = -1;
 public:
     explicit DataSenderEndpoint( std::shared_ptr<EndpointSchema>& es, const std::string & endpointIdentifier, SocketType endpointType):
         endpointIdentifier(endpointIdentifier), endpointType(endpointType), nngAioPointer(){
@@ -32,13 +32,13 @@ public:
     };
 
     // This is implemented by extending classes as we want to specify socket type and do other useful things
-    virtual void listenForConnection(const char *url) = 0;
-    virtual int listenForConnectionWithRV(const char *url) = 0;
+    virtual void listenForConnection(const char *base, int port) = 0;
+    virtual int listenForConnectionWithRV(const char *base, int port) = 0;
 
 
     void sendMessage(SocketMessage &s);
     void asyncSendMessage(SocketMessage &s);
-    std::string getListenUrl(){return listenUrl;}
+    int getListenPort(){return port;}
 
     virtual void closeSocket() = 0;
     virtual ~DataSenderEndpoint(){

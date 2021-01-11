@@ -25,7 +25,7 @@ private:
 public:
     explicit ResourceDiscoveryHubEndpoint(SystemSchemas &ss) : rdStore(ss),
      replyEndpoint(std::make_shared<EndpointSchema>(), std::make_shared<EndpointSchema>(), "ResourceDiscoveryHub") {}
-    void startResourceDiscover(const std::string& urlInit);
+    void startResourceDiscover(const std::string &baseAddress, int port);
 
     std::string getListenAddress(){
         if (listenAddress == ""){

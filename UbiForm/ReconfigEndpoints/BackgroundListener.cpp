@@ -4,9 +4,11 @@
 #include "../Component.h"
 #include "../ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
-void BackgroundListener::startBackgroundListen(const std::string& listenAddress) {
-    replyEndpoint.listenForConnection(listenAddress.c_str());
-    backgroundListenAddress = listenAddress;
+void BackgroundListener::startBackgroundListen(const std::string &baseAddress, int port) {
+    replyEndpoint.listenForConnection(baseAddress.c_str(), port);
+    std::cout << "Started background listener on " << baseAddress << ":" << port << std::endl;
+    backgroundListenAddress = baseAddress;
+    backgroundPort = port;
     this->backgroundThread = std::thread(backgroundListen,this);
 }
 
@@ -26,15 +28,10 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
             break;
         }
 
-        try{
-            request->getString("requestType");
-        }catch(AccessError &e){
-            std::cerr << e.what() << std::endl;
-            continue;
-        }
 
         std::unique_ptr<SocketMessage> reply;
         try{
+            request->getString("requestType");
             if (request->getString("requestType") == REQ_CONN) {
                 backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(*request);
                 reply = backgroundListener->handleConnectionRequest((*request));
@@ -86,22 +83,23 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
 std::unique_ptr<SocketMessage> BackgroundListener::handleConnectionRequest(SocketMessage &request){
     try {
         systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(request);
-        std::string url;
+        int port;
         if (request.getString("socketType") == PAIR) {
-            url = component->createEndpointAndListen(SocketType::Pair, request.getString("endpointType"));
+            port = component->createEndpointAndListen(SocketType::Pair, request.getString("endpointType"));
         } else if (request.getString("socketType") == PUBLISHER) {
             auto existingPublishers = component->getSenderEndpointsByType(request.getString("endpointType"));
             if (existingPublishers->empty()) {
-                url = component->createEndpointAndListen(SocketType::Publisher,
+                port = component->createEndpointAndListen(SocketType::Publisher,
                                                                              request.getString("endpointType"));
             }else{
-                url = existingPublishers->at(0)->getListenUrl();
+                port = existingPublishers->at(0)->getListenPort();
             }
         }else{
             throw std::logic_error("Not a valid socketType request");
         }
         auto reply = std::make_unique<SocketMessage>();
-        reply->addMember("url",url);
+        reply->addMember("port",port);
+        reply->addMember("error",false);
         return reply;
     }catch (std::out_of_range &e) {
         throw std::logic_error("No schema of type " + request.getString("endpointType") + " found in this component.");
@@ -117,7 +115,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleAddRDH(SocketMessage &r
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionRequest(SocketMessage &request){
     component->getBackgroundRequester().requestAndCreateConnection(
-            request.getString("remoteAddress"), request.getString("reqEndpointType"),
+            request.getString("remoteAddress"), request.getInteger("port"), request.getString("reqEndpointType"),
             request.getString("remoteEndpointType"));
     auto reply = std::make_unique<SocketMessage>();
     reply->addMember("error",false);
@@ -162,8 +160,8 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(S
 std::unique_ptr<SocketMessage> BackgroundListener::handleCreateRDHRequest(SocketMessage &request) {
     auto reply = std::make_unique<SocketMessage>();
 
-    std::string url = component->startResourceDiscoveryHub();
-    reply->addMember("url",url);
+    int port = component->startResourceDiscoveryHub();
+    reply->addMember("port",port);
     reply->addMember("error",false);
 
     return reply;

@@ -37,7 +37,8 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
     auto * request = new SocketMessage;
     request->addMember("request",ADDITION);
     auto sm = component->getComponentManifest().getComponentRepresentation();
-    sm->addMember("url",component->getBackgroundListenAddress());
+    sm->addMember("urls",component->getAllAddresses());
+    sm->addMember("port",component->getBackgroundPort());
 
     request->moveMember("manifest",std::move(sm));
     return request;
@@ -161,18 +162,28 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& en
     std::vector<std::unique_ptr<SocketMessage>> validLocations = getComponentsBySchema(endpointType);
 
     for (const auto & location: validLocations) {
-        try {
-            component->getBackgroundRequester().requestAndCreateConnection(location->getString("url"), endpointType,
-                                                                           location->getString("endpointType"));
-        }catch(std::logic_error &e){
-            std::cerr << "Error connecting to " << location->stringify() << "\n\t" <<e.what() <<std::endl;
+        bool connection = false;
+        for (const auto & url: location->getArray<std::string>("urls")) {
+            try {
+                component->getBackgroundRequester().requestAndCreateConnection(url, location->getInteger("port"),
+                                                                               endpointType,
+                                                                               location->getString("endpointType"));
+                connection = true;
+                continue;
+            }catch(std::logic_error &e){
+                // PASS
+            }
+        }
+        if (!connection) {
+            std::cerr << "Error connecting to " << location->stringify() << std::endl;
         }
     }
 }
 
 void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
     auto newManifest = component->getComponentManifest().getComponentRepresentation();
-    newManifest->addMember("url",component->getBackgroundListenAddress());
+    newManifest->addMember("urls",component->getAllAddresses());
+    newManifest->addMember("port",component->getBackgroundPort());
     auto request = std::make_unique<SocketMessage>();
     request->addMember("request",UPDATE);
     request->moveMember("newManifest", std::move(newManifest));

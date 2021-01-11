@@ -9,7 +9,7 @@
 #include "../Component.h"
 
 // THIS IS OUR COMPONENT MAKING REQUESTS FOR A NEW CONNECTION
-void BackgroundRequester::requestAndCreateConnection(const std::string &connectionComponentAddress,
+void BackgroundRequester::requestAndCreateConnection(const std::string &baseAddress, int port,
                                                      const std::string &localEndpointType,
                                                      const std::string &remoteEndpointType) {
 
@@ -26,16 +26,16 @@ void BackgroundRequester::requestAndCreateConnection(const std::string &connecti
 
     systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(sm);
 
-    std::string url;
+    std::string dialAddress = baseAddress + ":"  + std::to_string(port);
     try{
-        requestEndpoint.dialConnection(connectionComponentAddress.c_str());
+        requestEndpoint.dialConnection(dialAddress.c_str());
         requestEndpoint.sendMessage(sm);
         auto reply = requestEndpoint.receiveMessage();
-        if (reply->isNull("url")){
-            throw std::logic_error("No valid endpoint of: " + remoteEndpointType);
+        if (reply->getBoolean("error")){
+            throw std::logic_error("Error request and create connection: " + reply->getString("errorMsg"));
         }else{
-            url = reply->getString("url");
-            component->createEndpointAndDial(requestSocketType, localEndpointType, url);
+            int newPort = reply->getInteger("port");
+            component->createEndpointAndDial(requestSocketType, localEndpointType, baseAddress + ":" + std::to_string(newPort));
         }
     }catch (std::logic_error &e){
         std::cerr << e.what() << std::endl;
@@ -61,12 +61,13 @@ void BackgroundRequester::requestAddRDH(const std::string &componentUrl, const s
 void BackgroundRequester::tellToRequestAndCreateConnection(const std::string &requesterAddress,
                                                            const std::string &requesterEndpointType,
                                                            const std::string &remoteEndpointType,
-                                                           const std::string &remoteAddress) {
+                                                           const std::string &remoteAddress, int newPort) {
     SocketMessage sm;
     sm.addMember("requestType", TELL_REQ_CONN);
     sm.addMember("reqEndpointType", requesterEndpointType);
     sm.addMember("remoteEndpointType",remoteEndpointType);
     sm.addMember("remoteAddress", remoteAddress);
+    sm.addMember("port",newPort);
     try{
         requestEndpoint.dialConnection(requesterAddress.c_str());
         requestEndpoint.sendMessage(sm);
@@ -109,7 +110,7 @@ void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddr
     }
 }
 
-std::string BackgroundRequester::requestCreateRDH(const std::string &componentUrl) {
+int BackgroundRequester::requestCreateRDH(const std::string &componentUrl) {
     SocketMessage sm;
     sm.addMember("requestType",CREATE_RDH);
     try{
@@ -117,14 +118,14 @@ std::string BackgroundRequester::requestCreateRDH(const std::string &componentUr
         requestEndpoint.sendMessage(sm);
         auto reply = requestEndpoint.receiveMessage();
         if(!reply->getBoolean("error")){
-            return reply->getString("url");
+            return reply->getInteger("port");
         }else{
             throw std::logic_error("Error with request to create RDH: " + reply->getString("errorMsg"));
         }
     }catch(std::logic_error &e){
         std::cerr << e.what() << std::endl;
         // Should return empty or throw exception?
-        return "";
+        throw;
     }
 }
 
@@ -152,7 +153,7 @@ std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::s
     }
 }
 
-void BackgroundRequester::requestCloseSocketOfType(const std::string &componentUrl, const std::string endpointType) {
+void BackgroundRequester::requestCloseSocketOfType(const std::string &componentUrl, const std::string& endpointType) {
     SocketMessage sm;
     sm.addMember("requestType",CLOSE_SOCKETS);
     sm.addMember("endpointType",endpointType);
