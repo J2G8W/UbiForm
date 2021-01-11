@@ -2,6 +2,7 @@
 #include <cstdlib>
 
 #include "../UbiForm/Component.h"
+#include <nng/supplemental/util/platform.h>
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
 
@@ -43,7 +44,7 @@ int main(int argc, char ** argv){
 
     receiverEndpoint->asyncReceiveMessage(testCallback, new AsyncExtraInfo(receiverEndpoint));
     while(true){
-        sleep(5);
+        nng_msleep(1000);
     }
 
 }
