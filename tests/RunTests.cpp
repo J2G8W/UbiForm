@@ -8,6 +8,7 @@
 #include "../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h"
 #include "../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h"
 #include "../UbiForm/SystemSchemas/test_SystemSchemas.h"
+#include "../UbiForm/Utilities/test_GetIPAddresses.h"
 
 #include "ReconfigurationIntegrationTest.h"
 

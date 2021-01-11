@@ -3,6 +3,7 @@
 #include "Utilities/SystemEnums.h"
 
 #include "ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
+#include "Utilities/GetIPAddress.h"
 
 #include <nng/protocol/reqrep0/rep.h>
 #include <nng/protocol/reqrep0/req.h>
@@ -13,10 +14,36 @@
 
 // CONSTRUCTOR
 Component::Component(const std::string &baseAddress) :  systemSchemas(),
-    backgroundListener(this,systemSchemas), backgroundRequester(this, systemSchemas),
-    baseAddress(baseAddress), resourceDiscoveryConnEndpoint(this, systemSchemas), componentManifest(systemSchemas){
+        backgroundListener(this,systemSchemas), backgroundRequester(this, systemSchemas),
+        baseAddress(baseAddress), resourceDiscoveryConnEndpoint(this, systemSchemas), componentManifest(systemSchemas){
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
+    std::cout << "Component made, base address is " << baseAddress << std::endl;
+}
+
+Component::Component():  systemSchemas(),
+        backgroundListener(this,systemSchemas), backgroundRequester(this, systemSchemas),
+         resourceDiscoveryConnEndpoint(this, systemSchemas), componentManifest(systemSchemas) {
+    long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
+    generator.seed(randomSeed);
+
+    auto addresses = getLinuxIpAddresses();
+    bool addressFound = false;
+    std::vector<std::string> orderOfStarts = {"192.","10."};
+    for(const auto& start : orderOfStarts){
+        for(const auto& address : addresses){
+            if (address.rfind(start,0) == 0){
+                addressFound = true;
+                baseAddress = "tcp://" + address;
+                break;
+            }
+        }
+        if(addressFound){break;}
+    }
+    if (!addressFound){
+        baseAddress = "tcp://127.0.0.1";
+    }
+    std::cout << "Component made, base address is " << baseAddress << std::endl;
 }
 
 

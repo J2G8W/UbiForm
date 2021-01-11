@@ -71,7 +71,7 @@ set(schemaFiles ../UbiForm/SchemaRepresentation/EndpointSchema.h ../UbiForm/Sche
         ../UbiForm/SchemaRepresentation/GenericSchema.cpp ../UbiForm/SchemaRepresentation/GenericSchema.h)
 
 set(utilityFiles ../UbiForm/Utilities/UtilityFunctions.h ../UbiForm/Utilities/UtilityFunctions.cpp
-        ../UbiForm/Utilities/SystemEnums.h ../UbiForm/Utilities/SystemEnums.cpp)
+        ../UbiForm/Utilities/SystemEnums.h ../UbiForm/Utilities/SystemEnums.cpp ../UbiForm/Utilities/GetIPAddress.cpp ../UbiForm/Utilities/GetIPAddress.h)
 
 set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
         ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp  )
@@ -88,7 +88,7 @@ target_link_libraries(UbiForm gtest_main gmock_main)
 if (BUILD_TESTS)
     set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h
             ../UbiForm/SchemaRepresentation/test_EndpointSchema.h ../UbiForm/test_Component.h
-            ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h ../UbiForm/SystemSchemas/test_SystemSchemas.h ../tests/ReconfigurationIntegrationTest.h)
+            ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h ../UbiForm/SystemSchemas/test_SystemSchemas.h ../tests/ReconfigurationIntegrationTest.h ../UbiForm/Utilities/test_GetIPAddresses.h)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm ${NNG})
     file(COPY ../tests/TestManifests DESTINATION .)

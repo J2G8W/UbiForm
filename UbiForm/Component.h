@@ -58,7 +58,7 @@ private:
 
 public:
     explicit Component(const std::string & baseAddress);
-    Component() : Component("tcp://127.0.0.1"){}
+    Component();
 
     void specifyManifest(FILE *jsonFP) {
         // TODO - close open connections?
