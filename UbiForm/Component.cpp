@@ -29,7 +29,7 @@ Component::Component():  systemSchemas(),
 
     auto addresses = getLinuxIpAddresses();
     bool addressFound = false;
-    std::vector<std::string> orderOfStarts = {"192.","10."};
+    std::vector<std::string> orderOfStarts = {"10.","192."};
     for(const auto& start : orderOfStarts){
         for(const auto& address : addresses){
             if (address.rfind(start,0) == 0){
