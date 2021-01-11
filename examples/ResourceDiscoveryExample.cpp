@@ -43,8 +43,6 @@ int main(int argc, char ** argv){
             std::cout << "Resource discovery started" << std::endl;
 
 
-            component->getResourceDiscoveryConnectionEndpoint().registerWithHub(RDHAddress);
-
             std::cout << "Registered successfully" << std::endl;
 
 

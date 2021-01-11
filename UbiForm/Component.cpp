@@ -240,6 +240,7 @@ void Component::startResourceDiscoveryHub(int port) {
         }
         resourceDiscoveryHubEndpoint->startResourceDiscover(listenAddress, port);
         std::cout << "Started Resource Discovery Hub at - " << listenAddress << ":"<<port << std::endl;
+        resourceDiscoveryConnEndpoint.registerWithHub(baseAddress+":"+std::to_string(port));
     }
 }
 int Component::startResourceDiscoveryHub() {

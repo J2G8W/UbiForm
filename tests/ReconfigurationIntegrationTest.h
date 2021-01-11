@@ -73,7 +73,6 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
 
     std::string senderComponentComplete = "ipc:///tmp/comp2:" + std::to_string(senderComponent.getBackgroundPort());
 
-    RDH.getResourceDiscoveryConnectionEndpoint().registerWithHub(rdhLocation);
     receiverComponent.getResourceDiscoveryConnectionEndpoint().registerWithHub(rdhLocation);
     senderComponent.getResourceDiscoveryConnectionEndpoint().registerWithHub(rdhLocation);
 

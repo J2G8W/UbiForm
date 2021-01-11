@@ -169,7 +169,7 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& en
                                                                                endpointType,
                                                                                location->getString("endpointType"));
                 connection = true;
-                continue;
+                break;
             }catch(std::logic_error &e){
                 // PASS
             }
