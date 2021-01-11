@@ -111,7 +111,6 @@ public:
     /// @brief This uses copy constructing
     SocketMessage *getCopyObject(const std::string &attributeName);
 
-    // TODO - sort documentation for this (looks wierd)
     template <class T>
     std::vector<T> getArray(const std::string &attributeName);
 
@@ -120,9 +119,20 @@ public:
     }
     ///@}
 
-    // WARNING - the returned socket message is still tied to the message it comes from,
-    // so the returned message must not be used after parent is deleted
+    /**
+     * Move an object from within the current object. NOTE that the parent must live as long as the new child due to memory handling
+     * issues with rapidjson. If this is a problem use getCopyObject which is less efficient but hasn't got memory issues
+     * @param attributeName - Attribute to get
+     * @return std::unique_ptr to a SocketMessage which is the sub-object desired, uses special pointers to make CLEAR that
+     * these should have short life spans
+     */
     std::unique_ptr<SocketMessage> getMoveObject(const std::string &attributeName);
+    /**
+     * Move an array of objects from within the current object. NOTE that the parent must live as long as the new child due to memory handling
+     * issues with rapidjson. If this is a problem use getArray which is less efficient but hasn't got memory issues
+     * @param attributeName - Attibutre to get
+     * @return vector of std::unique_ptr's for ease of memory handling
+     */
     std::vector<std::unique_ptr<SocketMessage> > getMoveArrayOfObjects(const std::string &attributeName);
 
     /**
@@ -132,6 +142,7 @@ public:
         return JSON_document.IsNull();
     }
 
+    /// Returns a string of the SocketMessage for debugging and sending on wire
     std::string stringify() { return stringifyValue(JSON_document); };
 
     ~SocketMessage();

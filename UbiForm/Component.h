@@ -37,10 +37,12 @@ private:
 
 
     std::minstd_rand0 generator;
-    std::string generateNewSocketId(){
+
+    std::string generateNewSocketId() {
         return std::to_string(generator());
     }
-    int generateRandomPort(){
+
+    int generateRandomPort() {
         return static_cast<int>(generator() % 60000 + 2000);
     }
 
@@ -53,54 +55,114 @@ private:
     BackgroundListener backgroundListener;
     BackgroundRequester backgroundRequester;
 
-    ResourceDiscoveryHubEndpoint * resourceDiscoveryHubEndpoint{nullptr};
+    ResourceDiscoveryHubEndpoint *resourceDiscoveryHubEndpoint{nullptr};
     ResourceDiscoveryConnEndpoint resourceDiscoveryConnEndpoint;
 
     ConnectionType componentConnectionType;
 
 
 public:
-    explicit Component(const std::string & baseAddress);
+    /**
+     * Create a Component object which will specifically be LocalTCP or IPC, must start with "ipc://" or "tcp://127.".
+     * This is designed to be used for testing purposes largely
+     * @param baseAddress - address to listen on
+     */
+    explicit Component(const std::string &baseAddress);
+
+    /**
+     * Create a component which will listen on ALL external IPv4 connections
+     * @throws std::logic_error when can't find any valid external IPv4 connections to join on to
+     */
     Component();
 
+    /** Specifies the manifest of the component (will overwrite previous manifest if one exists).
+     * All constructors are copy constructors from their location */
+    ///@{
     void specifyManifest(FILE *jsonFP) {
         // TODO - close open connections?
         componentManifest.setManifest(jsonFP);
         resourceDiscoveryConnEndpoint.updateManifestWithHubs();
     }
+
     void specifyManifest(const char *jsonString) {
         componentManifest.setManifest(jsonString);
         resourceDiscoveryConnEndpoint.updateManifestWithHubs();
     }
-    void specifyManifest(SocketMessage* sm) {
+
+    void specifyManifest(SocketMessage *sm) {
         componentManifest.setManifest(sm);
         resourceDiscoveryConnEndpoint.updateManifestWithHubs();
     }
+    ///@}
 
 
-    // We create a new Pair Endpoint and store it in our map as a SHARED pointer
+    ///@{
+    /**
+     * We create endpoints of a certain socketType
+     * @param - Type refers to an identifier in the componentManifest
+     * @param - Id is a unique identifier given to the new endpoint within the component
+     */
     std::shared_ptr<PairEndpoint> createNewPairEndpoint(const std::string& type, const std::string& id);
     std::shared_ptr<SubscriberEndpoint> createNewSubscriberEndpoint(const std::string& type, const std::string& id);
     std::shared_ptr<PublisherEndpoint> createNewPublisherEndpoint(const std::string& type, const std::string& id);
+    ///@}
 
-    // Generalised start of listeners (returns URL of where connection is)
+    /**
+     * Creates an endpoint of socketType which refers to the endpointType in the componentManifest. It then listens for
+     * incoming connections.
+     * @param st - Specify what type of connection is created (Pair, Publisher etc)
+     * @param endpointType - Specifies what type of connection is created (refers to componentManifest)
+     * @return The port number which the endpoint is listening on
+     */
     int createEndpointAndListen(SocketType st, const std::string &endpointType);
+    /**
+     * Creates and dials
+     * @param socketType - Specify what type of connection is created (Pair, Publisher etc)
+     * @param localEndpointType - Refers to our own componentManifest
+     * @param url - The complete URL to listen on (form tcp://_._._._:_)
+     */
     void createEndpointAndDial(const std::string &socketType, const std::string &localEndpointType, const std::string &url);
 
-    // We rethrow an out_of_range exception if the request fails
+    ///@{
+    /// Get a pointer to endpoints, they are shared_ptr's which shouldn't be deleted, and may be closed without notice
+    /// @throws std::out_of_range if the id does not appear in our OPEN endpoints
     std::shared_ptr<DataReceiverEndpoint> getReceiverEndpointById(const std::string& id);
+    /// @throws std::out_of_range if the id does not appear in our OPEN endpoints
     std::shared_ptr<DataSenderEndpoint> getSenderEndpointById(const std::string& id);
+    ///@}
 
-    // No exception thrown here, return an empty vector if not found (which will get filled later on)
+    ///@{
+    /// Get pointer to a vector of endpoints, again these will be manipulated without notice and will be added to and
+    /// emptied as we go. Does not throw any access error for an endpoint type, but returns an empty vector which is filled
+    /// if things of that type are created
     std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > getReceiverEndpointsByType(const std::string &endpointType);
     std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > getSenderEndpointsByType(const std::string &endpointType);
+    ///@}
 
 
+    ///@{
+    /**
+     * Start a background listener process for the component which will handle requests for reconfiguration of the component.
+     * You can only have one background listener at a time.
+     * @param port - specific port to listen to
+     * @throws NngError if there is an error listening on that port
+     */
     void startBackgroundListen(int port);
+    /**
+     * @throws std::logic_error if we can't find a valid port on 5 attempts at randomisation
+     */
     void startBackgroundListen();
+    ///@}
 
+    ///@{
+    /**
+     * Start a ResourceDiscoveryHub process for the component which will store other components on the network and handle requests.
+     * You can only have on RDH at a time
+     * @param port
+     */
     void startResourceDiscoveryHub(int port);
     int startResourceDiscoveryHub();
+    ///@}
 
 
     ResourceDiscoveryConnEndpoint & getResourceDiscoveryConnectionEndpoint(){return resourceDiscoveryConnEndpoint;}
@@ -109,13 +171,20 @@ public:
     BackgroundRequester & getBackgroundRequester(){return backgroundRequester;}
 
     int getBackgroundPort(){return backgroundListener.getBackgroundPort();}
+    /// @brief - Returns a reference to the vector of all the addresses that the component can listen on
     std::vector<std::string>& getAllAddresses(){
         return availableAddresses;
     }
 
-
+    /**
+     * Close the sockets of endpointType. The vector which represents the endpointType is emptied and if users haven't got pointers
+     * the endpoints will be deleted. If the users to do have their own pointers, then we set the endpoints to closed and they throw exception
+     * when asked to do anything
+     * @param endpointType
+     */
     void closeSocketsOfType(const std::string& endpointType);
 
+    /// Pretty much everything should stop once component is deleted
     ~Component();
 };
 

@@ -12,6 +12,10 @@ private:
     std::map<SystemSchemaName, std::shared_ptr<GenericSchema> > systemSchemas;
 public:
     static int numberOfInstances;
+    /**
+     * Initiates our SystemSchemas object from an array of pre-programmed files
+     * @throws AccessError when we can't find a file
+     */
     SystemSchemas(){
         const char* files[12] = {"SystemSchemas/component_schema.json",
                                 "SystemSchemas/endpoint_creation_request.json",
@@ -41,8 +45,14 @@ public:
         //std::cout << "NUM INSTANCES" << numberOfInstances << std::endl;
     }
 
+    /// Used to make sure we are copying a reference rather than a whole object(due to size of thing)
     SystemSchemas(const SystemSchemas& obj) {if(this != &obj) ++numberOfInstances;}
 
+    /**
+     * Get the schema object of some Name. There should not be any access errors as our initalisation should cover all the enums
+     * @param name - Request schema
+     * @return Reference to a schema object
+     */
     GenericSchema & getSystemSchema(SystemSchemaName name) {
         return *(systemSchemas.at(name));
     }

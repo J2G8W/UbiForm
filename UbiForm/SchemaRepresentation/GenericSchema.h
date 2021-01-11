@@ -4,6 +4,9 @@
 #include "../SocketMessage.h"
 #include "EndpointSchema.h"
 
+/**
+ * We have wrapped an EndpointSchema object as these are to represent our SystemSchemas, and we don't need them to be changeable
+ */
 class GenericSchema {
 private:
     EndpointSchema * es;
@@ -18,6 +21,10 @@ private:
     }
 
 public:
+    /**
+     * Creates a schema from file
+     * @param jsonFP
+     */
     explicit GenericSchema(FILE * jsonFP) : document(InitiateFromFile(jsonFP)){
         es = new EndpointSchema(&document, document.GetAllocator());
     }

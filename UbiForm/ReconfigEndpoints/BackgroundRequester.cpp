@@ -172,7 +172,7 @@ void BackgroundRequester::requestCloseSocketOfType(const std::string &componentU
 void BackgroundRequester::requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest) {
     SocketMessage sm;
     sm.addMember("requestType",CHANGE_MANIFEST);
-    auto compRep = newManifest.getComponentRepresentation();
+    auto compRep = newManifest.getSocketMessageCopy();
     sm.moveMember("newManifest",std::move(compRep));
     try{
         requestEndpoint.dialConnection(componentUrl.c_str());

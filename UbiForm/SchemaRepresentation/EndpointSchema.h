@@ -25,7 +25,12 @@ private:
 
 
 public:
-    // Note that the passed in pointer is up to parent to handle memory
+    /**
+     * Create EndpointSchema which shares memory with the given MemoryPoolAllocator. MUST NOT DELETE created object before
+     * this object or we get memory access problems
+     * @param doc - The rapidjson value which represents our schema
+     * @param al - The memory allocator which stores the memory of the given doc
+     */
     EndpointSchema(rapidjson::Value *doc, rapidjson::MemoryPoolAllocator<> & al) {
         allocator = &al;
         JSON_rep = doc;
@@ -33,12 +38,20 @@ public:
         responsibleForJson = false;
     }
 
+    /**
+     * Create EndpointSchema which shares memory with the SocketMessage that was input. Don't delete SocketMEssage before
+     * copying this schema
+     * @param sm - Parent message (don't delete before deletion of this object)
+     */
     EndpointSchema(SocketMessage& sm){
         JSON_rep = &sm.JSON_document;
         allocator = &(sm.JSON_document.GetAllocator());
         schema = new rapidjson::SchemaDocument(*JSON_rep);
         responsibleForJson = false;
     }
+    /**
+     * Create EndpointSchema which is responsible for its own memory
+     */
     EndpointSchema(){
         rapidjson::Document * d = new rapidjson::Document();
         allocator = &(d->GetAllocator());
@@ -51,7 +64,11 @@ public:
         responsibleForJson = true;
     }
 
-    // Copy constructor
+    /**
+     * Completely updates our schema with some other value. NOTE that this still uses our original allocator of the EndpointSchema,
+     * so the same advice about deleting still holds
+     * @param doc
+     */
     void completeUpdate(rapidjson::Value &doc);
 
     SocketMessage * getSchemaObject();

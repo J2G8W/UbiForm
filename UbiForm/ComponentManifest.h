@@ -63,11 +63,12 @@ public:
      */
     ComponentManifest(SocketMessage* sm,SystemSchemas &ss );
 
+    /// Create an empty Manifest which can be filled with functions
     explicit ComponentManifest(SystemSchemas &ss) : ComponentManifest(R"({"name":"","schemas":{}})",ss){};
 
+    /// Copies the input rather than moving it
     void setManifest(FILE *jsonFP);
     void setManifest(const char *jsonString);
-    // Copy set
     void setManifest(SocketMessage *sm);
 
     /**
@@ -83,7 +84,13 @@ public:
      */
     std::shared_ptr<EndpointSchema> getSenderSchema(const std::string& typeOfEndpoint);
 
+    /**
+     * @param name - Input name to be set
+     */
     void setName(const std::string& name);
+    /**
+     * @return The name attached to the componentManifest
+     */
     std::string getName();
 
 
@@ -120,7 +127,11 @@ public:
                      std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema);
 
 
-    std::unique_ptr<SocketMessage> getComponentRepresentation(){
+    /**
+     * We get a copy of the manifest but as a SocketMessage, such that it can be sent on the wire
+     * @return - std::unique_ptr used such that we get automatic memory handling and move's work better
+     */
+    std::unique_ptr<SocketMessage> getSocketMessageCopy(){
         // Gets around private constructor
         return std::unique_ptr<SocketMessage>(new SocketMessage(this->JSON_document, true));
     }

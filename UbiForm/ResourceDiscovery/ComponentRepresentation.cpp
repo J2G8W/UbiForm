@@ -24,19 +24,6 @@ std::vector<std::string> ComponentRepresentation::findEquals(bool recv, SocketMe
     return returnIds;
 }
 
-SocketMessage *ComponentRepresentation::getSchema(const std::string& endpointId, bool recv) {
-    if (JSON_document["schemas"].GetObject().HasMember(endpointId)){
-        SocketMessage *schema;
-        if (recv) {
-            schema = new SocketMessage(JSON_document["schemas"].GetObject()[endpointId].GetObject()["receive"], true);
-        }else{
-            schema = new SocketMessage(JSON_document["schemas"].GetObject()[endpointId].GetObject()["send"], true);
-        }
-        return schema;
-    }
-    return nullptr;
-}
-
 void ComponentRepresentation::fillSelf() {
     if(JSON_document.HasMember("urls") && JSON_document["urls"].IsArray()){
         for(const auto& u: JSON_document["urls"].GetArray()){

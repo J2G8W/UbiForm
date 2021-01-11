@@ -36,7 +36,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryConnEndpoint::sendRequest(const 
 SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
     auto * request = new SocketMessage;
     request->addMember("request",ADDITION);
-    auto sm = component->getComponentManifest().getComponentRepresentation();
+    auto sm = component->getComponentManifest().getSocketMessageCopy();
     sm->addMember("urls",component->getAllAddresses());
     sm->addMember("port",component->getBackgroundPort());
 
@@ -72,6 +72,7 @@ std::vector<std::string> ResourceDiscoveryConnEndpoint::getComponentIdsFromHub(c
         systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*reply);
     }catch(std::logic_error &e){
         std::cerr << "Error getting component ids from " << url << "\n\t" << e.what() << std::endl;
+        return std::vector<std::string>();
     }
 
     // This is a copy constructor
@@ -181,12 +182,14 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& en
 }
 
 void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
-    auto newManifest = component->getComponentManifest().getComponentRepresentation();
+    auto newManifest = component->getComponentManifest().getSocketMessageCopy();
     newManifest->addMember("urls",component->getAllAddresses());
     newManifest->addMember("port",component->getBackgroundPort());
+
     auto request = std::make_unique<SocketMessage>();
     request->addMember("request",UPDATE);
     request->moveMember("newManifest", std::move(newManifest));
+
     for(auto& locationIdPair : resourceDiscoveryHubs){
         request->addMember("id",locationIdPair.second);
         systemSchemas.getSystemSchema(SystemSchemaName::updateRequest).validate(*request);

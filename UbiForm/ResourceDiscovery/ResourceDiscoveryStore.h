@@ -1,4 +1,3 @@
-
 #ifndef UBIFORM_RESOURCEDISCOVERYSTORE_H
 #define UBIFORM_RESOURCEDISCOVERYSTORE_H
 
@@ -9,6 +8,10 @@
 #include "ComponentRepresentation.h"
 #include "../SystemSchemas/SystemSchemas.h"
 
+/**
+ * Class used by ResourceDiscoveryHub to make it easier to handle logic. It basically just generates responses to the
+ * requrests it is passed. It doesn't care which Component it is attached so should get the same logic wherever
+ */
 class ResourceDiscoveryStore{
 private:
 
@@ -19,7 +22,13 @@ private:
     std::minstd_rand0 generator;
 
 public:
-    static SocketMessage * generateRDResponse(SocketMessage *sm, ResourceDiscoveryStore & rds);
+    /**
+     * Basically just makes the ResourceDiscoveryHub response to some socketMessage
+     * @param sm - Input SocketMessage
+     * @return The reply SocketMessage (should be memory handled pls)
+     */
+     // TODO - std::unique_ptr this
+    SocketMessage * generateRDResponse(SocketMessage *sm);
 
     explicit ResourceDiscoveryStore(SystemSchemas & ss);
 };

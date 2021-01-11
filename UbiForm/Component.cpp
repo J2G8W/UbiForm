@@ -153,28 +153,33 @@ Component::getSenderEndpointsByType(const std::string &endpointType) {
 
 // THIS IS OUR COMPONENT LISTENING FOR REQUESTS TO MAKE SOCKETS
 void Component::startBackgroundListen() {
-    for(int i = 0; i < 5 ; i++) {
-        try {
-            startBackgroundListen(this->lowestPort);
-            this->lowestPort++;
-            return;
-        } catch (NngError &e) {
-            if(e.errorCode == NNG_EADDRINUSE){
-                this->lowestPort = generateRandomPort();
-            }else{
-                throw;
+    // -1 is the initalise value, and signifies the backgroundListener ain't doing nothing yet
+    if (backgroundListener.getBackgroundPort() == -1) {
+        for (int i = 0; i < 5; i++) {
+            try {
+                startBackgroundListen(this->lowestPort);
+                this->lowestPort++;
+                return;
+            } catch (NngError &e) {
+                if (e.errorCode == NNG_EADDRINUSE) {
+                    this->lowestPort = generateRandomPort();
+                } else {
+                    throw;
+                }
             }
         }
+        throw std::logic_error("Could not find valid port to start on");
     }
-    throw std::logic_error("Could not find valid port to start on");
 }
 void Component::startBackgroundListen(int port) {
-    if(componentConnectionType == ConnectionType::TCP) {
-        // Listen on all addresses
-        backgroundListener.startBackgroundListen("tcp://*" , port);
-    }else{
-        // Listen on just the address given (either local or IPC)
-        backgroundListener.startBackgroundListen(baseAddress, port);
+    if(backgroundListener.getBackgroundPort() == -1) {
+        if (componentConnectionType == ConnectionType::TCP) {
+            // Listen on all addresses
+            backgroundListener.startBackgroundListen("tcp://*", port);
+        } else {
+            // Listen on just the address given (either local or IPC)
+            backgroundListener.startBackgroundListen(baseAddress, port);
+        }
     }
 }
 

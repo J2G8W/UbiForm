@@ -2,7 +2,7 @@
 #include <chrono>
 #include "ResourceDiscoveryStore.h"
 
-SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, ResourceDiscoveryStore &rds) {
+SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm) {
     std::string request;
     try{
         request= sm->getString("request");
@@ -16,42 +16,42 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
     std::unique_ptr<SocketMessage> returnMsg = std::make_unique<SocketMessage>();
     if (request == ADDITION){
 
-        rds.systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*sm);
+        systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*sm);
 
         // We copy the manifest object when creating ComponentRepresentation anyway
         auto manifest = sm->getMoveObject("manifest");
-        auto newCR = std::make_shared<ComponentRepresentation>(manifest.get(), rds.systemSchemas);
+        auto newCR = std::make_shared<ComponentRepresentation>(manifest.get(), systemSchemas);
 
-        std::string id = std::to_string(rds.generator());
+        std::string id = std::to_string(generator());
 
         auto p1 = std::make_pair(id, newCR);
-        rds.componentById.insert(p1);
+        componentById.insert(p1);
 
         returnMsg->addMember("newID",id);
 
-        rds.systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*returnMsg);
+        systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*returnMsg);
 
     }else if (request == REQUEST_BY_ID){
-        rds.systemSchemas.getSystemSchema(SystemSchemaName::byIdRequest).validate(*sm);
+        systemSchemas.getSystemSchema(SystemSchemaName::byIdRequest).validate(*sm);
 
         std::string id = sm->getString("id");
-        if (rds.componentById.count(id) > 0){
-            std::string component =  rds.componentById.at(id)->stringify();
+        if (componentById.count(id) > 0){
+            std::string component =  componentById.at(id)->stringify();
             auto componentObject = std::make_unique<SocketMessage>(component.c_str());
             returnMsg->moveMember("component",std::move(componentObject));
         }else{
             returnMsg->setNull("component");
         }
 
-        rds.systemSchemas.getSystemSchema(SystemSchemaName::byIdResponse).validate(*returnMsg);
+        systemSchemas.getSystemSchema(SystemSchemaName::byIdResponse).validate(*returnMsg);
     }else if (request == REQUEST_BY_SCHEMA){
-        rds.systemSchemas.getSystemSchema(SystemSchemaName::bySchemaRequest).validate(*sm);
+        systemSchemas.getSystemSchema(SystemSchemaName::bySchemaRequest).validate(*sm);
 
         auto schemaRequest = sm->getMoveObject("schema");
         bool receiveData = sm->getBoolean("dataReceiverEndpoint");
         std::vector<SocketMessage *> returnEndpoints;
 
-        for (const auto &componentRep : rds.componentById){
+        for (const auto &componentRep : componentById){
             std::vector<std::string> endpointIds = componentRep.second->findEquals(receiveData, *schemaRequest);
             for (const auto &id: endpointIds){
                 auto * endpoint = new SocketMessage;
@@ -68,27 +68,27 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm, Res
             delete rs;
         }
 
-        rds.systemSchemas.getSystemSchema(SystemSchemaName::bySchemaResponse).validate(*returnMsg);
+        systemSchemas.getSystemSchema(SystemSchemaName::bySchemaResponse).validate(*returnMsg);
     }else if (request == REQUEST_COMPONENTS){
-        rds.systemSchemas.getSystemSchema(SystemSchemaName::componentIdsRequest).validate(*sm);
+        systemSchemas.getSystemSchema(SystemSchemaName::componentIdsRequest).validate(*sm);
         std::vector<std::string> componentIds;
-        for (auto & it : rds.componentById){
+        for (auto & it : componentById){
             componentIds.push_back(it.first);
         }
         returnMsg->addMember("components", componentIds);
-        rds.systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*returnMsg);
+        systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*returnMsg);
     }else if (request == UPDATE){
-        rds.systemSchemas.getSystemSchema(SystemSchemaName::updateRequest).validate(*sm);
+        systemSchemas.getSystemSchema(SystemSchemaName::updateRequest).validate(*sm);
         auto manifest = sm->getMoveObject("newManifest");
-        auto newCR = std::make_shared<ComponentRepresentation>(manifest.get(), rds.systemSchemas);
+        auto newCR = std::make_shared<ComponentRepresentation>(manifest.get(), systemSchemas);
 
         std::string id = sm->getString("id");
 
-        rds.componentById[id] = newCR;
+        componentById[id] = newCR;
 
         returnMsg->addMember("newID",id);
 
-        rds.systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*returnMsg);
+        systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*returnMsg);
 
     }
     return returnMsg.release();

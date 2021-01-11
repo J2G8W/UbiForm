@@ -21,12 +21,12 @@ protected:
         SocketMessage sm;
         sm.addMember("request", ADDITION);
 
-        auto manifest = exampleManifest->getComponentRepresentation();
+        auto manifest = exampleManifest->getSocketMessageCopy();
         sm.moveMember("manifest",std::move(manifest));
 
 
         SocketMessage * returnMsg;
-        returnMsg = ResourceDiscoveryStore::generateRDResponse(&sm, resourceDiscoveryStore);
+        returnMsg = resourceDiscoveryStore.generateRDResponse(&sm);
 
         return returnMsg;
     }
@@ -54,13 +54,13 @@ TEST_F(SimpleRDS,AdditionOfComponent){
     SocketMessage * sm = new SocketMessage;
     sm->addMember("request", ADDITION);
 
-    auto manifest = exampleManifest->getComponentRepresentation();
+    auto manifest = exampleManifest->getSocketMessageCopy();
     sm->moveMember("manifest",std::move(manifest));
 
 
     SocketMessage * returnMsg = nullptr;
     // In this assertion we know that we have got back a valid message
-    ASSERT_NO_THROW( returnMsg = ResourceDiscoveryStore::generateRDResponse(sm, resourceDiscoveryStore));
+    ASSERT_NO_THROW( returnMsg = resourceDiscoveryStore.generateRDResponse(sm));
 
 
     delete returnMsg;
@@ -82,7 +82,7 @@ TEST_F(SimpleRDS,GetManifestById){
     idRequest.addMember("request",REQUEST_BY_ID);
     idRequest.addMember("id",returnID);
 
-    returnMsg = ResourceDiscoveryStore::generateRDResponse(&idRequest, resourceDiscoveryStore);
+    returnMsg = resourceDiscoveryStore.generateRDResponse(&idRequest);
 
     ASSERT_NO_THROW(returnMsg->isNull("component"));
     ASSERT_FALSE(returnMsg->isNull("component"));
@@ -109,7 +109,7 @@ TEST_F(SimpleRDS, GetComponentIds){
     SocketMessage request;
     request.addMember("request",REQUEST_COMPONENTS);
 
-    SocketMessage * reply = ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore);
+    SocketMessage * reply = resourceDiscoveryStore.generateRDResponse(&request);
 
     std::vector<std::string> ids;
     ASSERT_NO_THROW(ids = reply->getArray<std::string>("components"));
@@ -137,7 +137,7 @@ TEST_F(SimpleRDS, GetBySchemaValid){
     delete schema;
 
 
-    SocketMessage * reply = ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore);
+    SocketMessage * reply = resourceDiscoveryStore.generateRDResponse(&request);
     std::vector<SocketMessage *> endpointReturns = reply->getArray<SocketMessage*>("endpoints");
     ASSERT_GE(endpointReturns.size(), 1);
 
@@ -168,7 +168,7 @@ TEST_F(SimpleRDS, GetBySchemaInvalid){
     delete schema;
 
 
-    SocketMessage * reply = ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore);
+    SocketMessage * reply = resourceDiscoveryStore.generateRDResponse(&request);
     std::vector<SocketMessage *> endpointReturns = reply->getArray<SocketMessage*>("endpoints");
     ASSERT_EQ(endpointReturns.size(), 0);
 
@@ -178,12 +178,12 @@ TEST_F(SimpleRDS, GetBySchemaInvalid){
 
 TEST_F(SimpleRDS, NoRequestField){
     SocketMessage request;
-    ASSERT_THROW(ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore), ValidationError);
+    ASSERT_THROW(resourceDiscoveryStore.generateRDResponse(&request), ValidationError);
 }
 
 TEST_F(SimpleRDS, BrokenRequest){
     SocketMessage request;
     request.addMember("request",ADDITION);
 
-    ASSERT_THROW(ResourceDiscoveryStore::generateRDResponse(&request,resourceDiscoveryStore), ValidationError);
+    ASSERT_THROW(resourceDiscoveryStore.generateRDResponse(&request), ValidationError);
 }
