@@ -39,7 +39,7 @@ Component::Component():  systemSchemas(),
     auto addresses = getLinuxIpAddresses();
     for (const auto & address: addresses){
         if(address.rfind("127.",0) != 0){
-            availableAddresses.emplace_back(address);
+            availableAddresses.emplace_back("tcp://" + address);
         }
     }
     if (availableAddresses.empty()){
