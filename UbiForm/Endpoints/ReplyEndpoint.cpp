@@ -12,7 +12,7 @@ void ReplyEndpoint::listenForConnection(const char *url) {
 int ReplyEndpoint::listenForConnectionWithRV(const char *url) {
     int rv;
     nng_listener l;
-    if((rv = nng_listen(*senderSocket, "tcp://*:8001", &l, 0)) != 0) {
+    if((rv = nng_listen(*senderSocket, url, &l, 0)) != 0) {
         return rv;
     }
     this->listenUrl = url;
