@@ -202,10 +202,10 @@ int Component::createEndpointAndListen(SocketType st, const std::string& endpoin
             url = baseAddress;
         }
         rv = e->listenForConnectionWithRV(url.c_str(), lowestPort);
-        if (rv == EADDRINUSE){
+        if (rv == NNG_EADDRINUSE){
             lowestPort = generateRandomPort();
         }else if (rv != 0){
-            throw NngError(rv, "Create " + convertSocketType(st) + " listener at " + url);
+            throw NngError(rv, "Create " + convertSocketType(st) + " listener at " + url + ":" + std::to_string(lowestPort));
         }
     }
     std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":" << lowestPort << std::endl;
