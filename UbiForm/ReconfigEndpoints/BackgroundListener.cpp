@@ -7,7 +7,6 @@
 void BackgroundListener::startBackgroundListen(const std::string &baseAddress, int port) {
     replyEndpoint.listenForConnection(baseAddress.c_str(), port);
     std::cout << "Started background listener on " << baseAddress << ":" << port << std::endl;
-    backgroundListenAddress = baseAddress;
     backgroundPort = port;
     this->backgroundThread = std::thread(backgroundListen,this);
 }

@@ -20,7 +20,6 @@ class Component;
 class BackgroundListener {
 private:
     std::thread backgroundThread;
-    std::string backgroundListenAddress;
     int backgroundPort;
     Component * component;
     SystemSchemas & systemSchemas;
@@ -35,7 +34,6 @@ public:
 
     static void backgroundListen(BackgroundListener *backgroundListener);
 
-    std::string getBackgroundListenAddress(){return backgroundListenAddress;}
     int getBackgroundPort(){return backgroundPort;}
 
     ~BackgroundListener();

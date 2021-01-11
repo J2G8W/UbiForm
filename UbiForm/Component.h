@@ -109,7 +109,6 @@ public:
     BackgroundRequester & getBackgroundRequester(){return backgroundRequester;}
     std::string getRDHLocation();
 
-    std::string getBackgroundListenAddress(){return backgroundListener.getBackgroundListenAddress();}
     int getBackgroundPort(){return backgroundListener.getBackgroundPort();}
     std::vector<std::string>& getAllAddresses(){
         return availableAddresses;
