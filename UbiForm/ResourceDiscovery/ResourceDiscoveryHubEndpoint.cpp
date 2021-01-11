@@ -6,8 +6,7 @@
 
 void ResourceDiscoveryHubEndpoint::startResourceDiscover(const std::string &baseAddress, int port) {
     replyEndpoint.listenForConnection(baseAddress.c_str(), port);
-    listenAddress = baseAddress;
-
+    backgroundPort = port;
     this->rdThread = std::thread(rdBackground, this);
 }
 

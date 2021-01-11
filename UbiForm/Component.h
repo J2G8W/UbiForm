@@ -107,7 +107,6 @@ public:
     ComponentManifest& getComponentManifest(){return componentManifest;}
     SystemSchemas & getSystemSchemas(){return systemSchemas;}
     BackgroundRequester & getBackgroundRequester(){return backgroundRequester;}
-    std::string getRDHLocation();
 
     int getBackgroundPort(){return backgroundListener.getBackgroundPort();}
     std::vector<std::string>& getAllAddresses(){
