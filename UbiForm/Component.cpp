@@ -78,9 +78,11 @@ void Component::createNewEndpoint(const std::string &typeOfEndpoint, const std::
             auto pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema, typeOfEndpoint, id);
             receiverEndpoint = pe;
             senderEndpoint = pe;
+            break;
         }
         case Publisher:
             senderEndpoint = std::make_shared<PublisherEndpoint>(sendSchema, typeOfEndpoint, id);
+            break;
         case Subscriber:
             receiverEndpoint = std::make_shared<SubscriberEndpoint>(recvSchema, typeOfEndpoint, id);
             break;
