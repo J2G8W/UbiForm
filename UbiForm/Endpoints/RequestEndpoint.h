@@ -13,12 +13,16 @@ public:
             DataReceiverEndpoint(replySchema, endpointIdentifier, SocketType::Request),
             DataSenderEndpoint(requestSchema, endpointIdentifier, SocketType::Request){
         senderSocket = new nng_socket;
+        // Default timeout is 500ms
+        setTimeout(500);
     }
 
     // SHOULD NOT LISTEN FOR CONNECTION
     void listenForConnection(const char *base, int port) override ;
     int listenForConnectionWithRV(const char *base, int port) override;
 
+    // Milliseconds
+    void setTimeout(int timeout);
 
     void dialConnection(const char *url) override;
     void closeSocket() override;

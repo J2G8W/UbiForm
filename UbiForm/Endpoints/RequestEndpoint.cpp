@@ -66,3 +66,7 @@ void RequestEndpoint::closeSocket() {
         DataSenderEndpoint::socketOpen = false;
     }
 }
+
+void RequestEndpoint::setTimeout(int timeout) {
+    nng_socket_set_ms(*senderSocket, NNG_OPT_RECVTIMEO,timeout);
+}

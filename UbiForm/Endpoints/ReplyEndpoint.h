@@ -24,6 +24,8 @@ public:
         }
         // Use the same socket for sending and receiving
         receiverSocket = senderSocket;
+        // By default we have an infinite timeout
+        setTimeout(-1);
     }
 
     void listenForConnection(const char *base, int port) override ;
@@ -33,6 +35,8 @@ public:
     void dialConnection(const char *url) override;
     void closeSocket() override;
     ~ReplyEndpoint() override;
+
+    void setTimeout(int timeout);
 };
 
 
