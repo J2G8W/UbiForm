@@ -18,7 +18,7 @@ int main(int argc, char ** argv){
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             receiver.getBackgroundRequester().requestAndCreateConnection(
-                    "tcp://127.0.0.1:8000", -1, "pairExample",
+                    "tcp://127.0.0.1", 8000, "pairExample",
                     "pairExample");
             auto endpoints = receiver.getReceiverEndpointsByType("pairExample");
             while(true){
@@ -30,7 +30,7 @@ int main(int argc, char ** argv){
 
         }
         if (strcmp(argv[1], SENDER) == 0){
-            Component sender("tcp://127.0.0.2");
+            Component sender("tcp://127.0.0.1");
 
             FILE* pFile = fopen("JsonFiles/PairManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
