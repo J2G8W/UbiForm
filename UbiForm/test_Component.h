@@ -4,12 +4,12 @@
 #include <nng/supplemental/util/platform.h>
 
 TEST(EmptyComponent, EmptyManifest){
-    Component component;
+    Component component("ipc:///tmp/EMPTY");
     ASSERT_THROW(component.getReceiverEndpointById("some_type"), std::out_of_range);
 }
 
 TEST(EmptyComponent, DeleteComponent){
-    Component component;
+    Component component("ipc:///tmp/BORING");
     component.specifyManifest("{\"name\":\"TEST1\",\"schemas\":{}}");
     component.startBackgroundListen();
     component.startResourceDiscoveryHub(7999);
@@ -21,7 +21,7 @@ class SimpleComponent : public testing::Test{
 protected:
     // Note we aren't REALLY testing the inputting of the manifest as this is done automatically
     SimpleComponent(){
-        component = new Component();
+        component = new Component("ipc:///tmp/RDH");
         if (pFile == nullptr){
             std::cerr << "Error finding requisite file - " << "TestManifests/Component1.json" << std::endl;
         }

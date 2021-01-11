@@ -2,7 +2,7 @@
 
 class test_RDC : public testing::Test{
 protected:
-    test_RDC() : component(), rdc(&component, component.getSystemSchemas()){
+    test_RDC() : component("ipc:///tmp/RDH"), rdc(&component, component.getSystemSchemas()){
         FILE* pFile = fopen("TestManifests/Component1.json", "r");
         if (pFile == nullptr){
             std::cerr << "Error finding requisite file ("<<"TestManifests/Component1.json" <<")" << std::endl;

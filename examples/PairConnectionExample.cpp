@@ -9,7 +9,7 @@
 int main(int argc, char ** argv){
     if (argc >= 2){
         if (strcmp(argv[1], RECEIVER) == 0){
-            Component receiver;
+            Component receiver("tcp://127.0.0.2");
             FILE* pFile = fopen("JsonFiles/PairManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
             receiver.specifyManifest(pFile);
@@ -30,7 +30,7 @@ int main(int argc, char ** argv){
 
         }
         if (strcmp(argv[1], SENDER) == 0){
-            Component sender;
+            Component sender("tcp://127.0.0.2");
 
             FILE* pFile = fopen("JsonFiles/PairManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");

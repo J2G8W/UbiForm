@@ -11,7 +11,7 @@
 int main(int argc, char ** argv){
     if (argc >= 2){
         if (strcmp(argv[1], SUBSCRIBER_COMPONENT) == 0){
-            Component component;
+            Component component("tcp://127.0.0.2");
 
             FILE* pFile = fopen("JsonFiles/SubscriberManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
@@ -45,7 +45,7 @@ int main(int argc, char ** argv){
 
         }
         if (strcmp(argv[1], PUBLISHER_COMPONENT) == 0){
-            Component component;
+            Component component("tcp://127.0.0.1");
 
             FILE* pFile = fopen("JsonFiles/PublisherManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
