@@ -41,9 +41,6 @@ int main(int argc, char ** argv){
             std::cout << "Resource discovery started" << std::endl;
 
 
-            std::cout << "Registered successfully" << std::endl;
-
-
             SocketMessage s;
             bool valid = true;
             auto publisherEndpoints = component->getSenderEndpointsByType("publisherExample");
@@ -88,7 +85,6 @@ int main(int argc, char ** argv){
                     component->getResourceDiscoveryConnectionEndpoint().registerWithHub(argv[3]);
                 }
 
-                std::cout << "Registered successfully" << std::endl;
 
 
                 SocketMessage s;
@@ -133,7 +129,6 @@ int main(int argc, char ** argv){
                     return -1;
                 }
                 std::string locationOfRDH = RDHurls.at(0);
-                std::cout << "REGISTERED SUCCESSFULLY with " << locationOfRDH << std::endl;
                 std::vector<std::string> ids = component->getResourceDiscoveryConnectionEndpoint().getComponentIdsFromHub(
                         locationOfRDH);
 
