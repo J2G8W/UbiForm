@@ -88,7 +88,7 @@ target_link_libraries(UbiForm gtest_main gmock_main)
 if (BUILD_TESTS)
     set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h
             ../UbiForm/SchemaRepresentation/test_EndpointSchema.h ../UbiForm/test_Component.h
-            ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h ../UbiForm/SystemSchemas/test_SystemSchemas.h ../tests/ReconfigurationIntegrationTest.h ../UbiForm/Utilities/test_GetIPAddresses.h)
+            ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h ../UbiForm/SystemSchemas/test_SystemSchemas.h ../tests/test_ReconfigurationIntegration.h ../UbiForm/Utilities/test_GetIPAddresses.h)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm ${NNG})
     file(COPY ../tests/TestManifests DESTINATION .)
