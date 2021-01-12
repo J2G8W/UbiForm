@@ -178,7 +178,28 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeManifestRequest(S
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleRDHLocationsRequest(SocketMessage &request){
     auto reply = std::make_unique<SocketMessage>();
-    reply->addMember("locations",component->getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs());
+    auto locations = component->getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs();
+
+    bool selfRDH = false;
+    auto it = locations.begin();
+    while (it != locations.end()) {
+        if(it->rfind(component->getSelfAddress(),0) == 0){
+            std::cout << "Found " << *it << std::endl;
+            selfRDH = true;
+            it = locations.erase(it);
+        }else{
+            it++;
+        }
+
+    }
+    if (selfRDH) {
+        for (const auto &url: component->getAllAddresses()) {
+            std::string changedUrl = url + ":" + std::to_string(component->getResourceDiscoveryHubPort());
+            locations.push_back(changedUrl);
+        }
+    }
+
+    reply->addMember("locations",locations);
     reply->addMember("error",false);
     return reply;
 }
