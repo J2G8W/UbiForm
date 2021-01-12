@@ -147,6 +147,8 @@ std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::s
         }
         std::vector<std::string> locations = reply->getArray<std::string>("locations");
         return locations;
+    }catch(NngError &e) {
+        throw;
     }catch(std::logic_error &e){
         std::cerr << e.what() << std::endl;
         return std::vector<std::string>();

@@ -62,10 +62,10 @@ int main(int argc, char ** argv){
                 }
                 nng_msleep(1000);
             }
-        }if (argc >=3) {
-            const char *RDHAddress = argv[2];
-            if (argc == 4){
-                componentAddress = argv[3];
+        }else{
+
+            if (argc >= 3){
+                componentAddress = argv[2];
                 component = new Component(componentAddress);
             }else{
                 component = new Component;
@@ -82,7 +82,11 @@ int main(int argc, char ** argv){
                 component->startBackgroundListen();
                 std::cout << "Component Listening" << std::endl;
 
-                component->getResourceDiscoveryConnectionEndpoint().registerWithHub(RDHAddress);
+                if (argc < 4){
+                    component->getResourceDiscoveryConnectionEndpoint().searchForResourceDiscoveryHubs();
+                }else {
+                    component->getResourceDiscoveryConnectionEndpoint().registerWithHub(argv[3]);
+                }
 
                 std::cout << "Registered successfully" << std::endl;
 
@@ -117,11 +121,19 @@ int main(int argc, char ** argv){
                 std::cout << "MANIFEST SPECIFIED" << "\n";
 
 
-                const char *locationOfRDH = RDHAddress;
 
-
-                component->getResourceDiscoveryConnectionEndpoint().registerWithHub(locationOfRDH);
-                std::cout << "REGISTERED SUCCESSFULLY" << std::endl;
+                if (argc < 4){
+                    component->getResourceDiscoveryConnectionEndpoint().searchForResourceDiscoveryHubs();
+                }else {
+                    component->getResourceDiscoveryConnectionEndpoint().registerWithHub(argv[3]);
+                }
+                auto RDHurls = component->getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs();
+                if(RDHurls.empty()){
+                    std::cerr << "No Resource Discovery Hubs found" << std::endl;
+                    return -1;
+                }
+                std::string locationOfRDH = RDHurls.at(0);
+                std::cout << "REGISTERED SUCCESSFULLY with " << locationOfRDH << std::endl;
                 std::vector<std::string> ids = component->getResourceDiscoveryConnectionEndpoint().getComponentIdsFromHub(
                         locationOfRDH);
 
@@ -152,7 +164,7 @@ int main(int argc, char ** argv){
 
     std::cerr << "Error usage is " << argv[0] << " " << HUB  << "[componentAddress]" << std::endl;
     std::cerr << "or: " << argv[0] << " " << SUBSCRIBER_CONNECTION << "|" << PUBLISHER_CONNECTION;
-    std::cerr << " RDHlocation " << "[componentAddress]" << std::endl;
+    std::cerr << "[componentAddress]" << " [RDHlocation] " << std::endl;
 
 }
 

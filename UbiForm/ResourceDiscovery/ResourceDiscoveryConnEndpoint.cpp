@@ -203,3 +203,37 @@ void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
 
     }
 }
+
+void ResourceDiscoveryConnEndpoint::searchForResourceDiscoveryHubs() {
+    auto addresses = component->getAllAddresses();
+    bool found = false;
+    if (component->getComponentConnectionType() == ConnectionType::IPC){
+        std::cerr << "Can't search for RDH's with IPC" << std::endl;
+        return;
+    }
+    for(const auto& address: addresses){
+        if(found){break;}
+
+        std::string subnet = address.substr(0,address.rfind('.'));
+        for(int i = 0;i <= 255; i++){
+            if(found){break;}
+            std::string dialAddress = subnet +"." +  std::to_string(i) + ":" + std::to_string(DEFAULT_BACKGROUND_LISTEN_PORT);
+            try{
+                std::vector<std::string> RDHs =
+                        component->getBackgroundRequester().requestLocationsOfRDH(dialAddress);
+                if(RDHs.empty()){continue;}
+                for(const std::string& url : RDHs){
+                    try {
+                        registerWithHub(url);
+                        found = true;
+                        break;
+                    }catch(std::logic_error &e){
+                        //IGNORED
+                    }
+                }
+            }catch(std::logic_error &e){
+                // IGNORED
+            }
+        }
+    }
+}

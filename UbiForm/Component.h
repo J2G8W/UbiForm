@@ -176,6 +176,8 @@ public:
     SystemSchemas & getSystemSchemas(){return systemSchemas;}
     BackgroundRequester & getBackgroundRequester(){return backgroundRequester;}
 
+    ConnectionType getComponentConnectionType(){return componentConnectionType;}
+
     int getBackgroundPort(){return backgroundListener.getBackgroundPort();}
     /// @brief - Returns a reference to the vector of all the addresses that the component can listen on
     std::vector<std::string>& getAllAddresses(){

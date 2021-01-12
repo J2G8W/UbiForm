@@ -26,6 +26,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
             break;
         }
         std::unique_ptr<SocketMessage> returnMsg;
+        // TODO - return error message
         try {
             returnMsg = std::unique_ptr<SocketMessage>(rdhe->rdStore.generateRDResponse(request.get()));
         }catch (ParsingError &e){

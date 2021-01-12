@@ -96,6 +96,8 @@ public:
      */
     void updateManifestWithHubs();
 
+    void searchForResourceDiscoveryHubs();
+
 };
 
 
