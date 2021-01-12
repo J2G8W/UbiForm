@@ -20,7 +20,7 @@ class Component;
 class BackgroundListener {
 private:
     std::thread backgroundThread;
-    int backgroundPort;
+    int backgroundPort = -1;
     Component * component;
     SystemSchemas & systemSchemas;
     ReplyEndpoint replyEndpoint;

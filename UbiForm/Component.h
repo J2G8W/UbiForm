@@ -164,6 +164,9 @@ public:
     int startResourceDiscoveryHub();
     ///@}
 
+    std::string getSelfAddress(){return baseAddress;}
+    int getResourceDiscoveryHubPort(){return resourceDiscoveryHubEndpoint->getBackgroundPort();}
+
 
     ResourceDiscoveryConnEndpoint & getResourceDiscoveryConnectionEndpoint(){return resourceDiscoveryConnEndpoint;}
     ComponentManifest& getComponentManifest(){return componentManifest;}

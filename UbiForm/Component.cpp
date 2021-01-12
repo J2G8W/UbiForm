@@ -18,7 +18,7 @@ Component::Component(const std::string &baseAddress) :  systemSchemas(),
         baseAddress(baseAddress), resourceDiscoveryConnEndpoint(this, systemSchemas), componentManifest(systemSchemas){
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
-    std::cout << "Component made, base address is " << baseAddress << std::endl;
+    std::cout << "Component made, self address is " << baseAddress << std::endl;
     if(baseAddress.rfind("tcp",0)==0){
         componentConnectionType = ConnectionType::LocalTCP;
         availableAddresses.push_back(baseAddress);
@@ -44,10 +44,15 @@ Component::Component():  systemSchemas(),
     }
     if (availableAddresses.empty()){
         throw std::logic_error("Could not find any networks to act on");
+    }else{
+        std::cout << "Available IP addresses: " << std::endl;
+        for(const auto & address : availableAddresses){
+            std::cout << "\t" << address << std::endl;
+        }
     }
     baseAddress = "tcp://127.0.0.1";
     componentConnectionType = ConnectionType::TCP;
-    std::cout << "Component made, base address is " << baseAddress << std::endl;
+    std::cout << "Component made, self address is " << baseAddress << std::endl;
 }
 
 

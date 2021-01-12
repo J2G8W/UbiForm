@@ -52,9 +52,10 @@ void ResourceDiscoveryConnEndpoint::registerWithHub(const std::string& url) {
     try {
         reply = sendRequest(url, request.get());
         systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
+        std::cout << "Registered successfully with: " << url << " id is " << reply->getString("newID") << std::endl;
     }catch(std::logic_error &e){
         std::cerr << "Error registering with " << url << "\n\t" << e.what() << std::endl;
-        return;
+        throw;
     }
 
     resourceDiscoveryHubs.insert(std::pair<std::string,std::string>(url, reply->getString("newID")));

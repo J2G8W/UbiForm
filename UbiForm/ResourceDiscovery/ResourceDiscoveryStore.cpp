@@ -10,7 +10,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm) {
         throw ValidationError("Message has no request field");
     }
 
-    std::cout << "Resource Discovery Request - " << request << std::endl;
+    //std::cout << "Resource Discovery Request - " << request << std::endl;
 
     // Use a unique_ptr so when exceptions thrown it auto deletes
     std::unique_ptr<SocketMessage> returnMsg = std::make_unique<SocketMessage>();

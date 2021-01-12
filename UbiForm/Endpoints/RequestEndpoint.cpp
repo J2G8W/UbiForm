@@ -18,7 +18,7 @@ void RequestEndpoint::dialConnection(const char *url) {
     // Before dialling a new location we close the old socket (means same endpoint can be reused)
     if(DataReceiverEndpoint::socketOpen && DataSenderEndpoint::socketOpen){
         nng_close(*senderSocket);
-        std::cout << "Request Socket closed to dial: " << url << std::endl;
+        //std::cout << "Request Socket closed to dial: " << url << std::endl;
         DataReceiverEndpoint::socketOpen = false;
         DataSenderEndpoint::socketOpen = false;
     }
