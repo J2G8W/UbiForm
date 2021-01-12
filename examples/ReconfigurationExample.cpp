@@ -71,12 +71,14 @@ int main(int argc, char ** argv){
                         for(const auto& url:subscriberRep->getAllUrls()){
                             std::string dialUrl = url + ":" + std::to_string(subscriberRep->getPort());
                             component->getBackgroundRequester().requestCloseSocketOfType(dialUrl,"subscriberExample");
+                            break;
                         }
                         std::cout << "Subscriber socket closed" << std::endl;
 
                         for(const auto& url:publisherRep->getAllUrls()){
                             std::string dialUrl = url + ":" + std::to_string(publisherRep->getPort());
                             component->getBackgroundRequester().requestCloseSocketOfType(dialUrl,"publisherExample");
+                            break;
                         }
                         std::cout << "Publisher socket closed" << std::endl;
                     }

@@ -234,7 +234,7 @@ void Component::createEndpointAndDial(const std::string& socketType, const std::
 
     this->lowestPort ++;
     e->dialConnection(url.c_str());
-    std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << url << std::endl;
+    std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << url ;
     std::cout << "\n\tLocal ID: " << socketId << std::endl;
 }
 
