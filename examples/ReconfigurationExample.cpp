@@ -37,6 +37,8 @@ int main(int argc, char ** argv){
             std::string idWithRDH = component->getResourceDiscoveryConnectionEndpoint().getId(rdhLoc);
             bool somePublisher = false;
             std::unique_ptr<ComponentRepresentation> publisherRep;
+            std::unique_ptr<ComponentRepresentation> subscriberRep;
+            int counter = 0;
 
             while(true){
                 if(!update) {
@@ -61,7 +63,22 @@ int main(int argc, char ** argv){
                                 update = true;
                                 break;
                             }
+                            subscriberRep = std::move(compRep);
                         }
+                    }
+                }else{
+                    if(counter++ == 3){
+                        for(const auto& url:subscriberRep->getAllUrls()){
+                            std::string dialUrl = url + ":" + std::to_string(subscriberRep->getPort());
+                            component->getBackgroundRequester().requestCloseSocketOfType(dialUrl,"subscriberExample");
+                        }
+                        std::cout << "Subscriber socket closed" << std::endl;
+
+                        for(const auto& url:publisherRep->getAllUrls()){
+                            std::string dialUrl = url + ":" + std::to_string(publisherRep->getPort());
+                            component->getBackgroundRequester().requestCloseSocketOfType(dialUrl,"publisherExample");
+                        }
+                        std::cout << "Publisher socket closed" << std::endl;
                     }
                 }
                 nng_msleep(1000);
@@ -130,6 +147,7 @@ int main(int argc, char ** argv){
                 while (true) {
                     for (const auto &endpoint : *subscriberEndpoints) {
                         s = endpoint->receiveMessage();
+                        std::cout << "Receiving from: " << endpoint->getDialUrl() << std::endl;
                         for(const std::string& name: component->getComponentManifest().getReceiverSchema("subscriberExample")->getRequired()){
                             ValueType type = component->getComponentManifest().getReceiverSchema("subscriberExample")->getValueType(name);
                             switch (type) {
@@ -140,17 +158,18 @@ int main(int argc, char ** argv){
                                     } else {
                                         counters.insert(std::make_pair(name, s->getInteger(name)));
                                     }
-                                    std::cout << "Tallyed value of " << name << " : " << counters.at(name);
+                                    std::cout << "\tTallyed value of " << name << " : " << counters.at(name) << std::endl;
                                     break;
                                 }
                                 case String:
-                                    std::cout << "Received " << name << " : " << s->getString(name);
+                                    std::cout << "\tReceived " << name << " : " << s->getString(name) <<std::endl;
                                     break;
                                 default:
-                                    std::cout << "Unsure how to handle " << name << " of type " <<  convertValueType(type) <<std::endl;
+                                    std::cout << "\tUnsure how to handle " << name << " of type " <<  convertValueType(type) <<std::endl;
                             }
                         }
                     }
+                    nng_msleep(1000);
                 }
             }
         }

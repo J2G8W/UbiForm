@@ -12,6 +12,7 @@ int SocketMessage::getInteger(const std::string &attributeName){
             throw AccessError("Attribute " + attributeName + "exists but not type integer");
         }
     }else{
+        std::cerr << "ERROR WITH " << attributeName << "\n" << stringifyValue(JSON_document) << std::endl;
         throw AccessError("The message has no attribute " + attributeName);
     }
 }

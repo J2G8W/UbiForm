@@ -218,7 +218,8 @@ int Component::createEndpointAndListen(SocketType st, const std::string& endpoin
             throw NngError(rv, "Create " + convertSocketType(st) + " listener at " + url + ":" + std::to_string(lowestPort));
         }
     }
-    std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":" << lowestPort << std::endl;
+    std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":" << lowestPort;
+    std::cout << "\n\tLocal ID: " << socketId << std::endl;
     return lowestPort++;
 }
 
@@ -234,7 +235,7 @@ void Component::createEndpointAndDial(const std::string& socketType, const std::
     this->lowestPort ++;
     e->dialConnection(url.c_str());
     std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << url << std::endl;
-
+    std::cout << "\n\tLocal ID: " << socketId << std::endl;
 }
 
 
@@ -289,7 +290,6 @@ void Component::closeSocketsOfType(const std::string &endpointType) {
         auto it = vec->begin();
         while(it != vec->end()){
             (*it)->closeSocket();
-            std::cout << "Remaining references: " << (*it).use_count() << std::endl;
             it = vec->erase(it);
         }
     }

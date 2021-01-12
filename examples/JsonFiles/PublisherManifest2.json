@@ -10,7 +10,7 @@
           "date": {
             "type": "string"
           },
-          "messageSent": {
+          "messagesSent": {
             "type": "number"
           },
           "counter": {
