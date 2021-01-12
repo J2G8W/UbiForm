@@ -1,117 +1,164 @@
-
+#include <algorithm>
 #include "../UbiForm/Component.h"
 #include "../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
+
+#include <iomanip>
 #include <nng/supplemental/util/platform.h>
 
 // Hub is a Publisher and an RDH
 #define HUB "HUB"
 // Connection is a subscriber
 #define SUBSCRIBER_CONNECTION "CONNECTION"
+// Publisher is JUST a publisher (different to Hub)
+#define PUBLISHER_CONNECTION "PUBLISHER"
 
-int main(int argc, char **argv){
+
+int main(int argc, char ** argv){
     const char * componentAddress;
-    if (argc == 4){
-        componentAddress = argv[3];
-    }else{
-        componentAddress = "tcp://127.0.0.1";
-    }
-    if (argc >= 3) {
-        const char *RDHAddress = argv[2];
-        if (strcmp(argv[1], HUB) == 0) {
+    Component* component;
+    if (argc >= 2){
+        if (strcmp(argv[1], HUB) == 0){
+            if (argc == 3){
+                componentAddress = argv[2];
+                component = new Component(componentAddress);
+            }else{
+                component = new Component;
+            }
 
-            Component component(componentAddress);
+            component->startBackgroundListen();
 
-            FILE *pFile = fopen("JsonFiles/PublisherManifest1.json", "r");
-            if (pFile == nullptr) perror("ERROR");
-            component.specifyManifest(pFile);
-            fclose(pFile);
+            component->getComponentManifest().setName("RDH");
 
-            std::cout << "MANIFEST SPECIFIED" << std::endl;
-
-            // Start on a specific port
-            component.startBackgroundListen(8000);
-            std::cout << "Component Listening" << std::endl;
-
-            component.startResourceDiscoveryHub(7999);
-
-            std::cout << "Resource discovery started" << std::endl;
+            component->startResourceDiscoveryHub(7999);
 
 
+            bool update = false;
+            std::string rdhLoc = component->getSelfAddress() + ":" + std::to_string(component->getResourceDiscoveryHubPort());
+            std::string idWithRDH = component->getResourceDiscoveryConnectionEndpoint().getId(rdhLoc);
+            bool somePublisher = false;
+            std::unique_ptr<ComponentRepresentation> publisherRep;
 
-            std::cout << "Registered successfully" << std::endl;
-
-
-            int counter = 0;
-            auto publisherEndpoints = component.getSenderEndpointsByType("publisherExample");
-            while (true) {
-                auto relevantSchema = component.getComponentManifest().getSenderSchema("publisherExample");
-                std::cout << relevantSchema->stringify() << std::endl;
-                std::vector<std::string> requiredValues = relevantSchema->getRequired();
-                if (!publisherEndpoints->empty()) {
-                    SocketMessage sm;
-                    for (auto& attributeName : requiredValues){
-                        switch(relevantSchema->getValueType(attributeName)){
-                            case Number:
-                                sm.addMember(attributeName, counter);
+            while(true){
+                if(!update) {
+                    for (auto &id : component->getResourceDiscoveryConnectionEndpoint().getComponentIdsFromHub(
+                            rdhLoc)) {
+                        auto compRep = component->getResourceDiscoveryConnectionEndpoint().getComponentById(rdhLoc, id);
+                        if (!somePublisher && compRep != nullptr && compRep->getName() == "Publisher") {
+                            somePublisher = true;
+                            publisherRep = std::move(compRep);
+                            std::cout << "Found Publisher" << std::endl;
+                        }else if (compRep != nullptr && somePublisher && compRep->getName() == "Subscriber"){
+                            for(const auto& url:compRep->getAllUrls()){
+                                std::string dialUrl = url + ":" + std::to_string(compRep->getPort());
+                                component->getBackgroundRequester().requestChangeEndpoint(dialUrl,SocketType::Subscriber,
+                                                                                          "subscriberExample",
+                                                                                          publisherRep->getSenderSchema("publisherExample").get(),nullptr);
+                                std::cout << "Subscriber component added endpoint schema" << std::endl;
+                                component->getBackgroundRequester().tellToRequestAndCreateConnection(dialUrl,"subscriberExample",
+                                                                                                     "publisherExample",publisherRep->getAllUrls().at(0),
+                                                                                                     publisherRep->getPort());
+                                std::cout << "Subscriber has formed connection to publisher" << std::endl;
+                                update = true;
                                 break;
-                            case String:
-                                sm.addMember(attributeName,"HELLO");
-                                break;
-                            case Boolean:
-                                sm.addMember(attributeName, true);
-                                break;
-                            default:
-                                throw AccessError("Don't know what to do with non-number/string");
+                            }
                         }
                     }
-                    publisherEndpoints->at(0)->sendMessage(sm);
-                }
-                counter++;
-                if (counter == 4){
-                    std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
-                    component.getComponentManifest().addEndpoint(SocketType::Publisher, "publisherExample", nullptr,
-                                                                  es);
-                    component.closeSocketsOfType("publisherExample");
-                    component.getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
-                    std::cout << "BORING MANIFEST" << std::endl;
                 }
                 nng_msleep(1000);
             }
-        }if (strcmp(argv[1], SUBSCRIBER_CONNECTION) == 0) {
-            Component component(componentAddress);
-            component.startBackgroundListen();
 
-            FILE *pFile = fopen("JsonFiles/SubscriberManifest1.json", "r");
-            if (pFile == nullptr) perror("ERROR");
-            component.specifyManifest(pFile);
-            fclose(pFile);
 
-            std::cout << "MANIFEST SPECIFIED" << "\n";
+        }else if (argc >=3){
+            const char *RDHAddress = argv[2];
+            if (argc == 4){
+                componentAddress = argv[3];
+                component = new Component(componentAddress);
+            }else{
+                component = new Component;
+            }
 
-            const char *locationOfRDH = RDHAddress;
+            if (strcmp(argv[1], PUBLISHER_CONNECTION) == 0) {
+                FILE *pFile = fopen("JsonFiles/PublisherManifest2.json", "r");
+                if (pFile == nullptr) perror("ERROR");
+                component->specifyManifest(pFile);
+                fclose(pFile);
+                std::cout << "Publisher Manifest Specified" << std::endl;
 
-            component.getResourceDiscoveryConnectionEndpoint().registerWithHub(locationOfRDH);
+                component->startBackgroundListen();
 
-            std::vector<std::string> ids = component.getResourceDiscoveryConnectionEndpoint().getComponentIdsFromHub(locationOfRDH);
+                while(true) {
+                    try {
+                        component->getResourceDiscoveryConnectionEndpoint().registerWithHub(RDHAddress);
+                        break;
+                    } catch (std::logic_error &e) {
+                        nng_msleep(1000);
+                    }
+                }
 
-            std::cout << "Available ids: ";
-            for (const auto &i: ids) { std::cout << i << ' '; }
-            std::cout << std::endl;
 
-            component.getResourceDiscoveryConnectionEndpoint().createEndpointBySchema("subscriberExample");
+                SocketMessage s;
+                int counter = 1;
+                auto publisherEndpoints = component->getSenderEndpointsByType("publisherExample");
+                while (true) {
+                    if (!publisherEndpoints->empty()) {
+                        char dateString[30];
+                        time_t t = time(nullptr);
+                        struct tm *p = localtime(&t);
+                        strftime(dateString, 30, "%A %B", p);
+                        s.addMember("date", std::string(dateString));
 
-            std::unique_ptr<SocketMessage> s;
-            auto subscriberEndpoints = component.getReceiverEndpointsByType("subscriberExample");
-            while (true) {
-                for (const auto &endpoint : *subscriberEndpoints) {
-                    s = endpoint->receiveMessage();
-                    std::cout << s->stringify() << std::endl;
+                        s.addMember("messagesSent",1);
+                        s.addMember("counter",counter++);
 
+                        publisherEndpoints->at(0)->sendMessage(s);
+                    }
+                    nng_msleep(1000);
+                }
+            }
+            if (strcmp(argv[1], SUBSCRIBER_CONNECTION) == 0) {
+                component->startBackgroundListen();
+                component->getComponentManifest().setName("Subscriber");
+
+                const char *locationOfRDH = RDHAddress;
+
+                component->getResourceDiscoveryConnectionEndpoint().registerWithHub(locationOfRDH);
+
+                std::unique_ptr<SocketMessage> s;
+                auto subscriberEndpoints = component->getReceiverEndpointsByType("subscriberExample");
+
+                std::map<std::string, int> counters;
+                while (true) {
+                    for (const auto &endpoint : *subscriberEndpoints) {
+                        s = endpoint->receiveMessage();
+                        for(const std::string& name: component->getComponentManifest().getReceiverSchema("subscriberExample")->getRequired()){
+                            ValueType type = component->getComponentManifest().getReceiverSchema("subscriberExample")->getValueType(name);
+                            switch (type) {
+                                case Number: {
+                                    auto it = counters.find(name);
+                                    if (it != counters.end()) {
+                                        it->second += s->getInteger(name);
+                                    } else {
+                                        counters.insert(std::make_pair(name, s->getInteger(name)));
+                                    }
+                                    std::cout << "Tallyed value of " << name << " : " << counters.at(name);
+                                    break;
+                                }
+                                case String:
+                                    std::cout << "Received " << name << " : " << s->getString(name);
+                                    break;
+                                default:
+                                    std::cout << "Unsure how to handle " << name << " of type " <<  convertValueType(type) <<std::endl;
+                            }
+                        }
+                    }
                 }
             }
         }
-    }else{
-        std::cerr << "Error usage is " << argv[0] << " " << HUB <<"|"<< SUBSCRIBER_CONNECTION ;
-        std::cerr << " RDHlocation " << "[componentAddress]" << std::endl;
     }
+
+    std::cerr << "Error usage is " << argv[0] << " " << HUB  << "[componentAddress]" << std::endl;
+    std::cerr << "or: " << argv[0] << " " << SUBSCRIBER_CONNECTION << "|" << PUBLISHER_CONNECTION;
+    std::cerr << " RDHlocation " << "[componentAddress]" << std::endl;
+
 }
+

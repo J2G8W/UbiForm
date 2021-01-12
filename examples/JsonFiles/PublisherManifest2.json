@@ -1,0 +1,24 @@
+{
+  "name": "Publisher",
+  "schemas": {
+    "publisherExample": {
+      "socketType": "publisher",
+      "send": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "messageSent": {
+            "type": "number"
+          },
+          "counter": {
+            "type": "number"
+          }
+        },
+        "required": ["date","messagesSent","counter"]
+      }
+    }
+  }
+}
