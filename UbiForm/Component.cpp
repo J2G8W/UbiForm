@@ -160,14 +160,15 @@ Component::getSenderEndpointsByType(const std::string &endpointType) {
 void Component::startBackgroundListen() {
     // -1 is the initalise value, and signifies the backgroundListener ain't doing nothing yet
     if (backgroundListener.getBackgroundPort() == -1) {
+        int nextPort = DEFAULT_BACKGROUND_LISTEN_PORT;
         for (int i = 0; i < 5; i++) {
             try {
-                startBackgroundListen(this->lowestPort);
-                this->lowestPort++;
+                startBackgroundListen(nextPort);
                 return;
             } catch (NngError &e) {
                 if (e.errorCode == NNG_EADDRINUSE) {
                     this->lowestPort = generateRandomPort();
+                    nextPort = this->lowestPort;
                 } else {
                     throw;
                 }
@@ -255,19 +256,23 @@ void Component::startResourceDiscoveryHub(int port) {
     }
 }
 int Component::startResourceDiscoveryHub() {
-    for(int i = 0; i < 5 ; i++) {
-        try {
-            startResourceDiscoveryHub(this->lowestPort);
-            return this->lowestPort++;
-        } catch (NngError &e) {
-            if(e.errorCode == NNG_EADDRINUSE){
-                this->lowestPort = generateRandomPort();
-            }else{
-                throw;
+    if (resourceDiscoveryHubEndpoint == nullptr) {
+        for (int i = 0; i < 5; i++) {
+            int nextPort = DEFAULT_RESOURCE_DISCOVERY_PORT;
+            try {
+                startResourceDiscoveryHub(nextPort);
+                return nextPort;
+            } catch (NngError &e) {
+                if (e.errorCode == NNG_EADDRINUSE) {
+                    this->lowestPort = generateRandomPort();
+                    nextPort = this->lowestPort;
+                } else {
+                    throw;
+                }
             }
         }
+        throw std::logic_error("Could not find valid port to start on");
     }
-    throw std::logic_error("Could not find valid port to start on");
 }
 
 

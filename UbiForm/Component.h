@@ -21,6 +21,9 @@
 #include "ReconfigEndpoints/BackgroundRequester.h"
 #include "ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
+#define DEFAULT_BACKGROUND_LISTEN_PORT 8000
+#define DEFAULT_RESOURCE_DISCOVERY_PORT 7999
+
 
 class Component {
 private:
@@ -47,7 +50,7 @@ private:
     }
 
 
-    int lowestPort = 8000;
+    int lowestPort = 8001;
 
     std::string baseAddress;
     std::vector<std::string> availableAddresses;
