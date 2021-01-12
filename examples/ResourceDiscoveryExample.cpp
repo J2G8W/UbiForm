@@ -80,6 +80,7 @@ int main(int argc, char ** argv){
                 std::cout << "Component Listening" << std::endl;
 
                 if (argc < 4){
+                    std::cout << "Search for Resource Discovery Hubs" << std::endl;
                     component->getResourceDiscoveryConnectionEndpoint().searchForResourceDiscoveryHubs();
                 }else {
                     component->getResourceDiscoveryConnectionEndpoint().registerWithHub(argv[3]);
@@ -119,6 +120,7 @@ int main(int argc, char ** argv){
 
 
                 if (argc < 4){
+                    std::cout << "Search for Resource Discovery Hubs" << std::endl;
                     component->getResourceDiscoveryConnectionEndpoint().searchForResourceDiscoveryHubs();
                 }else {
                     component->getResourceDiscoveryConnectionEndpoint().registerWithHub(argv[3]);
