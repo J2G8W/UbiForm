@@ -28,6 +28,7 @@ void RequestEndpoint::dialConnection(const char *url) {
     }else{
         DataReceiverEndpoint::socketOpen = true;
         DataSenderEndpoint::socketOpen = true;
+        setTimeout(500);
     }
     // Use the same socket for sending and receiving
     receiverSocket = senderSocket;
@@ -68,5 +69,8 @@ void RequestEndpoint::closeSocket() {
 }
 
 void RequestEndpoint::setTimeout(int timeout) {
-    nng_socket_set_ms(*senderSocket, NNG_OPT_RECVTIMEO,timeout);
+    int rv;
+    if((rv = nng_socket_set_ms(*senderSocket, NNG_OPT_RECVTIMEO,timeout)) != 0){
+        std::cerr << "Error with setting timeout: " << nng_strerror(rv) << std::endl;
+    }
 }

@@ -13,8 +13,6 @@ public:
             DataReceiverEndpoint(replySchema, endpointIdentifier, SocketType::Request),
             DataSenderEndpoint(requestSchema, endpointIdentifier, SocketType::Request){
         senderSocket = new nng_socket;
-        // Default timeout is 500ms
-        setTimeout(500);
     }
 
     // SHOULD NOT LISTEN FOR CONNECTION
