@@ -215,6 +215,7 @@ void ResourceDiscoveryConnEndpoint::searchForResourceDiscoveryHubs() {
         if(found){break;}
 
         std::string subnet = address.substr(0,address.rfind('.'));
+        std::cout << "Searching on subnet: " << subnet << std::endl;
         for(int i = 0;i <= 255; i++){
             if(found){break;}
             std::string dialAddress = subnet +"." +  std::to_string(i) + ":" + std::to_string(DEFAULT_BACKGROUND_LISTEN_PORT);

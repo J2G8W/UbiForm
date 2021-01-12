@@ -252,13 +252,13 @@ void Component::startResourceDiscoveryHub(int port) {
         }
         resourceDiscoveryHubEndpoint->startResourceDiscover(listenAddress, port);
         std::cout << "Started Resource Discovery Hub at - " << listenAddress << ":"<<port << std::endl;
-        resourceDiscoveryConnEndpoint.registerWithHub(baseAddress+":"+std::to_string(port));
+        resourceDiscoveryConnEndpoint.registerWithHub(availableAddresses.at(0)+":"+std::to_string(port));
     }
 }
 int Component::startResourceDiscoveryHub() {
     if (resourceDiscoveryHubEndpoint == nullptr) {
+        int nextPort = DEFAULT_RESOURCE_DISCOVERY_PORT;
         for (int i = 0; i < 5; i++) {
-            int nextPort = DEFAULT_RESOURCE_DISCOVERY_PORT;
             try {
                 startResourceDiscoveryHub(nextPort);
                 return nextPort;
