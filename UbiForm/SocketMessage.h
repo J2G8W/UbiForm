@@ -86,7 +86,6 @@ public:
     void addMember(const std::string &attributeName, const std::vector<std::string>& inputArray);
 
     /// @brief Copy constructs the SocketMessages
-    // TODO - No copy constructing
     void addMember(const std::string &attributeName, const std::vector<SocketMessage*>& inputArray);
     /// @brief Copy constructs the given SocketMessage
     void addMember(const std::string &attributeName, SocketMessage &socketMessage);
@@ -100,6 +99,8 @@ public:
      * @param socketMessage - thing to be moved into us
      */
     void addMoveObject(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage);
+
+    void addMoveArrayOfObjects(const std::string &attributeName, std::vector<std::unique_ptr<SocketMessage>> &inputArray);
 
     ///@{
     /**

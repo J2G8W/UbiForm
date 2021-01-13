@@ -156,3 +156,16 @@ TEST(SocketMessage, ObjectArray){
     // Each object should have the values we put in
     EXPECT_EQ(returnObjectArray.at(0)->getInteger("B"), 0);
 }
+
+TEST(SocketMessage, AddMoveArrayOfObjects){
+    SocketMessage main;
+    // Our array to be of objects
+    std::vector<std::unique_ptr<SocketMessage>> inputObjectArray;
+    for (int i =0; i<3; i++){
+        inputObjectArray.push_back(std::make_unique<SocketMessage>());
+        inputObjectArray.back()->addMember("B", i);
+    }
+    main.addMoveArrayOfObjects("A", inputObjectArray);
+    EXPECT_EQ(main.stringify(),R"({"A":[{"B":0},{"B":1},{"B":2}]})");
+    EXPECT_EQ(inputObjectArray.at(0), nullptr);
+}

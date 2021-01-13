@@ -4,53 +4,6 @@
 // Note that dependants is handled automatically by unique_ptr
 SocketMessage::~SocketMessage() = default;
 
-int SocketMessage::getInteger(const std::string &attributeName){
-    if (JSON_document.HasMember(attributeName)){
-        if(JSON_document[attributeName].IsInt()){
-            return JSON_document[attributeName].GetInt();
-        }else{
-            throw AccessError("Attribute " + attributeName + "exists but not type integer");
-        }
-    }else{
-        std::cerr << "ERROR WITH " << attributeName << "\n" << stringifyValue(JSON_document) << std::endl;
-        throw AccessError("The message has no attribute " + attributeName);
-    }
-}
-bool SocketMessage::getBoolean(const std::string &attributeName){
-    if (JSON_document.HasMember(attributeName)){
-        if(JSON_document[attributeName].IsBool()) {
-            return JSON_document[attributeName].GetBool();
-        }else{
-            throw AccessError("Attribute " + attributeName + "exists but not type boolean");
-        }
-    }else{
-        throw AccessError("The message has no attribute " + attributeName);
-    }
-}
-std::string SocketMessage::getString(const std::string &attributeName){
-    if (JSON_document.HasMember(attributeName)){
-        if(JSON_document[attributeName].IsString()) {
-            return JSON_document[attributeName].GetString();
-        }else{
-            throw AccessError("Attribute " + attributeName + "exists but not type string");
-        }
-    }else{
-        throw AccessError("The message has no attribute " + attributeName);
-    }
-}
-
-std::unique_ptr<SocketMessage> SocketMessage::getCopyObject(const std::string &attributeName) {
-    if (JSON_document.HasMember(attributeName)){
-        if(JSON_document[attributeName].IsObject()) {
-            return std::unique_ptr<SocketMessage>(new SocketMessage(JSON_document[attributeName], true));
-        }else{
-            throw AccessError("Attribute " + attributeName + " exists but not type object");
-        }
-    }else{
-        throw AccessError("The message has no attribute " + attributeName);
-    }
-}
-
 
 SocketMessage::SocketMessage(const char *jsonString) {
     rapidjson::StringStream stream(jsonString);
@@ -125,6 +78,74 @@ void SocketMessage::addMember(const std::string &attributeName, const std::vecto
     addOrSwap(key,valueArray);
 }
 
+void SocketMessage::addMoveObject(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage) {
+    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+
+    addOrSwap(key,socketMessage->JSON_document);
+    // So dependants now has the UNQIUE POINTER to the socket message, meaning only it can free it
+    dependants.push_back(std::move(socketMessage));
+}
+
+void SocketMessage::addMoveArrayOfObjects(const std::string &attributeName,
+                                          std::vector<std::unique_ptr<SocketMessage>> &inputArray) {
+    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+    rapidjson::Value valueArray(rapidjson::kArrayType);
+    valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
+    for (auto& object : inputArray){
+        valueArray.PushBack(object->JSON_document, JSON_document.GetAllocator());
+        dependants.push_back(std::move(object));
+    }
+    addOrSwap(key,valueArray);
+
+}
+
+
+int SocketMessage::getInteger(const std::string &attributeName){
+    if (JSON_document.HasMember(attributeName)){
+        if(JSON_document[attributeName].IsInt()){
+            return JSON_document[attributeName].GetInt();
+        }else{
+            throw AccessError("Attribute " + attributeName + "exists but not type integer");
+        }
+    }else{
+        std::cerr << "ERROR WITH " << attributeName << "\n" << stringifyValue(JSON_document) << std::endl;
+        throw AccessError("The message has no attribute " + attributeName);
+    }
+}
+bool SocketMessage::getBoolean(const std::string &attributeName){
+    if (JSON_document.HasMember(attributeName)){
+        if(JSON_document[attributeName].IsBool()) {
+            return JSON_document[attributeName].GetBool();
+        }else{
+            throw AccessError("Attribute " + attributeName + "exists but not type boolean");
+        }
+    }else{
+        throw AccessError("The message has no attribute " + attributeName);
+    }
+}
+std::string SocketMessage::getString(const std::string &attributeName){
+    if (JSON_document.HasMember(attributeName)){
+        if(JSON_document[attributeName].IsString()) {
+            return JSON_document[attributeName].GetString();
+        }else{
+            throw AccessError("Attribute " + attributeName + "exists but not type string");
+        }
+    }else{
+        throw AccessError("The message has no attribute " + attributeName);
+    }
+}
+
+std::unique_ptr<SocketMessage> SocketMessage::getCopyObject(const std::string &attributeName) {
+    if (JSON_document.HasMember(attributeName)){
+        if(JSON_document[attributeName].IsObject()) {
+            return std::unique_ptr<SocketMessage>(new SocketMessage(JSON_document[attributeName], true));
+        }else{
+            throw AccessError("Attribute " + attributeName + " exists but not type object");
+        }
+    }else{
+        throw AccessError("The message has no attribute " + attributeName);
+    }
+}
 
 template<>
 std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) {
@@ -207,13 +228,6 @@ std::vector<std::unique_ptr<SocketMessage>> SocketMessage::getArray<std::unique_
     }
 }
 
-void SocketMessage::addMoveObject(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage) {
-    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
-
-    addOrSwap(key,socketMessage->JSON_document);
-    // So dependants now has the UNQIUE POINTER to the socket message, meaning only it can free it
-    dependants.push_back(std::move(socketMessage));
-}
 
 std::unique_ptr<SocketMessage> SocketMessage::getMoveObject(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)){
