@@ -8,6 +8,7 @@
 #define ADDITION "addition"
 #define REQUEST_BY_ID "requestId"
 #define REQUEST_BY_SCHEMA "requestSchema"
+#define REQUEST_BY_PROPERTIES "requestProperties"
 #define REQUEST_COMPONENTS "requestComponents"
 #define UPDATE "update"
 

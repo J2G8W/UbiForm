@@ -214,3 +214,42 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest4){
     }
     for(bool & tester : testers){ASSERT_TRUE(tester);}
 }
+
+
+
+TEST(ReconfigurationIntegrationTest, IntegrationTest5) {
+    Component RDH("ipc:///tmp/RDH");
+    Component component1("ipc:///tmp/component1");
+    Component component2("ipc:///tmp/component2");
+    Component component3("ipc:///tmp/component3");
+
+    RDH.getComponentManifest().setName("RDH");
+    component1.getComponentManifest().setName("component1");
+    component2.getComponentManifest().setName("component2");
+    component3.getComponentManifest().setName("component3");
+
+    RDH.getComponentManifest().setProperty("type", "RDH");
+    component3.getComponentManifest().setProperty("type", "boring");
+    component2.getComponentManifest().setProperty("type", "boring");
+
+    RDH.startResourceDiscoveryHub();
+
+    std::string RdhAddress = RDH.getSelfAddress() + ":" + std::to_string(RDH.getResourceDiscoveryHubPort());
+
+    component1.getResourceDiscoveryConnectionEndpoint().registerWithHub(RdhAddress);
+    component2.getResourceDiscoveryConnectionEndpoint().registerWithHub(RdhAddress);
+    component3.getResourceDiscoveryConnectionEndpoint().registerWithHub(RdhAddress);
+
+    std::map<std::string, std::string> nameMap;
+    nameMap.insert(std::make_pair("name", "component2"));
+    auto receivedNameMap = component1.getResourceDiscoveryConnectionEndpoint().getComponentsByProperties(nameMap);
+    ASSERT_EQ(receivedNameMap.size(), 1);
+    ASSERT_NO_THROW(receivedNameMap.at(component2.getResourceDiscoveryConnectionEndpoint().getId(RdhAddress)));
+
+    std::map<std::string, std::string> typeMap;
+    typeMap.insert(std::make_pair("type", "boring"));
+    auto receiverTypeMap = component1.getResourceDiscoveryConnectionEndpoint().getComponentsByProperties(typeMap);
+    ASSERT_EQ(receiverTypeMap.size(), 2);
+    ASSERT_NO_THROW(receiverTypeMap.at(component2.getResourceDiscoveryConnectionEndpoint().getId(RdhAddress)));
+    ASSERT_NO_THROW(receiverTypeMap.at(component3.getResourceDiscoveryConnectionEndpoint().getId(RdhAddress)));
+}

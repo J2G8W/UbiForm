@@ -105,6 +105,24 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm) {
 
         systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*returnMsg);
 
+    }else if(request == REQUEST_BY_PROPERTIES){
+        //TODO - validate
+        auto specialProperties = sm->getMoveObject("specialProperties");
+        auto specialKeys = specialProperties->getKeys();
+
+        for (const auto &componentRep : componentById) {
+            bool validComponent = true;
+            for (auto &key : specialKeys) {
+                if (!(componentRep.second->hasProperty(key) &&
+                      componentRep.second->getProperty(key) == specialProperties->getString(key))) {
+                    validComponent = false;
+                    break;
+                }
+            }
+            if(validComponent){
+                returnMsg->addMoveObject(componentRep.first,componentRep.second->getSocketMessageCopy());
+            }
+        }
     }
     return returnMsg.release();
 }

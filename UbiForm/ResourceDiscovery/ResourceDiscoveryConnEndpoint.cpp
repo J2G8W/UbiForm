@@ -245,3 +245,37 @@ void ResourceDiscoveryConnEndpoint::searchForResourceDiscoveryHubs() {
         }
     }
 }
+
+std::map<std::string, std::unique_ptr<ComponentRepresentation>>
+ResourceDiscoveryConnEndpoint::getComponentsByProperties(std::map<std::string, std::string> &properties) {
+    auto specialProperties = std::make_unique<SocketMessage>();
+    for(auto& keyValuePair : properties){
+        specialProperties->addMember(keyValuePair.first,keyValuePair.second);
+    }
+    SocketMessage request;
+    request.addMember("request",REQUEST_BY_PROPERTIES);
+    request.addMoveObject("specialProperties", std::move(specialProperties));
+
+    std::map<std::string, std::unique_ptr<ComponentRepresentation>> returnComponents;
+
+    for (const auto& rdh : resourceDiscoveryHubs){
+        std::unique_ptr<SocketMessage> reply;
+        try {
+            reply = sendRequest(rdh.first, &request);
+        }catch(std::logic_error &e){
+            std::cerr << "Error getting component from " << rdh.first << "\n\t" << e.what() << std::endl;
+            continue;
+        }
+
+
+        auto replyIDs = reply->getKeys();
+
+        for(auto & compID:replyIDs){
+            returnComponents.insert(std::make_pair(compID,
+                                                   std::make_unique<ComponentRepresentation>(
+                                                           reply->getMoveObject(compID).get(),systemSchemas)));
+        }
+    }
+
+    return returnComponents;
+}

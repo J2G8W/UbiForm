@@ -63,6 +63,8 @@ public:
     std::vector<std::unique_ptr<SocketMessage>>
     getComponentsBySchema(const std::string &endpointType, std::map<std::string, std::string> &otherValues);
 
+    std::map<std::string, std::unique_ptr<ComponentRepresentation>> getComponentsByProperties(std::map<std::string, std::string> &properties);
+
     /**
      * Uses the getComponentsBySchema function to actually create connections to ALL of the available endpoints from our RDHs.
      * Should not throw any errors, we catch any creation errors. We do record in std::cerr when we can't connect to
