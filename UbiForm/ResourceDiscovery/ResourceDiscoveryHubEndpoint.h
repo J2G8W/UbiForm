@@ -27,7 +27,9 @@ private:
 
 public:
     explicit ResourceDiscoveryHubEndpoint(SystemSchemas &ss) : rdStore(ss),
-        replyEndpoint(std::make_shared<EndpointSchema>(), std::make_shared<EndpointSchema>(), "ResourceDiscoveryHub") {}
+        replyEndpoint(ss.getSystemSchema(SystemSchemaName::generalRDResponse).getInternalSchema(),
+                      ss.getSystemSchema(SystemSchemaName::generalRDRequest).getInternalSchema(),
+                      "ResourceDiscoveryHub") {}
     /**
      * Start the ResourceDiscoveryHub. In starting it we start a new thread
      * @param baseAddress - The address without the ":port" bit
