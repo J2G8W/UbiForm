@@ -61,7 +61,15 @@ bool compareSchemaObjects(rapidjson::Value &schema1, rapidjson::Value &schema2) 
         auto required1 = schema1["required"].GetArray();
         auto required2 = schema2["required"].GetArray();
         if (required1.Size() != required2.Size()){return  false;}
-        // TODO
+        for(auto& req1:required1){
+            bool present = false;
+            for(auto& req2:required2){
+                if(strncmp(req1.GetString(), req2.GetString(), req1.GetStringLength()) == 0){
+                    present = true;
+                }
+            }
+            if(!present){return false;}
+        }
 
     }else if(schema1.HasMember("required") || schema2.HasMember("required")){return false;}
 
