@@ -8,7 +8,21 @@
 #include "BackgroundListener.h"
 #include "../Component.h"
 
-// THIS IS OUR COMPONENT MAKING REQUESTS FOR A NEW CONNECTION
+std::unique_ptr<SocketMessage> BackgroundRequester::sendRequest(const std::string &url, SocketMessage &request) {
+    requestEndpoint.dialConnection(url.c_str());
+    requestEndpoint.sendMessage(request);
+    auto reply = requestEndpoint.receiveMessage();
+    if(reply->getBoolean("error")){
+        if(reply->hasMember("errorMsg")){
+            throw std::logic_error("Error with request: " + reply->getString("errorMsg"));
+        }else{
+            throw std::logic_error("Error with request, no error message");
+        }
+    }
+    return reply;
+}
+
+
 void BackgroundRequester::requestAndCreateConnection(const std::string &baseAddress, int port,
                                                      const std::string &localEndpointType,
                                                      const std::string &remoteEndpointType) {
@@ -28,15 +42,11 @@ void BackgroundRequester::requestAndCreateConnection(const std::string &baseAddr
 
     std::string dialAddress = baseAddress + ":"  + std::to_string(port);
     try{
-        requestEndpoint.dialConnection(dialAddress.c_str());
-        requestEndpoint.sendMessage(sm);
-        auto reply = requestEndpoint.receiveMessage();
-        if (reply->getBoolean("error")){
-            throw std::logic_error("Error request and create connection: " + reply->getString("errorMsg"));
-        }else{
-            int newPort = reply->getInteger("port");
-            component->createEndpointAndDial(requestSocketType, localEndpointType, baseAddress + ":" + std::to_string(newPort));
-        }
+        auto reply = sendRequest(dialAddress,sm);
+
+        int newPort = reply->getInteger("port");
+        component->createEndpointAndDial(requestSocketType, localEndpointType, baseAddress + ":" + std::to_string(newPort));
+
     }catch (std::logic_error &e){
         std::cerr << e.what() << std::endl;
     }
@@ -47,12 +57,7 @@ void BackgroundRequester::requestAddRDH(const std::string &componentUrl, const s
     sm.addMember("requestType",ADD_RDH);
     sm.addMember("url",rdhUrl);
     try{
-        requestEndpoint.dialConnection(componentUrl.c_str());
-        requestEndpoint.sendMessage(sm);
-        auto reply = requestEndpoint.receiveMessage();
-        if(reply->getBoolean("error")){
-            throw std::logic_error("Error in request add RDH: " + reply->getString("errorMsg"));
-        }
+        auto reply = sendRequest(componentUrl,sm);
     }catch (std::logic_error &e){
         std::cerr << e.what() << std::endl;
     }
@@ -69,12 +74,7 @@ void BackgroundRequester::tellToRequestAndCreateConnection(const std::string &re
     sm.addMember("remoteAddress", remoteAddress);
     sm.addMember("port",newPort);
     try{
-        requestEndpoint.dialConnection(requesterAddress.c_str());
-        requestEndpoint.sendMessage(sm);
-        auto reply = requestEndpoint.receiveMessage();
-        if (reply->getBoolean("error")){
-            throw std::logic_error("Error with remote request and create connection: " +reply->getString("errorMsg"));
-        }
+        sendRequest(requesterAddress,sm);
     }catch (std::logic_error &e){
         std::cerr << e.what() << std::endl;
     }
@@ -99,12 +99,7 @@ void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddr
     sm.addMember("socketType",socketType);
 
     try{
-        requestEndpoint.dialConnection(componentAddress.c_str());
-        requestEndpoint.sendMessage(sm);
-        auto reply = requestEndpoint.receiveMessage();
-        if (reply->getBoolean("error")){
-            throw std::logic_error("Error with request add endpoint schema: " + reply->getString("errorMsg"));
-        }
+        sendRequest(componentAddress,sm);
     }catch (std::logic_error &e){
         std::cerr << e.what() << std::endl;
     }
@@ -114,14 +109,8 @@ int BackgroundRequester::requestCreateRDH(const std::string &componentUrl) {
     SocketMessage sm;
     sm.addMember("requestType",CREATE_RDH);
     try{
-        requestEndpoint.dialConnection(componentUrl.c_str());
-        requestEndpoint.sendMessage(sm);
-        auto reply = requestEndpoint.receiveMessage();
-        if(!reply->getBoolean("error")){
-            return reply->getInteger("port");
-        }else{
-            throw std::logic_error("Error with request to create RDH: " + reply->getString("errorMsg"));
-        }
+        auto reply = sendRequest(componentUrl,sm);
+        return reply->getInteger("port");
     }catch(std::logic_error &e){
         std::cerr << e.what() << std::endl;
         // Should return empty or throw exception?
@@ -139,12 +128,7 @@ std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::s
     SocketMessage sm;
     sm.addMember("requestType", LOCATIONS_OF_RDH);
     try{
-        requestEndpoint.dialConnection(componentUrl.c_str());
-        requestEndpoint.sendMessage(sm);
-        auto reply = requestEndpoint.receiveMessage();
-        if(reply->getBoolean("error")){
-            throw std::logic_error("Error with request to update component manifest " + reply->getString("errorMsg"));
-        }
+        auto reply = sendRequest(componentUrl,sm);
         std::vector<std::string> locations = reply->getArray<std::string>("locations");
         return locations;
     }catch(NngError &e) {
@@ -160,12 +144,7 @@ void BackgroundRequester::requestCloseSocketOfType(const std::string &componentU
     sm.addMember("requestType",CLOSE_SOCKETS);
     sm.addMember("endpointType",endpointType);
     try{
-        requestEndpoint.dialConnection(componentUrl.c_str());
-        requestEndpoint.sendMessage(sm);
-        auto reply = requestEndpoint.receiveMessage();
-        if(reply->getBoolean("error")){
-            throw std::logic_error("Error with request to close sockets " + reply->getString("errorMsg"));
-        }
+        sendRequest(componentUrl,sm);
     }catch(std::logic_error &e){
         std::cerr << e.what() << std::endl;
     }
@@ -177,12 +156,7 @@ void BackgroundRequester::requestUpdateComponentManifest(const std::string &comp
     auto compRep = newManifest.getSocketMessageCopy();
     sm.addMoveObject("newManifest", std::move(compRep));
     try{
-        requestEndpoint.dialConnection(componentUrl.c_str());
-        requestEndpoint.sendMessage(sm);
-        auto reply = requestEndpoint.receiveMessage();
-        if(reply->getBoolean("error")){
-            throw std::logic_error("Error with request to update component manifest " + reply->getString("errorMsg"));
-        }
+        sendRequest(componentUrl, sm);
     }catch(std::logic_error &e){
         std::cerr << e.what() << std::endl;
     }

@@ -11,10 +11,15 @@ class BackgroundRequester {
     Component * component;
     SystemSchemas& systemSchemas;
     RequestEndpoint requestEndpoint;
+
+    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage & request);
+
 public:
     BackgroundRequester(Component* c , SystemSchemas& ss):component(c), systemSchemas(ss),
     // Purposely make the request endpoint have an empty schema
-        requestEndpoint(std::make_shared<EndpointSchema>(),std::make_shared<EndpointSchema>(), "BackgroundRequester"){}
+        requestEndpoint(ss.getSystemSchema(SystemSchemaName::generalEndpointResponse).getInternalSchema(),
+                        ss.getSystemSchema(SystemSchemaName::generalEndpointRequest).getInternalSchema(),
+                                "BackgroundRequester"){}
 
     void requestAndCreateConnection(const std::string &baseAddress, int port,
                                     const std::string &localEndpointType,

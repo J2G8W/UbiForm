@@ -27,7 +27,9 @@ private:
 
 public:
     BackgroundListener(Component * c, SystemSchemas & ss) : component(c), systemSchemas(ss),
-    replyEndpoint(std::make_shared<EndpointSchema>(), std::make_shared<EndpointSchema>(), "BackgroundListenerReply"){
+    replyEndpoint(ss.getSystemSchema(SystemSchemaName::generalEndpointResponse).getInternalSchema(),
+                  ss.getSystemSchema(SystemSchemaName::generalEndpointRequest).getInternalSchema(),
+                  "BackgroundListenerReply"){
     }
 
     void startBackgroundListen(const std::string &baseAddress, int port);

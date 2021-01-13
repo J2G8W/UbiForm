@@ -36,10 +36,8 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
                 reply = backgroundListener->handleConnectionRequest((*request));
                 backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(*reply);
             }else if(request->getString("requestType") == ADD_RDH){
-                //TODO - validate
                 reply = backgroundListener->handleAddRDH(*request);
             }else if(request->getString("requestType") == TELL_REQ_CONN){
-                // TODO - validate
                 reply = backgroundListener->handleTellCreateConnectionRequest(*request);
             }else if(request->getString("requestType") == CHANGE_ENDPOINT_SCHEMA){
                 reply = backgroundListener->handleChangeEndpointRequest(*request);
