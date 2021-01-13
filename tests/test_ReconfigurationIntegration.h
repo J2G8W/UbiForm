@@ -197,7 +197,6 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest4){
 
     std::string back1 = "ipc:///tmp/RDH1:" + std::to_string(RDH1.getBackgroundPort());
 
-    RDH1.getResourceDiscoveryConnectionEndpoint().registerWithHub(loc1);
     RDH1.getResourceDiscoveryConnectionEndpoint().registerWithHub(loc2);
     RDH1.getResourceDiscoveryConnectionEndpoint().registerWithHub(loc3);
 
@@ -212,6 +211,14 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest4){
         if(loc == loc3){testers[2] = true;}
     }
     for(bool & tester : testers){ASSERT_TRUE(tester);}
+
+    RDH1.getResourceDiscoveryConnectionEndpoint().deRegisterFromAllHubs();
+    rdhLocations = baby.getBackgroundRequester().requestLocationsOfRDH(back1);
+    ASSERT_EQ(rdhLocations.size(),0);
+
+    auto compIds = baby.getResourceDiscoveryConnectionEndpoint().getComponentIdsFromHub(loc2);
+    // loc2 Should only have itself register with it
+    ASSERT_EQ(compIds.size(),1);
 }
 
 

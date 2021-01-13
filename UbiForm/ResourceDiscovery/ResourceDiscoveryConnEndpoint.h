@@ -104,8 +104,11 @@ public:
      */
     void updateManifestWithHubs();
 
+    void deRegisterFromHub(const std::string& rdhUrl);
+
     void searchForResourceDiscoveryHubs();
 
+    void deRegisterFromAllHubs();
 };
 
 

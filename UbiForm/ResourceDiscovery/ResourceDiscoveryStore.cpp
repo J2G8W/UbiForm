@@ -101,9 +101,6 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
 
         componentById[id] = newCR;
 
-        returnMsg->addMember("newID",id);
-
-
     }else if(request == REQUEST_BY_PROPERTIES){
         // Not validated, will return access error on failure
         auto specialProperties = sm->getMoveObject("specialProperties");
@@ -121,6 +118,11 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
             if(validComponent){
                 returnMsg->addMoveObject(componentRep.first,componentRep.second->getSocketMessageCopy());
             }
+        }
+    }else if(request == DEREGISTER){
+        std::string id = sm->getString("id");
+        if(componentById.count(id) == 1){
+            componentById.erase(id);
         }
     }
     return returnMsg;

@@ -181,7 +181,7 @@ void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
         systemSchemas.getSystemSchema(SystemSchemaName::updateRequest).validate(*request);
         try {
             auto reply = sendRequest(locationIdPair.first, *request);
-            systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
+
         }catch(std::logic_error &e){
             std::cerr << "Problem connecting to " << locationIdPair.first << "\n\t" << e.what() << std::endl;
         }
@@ -256,4 +256,31 @@ ResourceDiscoveryConnEndpoint::getComponentsByProperties(std::map<std::string, s
     }
 
     return returnComponents;
+}
+
+void ResourceDiscoveryConnEndpoint::deRegisterFromHub(const std::string& rdhUrl) {
+    SocketMessage request;
+    request.addMember("request",DEREGISTER);
+    try {
+        request.addMember("id", resourceDiscoveryHubs.at(rdhUrl));
+    }catch(std::out_of_range &e){
+        throw;
+    }
+
+    try {
+        auto reply = sendRequest(rdhUrl,request);
+        std::cout << "De-registered from " << rdhUrl << std::endl;
+        resourceDiscoveryHubs.erase(rdhUrl);
+    }catch(std::logic_error&e){
+        std::cerr << "Error with de-register from " << rdhUrl << "\n" << e.what() << std::endl;
+    }
+}
+
+void ResourceDiscoveryConnEndpoint::deRegisterFromAllHubs(){
+    // Weird technique used so we can delete from resourceDiscoveryHubs as we go
+    for(auto it= resourceDiscoveryHubs.cbegin(), next_it = it; it!= resourceDiscoveryHubs.cend(); it = next_it ){
+        // Looks ahead before deletion
+        ++next_it;
+        deRegisterFromHub(it->first);
+    }
 }

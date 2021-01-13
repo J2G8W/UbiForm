@@ -11,6 +11,7 @@
 #define REQUEST_BY_PROPERTIES "requestProperties"
 #define REQUEST_COMPONENTS "requestComponents"
 #define UPDATE "update"
+#define DEREGISTER "deRegister"
 
 
 /**
