@@ -138,17 +138,12 @@ TEST_F(SimpleRDS, GetBySchemaValid){
 
 
     SocketMessage * reply = resourceDiscoveryStore.generateRDResponse(&request);
-    std::vector<SocketMessage *> endpointReturns = reply->getArray<SocketMessage*>("endpoints");
+    std::vector<std::unique_ptr<SocketMessage>> endpointReturns = reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
     ASSERT_GE(endpointReturns.size(), 1);
 
 
     delete reply;
-    SocketMessage * firstEndpoint = endpointReturns.at(0);
-    ASSERT_EQ(firstEndpoint->getString("componentId"),id1);
-
-    for (auto e : endpointReturns){
-        delete e;
-    }
+    ASSERT_EQ(endpointReturns.at(0)->getString("componentId"),id1);
 
     SocketMessage newRequest;
     newRequest.addMember("request",REQUEST_BY_SCHEMA);
@@ -162,7 +157,7 @@ TEST_F(SimpleRDS, GetBySchemaValid){
     newRequest.addMoveObject("specialProperties", std::move(errorSpecialProperties));
 
     reply = resourceDiscoveryStore.generateRDResponse(&newRequest);
-    endpointReturns = reply->getArray<SocketMessage*>("endpoints");
+    endpointReturns = reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
     ASSERT_EQ(endpointReturns.size(), 0);
     delete reply;
 }
@@ -186,7 +181,7 @@ TEST_F(SimpleRDS, GetBySchemaInvalid){
 
 
     SocketMessage * reply = resourceDiscoveryStore.generateRDResponse(&request);
-    std::vector<SocketMessage *> endpointReturns = reply->getArray<SocketMessage*>("endpoints");
+    auto endpointReturns = reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
     ASSERT_EQ(endpointReturns.size(), 0);
 
     delete reply;

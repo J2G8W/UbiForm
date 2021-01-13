@@ -146,44 +146,6 @@ std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) 
     }
 }
 
-void SocketMessage::addMoveObject(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage) {
-    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
-
-    addOrSwap(key,socketMessage->JSON_document);
-    // So dependants now has the UNQIUE POINTER to the socket message, meaning only it can free it
-    dependants.push_back(std::move(socketMessage));
-}
-
-std::unique_ptr<SocketMessage> SocketMessage::getMoveObject(const std::string &attributeName) {
-    if (JSON_document.HasMember(attributeName)){
-        if(JSON_document[attributeName].IsObject()) {
-            return std::unique_ptr<SocketMessage>(new SocketMessage(JSON_document[attributeName], false));
-        }else{
-            throw AccessError("Attribute " + attributeName + "exists but not type object");
-        }
-    }else{
-        throw AccessError("The message has no attribute " + attributeName);
-    }
-}
-
-std::vector<std::unique_ptr<SocketMessage> > SocketMessage::getMoveArrayOfObjects(const std::string &attributeName) {
-    if (JSON_document.HasMember(attributeName)) {
-        if (JSON_document[attributeName].IsArray()) {
-            auto memberArray = JSON_document[attributeName].GetArray();
-            std::vector<std::unique_ptr<SocketMessage>> returnVector;
-            returnVector.reserve(memberArray.Size());
-            for (auto &v: memberArray) {
-                if (!v.IsObject()){throw AccessError("Array contains a non-object value");}
-                returnVector.push_back(std::unique_ptr<SocketMessage>(new SocketMessage(v, false)));
-            }
-            return returnVector;
-        }else{
-            throw AccessError("Attribute " + attributeName + "exists but not type array");
-        }
-    }else{
-        throw AccessError("The message has no attribute " + attributeName);
-    }
-}
 
 template<>
 std::vector<bool> SocketMessage::getArray<bool>(const std::string &attributeName) {
@@ -226,15 +188,15 @@ std::vector<std::string> SocketMessage::getArray<std::string>(const std::string 
 }
 
 template<>
-std::vector<SocketMessage *> SocketMessage::getArray<SocketMessage *>(const std::string &attributeName) {
+std::vector<std::unique_ptr<SocketMessage>> SocketMessage::getArray<std::unique_ptr<SocketMessage>>(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
         if (JSON_document[attributeName].IsArray()) {
             auto memberArray = JSON_document[attributeName].GetArray();
-            std::vector<SocketMessage *> returnVector;
+            std::vector<std::unique_ptr<SocketMessage>> returnVector;
             returnVector.reserve(memberArray.Size());
             for (auto &v: memberArray) {
                 if (!v.IsObject()){throw AccessError("Array contains a non-object value");}
-                returnVector.push_back(new SocketMessage(v, true));
+                returnVector.push_back(std::unique_ptr<SocketMessage>(new SocketMessage(v, true)));
             }
             return returnVector;
         }else{
@@ -245,6 +207,44 @@ std::vector<SocketMessage *> SocketMessage::getArray<SocketMessage *>(const std:
     }
 }
 
+void SocketMessage::addMoveObject(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage) {
+    rapidjson::Value key(attributeName, JSON_document.GetAllocator());
+
+    addOrSwap(key,socketMessage->JSON_document);
+    // So dependants now has the UNQIUE POINTER to the socket message, meaning only it can free it
+    dependants.push_back(std::move(socketMessage));
+}
+
+std::unique_ptr<SocketMessage> SocketMessage::getMoveObject(const std::string &attributeName) {
+    if (JSON_document.HasMember(attributeName)){
+        if(JSON_document[attributeName].IsObject()) {
+            return std::unique_ptr<SocketMessage>(new SocketMessage(JSON_document[attributeName], false));
+        }else{
+            throw AccessError("Attribute " + attributeName + "exists but not type object");
+        }
+    }else{
+        throw AccessError("The message has no attribute " + attributeName);
+    }
+}
+
+std::vector<std::unique_ptr<SocketMessage> > SocketMessage::getMoveArrayOfObjects(const std::string &attributeName) {
+    if (JSON_document.HasMember(attributeName)) {
+        if (JSON_document[attributeName].IsArray()) {
+            auto memberArray = JSON_document[attributeName].GetArray();
+            std::vector<std::unique_ptr<SocketMessage>> returnVector;
+            returnVector.reserve(memberArray.Size());
+            for (auto &v: memberArray) {
+                if (!v.IsObject()){throw AccessError("Array contains a non-object value");}
+                returnVector.push_back(std::unique_ptr<SocketMessage>(new SocketMessage(v, false)));
+            }
+            return returnVector;
+        }else{
+            throw AccessError("Attribute " + attributeName + "exists but not type array");
+        }
+    }else{
+        throw AccessError("The message has no attribute " + attributeName);
+    }
+}
 
 std::vector<std::string> SocketMessage::getKeys(){
     std::vector<std::string> keyArray;

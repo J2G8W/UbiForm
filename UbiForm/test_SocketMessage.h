@@ -77,6 +77,7 @@ TEST(SocketMessage, GetMoveArrayOfObjects){
     auto retSocketMessages = sm.getMoveArrayOfObjects("sub");
     ASSERT_EQ(retSocketMessages.size(), 1);
     ASSERT_EQ(retSocketMessages.at(0)->getInteger("HELLO"), 50);
+    delete subSm;
 }
 
 TEST(SocketMessage, OverwriteInteger) {
@@ -151,13 +152,7 @@ TEST(SocketMessage, ObjectArray){
     }
 
     // Get the array out again
-    std::vector<SocketMessage *> returnObjectArray = main.getArray<SocketMessage *>("A");
+    std::vector<std::unique_ptr<SocketMessage>> returnObjectArray = main.getArray<std::unique_ptr<SocketMessage>>("A");
     // Each object should have the values we put in
     EXPECT_EQ(returnObjectArray.at(0)->getInteger("B"), 0);
-
-
-    // Memory cleanup at the end
-    for (auto obj: returnObjectArray){
-        delete obj;
-    }
 }

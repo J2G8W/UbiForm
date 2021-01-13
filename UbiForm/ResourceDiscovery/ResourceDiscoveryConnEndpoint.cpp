@@ -153,17 +153,13 @@ ResourceDiscoveryConnEndpoint::getComponentsBySchema(const std::string &endpoint
             continue;
         }
 
-        std::vector<SocketMessage *> replyEndpoints = reply->getArray<SocketMessage *>("endpoints");
+        auto replyEndpoints = reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
 
-        //returnEndpoints.insert(
-        //        returnEndpoints.end(),
-        //        std::make_move_iterator(replyEndpoints.begin()),
-        //        std::make_move_iterator(replyEndpoints.end())
-        //);
-
-        for (auto s : replyEndpoints){
-            returnEndpoints.push_back(std::unique_ptr<SocketMessage>(s));
-        }
+        returnEndpoints.insert(
+                returnEndpoints.end(),
+                std::make_move_iterator(replyEndpoints.begin()),
+                std::make_move_iterator(replyEndpoints.end())
+        );
     }
     delete request;
     return returnEndpoints;
