@@ -38,7 +38,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm) {
         if (componentById.count(id) > 0){
             std::string component =  componentById.at(id)->stringify();
             auto componentObject = std::make_unique<SocketMessage>(component.c_str());
-            returnMsg->moveMember("component",std::move(componentObject));
+            returnMsg->addMoveObject("component", std::move(componentObject));
         }else{
             returnMsg->setNull("component");
         }

@@ -39,10 +39,10 @@ std::string SocketMessage::getString(const std::string &attributeName){
     }
 }
 
-SocketMessage* SocketMessage::getCopyObject(const std::string &attributeName) {
+std::unique_ptr<SocketMessage> SocketMessage::getCopyObject(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)){
         if(JSON_document[attributeName].IsObject()) {
-            return new SocketMessage(JSON_document[attributeName], true);
+            return std::unique_ptr<SocketMessage>(new SocketMessage(JSON_document[attributeName], true));
         }else{
             throw AccessError("Attribute " + attributeName + "exists but not type object");
         }
@@ -146,7 +146,7 @@ std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) 
     }
 }
 
-void SocketMessage::moveMember(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage) {
+void SocketMessage::addMoveObject(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage) {
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
 
     addOrSwap(key,socketMessage->JSON_document);

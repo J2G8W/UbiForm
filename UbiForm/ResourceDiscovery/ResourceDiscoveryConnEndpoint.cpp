@@ -40,7 +40,7 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
     sm->addMember("urls",component->getAllAddresses());
     sm->addMember("port",component->getBackgroundPort());
 
-    request->moveMember("manifest",std::move(sm));
+    request->addMoveObject("manifest", std::move(sm));
     return request;
 }
 
@@ -122,13 +122,13 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const 
     // We want our schema to be receiving data
     auto schema = std::unique_ptr<SocketMessage>(component->getComponentManifest().getSchemaObject(endpointType, true));
 
-    request->moveMember("schema", std::move(schema));
+    request->addMoveObject("schema", std::move(schema));
 
     auto specialProperties = std::make_unique<SocketMessage>();
     for(auto& keyValuePair : otherValues){
         specialProperties->addMember(keyValuePair.first,keyValuePair.second);
     }
-    request->moveMember("specialProperties",std::move(specialProperties));
+    request->addMoveObject("specialProperties", std::move(specialProperties));
 
     return request;
 }
@@ -200,7 +200,7 @@ void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
 
     auto request = std::make_unique<SocketMessage>();
     request->addMember("request",UPDATE);
-    request->moveMember("newManifest", std::move(newManifest));
+    request->addMoveObject("newManifest", std::move(newManifest));
 
     for(auto& locationIdPair : resourceDiscoveryHubs){
         request->addMember("id",locationIdPair.second);

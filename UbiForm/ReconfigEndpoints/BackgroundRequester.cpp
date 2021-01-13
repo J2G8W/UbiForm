@@ -89,12 +89,12 @@ void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddr
     if (receiverSchema == nullptr){sm.setNull("receiveSchema");}
     else{
         auto schemaObj = std::unique_ptr<SocketMessage>(receiverSchema->getSchemaObject());
-        sm.moveMember("receiveSchema", std::move(schemaObj));
+        sm.addMoveObject("receiveSchema", std::move(schemaObj));
     }
     if (sendSchema == nullptr){sm.setNull("sendSchema");}
     else{
         auto schemaObj = std::unique_ptr<SocketMessage>(sendSchema->getSchemaObject());
-        sm.moveMember("sendSchema", std::move(schemaObj));
+        sm.addMoveObject("sendSchema", std::move(schemaObj));
     }
     sm.addMember("socketType",socketType);
 
@@ -175,7 +175,7 @@ void BackgroundRequester::requestUpdateComponentManifest(const std::string &comp
     SocketMessage sm;
     sm.addMember("requestType",CHANGE_MANIFEST);
     auto compRep = newManifest.getSocketMessageCopy();
-    sm.moveMember("newManifest",std::move(compRep));
+    sm.addMoveObject("newManifest", std::move(compRep));
     try{
         requestEndpoint.dialConnection(componentUrl.c_str());
         requestEndpoint.sendMessage(sm);

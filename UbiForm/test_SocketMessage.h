@@ -37,19 +37,18 @@ TEST(SocketMessage, RecursiveObject){
     delete miniInput;
 
     // Get the recursive object back out of our message
-    SocketMessage *miniOutput = main.getCopyObject("C");
+    auto miniOutput = main.getCopyObject("C");
     // Mini is repopulated
     EXPECT_EQ(miniOutput->getInteger("B"), 100);
     EXPECT_EQ(main.getInteger("A"),42);
 
-    delete miniOutput;
 }
 
 TEST(SocketMessage, AddMoveObject){
     SocketMessage sm;
     auto subSM = std::make_unique<SocketMessage>();
     subSM->addMember("HELLO",50);
-    sm.moveMember("sub",std::move(subSM));
+    sm.addMoveObject("sub", std::move(subSM));
 
     ASSERT_EQ(subSM, nullptr);
     ASSERT_EQ(sm.stringify(), R"({"sub":{"HELLO":50}})");
@@ -59,7 +58,7 @@ TEST(SocketMessage, GetMoveObject){
     SocketMessage sm;
     auto subSM = std::make_unique<SocketMessage>();
     subSM->addMember("HELLO",50);
-    sm.moveMember("sub",std::move(subSM));
+    sm.addMoveObject("sub", std::move(subSM));
     ASSERT_EQ(sm.stringify(), R"({"sub":{"HELLO":50}})");
 
     auto retSocketMessage = sm.getMoveObject("sub");

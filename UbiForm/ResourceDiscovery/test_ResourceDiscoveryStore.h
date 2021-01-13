@@ -22,7 +22,7 @@ protected:
         sm.addMember("request", ADDITION);
 
         auto manifest = exampleManifest->getSocketMessageCopy();
-        sm.moveMember("manifest",std::move(manifest));
+        sm.addMoveObject("manifest", std::move(manifest));
 
 
         SocketMessage * returnMsg;
@@ -55,7 +55,7 @@ TEST_F(SimpleRDS,AdditionOfComponent){
     sm->addMember("request", ADDITION);
 
     auto manifest = exampleManifest->getSocketMessageCopy();
-    sm->moveMember("manifest",std::move(manifest));
+    sm->addMoveObject("manifest", std::move(manifest));
 
 
     SocketMessage * returnMsg = nullptr;
@@ -88,13 +88,12 @@ TEST_F(SimpleRDS,GetManifestById){
     ASSERT_FALSE(returnMsg->isNull("component"));
 
 
-    SocketMessage * componentObject = nullptr;
+    std::unique_ptr<SocketMessage> componentObject;
     ASSERT_NO_THROW(componentObject = returnMsg->getCopyObject("component"));
 
-    ComponentRepresentation componentRepresentation(componentObject,ss);
+    ComponentRepresentation componentRepresentation(componentObject.get(),ss);
 
     delete returnMsg;
-    delete componentObject;
 }
 
 TEST_F(SimpleRDS, GetComponentIds){
@@ -132,9 +131,9 @@ TEST_F(SimpleRDS, GetBySchemaValid){
     SocketMessage request;
     request.addMember("request",REQUEST_BY_SCHEMA);
     auto schema = std::unique_ptr<SocketMessage>(loadSocketMessage("TestManifests/Endpoint1.json"));
-    request.moveMember("schema",std::move(schema));
+    request.addMoveObject("schema", std::move(schema));
     request.addMember("dataReceiverEndpoint", true);
-    request.moveMember("specialProperties", std::make_unique<SocketMessage>());
+    request.addMoveObject("specialProperties", std::make_unique<SocketMessage>());
 
 
 
@@ -154,13 +153,13 @@ TEST_F(SimpleRDS, GetBySchemaValid){
     SocketMessage newRequest;
     newRequest.addMember("request",REQUEST_BY_SCHEMA);
     schema = std::unique_ptr<SocketMessage>(loadSocketMessage("TestManifests/Endpoint1.json"));
-    newRequest.moveMember("schema",std::move(schema));
+    newRequest.addMoveObject("schema", std::move(schema));
     newRequest.addMember("dataReceiverEndpoint", true);
 
 
     auto errorSpecialProperties = std::make_unique<SocketMessage>();
     errorSpecialProperties->addMember("name","NOT FOUND");
-    newRequest.moveMember("specialProperties",std::move(errorSpecialProperties));
+    newRequest.addMoveObject("specialProperties", std::move(errorSpecialProperties));
 
     reply = resourceDiscoveryStore.generateRDResponse(&newRequest);
     endpointReturns = reply->getArray<SocketMessage*>("endpoints");
@@ -182,7 +181,7 @@ TEST_F(SimpleRDS, GetBySchemaInvalid){
     SocketMessage * schema = loadSocketMessage("TestManifests/Endpoint3.json");
     request.addMember("schema",*schema);
     request.addMember("dataReceiverEndpoint", true);
-    request.moveMember("specialProperties", std::make_unique<SocketMessage>());
+    request.addMoveObject("specialProperties", std::make_unique<SocketMessage>());
     delete schema;
 
 

@@ -99,7 +99,7 @@ public:
      * @param attributeName - name of attribute
      * @param socketMessage - thing to be moved into us
      */
-    void moveMember(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage);
+    void addMoveObject(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage);
 
     ///@{
     /**
@@ -109,7 +109,7 @@ public:
     bool getBoolean(const std::string &attributeName);
     std::string getString(const std::string &attributeName);
     /// @brief This uses copy constructing
-    SocketMessage *getCopyObject(const std::string &attributeName);
+    std::unique_ptr<SocketMessage> getCopyObject(const std::string &attributeName);
 
     template <class T>
     std::vector<T> getArray(const std::string &attributeName);
