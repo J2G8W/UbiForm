@@ -27,7 +27,7 @@ public:
      * @param sm - Input SocketMessage
      * @return The reply SocketMessage (should be memory handled pls)
      */
-     // TODO - std::unique_ptr this
+
      std::unique_ptr<SocketMessage> generateRDResponse(SocketMessage *sm);
 
     explicit ResourceDiscoveryStore(SystemSchemas & ss);

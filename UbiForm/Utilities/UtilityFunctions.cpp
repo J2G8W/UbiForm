@@ -6,7 +6,6 @@
 
 
 
-// TODO - optimise this for speed
 std::string stringifyValue(rapidjson::Value &JSON_document) {
     rapidjson::StringBuffer buffer;
 

@@ -7,7 +7,6 @@
 
 class Component;
 class BackgroundRequester {
-    // TODO - have some time out and a nice way of handling bad responses
     Component * component;
     SystemSchemas& systemSchemas;
     RequestEndpoint requestEndpoint;
