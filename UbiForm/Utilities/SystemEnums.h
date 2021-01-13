@@ -26,7 +26,7 @@ enum SystemSchemaName{
     componentManifest,endpointCreationRequest, endpointCreationResponse,
     additionRequest,additionResponse,byIdRequest,byIdResponse,
     bySchemaRequest, bySchemaResponse, componentIdsRequest, componentIdsResponse,updateRequest,
-    generalRDRequest, generalRDResponse
+    generalRDRequest, generalRDResponse, generalEndpointRequest, generalEndpointResponse
 };
 
 enum ConnectionType{

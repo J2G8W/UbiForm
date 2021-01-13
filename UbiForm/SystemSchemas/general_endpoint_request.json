@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "resource_discovery_request_v1",
+  "type": "object",
+  "properties": {
+    "requestType" : {
+      "type": "string"
+    }
+  },
+  "required": ["requestType"]
+}

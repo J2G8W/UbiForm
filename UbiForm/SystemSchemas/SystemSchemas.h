@@ -17,7 +17,7 @@ public:
      * @throws AccessError when we can't find a file
      */
     SystemSchemas(){
-        const char* files[14] = {"SystemSchemas/component_schema.json",
+        const char* files[16] = {"SystemSchemas/component_schema.json",
                                 "SystemSchemas/endpoint_creation_request.json",
                                 "SystemSchemas/endpoint_creation_response.json",
                                 "SystemSchemas/resource_discovery_addition_request.json",
@@ -30,9 +30,11 @@ public:
                                 "SystemSchemas/resource_discovery_component_ids_response.json",
                                 "SystemSchemas/resource_discovery_update_request.json",
                                 "SystemSchemas/general_resource_discovery_request.json",
-                                "SystemSchemas/general_resource_discovery_response.json"};
+                                "SystemSchemas/general_resource_discovery_response.json",
+                                "SystemSchemas/general_endpoint_request.json",
+                                "SystemSchemas/general_endpoint_response.json"};
 
-        for (int i =0; i < 14; i++){
+        for (int i =0; i < 16; i++){
             FILE* pFile = fopen(files[i], "r");
             if (pFile == nullptr){
                 std::string errorMsg = "Error opening file - " + std::string(files[i]);

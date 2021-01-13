@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "resource_discovery_response_v1",
+  "type": "object",
+  "properties": {
+    "error" : {
+      "type": "boolean"
+    },
+    "errorMsg" : {
+      "type": "string"
+    }
+  },
+  "required": ["error"]
+}
