@@ -93,6 +93,10 @@ public:
      */
     std::string getName();
 
+    void setProperty(const std::string& propertyName, const std::string& value);
+    std::string getProperty(const std::string& propertyName);
+    void removeProperty(const std::string& propertyName);
+    bool hasProperty(const std::string& propertyName);
 
     /**
      * @param typeOfEndpoint - specify typeOfEndpoint as described in Manifest

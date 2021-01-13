@@ -69,13 +69,10 @@ void ComponentManifest::fillSchemaMaps() {
 
 // Return the name of the Component
 std::string ComponentManifest::getName() {
-    assert(JSON_document.HasMember("name"));
-    assert(JSON_document["name"].IsString());
-
-    return JSON_document["name"].GetString();
+    return getProperty("name");
 }
 void ComponentManifest::setName(const std::string &name) {
-    JSON_document["name"] = rapidjson::Value(name,JSON_document.GetAllocator());
+    setProperty("name",name);
 }
 
 SocketMessage *ComponentManifest::getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema) {
@@ -174,6 +171,40 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
                                                                                           JSON_document.GetAllocator());
         senderSchemas[typeOfEndpoint] = endpointSchema;
     }
+}
+
+void ComponentManifest::setProperty(const std::string &propertyName, const std::string &value) {
+    if(propertyName == "urls" || propertyName == "port" || propertyName == "schemas"){
+        throw AccessError(propertyName + " is a reserved name");
+    }
+    if(JSON_document.HasMember(propertyName)) {
+        JSON_document[propertyName] = rapidjson::Value(value, JSON_document.GetAllocator());
+    }else{
+        JSON_document.AddMember(rapidjson::Value(propertyName, JSON_document.GetAllocator()),
+                                rapidjson::Value(value,JSON_document.GetAllocator()),
+                                JSON_document.GetAllocator());
+    }
+}
+
+std::string ComponentManifest::getProperty(const std::string& propertyName) {
+    if(JSON_document.HasMember(propertyName) && JSON_document[propertyName].IsString()){
+        return JSON_document[propertyName].GetString();
+    }else{
+        throw AccessError("Manifest does not have string property " + propertyName + "\n" + stringify());
+    }
+}
+
+void ComponentManifest::removeProperty(const std::string &propertyName) {
+    if(propertyName == "urls" || propertyName == "port" || propertyName == "schemas" || propertyName == "name"){
+        throw AccessError(propertyName + " is a reserved name");
+    }
+    if(JSON_document.HasMember(propertyName)){
+        JSON_document.EraseMember(propertyName);
+    }
+}
+
+bool ComponentManifest::hasProperty(const std::string &property) {
+    return JSON_document.HasMember(property) && JSON_document[property].IsString();
 }
 
 

@@ -54,6 +54,22 @@ TEST_F(ComponentManifestBasics, CreationFromSocketMessage){
     delete sm;
 }
 
+TEST_F(ComponentManifestBasics, AdditionalInfo){
+    ComponentManifest testManifest(systemSchemas);
+    testManifest.setProperty("public_key","HELLO");
+    ASSERT_NO_THROW(testManifest.getProperty("public_key"));
+    ASSERT_EQ(testManifest.getProperty("public_key"), "HELLO");
+
+    ASSERT_THROW(testManifest.getProperty("NOT A PROPERTY"),AccessError);
+
+    ASSERT_NO_THROW(ComponentManifest copiedManifest(testManifest.getSocketMessageCopy().get(),systemSchemas));
+
+    ASSERT_TRUE(testManifest.hasProperty("public_key"));
+    testManifest.removeProperty("public_key");
+    ASSERT_FALSE(testManifest.hasProperty("public_key"));
+
+}
+
 TEST_F(ComponentManifestBasics, CreationFromFile){
     FILE* pFile = fopen("TestManifests/Component1.json", "r");
     if (pFile == nullptr){
