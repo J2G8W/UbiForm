@@ -220,7 +220,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest4){
     // loc2 Should only have itself register with it
     ASSERT_EQ(compIds.size(),1);
 
-    RDH1.endResourceDiscoveryHub();
+    baby.getBackgroundRequester().requestCloseRDH(RDH1.getSelfAddress() + ":" + std::to_string(RDH1.getBackgroundPort()));
     ASSERT_THROW(RDH1.getResourceDiscoveryHubPort(),std::logic_error);
     RDH1.startResourceDiscoveryHub();
     ASSERT_NO_THROW(RDH1.getResourceDiscoveryHubPort());

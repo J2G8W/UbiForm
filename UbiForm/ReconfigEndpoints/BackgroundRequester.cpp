@@ -161,3 +161,13 @@ void BackgroundRequester::requestUpdateComponentManifest(const std::string &comp
         std::cerr << e.what() << std::endl;
     }
 }
+
+void BackgroundRequester::requestCloseRDH(const std::string &componentUrl) {
+    SocketMessage sm;
+    sm.addMember("requestType", CLOSE_RDH);
+    try{
+        sendRequest(componentUrl, sm);
+    }catch(std::logic_error &e){
+        std::cerr << e.what() << std::endl;
+    }
+}

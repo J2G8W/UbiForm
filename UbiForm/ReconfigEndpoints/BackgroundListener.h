@@ -15,6 +15,7 @@
 #define CHANGE_MANIFEST "change_manifest"
 #define LOCATIONS_OF_RDH "locations_rdh"
 #define CLOSE_SOCKETS "close_sockets"
+#define CLOSE_RDH "close_rdh"
 
 class Component;
 class BackgroundListener {
@@ -55,6 +56,8 @@ public:
     std::unique_ptr<SocketMessage> handleRDHLocationsRequest(SocketMessage &request);
 
     std::unique_ptr<SocketMessage> handleCloseSocketsRequest(SocketMessage &request);
+
+    std::unique_ptr<SocketMessage> handleCloseRDH(SocketMessage &request);
 };
 
 

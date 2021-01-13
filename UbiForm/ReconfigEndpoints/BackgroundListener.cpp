@@ -49,7 +49,10 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
                 reply = backgroundListener->handleRDHLocationsRequest(*request);
             }else if(request->getString("requestType") == CLOSE_SOCKETS){
                 reply = backgroundListener->handleCloseSocketsRequest(*request);
-            }else{
+            }else if(request->getString("requestType") == CLOSE_RDH){
+                reply = backgroundListener->handleCloseRDH(*request);
+            }
+            else{
                 throw ValidationError("requestType had value: " + request->getString("requestType"));
             }
         }catch(ValidationError &e){
@@ -216,4 +219,11 @@ BackgroundListener::~BackgroundListener() {
     if(backgroundThread.joinable()) {
         backgroundThread.join();
     }
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleCloseRDH(SocketMessage& sm) {
+    component->closeResourceDiscoveryHub();
+    auto reply = std::make_unique<SocketMessage>();
+    reply->addMember("error",false);
+    return reply;
 }

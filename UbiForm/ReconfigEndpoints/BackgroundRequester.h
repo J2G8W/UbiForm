@@ -44,6 +44,8 @@ public:
     std::vector<std::string> requestLocationsOfRDH(const std::string& componentUrl);
     void requestCloseSocketOfType(const std::string& componentUrl, const std::string& endpointType);
 
+    void requestCloseRDH(const std::string& componentUrl);
+
 };
 
 

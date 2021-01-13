@@ -276,7 +276,7 @@ int Component::startResourceDiscoveryHub() {
     return getResourceDiscoveryHubPort();
 }
 
-void Component::endResourceDiscoveryHub() {
+void Component::closeResourceDiscoveryHub() {
     if(resourceDiscoveryHubEndpoint != nullptr){
         delete resourceDiscoveryHubEndpoint;
         resourceDiscoveryHubEndpoint = nullptr;
@@ -306,6 +306,14 @@ void Component::closeSocketsOfType(const std::string &endpointType) {
             (*it)->closeSocket();
             it = vec->erase(it);
         }
+    }
+}
+
+int Component::getResourceDiscoveryHubPort() {
+    if(resourceDiscoveryHubEndpoint != nullptr) {
+        return resourceDiscoveryHubEndpoint->getBackgroundPort();
+    }else{
+        throw std::logic_error("No resource discovery hub is opne");
     }
 }
 
