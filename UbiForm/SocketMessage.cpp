@@ -244,3 +244,13 @@ std::vector<SocketMessage *> SocketMessage::getArray<SocketMessage *>(const std:
         throw AccessError("The message has no attribute " + attributeName);
     }
 }
+
+
+std::vector<std::string> SocketMessage::getKeys(){
+    std::vector<std::string> keyArray;
+    keyArray.reserve(JSON_document.MemberCount());
+    for (auto& attribute : JSON_document.GetObject()){
+        keyArray.emplace_back(attribute.name.GetString());
+    }
+    return keyArray;
+}

@@ -12,7 +12,13 @@
     },
     "schema": {
       "type": "object"
+    },
+    "specialProperties": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
     }
   },
-  "required": ["request","schema","dataReceiverEndpoint"]
+  "required": ["request","schema","dataReceiverEndpoint","specialProperties"]
 }

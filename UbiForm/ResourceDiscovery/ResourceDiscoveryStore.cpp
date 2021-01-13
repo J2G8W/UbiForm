@@ -51,11 +51,26 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm) {
         bool receiveData = sm->getBoolean("dataReceiverEndpoint");
         std::vector<SocketMessage *> returnEndpoints;
 
+        auto specialProperties = sm->getMoveObject("specialProperties");
+        std::map<std::string, std::string> propertiesMap;
+        for(const auto& key:specialProperties->getKeys()){
+            propertiesMap.insert(std::make_pair(key,specialProperties->getString(key)));
+        }
+
         for (const auto &componentRep : componentById){
+            bool validComponent = true;
+            for(auto& pair : propertiesMap){
+                if(!(componentRep.second->hasProperty(pair.first) &&
+                    componentRep.second->getProperty(pair.first) == pair.second)){
+                    validComponent = false;
+                    break;
+                }
+            }
+            if(!validComponent){continue;}
+
             std::vector<std::string> endpointIds = componentRep.second->findEquals(receiveData, *schemaRequest);
             for (const auto &id: endpointIds){
                 auto * endpoint = new SocketMessage;
-
                 endpoint->addMember("componentId", componentRep.first);
                 endpoint->addMember("urls",componentRep.second->getAllUrls());
                 endpoint->addMember("port",componentRep.second->getPort());

@@ -52,14 +52,16 @@ public:
      */
     std::unique_ptr<ComponentRepresentation> getComponentById(const std::string& url, const std::string& id);
 
-    SocketMessage *generateFindBySchemaRequest(const std::string& endpointType);
+    SocketMessage *generateFindBySchemaRequest(const std::string& endpointType,
+                                               std::map<std::string, std::string> &otherValues);
     /**
      * Sends requests to all the RDHs we know about, for the components which match the endpointType we request.
      * Assumes we only want DataReceiverEndpoints back
      * @param endpointType - Reference to the endpointType in our componentManifest
      * @return Vector of SocketMessages (which handle memory themselves) which follow Schema "SystemsSchemas/resource_discovery_by_schema_response"
      */
-    std::vector<std::unique_ptr<SocketMessage>> getComponentsBySchema(const std::string& endpointType);
+    std::vector<std::unique_ptr<SocketMessage>>
+    getComponentsBySchema(const std::string &endpointType, std::map<std::string, std::string> &otherValues);
 
     /**
      * Uses the getComponentsBySchema function to actually create connections to ALL of the available endpoints from our RDHs.

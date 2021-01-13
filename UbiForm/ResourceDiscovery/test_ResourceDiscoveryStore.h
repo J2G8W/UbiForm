@@ -131,10 +131,11 @@ TEST_F(SimpleRDS, GetBySchemaValid){
 
     SocketMessage request;
     request.addMember("request",REQUEST_BY_SCHEMA);
-    SocketMessage * schema = loadSocketMessage("TestManifests/Endpoint1.json");
-    request.addMember("schema",*schema);
+    auto schema = std::unique_ptr<SocketMessage>(loadSocketMessage("TestManifests/Endpoint1.json"));
+    request.moveMember("schema",std::move(schema));
     request.addMember("dataReceiverEndpoint", true);
-    delete schema;
+    request.moveMember("specialProperties", std::make_unique<SocketMessage>());
+
 
 
     SocketMessage * reply = resourceDiscoveryStore.generateRDResponse(&request);
@@ -149,6 +150,22 @@ TEST_F(SimpleRDS, GetBySchemaValid){
     for (auto e : endpointReturns){
         delete e;
     }
+
+    SocketMessage newRequest;
+    newRequest.addMember("request",REQUEST_BY_SCHEMA);
+    schema = std::unique_ptr<SocketMessage>(loadSocketMessage("TestManifests/Endpoint1.json"));
+    newRequest.moveMember("schema",std::move(schema));
+    newRequest.addMember("dataReceiverEndpoint", true);
+
+
+    auto errorSpecialProperties = std::make_unique<SocketMessage>();
+    errorSpecialProperties->addMember("name","NOT FOUND");
+    newRequest.moveMember("specialProperties",std::move(errorSpecialProperties));
+
+    reply = resourceDiscoveryStore.generateRDResponse(&newRequest);
+    endpointReturns = reply->getArray<SocketMessage*>("endpoints");
+    ASSERT_EQ(endpointReturns.size(), 0);
+    delete reply;
 }
 
 
@@ -165,13 +182,13 @@ TEST_F(SimpleRDS, GetBySchemaInvalid){
     SocketMessage * schema = loadSocketMessage("TestManifests/Endpoint3.json");
     request.addMember("schema",*schema);
     request.addMember("dataReceiverEndpoint", true);
+    request.moveMember("specialProperties", std::make_unique<SocketMessage>());
     delete schema;
 
 
     SocketMessage * reply = resourceDiscoveryStore.generateRDResponse(&request);
     std::vector<SocketMessage *> endpointReturns = reply->getArray<SocketMessage*>("endpoints");
     ASSERT_EQ(endpointReturns.size(), 0);
-
 
     delete reply;
 }

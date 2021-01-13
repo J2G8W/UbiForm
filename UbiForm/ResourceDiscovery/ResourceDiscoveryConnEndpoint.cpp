@@ -111,7 +111,8 @@ std::unique_ptr<ComponentRepresentation> ResourceDiscoveryConnEndpoint::getCompo
     }
 }
 
-SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const std::string& endpointType) {
+SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const std::string& endpointType,
+                                                                          std::map<std::string, std::string> &otherValues) {
     auto * request = new SocketMessage;
     request->addMember("request",REQUEST_BY_SCHEMA);
 
@@ -122,13 +123,22 @@ SocketMessage *ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const 
     auto schema = std::unique_ptr<SocketMessage>(component->getComponentManifest().getSchemaObject(endpointType, true));
 
     request->moveMember("schema", std::move(schema));
+
+    auto specialProperties = std::make_unique<SocketMessage>();
+    for(auto& keyValuePair : otherValues){
+        specialProperties->addMember(keyValuePair.first,keyValuePair.second);
+    }
+    request->moveMember("specialProperties",std::move(specialProperties));
+
     return request;
 }
 
-std::vector<std::unique_ptr<SocketMessage>> ResourceDiscoveryConnEndpoint::getComponentsBySchema(const std::string& endpointType) {
+std::vector<std::unique_ptr<SocketMessage>>
+ResourceDiscoveryConnEndpoint::getComponentsBySchema(const std::string &endpointType,
+                                                     std::map<std::string, std::string> &otherValues) {
     std::vector<std::unique_ptr<SocketMessage>> returnEndpoints;
 
-    SocketMessage* request = generateFindBySchemaRequest(endpointType);
+    SocketMessage* request = generateFindBySchemaRequest(endpointType, otherValues);
 
     systemSchemas.getSystemSchema(SystemSchemaName::bySchemaRequest).validate(*request);
 
@@ -161,7 +171,8 @@ std::vector<std::unique_ptr<SocketMessage>> ResourceDiscoveryConnEndpoint::getCo
 
 
 void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string& endpointType){
-    std::vector<std::unique_ptr<SocketMessage>> validLocations = getComponentsBySchema(endpointType);
+    std::map<std::string,std::string> empty;
+    std::vector<std::unique_ptr<SocketMessage>> validLocations = getComponentsBySchema(endpointType, empty);
 
     for (const auto & location: validLocations) {
         bool connection = false;

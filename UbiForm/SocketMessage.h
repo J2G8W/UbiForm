@@ -142,6 +142,9 @@ public:
         return JSON_document.IsNull();
     }
 
+
+    std::vector<std::string> getKeys();
+
     /// Returns a string of the SocketMessage for debugging and sending on wire
     std::string stringify() { return stringifyValue(JSON_document); };
 

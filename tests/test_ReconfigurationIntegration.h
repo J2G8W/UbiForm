@@ -108,7 +108,9 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
     // Takes time for the background senderComponent to register with RDH
     nng_msleep(300);
 
-    auto locations = receiverComponent.getResourceDiscoveryConnectionEndpoint().getComponentsBySchema("genSubscriber");
+    std::map<std::string,std::string> empty;
+    auto locations = receiverComponent.getResourceDiscoveryConnectionEndpoint().getComponentsBySchema("genSubscriber",
+                                                                                                      empty);
     ASSERT_EQ(locations.size(),1);
     ASSERT_EQ(locations.at(0)->getInteger("port"), senderComponent.getBackgroundPort());
     auto urls = locations.at(0)->getArray<std::string>("urls");
