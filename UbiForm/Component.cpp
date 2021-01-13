@@ -13,9 +13,9 @@
 
 
 // CONSTRUCTOR
-Component::Component(const std::string &baseAddress) :  systemSchemas(),
-        backgroundListener(this,systemSchemas), backgroundRequester(this, systemSchemas),
-        baseAddress(baseAddress), resourceDiscoveryConnEndpoint(this, systemSchemas), componentManifest(systemSchemas){
+Component::Component(const std::string &baseAddress) : systemSchemas(),
+                                                       backgroundListener(this,systemSchemas), backgroundRequester(this, systemSchemas),
+                                                       selfAddress(baseAddress), resourceDiscoveryConnEndpoint(this, systemSchemas), componentManifest(systemSchemas){
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
     std::cout << "Component made, self address is " << baseAddress << std::endl;
@@ -50,9 +50,9 @@ Component::Component():  systemSchemas(),
             std::cout << "\t" << address << std::endl;
         }
     }
-    baseAddress = "tcp://127.0.0.1";
+    selfAddress = "tcp://127.0.0.1";
     componentConnectionType = ConnectionType::TCP;
-    std::cout << "Component made, self address is " << baseAddress << std::endl;
+    std::cout << "Component made, self address is " << selfAddress << std::endl;
 }
 
 
@@ -184,7 +184,7 @@ void Component::startBackgroundListen(int port) {
             backgroundListener.startBackgroundListen("tcp://*", port);
         } else {
             // Listen on just the address given (either local or IPC)
-            backgroundListener.startBackgroundListen(baseAddress, port);
+            backgroundListener.startBackgroundListen(selfAddress, port);
         }
     }
 }
@@ -210,7 +210,7 @@ int Component::createEndpointAndListen(SocketType st, const std::string& endpoin
         if(componentConnectionType == ConnectionType::TCP){
             url = "tcp://*";
         }else {
-            url = baseAddress;
+            url = selfAddress;
         }
         rv = e->listenForConnectionWithRV(url.c_str(), lowestPort);
         if (rv == NNG_EADDRINUSE){
@@ -248,11 +248,11 @@ void Component::startResourceDiscoveryHub(int port) {
         if (componentConnectionType == ConnectionType::TCP) {
             listenAddress = "tcp://*";
         }else{
-            listenAddress = baseAddress;
+            listenAddress = selfAddress;
         }
         resourceDiscoveryHubEndpoint->startResourceDiscover(listenAddress, port);
         std::cout << "Started Resource Discovery Hub at - " << listenAddress << ":"<<port << std::endl;
-        resourceDiscoveryConnEndpoint.registerWithHub(baseAddress+":"+std::to_string(port));
+        resourceDiscoveryConnEndpoint.registerWithHub(selfAddress + ":" + std::to_string(port));
     }
 }
 int Component::startResourceDiscoveryHub() {

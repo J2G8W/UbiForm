@@ -52,7 +52,7 @@ private:
 
     int lowestPort = 8001;
 
-    std::string baseAddress;
+    std::string selfAddress;
     std::vector<std::string> availableAddresses;
 
     BackgroundListener backgroundListener;
@@ -167,7 +167,7 @@ public:
     int startResourceDiscoveryHub();
     ///@}
 
-    std::string getSelfAddress(){return baseAddress;}
+    std::string getSelfAddress(){return selfAddress;}
     int getResourceDiscoveryHubPort(){return resourceDiscoveryHubEndpoint->getBackgroundPort();}
 
 
