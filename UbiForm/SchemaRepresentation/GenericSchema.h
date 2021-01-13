@@ -9,7 +9,7 @@
  */
 class GenericSchema {
 private:
-    EndpointSchema * es;
+    std::shared_ptr<EndpointSchema> es;
     rapidjson::Document  document;
 
     static rapidjson::Document InitiateFromFile(FILE *jsonFP){
@@ -26,7 +26,7 @@ public:
      * @param jsonFP
      */
     explicit GenericSchema(FILE * jsonFP) : document(InitiateFromFile(jsonFP)){
-        es = new EndpointSchema(&document, document.GetAllocator());
+        es = std::make_shared<EndpointSchema>(&document, document.GetAllocator());
     }
     void validate(const SocketMessage &messageToValidate){
         es->validate(messageToValidate);
@@ -35,8 +35,11 @@ public:
         es->validate(doc);
     }
 
+    std::shared_ptr<EndpointSchema> getInternalSchema(){
+        return es;
+    };
+
     ~GenericSchema(){
-        delete es;
         document.Clear();
     }
 };

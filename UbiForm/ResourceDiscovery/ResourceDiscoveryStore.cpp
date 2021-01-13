@@ -2,7 +2,7 @@
 #include <chrono>
 #include "ResourceDiscoveryStore.h"
 
-SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm) {
+std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm) {
     std::string request;
     try{
         request= sm->getString("request");
@@ -103,10 +103,9 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm) {
 
         returnMsg->addMember("newID",id);
 
-        systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*returnMsg);
 
     }else if(request == REQUEST_BY_PROPERTIES){
-        //TODO - validate
+        // Not validated, will return access error on failure
         auto specialProperties = sm->getMoveObject("specialProperties");
         auto specialKeys = specialProperties->getKeys();
 
@@ -124,7 +123,7 @@ SocketMessage *ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm) {
             }
         }
     }
-    return returnMsg.release();
+    return returnMsg;
 }
 
 ResourceDiscoveryStore::ResourceDiscoveryStore(SystemSchemas & ss) : systemSchemas(ss), generator() {

@@ -13,6 +13,8 @@ void ResourceDiscoveryHubEndpoint::startResourceDiscover(const std::string &base
 void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * rdhe) {
     while (true){
         std::unique_ptr<SocketMessage> request;
+        std::unique_ptr<SocketMessage> returnMsg;
+        bool receiveError = false;
         try {
             request = rdhe->replyEndpoint.receiveMessage();
         }catch(NngError &e){
@@ -24,17 +26,32 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
             }
         }catch(SocketOpenError &e){
             break;
+        }catch(std::logic_error &e){
+            returnMsg->addMember("error",true);
+            returnMsg->addMember("errorMsg","Receive error "+ std::string(e.what()));
+            receiveError = true;
         }
-        std::unique_ptr<SocketMessage> returnMsg;
-        // TODO - return error message
-        try {
-            returnMsg = std::unique_ptr<SocketMessage>(rdhe->rdStore.generateRDResponse(request.get()));
-        }catch (ParsingError &e){
-            std::cerr << "Parsing error of request - " << e.what() <<std::endl;
-            continue;
-        }catch (ValidationError &e){
-            std::cerr << "Validation error of request - " << e.what() << "\n\t" << request->stringify() << std::endl;
-            continue;
+        if(!receiveError) {
+            try {
+                returnMsg = rdhe->rdStore.generateRDResponse(request.get());
+                returnMsg->addMember("error", false);
+            } catch (ParsingError &e) {
+                std::cerr << "Parsing error of request - " << e.what() << std::endl;
+                returnMsg = std::unique_ptr<SocketMessage>();
+                returnMsg->addMember("error", true);
+                returnMsg->addMember("errrorMsg", "Parsing error " + std::string(e.what()));
+            } catch (ValidationError &e) {
+                std::cerr << "Validation error of request - " << e.what() << "\n\t" << request->stringify()
+                          << std::endl;
+                returnMsg = std::unique_ptr<SocketMessage>();
+                returnMsg->addMember("error", true);
+                returnMsg->addMember("errrorMsg", "Validation error " + std::string(e.what()));
+            } catch (AccessError &e) {
+                std::cerr << "Access error of request - " << e.what() << "\n\t" << request->stringify() << std::endl;
+                returnMsg = std::unique_ptr<SocketMessage>();
+                returnMsg->addMember("error", true);
+                returnMsg->addMember("errrorMsg", "Access error " + std::string(e.what()));
+            }
         }
 
         try{
@@ -44,7 +61,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
                 break;
             }else{
                 std::cerr << "Resource Discovery Hub - " <<  e.what() << std::endl;
-                continue;
+                break;
             }
         }catch(SocketOpenError &e){
             break;

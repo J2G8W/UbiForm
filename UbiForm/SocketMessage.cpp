@@ -44,7 +44,7 @@ std::unique_ptr<SocketMessage> SocketMessage::getCopyObject(const std::string &a
         if(JSON_document[attributeName].IsObject()) {
             return std::unique_ptr<SocketMessage>(new SocketMessage(JSON_document[attributeName], true));
         }else{
-            throw AccessError("Attribute " + attributeName + "exists but not type object");
+            throw AccessError("Attribute " + attributeName + " exists but not type object");
         }
     }else{
         throw AccessError("The message has no attribute " + attributeName);
@@ -220,7 +220,7 @@ std::unique_ptr<SocketMessage> SocketMessage::getMoveObject(const std::string &a
         if(JSON_document[attributeName].IsObject()) {
             return std::unique_ptr<SocketMessage>(new SocketMessage(JSON_document[attributeName], false));
         }else{
-            throw AccessError("Attribute " + attributeName + "exists but not type object");
+            throw AccessError("Attribute " + attributeName + " exists but not type object");
         }
     }else{
         throw AccessError("The message has no attribute " + attributeName);

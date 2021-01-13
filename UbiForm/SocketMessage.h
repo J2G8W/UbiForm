@@ -145,6 +145,10 @@ public:
 
     std::vector<std::string> getKeys();
 
+    bool hasMember(const std::string& attributeName){
+        return JSON_document.HasMember(attributeName);
+    }
+
     /// Returns a string of the SocketMessage for debugging and sending on wire
     std::string stringify() { return stringifyValue(JSON_document); };
 

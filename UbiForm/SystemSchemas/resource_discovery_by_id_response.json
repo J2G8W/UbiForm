@@ -4,10 +4,7 @@
   "type": "object",
   "properties": {
     "component": {
-      "oneOf": [
-        {"type": "null"},
-        {"type": "object"}
-      ]
+      "type": "object"
     }
   },
   "required": ["component"]

@@ -6,6 +6,13 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryConnEndpoint::sendRequest(const 
     requestEndpoint.dialConnection(url.c_str());
     requestEndpoint.sendMessage(request);
     auto reply = requestEndpoint.receiveMessage();
+    if(reply->getBoolean("error")){
+        if(reply->hasMember("errorMsg")){
+            throw std::logic_error("Error with request: " + reply->getString("errorMsg"));
+        }else{
+            throw std::logic_error("Error with request, no error message");
+        }
+    }
     return reply;
 }
 
@@ -30,7 +37,6 @@ void ResourceDiscoveryConnEndpoint::registerWithHub(const std::string& url) {
         systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
         std::cout << "Registered successfully with: " << url << " id is " << reply->getString("newID") << std::endl;
     }catch(std::logic_error &e){
-        std::cerr << "Error registering with " << url << "\n\t" << e.what() << std::endl;
         throw;
     }
 
@@ -72,9 +78,6 @@ std::unique_ptr<ComponentRepresentation> ResourceDiscoveryConnEndpoint::getCompo
         throw;
     }
 
-    if (reply->isNull("component")){
-        throw std::logic_error("RDH did not have a component of that ID");
-    }
     // Here we check if the ComponentRepresentation returned is a valid ComponentRepresentation
     try{
         // We copy compRep when making the ComponentRepresentation object anyway
@@ -242,10 +245,10 @@ ResourceDiscoveryConnEndpoint::getComponentsByProperties(std::map<std::string, s
             continue;
         }
 
-
         auto replyIDs = reply->getKeys();
 
         for(auto & compID:replyIDs){
+            if(compID == "error"){continue;}
             returnComponents.insert(std::make_pair(compID,
                                                    std::make_unique<ComponentRepresentation>(
                                                            reply->getMoveObject(compID).get(),systemSchemas)));
