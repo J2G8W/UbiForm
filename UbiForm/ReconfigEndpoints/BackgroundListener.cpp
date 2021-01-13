@@ -184,7 +184,6 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleRDHLocationsRequest(Soc
     auto it = locations.begin();
     while (it != locations.end()) {
         if(it->rfind(component->getSelfAddress(),0) == 0){
-            std::cout << "Found " << *it << std::endl;
             selfRDH = true;
             it = locations.erase(it);
         }else{

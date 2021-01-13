@@ -207,7 +207,6 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest4){
     ASSERT_EQ(rdhLocations.size(), 3);
     bool testers[3]={false,false,false};
     for(const std::string& loc : rdhLocations){
-        std::cout << loc << std::endl;
         if(loc == loc1){testers[0] = true;}
         if(loc == loc2){testers[1] = true;}
         if(loc == loc3){testers[2] = true;}

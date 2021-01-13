@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "ComponentRepresentation.h"
+#include "../Endpoints/RequestEndpoint.h"
 
 class Component ;
 /**
@@ -16,19 +17,21 @@ private:
     std::map<std::string, std::string> resourceDiscoveryHubs;
     Component * component;
 
+    RequestEndpoint requestEndpoint;
     SystemSchemas & systemSchemas;
 
-    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage * request);
+    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage & request);
 
     // We purposely delete copy and assignment operators such that there isn't stray references to this
     ResourceDiscoveryConnEndpoint(ResourceDiscoveryConnEndpoint &) = delete;
     ResourceDiscoveryConnEndpoint& operator=(ResourceDiscoveryConnEndpoint &) = delete;
 
 public:
-    ResourceDiscoveryConnEndpoint(Component *component, SystemSchemas & ss) : component(component), systemSchemas(ss) {}
+    ResourceDiscoveryConnEndpoint(Component *component, SystemSchemas & ss) : component(component), systemSchemas(ss),
+        requestEndpoint(std::make_shared<EndpointSchema>(),std::make_shared<EndpointSchema>(), "BackgroundRequester"){}
 
 
-    SocketMessage *generateRegisterRequest();
+    std::unique_ptr<SocketMessage> generateRegisterRequest();
     /**
      * Send a request to a ResourceDiscoveryHub at url and if it comes back successfully we register it as a Hub we can talk to.
      * Note that it doesn't throw exceptions, just outputs to cerr
@@ -52,8 +55,8 @@ public:
      */
     std::unique_ptr<ComponentRepresentation> getComponentById(const std::string& url, const std::string& id);
 
-    SocketMessage *generateFindBySchemaRequest(const std::string& endpointType,
-                                               std::map<std::string, std::string> &otherValues);
+    std::unique_ptr<SocketMessage> generateFindBySchemaRequest(const std::string& endpointType,
+                                                               std::map<std::string, std::string> &otherValues);
     /**
      * Sends requests to all the RDHs we know about, for the components which match the endpointType we request.
      * Assumes we only want DataReceiverEndpoints back
