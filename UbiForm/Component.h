@@ -167,8 +167,16 @@ public:
     int startResourceDiscoveryHub();
     ///@}
 
+    void endResourceDiscoveryHub();
+
     std::string getSelfAddress(){return selfAddress;}
-    int getResourceDiscoveryHubPort(){return resourceDiscoveryHubEndpoint->getBackgroundPort();}
+    int getResourceDiscoveryHubPort(){
+        if(resourceDiscoveryHubEndpoint != nullptr) {
+            return resourceDiscoveryHubEndpoint->getBackgroundPort();
+        }else{
+            throw std::logic_error("No resource discovery hub is opne");
+        }
+    }
 
 
     ResourceDiscoveryConnEndpoint & getResourceDiscoveryConnectionEndpoint(){return resourceDiscoveryConnEndpoint;}

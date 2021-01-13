@@ -273,6 +273,15 @@ int Component::startResourceDiscoveryHub() {
         }
         throw std::logic_error("Could not find valid port to start on");
     }
+    return getResourceDiscoveryHubPort();
+}
+
+void Component::endResourceDiscoveryHub() {
+    if(resourceDiscoveryHubEndpoint != nullptr){
+        delete resourceDiscoveryHubEndpoint;
+        resourceDiscoveryHubEndpoint = nullptr;
+        std::cout << "Resource Discovery Hub ended" << std::endl;
+    }
 }
 
 
@@ -299,3 +308,4 @@ void Component::closeSocketsOfType(const std::string &endpointType) {
         }
     }
 }
+

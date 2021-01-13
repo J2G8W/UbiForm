@@ -219,6 +219,11 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest4){
     auto compIds = baby.getResourceDiscoveryConnectionEndpoint().getComponentIdsFromHub(loc2);
     // loc2 Should only have itself register with it
     ASSERT_EQ(compIds.size(),1);
+
+    RDH1.endResourceDiscoveryHub();
+    ASSERT_THROW(RDH1.getResourceDiscoveryHubPort(),std::logic_error);
+    RDH1.startResourceDiscoveryHub();
+    ASSERT_NO_THROW(RDH1.getResourceDiscoveryHubPort());
 }
 
 
