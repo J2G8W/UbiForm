@@ -12,16 +12,19 @@
 #define REPLY "reply"
 #define REQUEST "request"
 
+/// Describes the different sockets we can have
 enum SocketType{
     Pair,Publisher,Subscriber, Reply, Request
 };
 std::string convertSocketType(SocketType st);
 
+/// Describes the different types in our endpoint schemas/socket messages
 enum ValueType{
     Number, String, Boolean, Object, Array, Null
 };
 std::string convertValueType(ValueType vt);
 
+/// Respresent the System Schemas
 enum SystemSchemaName{
     componentManifest,endpointCreationRequest, endpointCreationResponse,
     additionRequest,additionResponse,byIdRequest,byIdResponse,
@@ -29,9 +32,30 @@ enum SystemSchemaName{
     generalRDRequest, generalRDResponse, generalEndpointRequest, generalEndpointResponse
 };
 
+/// Used on Component to describe how it has been loaded in
 enum ConnectionType{
     IPC, TCP, LocalTCP
 };
 
+// Strings used for Background Requester and Listener
+#define BACKGROUND_REQUEST_CONNECTION "req_conn"
+#define BACKGROUND_ADD_RDH "add_rdh"
+#define BACKGROUND_TELL_TO_REQUEST_CONNECTION "tell_req_conn"
+#define BACKGROUND_CHANGE_ENDPOINT_SCHEMA "add_endpoint_schema"
+#define BACKGROUND_CREATE_RDH "create_rdh"
+#define BACKGROUND_CHANGE_MANIFEST "change_manifest"
+#define BACKGROUND_GET_LOCATIONS_OF_RDH "locations_rdh"
+#define BACKGROUND_CLOSE_SOCKETS "close_sockets"
+#define BACKGROUND_CLOSE_RDH "close_rdh"
+
+// Strings used for Resource Discovery comms
+// NOTE THAT THESE ARE ALSO DEFINED IN "SystemSchemas/resource_discovery_*_request.json"
+#define RESOURCE_DISCOVERY_ADD_COMPONENT "addition"
+#define RESOURCE_DISCOVERY_REQUEST_BY_ID "requestId"
+#define RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA "requestSchema"
+#define RESOURCE_DISCOVERY_REQUEST_BY_PROPERTIES "requestProperties"
+#define RESOURCE_DISCOVERY_REQUEST_COMPONENTS "requestComponents"
+#define RESOURCE_DISCOVERY_UPDATE_MANIFEST "update"
+#define RESOURCE_DISCOVERY_DEREGISTER_COMPONENT "deRegister"
 
 #endif //UBIFORM_SYSTEMENUMS_H

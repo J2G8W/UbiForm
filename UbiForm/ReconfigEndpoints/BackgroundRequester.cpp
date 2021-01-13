@@ -36,7 +36,7 @@ void BackgroundRequester::requestAndCreateConnection(const std::string &baseAddr
     }
 
     sm.addMember("endpointType",remoteEndpointType);
-    sm.addMember("requestType", REQ_CONN);
+    sm.addMember("requestType", BACKGROUND_REQUEST_CONNECTION);
 
     systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(sm);
 
@@ -54,7 +54,7 @@ void BackgroundRequester::requestAndCreateConnection(const std::string &baseAddr
 
 void BackgroundRequester::requestAddRDH(const std::string &componentUrl, const std::string &rdhUrl) {
     SocketMessage sm;
-    sm.addMember("requestType",ADD_RDH);
+    sm.addMember("requestType", BACKGROUND_ADD_RDH);
     sm.addMember("url",rdhUrl);
     try{
         auto reply = sendRequest(componentUrl,sm);
@@ -68,7 +68,7 @@ void BackgroundRequester::tellToRequestAndCreateConnection(const std::string &re
                                                            const std::string &remoteEndpointType,
                                                            const std::string &remoteAddress, int newPort) {
     SocketMessage sm;
-    sm.addMember("requestType", TELL_REQ_CONN);
+    sm.addMember("requestType", BACKGROUND_TELL_TO_REQUEST_CONNECTION);
     sm.addMember("reqEndpointType", requesterEndpointType);
     sm.addMember("remoteEndpointType",remoteEndpointType);
     sm.addMember("remoteAddress", remoteAddress);
@@ -84,7 +84,7 @@ void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddr
                                                 const std::string &endpointType, EndpointSchema *receiverSchema,
                                                 EndpointSchema *sendSchema) {
     SocketMessage sm;
-    sm.addMember("requestType", CHANGE_ENDPOINT_SCHEMA);
+    sm.addMember("requestType", BACKGROUND_CHANGE_ENDPOINT_SCHEMA);
     sm.addMember("endpointType", endpointType);
     if (receiverSchema == nullptr){sm.setNull("receiveSchema");}
     else{
@@ -107,7 +107,7 @@ void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddr
 
 int BackgroundRequester::requestCreateRDH(const std::string &componentUrl) {
     SocketMessage sm;
-    sm.addMember("requestType",CREATE_RDH);
+    sm.addMember("requestType", BACKGROUND_CREATE_RDH);
     try{
         auto reply = sendRequest(componentUrl,sm);
         return reply->getInteger("port");
@@ -126,7 +126,7 @@ void BackgroundRequester::requestToCreateAndDial(const std::string &componentUrl
 // Return empty if error reply
 std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::string &componentUrl) {
     SocketMessage sm;
-    sm.addMember("requestType", LOCATIONS_OF_RDH);
+    sm.addMember("requestType", BACKGROUND_GET_LOCATIONS_OF_RDH);
     try{
         auto reply = sendRequest(componentUrl,sm);
         std::vector<std::string> locations = reply->getArray<std::string>("locations");
@@ -141,7 +141,7 @@ std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::s
 
 void BackgroundRequester::requestCloseSocketOfType(const std::string &componentUrl, const std::string& endpointType) {
     SocketMessage sm;
-    sm.addMember("requestType",CLOSE_SOCKETS);
+    sm.addMember("requestType", BACKGROUND_CLOSE_SOCKETS);
     sm.addMember("endpointType",endpointType);
     try{
         sendRequest(componentUrl,sm);
@@ -152,7 +152,7 @@ void BackgroundRequester::requestCloseSocketOfType(const std::string &componentU
 
 void BackgroundRequester::requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest) {
     SocketMessage sm;
-    sm.addMember("requestType",CHANGE_MANIFEST);
+    sm.addMember("requestType", BACKGROUND_CHANGE_MANIFEST);
     auto compRep = newManifest.getSocketMessageCopy();
     sm.addMoveObject("newManifest", std::move(compRep));
     try{
@@ -164,7 +164,7 @@ void BackgroundRequester::requestUpdateComponentManifest(const std::string &comp
 
 void BackgroundRequester::requestCloseRDH(const std::string &componentUrl) {
     SocketMessage sm;
-    sm.addMember("requestType", CLOSE_RDH);
+    sm.addMember("requestType", BACKGROUND_CLOSE_RDH);
     try{
         sendRequest(componentUrl, sm);
     }catch(std::logic_error &e){

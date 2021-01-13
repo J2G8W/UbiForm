@@ -31,25 +31,25 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
         std::unique_ptr<SocketMessage> reply;
         try{
             request->getString("requestType");
-            if (request->getString("requestType") == REQ_CONN) {
+            if (request->getString("requestType") == BACKGROUND_REQUEST_CONNECTION) {
                 backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(*request);
                 reply = backgroundListener->handleConnectionRequest((*request));
                 backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(*reply);
-            }else if(request->getString("requestType") == ADD_RDH){
+            }else if(request->getString("requestType") == BACKGROUND_ADD_RDH){
                 reply = backgroundListener->handleAddRDH(*request);
-            }else if(request->getString("requestType") == TELL_REQ_CONN){
+            }else if(request->getString("requestType") == BACKGROUND_TELL_TO_REQUEST_CONNECTION){
                 reply = backgroundListener->handleTellCreateConnectionRequest(*request);
-            }else if(request->getString("requestType") == CHANGE_ENDPOINT_SCHEMA){
+            }else if(request->getString("requestType") == BACKGROUND_CHANGE_ENDPOINT_SCHEMA){
                 reply = backgroundListener->handleChangeEndpointRequest(*request);
-            }else if(request->getString("requestType") == CREATE_RDH){
+            }else if(request->getString("requestType") == BACKGROUND_CREATE_RDH){
                 reply = backgroundListener->handleCreateRDHRequest(*request);
-            }else if(request->getString("requestType") == CHANGE_MANIFEST){
+            }else if(request->getString("requestType") == BACKGROUND_CHANGE_MANIFEST){
                 reply = backgroundListener->handleChangeManifestRequest(*request);
-            }else if(request->getString("requestType") == LOCATIONS_OF_RDH){
+            }else if(request->getString("requestType") == BACKGROUND_GET_LOCATIONS_OF_RDH){
                 reply = backgroundListener->handleRDHLocationsRequest(*request);
-            }else if(request->getString("requestType") == CLOSE_SOCKETS){
+            }else if(request->getString("requestType") == BACKGROUND_CLOSE_SOCKETS){
                 reply = backgroundListener->handleCloseSocketsRequest(*request);
-            }else if(request->getString("requestType") == CLOSE_RDH){
+            }else if(request->getString("requestType") == BACKGROUND_CLOSE_RDH){
                 reply = backgroundListener->handleCloseRDH(*request);
             }
             else{

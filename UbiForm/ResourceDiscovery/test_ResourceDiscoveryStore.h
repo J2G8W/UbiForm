@@ -19,7 +19,7 @@ protected:
 
     std::unique_ptr<SocketMessage> addDummyComponent() {
         SocketMessage sm;
-        sm.addMember("request", ADDITION);
+        sm.addMember("request", RESOURCE_DISCOVERY_ADD_COMPONENT);
 
         auto manifest = exampleManifest->getSocketMessageCopy();
         sm.addMoveObject("manifest", std::move(manifest));
@@ -50,7 +50,7 @@ protected:
 
 TEST_F(SimpleRDS,AdditionOfComponent){
     SocketMessage sm;
-    sm.addMember("request", ADDITION);
+    sm.addMember("request", RESOURCE_DISCOVERY_ADD_COMPONENT);
 
     std::unique_ptr<SocketMessage> manifest = exampleManifest->getSocketMessageCopy();
     sm.addMoveObject("manifest", std::move(manifest));
@@ -70,7 +70,7 @@ TEST_F(SimpleRDS,GetManifestById){
 
 
     SocketMessage idRequest;
-    idRequest.addMember("request",REQUEST_BY_ID);
+    idRequest.addMember("request", RESOURCE_DISCOVERY_REQUEST_BY_ID);
     idRequest.addMember("id",returnID);
 
     returnMsg = resourceDiscoveryStore.generateRDResponse(&idRequest);
@@ -94,7 +94,7 @@ TEST_F(SimpleRDS, GetComponentIds){
 
 
     SocketMessage request;
-    request.addMember("request",REQUEST_COMPONENTS);
+    request.addMember("request", RESOURCE_DISCOVERY_REQUEST_COMPONENTS);
 
     std::unique_ptr<SocketMessage> reply = resourceDiscoveryStore.generateRDResponse(&request);
 
@@ -114,7 +114,7 @@ TEST_F(SimpleRDS, GetBySchemaValid){
     std::string id1 = returnMsg->getString("newID");
 
     SocketMessage request;
-    request.addMember("request",REQUEST_BY_SCHEMA);
+    request.addMember("request", RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA);
     std::unique_ptr<SocketMessage> schema = loadSocketMessage("TestManifests/Endpoint1.json");
     request.addMoveObject("schema", std::move(schema));
     request.addMember("dataReceiverEndpoint", true);
@@ -129,7 +129,7 @@ TEST_F(SimpleRDS, GetBySchemaValid){
     ASSERT_EQ(endpointReturns.at(0)->getString("componentId"),id1);
 
     SocketMessage newRequest;
-    newRequest.addMember("request",REQUEST_BY_SCHEMA);
+    newRequest.addMember("request", RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA);
     schema = loadSocketMessage("TestManifests/Endpoint1.json");
     newRequest.addMoveObject("schema", std::move(schema));
     newRequest.addMember("dataReceiverEndpoint", true);
@@ -152,7 +152,7 @@ TEST_F(SimpleRDS, GetBySchemaInvalid){
     std::string id1 = returnMsg->getString("newID");
 
     SocketMessage request;
-    request.addMember("request",REQUEST_BY_SCHEMA);
+    request.addMember("request", RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA);
     // Doesn't match component1
     std::unique_ptr<SocketMessage> schema = loadSocketMessage("TestManifests/Endpoint3.json");
     request.addMember("schema",*schema);
@@ -173,7 +173,7 @@ TEST_F(SimpleRDS, NoRequestField){
 
 TEST_F(SimpleRDS, BrokenRequest){
     SocketMessage request;
-    request.addMember("request",ADDITION);
+    request.addMember("request", RESOURCE_DISCOVERY_ADD_COMPONENT);
 
     ASSERT_THROW(resourceDiscoveryStore.generateRDResponse(&request), ValidationError);
 }

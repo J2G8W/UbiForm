@@ -7,16 +7,6 @@
 #include "../SystemSchemas/SystemSchemas.h"
 #include "../Endpoints/ReplyEndpoint.h"
 
-#define REQ_CONN "req_conn"
-#define ADD_RDH "add_rdh"
-#define TELL_REQ_CONN "tell_req_conn"
-#define CHANGE_ENDPOINT_SCHEMA "add_endpoint_schema"
-#define CREATE_RDH "create_rdh"
-#define CHANGE_MANIFEST "change_manifest"
-#define LOCATIONS_OF_RDH "locations_rdh"
-#define CLOSE_SOCKETS "close_sockets"
-#define CLOSE_RDH "close_rdh"
-
 class Component;
 class BackgroundListener {
 private:

@@ -14,7 +14,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
 
     // Use a unique_ptr so when exceptions thrown it auto deletes
     std::unique_ptr<SocketMessage> returnMsg = std::make_unique<SocketMessage>();
-    if (request == ADDITION){
+    if (request == RESOURCE_DISCOVERY_ADD_COMPONENT){
 
         systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*sm);
 
@@ -31,7 +31,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
 
         systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*returnMsg);
 
-    }else if (request == REQUEST_BY_ID){
+    }else if (request == RESOURCE_DISCOVERY_REQUEST_BY_ID){
         systemSchemas.getSystemSchema(SystemSchemaName::byIdRequest).validate(*sm);
 
         std::string id = sm->getString("id");
@@ -44,7 +44,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
         }
 
         systemSchemas.getSystemSchema(SystemSchemaName::byIdResponse).validate(*returnMsg);
-    }else if (request == REQUEST_BY_SCHEMA){
+    }else if (request == RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA){
         systemSchemas.getSystemSchema(SystemSchemaName::bySchemaRequest).validate(*sm);
 
         auto schemaRequest = sm->getMoveObject("schema");
@@ -84,7 +84,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
         }
 
         systemSchemas.getSystemSchema(SystemSchemaName::bySchemaResponse).validate(*returnMsg);
-    }else if (request == REQUEST_COMPONENTS){
+    }else if (request == RESOURCE_DISCOVERY_REQUEST_COMPONENTS){
         systemSchemas.getSystemSchema(SystemSchemaName::componentIdsRequest).validate(*sm);
         std::vector<std::string> componentIds;
         for (auto & it : componentById){
@@ -92,7 +92,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
         }
         returnMsg->addMember("components", componentIds);
         systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*returnMsg);
-    }else if (request == UPDATE){
+    }else if (request == RESOURCE_DISCOVERY_UPDATE_MANIFEST){
         systemSchemas.getSystemSchema(SystemSchemaName::updateRequest).validate(*sm);
         auto manifest = sm->getMoveObject("newManifest");
         auto newCR = std::make_shared<ComponentRepresentation>(manifest.get(), systemSchemas);
@@ -101,7 +101,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
 
         componentById[id] = newCR;
 
-    }else if(request == REQUEST_BY_PROPERTIES){
+    }else if(request == RESOURCE_DISCOVERY_REQUEST_BY_PROPERTIES){
         // Not validated, will return access error on failure
         auto specialProperties = sm->getMoveObject("specialProperties");
         auto specialKeys = specialProperties->getKeys();
@@ -119,7 +119,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
                 returnMsg->addMoveObject(componentRep.first,componentRep.second->getSocketMessageCopy());
             }
         }
-    }else if(request == DEREGISTER){
+    }else if(request == RESOURCE_DISCOVERY_DEREGISTER_COMPONENT){
         std::string id = sm->getString("id");
         if(componentById.count(id) == 1){
             componentById.erase(id);

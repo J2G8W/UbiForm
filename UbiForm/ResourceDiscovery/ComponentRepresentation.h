@@ -3,17 +3,6 @@
 
 #include "../ComponentManifest.h"
 
-
-// NOTE THAT THESE ARE ALSO DEFINED IN "SystemSchemas/resource_discovery_*_request.json"
-#define ADDITION "addition"
-#define REQUEST_BY_ID "requestId"
-#define REQUEST_BY_SCHEMA "requestSchema"
-#define REQUEST_BY_PROPERTIES "requestProperties"
-#define REQUEST_COMPONENTS "requestComponents"
-#define UPDATE "update"
-#define DEREGISTER "deRegister"
-
-
 /**
  * This extends ComponentManifest and is the way we store Components in our ResourceDiscoveryHub. It is a normal manifest
  * but also has an ARRAY of urls which the component can be reached on and a port which the Component's background listener is on
