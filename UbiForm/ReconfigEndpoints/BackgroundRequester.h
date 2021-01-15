@@ -37,29 +37,29 @@ public:
                                     const std::string &localEndpointType,
                                     const std::string &remoteEndpointType);
 
-    void requestAddRDH(const std::string &componentUrl, const std::string &rdhUrl);
+    void requestToCreateAndDial(const std::string &componentUrl, const std::string &socketType,
+                                const std::string &endpointType, const std::string &remoteUrl);
+
+
 
     void tellToRequestAndCreateConnection(const std::string &requesterAddress,
                                           const std::string &requesterEndpointType,
                                           const std::string &remoteEndpointType,
                                           const std::string &remoteAddress, int newPort);
 
+    int requestCreateRDH(const std::string &componentUrl);
+    void requestCloseRDH(const std::string &componentUrl);
+    void requestAddRDH(const std::string &componentUrl, const std::string &rdhUrl);
+    std::vector<std::string> requestLocationsOfRDH(const std::string &componentUrl);
+
+
+    void requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest);
     void requestChangeEndpoint(const std::string &componentAddress, SocketType socketType,
                                const std::string &endpointType, EndpointSchema *receiverSchema,
                                EndpointSchema *sendSchema);
 
-    int requestCreateRDH(const std::string &componentUrl);
-
-    void requestToCreateAndDial(const std::string &componentUrl, const std::string &socketType,
-                                const std::string &endpointType, const std::string &remoteUrl);
-
-    void requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest);
-
-    std::vector<std::string> requestLocationsOfRDH(const std::string &componentUrl);
 
     void requestCloseSocketOfType(const std::string &componentUrl, const std::string &endpointType);
-
-    void requestCloseRDH(const std::string &componentUrl);
 
 };
 
