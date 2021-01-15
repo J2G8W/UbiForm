@@ -11,6 +11,15 @@ class BackgroundRequester {
     SystemSchemas& systemSchemas;
     RequestEndpoint requestEndpoint;
 
+    /**
+     * Used to send our request after building it in the other methods
+     * @param url - The url of the listener we want to dial
+     * @param request - The message we want to send (built by other methods)
+     * @return The reply of the listener to our request (with error set to false)
+     * @throws NngError when we have problems dialing/sending/receiving our request
+     * @throws RemoteError when the remote address has an error in our request
+     * @throws ValidationError when our request/response doesn't have the right setup
+     */
     std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage & request);
 
 public:

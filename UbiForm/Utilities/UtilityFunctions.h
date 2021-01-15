@@ -64,6 +64,12 @@ public:
             : std::logic_error("Socket type: " + convertFromSocketType(socketType) + "\nEndpoint ID: " + endpointId + "\nError: " + error){}
 };
 
+class RemoteError : public std::logic_error{
+public:
+    RemoteError(const std::string& errorMsg, const std::string& remoteUrl)
+        : std::logic_error("Connecting to " + remoteUrl + "\nError Msg " + errorMsg){}
+};
+
 // USE ONLY FOR TESTING PURPOSES
 rapidjson::Document* parseFromFile(const char * address);
 
