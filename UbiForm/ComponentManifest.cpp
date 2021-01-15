@@ -213,6 +213,14 @@ bool ComponentManifest::hasProperty(const std::string &property) {
     return JSON_document.HasMember(property) && JSON_document[property].IsString();
 }
 
+std::vector<std::string> ComponentManifest::getAllEndpointTypes() {
+    std::vector<std::string> endpointTypes;
+    for(auto&m: JSON_document["schemas"].GetObject()){
+        endpointTypes.emplace_back(m.name.GetString());
+    }
+    return endpointTypes;
+}
+
 
 ComponentManifest::~ComponentManifest() = default;
 

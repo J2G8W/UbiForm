@@ -57,6 +57,26 @@ Component::Component() : systemSchemas(),
 }
 
 
+void Component::specifyManifest(FILE *jsonFP) {
+    closeAllSockets();
+    componentManifest.setManifest(jsonFP);
+    resourceDiscoveryConnEndpoint.updateManifestWithHubs();
+}
+
+void Component::specifyManifest(const char *jsonString) {
+    closeAllSockets();
+    componentManifest.setManifest(jsonString);
+    resourceDiscoveryConnEndpoint.updateManifestWithHubs();
+}
+
+void Component::specifyManifest(SocketMessage *sm) {
+    closeAllSockets();
+    componentManifest.setManifest(sm);
+    resourceDiscoveryConnEndpoint.updateManifestWithHubs();
+}
+
+
+
 void Component::createNewEndpoint(const std::string &typeOfEndpoint, const std::string &id) {
     SocketType socketType = convertToSocketType(componentManifest.getSocketType(typeOfEndpoint));
 
@@ -382,6 +402,12 @@ void Component::closeSocketOfId(const std::string &endpointId) {
         }
 
         idSenderEndpoints.erase(senderEndpoint);
+    }
+}
+
+void Component::closeAllSockets() {
+    for(const auto& endpointType : componentManifest.getAllEndpointTypes()){
+        closeSocketsOfType(endpointType);
     }
 }
 

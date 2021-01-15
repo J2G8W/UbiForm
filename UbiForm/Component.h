@@ -81,21 +81,11 @@ public:
     /** Specifies the manifest of the component (will overwrite previous manifest if one exists).
      * All constructors are copy constructors from their location */
     ///@{
-    void specifyManifest(FILE *jsonFP) {
-        // TODO - close open connections?
-        componentManifest.setManifest(jsonFP);
-        resourceDiscoveryConnEndpoint.updateManifestWithHubs();
-    }
+    void specifyManifest(FILE *jsonFP);
 
-    void specifyManifest(const char *jsonString) {
-        componentManifest.setManifest(jsonString);
-        resourceDiscoveryConnEndpoint.updateManifestWithHubs();
-    }
+    void specifyManifest(const char *jsonString);
 
-    void specifyManifest(SocketMessage *sm) {
-        componentManifest.setManifest(sm);
-        resourceDiscoveryConnEndpoint.updateManifestWithHubs();
-    }
+    void specifyManifest(SocketMessage *sm);
     ///@}
 
 
@@ -207,6 +197,8 @@ public:
 
 
     void closeSocketOfId(const std::string &endpointId);
+
+    void closeAllSockets();
 
     /// Pretty much everything should stop once component is deleted
     ~Component();

@@ -148,6 +148,8 @@ public:
         return std::unique_ptr<SocketMessage>(new SocketMessage(this->JSON_document, true));
     }
 
+    std::vector<std::string> getAllEndpointTypes();
+
     ~ComponentManifest();
 };
 
