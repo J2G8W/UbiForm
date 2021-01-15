@@ -17,15 +17,18 @@ private:
     nng_aio *nngAioPointer;
 protected:
     std::string endpointIdentifier;
-    SocketType endpointType;
+    std::string endpointType;
+    SocketType socketType;
+
     // Socket is initialised in extending class
     nng_socket * senderSocket = nullptr;
     std::shared_ptr<EndpointSchema>senderSchema;
     bool socketOpen = false;
     int port = -1;
 public:
-    explicit DataSenderEndpoint( std::shared_ptr<EndpointSchema>& es, const std::string & endpointIdentifier, SocketType endpointType):
-        endpointIdentifier(endpointIdentifier), endpointType(endpointType), nngAioPointer(){
+    explicit DataSenderEndpoint( std::shared_ptr<EndpointSchema>& es, const std::string & endpointIdentifier,
+                                 SocketType socketType, const std::string& endpointType):
+        endpointIdentifier(endpointIdentifier), socketType(socketType), nngAioPointer(), endpointType(endpointType){
         senderSchema = es;
         nng_aio_alloc(&(this->nngAioPointer), asyncCleanup, this);
         nng_aio_set_timeout(nngAioPointer, 50);
@@ -39,6 +42,8 @@ public:
     void sendMessage(SocketMessage &s);
     void asyncSendMessage(SocketMessage &s);
     int getListenPort(){return port;}
+
+    std::string& getSenderEndpointID(){return endpointIdentifier;}
 
     virtual void closeSocket() = 0;
     virtual ~DataSenderEndpoint(){

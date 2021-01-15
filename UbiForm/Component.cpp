@@ -62,7 +62,7 @@ std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(const std::string
     std::shared_ptr<EndpointSchema>recvSchema = componentManifest.getReceiverSchema(typeOfEndpoint);
     std::shared_ptr<EndpointSchema>sendSchema = componentManifest.getSenderSchema(typeOfEndpoint);
 
-    std::shared_ptr<PairEndpoint> pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema, id);
+    std::shared_ptr<PairEndpoint> pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema,typeOfEndpoint, id);
     idReceiverEndpoints.insert(std::make_pair(id, pe));
     idSenderEndpoints.insert(std::make_pair(id, pe));
 
@@ -85,7 +85,7 @@ std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(const std::string
 std::shared_ptr<PublisherEndpoint> Component::createNewPublisherEndpoint(const std::string& typeOfEndpoint, const std::string& id) {
     std::shared_ptr<EndpointSchema>sendSchema = componentManifest.getSenderSchema(typeOfEndpoint);
 
-    std::shared_ptr<PublisherEndpoint> pe = std::make_shared<PublisherEndpoint>(sendSchema, id);
+    std::shared_ptr<PublisherEndpoint> pe = std::make_shared<PublisherEndpoint>(sendSchema,typeOfEndpoint, id);
     idSenderEndpoints.insert(std::make_pair(id, pe));
 
     if (typeSenderEndpoints.count(typeOfEndpoint) == 1) {
@@ -100,7 +100,7 @@ std::shared_ptr<PublisherEndpoint> Component::createNewPublisherEndpoint(const s
 std::shared_ptr<SubscriberEndpoint> Component::createNewSubscriberEndpoint(const std::string& typeOfEndpoint, const std::string& id) {
     std::shared_ptr<EndpointSchema>receiveSchema = componentManifest.getReceiverSchema(typeOfEndpoint);
 
-    std::shared_ptr<SubscriberEndpoint> pe = std::make_shared<SubscriberEndpoint>(receiveSchema, id);
+    std::shared_ptr<SubscriberEndpoint> pe = std::make_shared<SubscriberEndpoint>(receiveSchema,typeOfEndpoint, id);
     idReceiverEndpoints.insert(std::make_pair(id, pe));
 
     if (typeReceiverEndpoints.count(typeOfEndpoint) == 1) {
@@ -297,6 +297,7 @@ void Component::closeSocketsOfType(const std::string &endpointType) {
         while(it != vec->end()){
             (*it)->closeSocket();
             it = vec->erase(it);
+            idReceiverEndpoints.erase((*it)->getReceiverEndpointID());
         }
     }
     if(typeSenderEndpoints.count(endpointType) > 0){
@@ -305,9 +306,11 @@ void Component::closeSocketsOfType(const std::string &endpointType) {
         while(it != vec->end()){
             (*it)->closeSocket();
             it = vec->erase(it);
+            idSenderEndpoints.erase((*it)->getSenderEndpointID());
         }
     }
 }
+
 
 int Component::getResourceDiscoveryHubPort() {
     if(resourceDiscoveryHubEndpoint != nullptr) {

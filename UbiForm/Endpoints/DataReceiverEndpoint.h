@@ -36,7 +36,8 @@ private:
     };
 protected:
     std::string endpointIdentifier;
-    SocketType endpointType;
+    std::string endpointType;
+    SocketType socketType;
 
     // Socket is initialised in extending class
     nng_socket * receiverSocket = nullptr;
@@ -46,8 +47,9 @@ protected:
     bool socketOpen = false;
     std::string dialUrl;
 public:
-    explicit DataReceiverEndpoint( std::shared_ptr<EndpointSchema>& es, const std::string & endpointIdentifier, SocketType endpointType):
-        endpointIdentifier(endpointIdentifier), endpointType(endpointType){
+    explicit DataReceiverEndpoint( std::shared_ptr<EndpointSchema>& es, const std::string & endpointIdentifier,
+                                   SocketType socketType, const std::string& endpointType):
+        endpointIdentifier(endpointIdentifier), socketType(socketType), endpointType(endpointType){
         receiverSchema = es;
     };
 
@@ -63,6 +65,8 @@ public:
     void asyncReceiveMessage(void (*callb)(SocketMessage *, void*), void*);
 
     std::string getDialUrl(){return dialUrl;}
+
+    std::string& getReceiverEndpointID(){return endpointIdentifier;}
 
     virtual void closeSocket() = 0;
     virtual ~DataReceiverEndpoint() = default;

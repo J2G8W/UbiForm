@@ -28,8 +28,12 @@ private:
 
 public:
     ResourceDiscoveryConnEndpoint(Component *component, SystemSchemas & ss) : component(component), systemSchemas(ss),
-        requestEndpoint(ss.getSystemSchema(SystemSchemaName::generalRDResponse).getInternalSchema(),
-                        ss.getSystemSchema(SystemSchemaName::generalRDRequest).getInternalSchema()){}
+                                                                              requestEndpoint(ss.getSystemSchema(
+                                                                                      SystemSchemaName::generalRDResponse).getInternalSchema(),
+                                                                                              ss.getSystemSchema(
+                                                                                                      SystemSchemaName::generalRDRequest).getInternalSchema(),
+                                                                                              "ResourceDiscoveryConnection",
+                                                                                              "ResourceDiscoveryConnection") {}
 
 
     std::unique_ptr<SocketMessage> generateRegisterRequest();

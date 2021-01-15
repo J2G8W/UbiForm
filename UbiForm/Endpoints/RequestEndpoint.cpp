@@ -4,12 +4,12 @@
 
 void RequestEndpoint::listenForConnection(const char *base, int port) {
     throw SocketOpenError("Request socket trying to listen for connection",
-                          DataSenderEndpoint::endpointType, DataSenderEndpoint::endpointIdentifier);
+                          DataSenderEndpoint::socketType, DataSenderEndpoint::endpointIdentifier);
 }
 
 int RequestEndpoint::listenForConnectionWithRV(const char *base, int port) {
     throw SocketOpenError("Request socket trying to listen for connection",
-                          DataSenderEndpoint::endpointType, DataSenderEndpoint::endpointIdentifier);
+                          DataSenderEndpoint::socketType, DataSenderEndpoint::endpointIdentifier);
 }
 
 void RequestEndpoint::dialConnection(const char *url) {

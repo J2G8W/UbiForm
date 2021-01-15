@@ -10,8 +10,9 @@
 class PublisherEndpoint : public DataSenderEndpoint {
 
 public:
-    explicit PublisherEndpoint(std::shared_ptr<EndpointSchema> sendSchema, const std::string& endpointIdentifier="Publisher") :
-        DataSenderEndpoint(sendSchema, endpointIdentifier, SocketType::Publisher){
+    explicit PublisherEndpoint(std::shared_ptr<EndpointSchema> sendSchema, const std::string &endpointType,
+                               const std::string &endpointIdentifier = "Publisher") :
+        DataSenderEndpoint(sendSchema, endpointIdentifier, SocketType::Publisher, endpointType){
         senderSocket = new nng_socket ;
         int rv;
         if ((rv = nng_pub0_open(senderSocket)) != 0) {

@@ -16,9 +16,12 @@ class BackgroundRequester {
 public:
     BackgroundRequester(Component* c , SystemSchemas& ss):component(c), systemSchemas(ss),
     // Purposely make the request endpoint have an empty schema
-        requestEndpoint(ss.getSystemSchema(SystemSchemaName::generalEndpointResponse).getInternalSchema(),
-                        ss.getSystemSchema(SystemSchemaName::generalEndpointRequest).getInternalSchema(),
-                                "BackgroundRequester"){}
+                                                          requestEndpoint(ss.getSystemSchema(
+                                                                  SystemSchemaName::generalEndpointResponse).getInternalSchema(),
+                                                                          ss.getSystemSchema(
+                                                                                  SystemSchemaName::generalEndpointRequest).getInternalSchema(),
+                                                                          "BackgroundRequester",
+                                                                          "BackgroundRequester") {}
 
     void requestAndCreateConnection(const std::string &baseAddress, int port,
                                     const std::string &localEndpointType,

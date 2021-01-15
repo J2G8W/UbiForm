@@ -12,8 +12,9 @@
 class SubscriberEndpoint : public DataReceiverEndpoint {
 
 public:
-    explicit SubscriberEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, const std::string& endpointIdentifier = "Subscriber") :
-            DataReceiverEndpoint(receiveSchema, endpointIdentifier, SocketType::Subscriber){
+    explicit SubscriberEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, const std::string &endpointType,
+                                const std::string &endpointIdentifier = "Subscriber") :
+            DataReceiverEndpoint(receiveSchema, endpointIdentifier, SocketType::Subscriber, endpointType){
         receiverSocket = new nng_socket;
         int rv;
         if ((rv = nng_sub0_open(receiverSocket)) != 0) {

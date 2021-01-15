@@ -22,7 +22,7 @@ int ReplyEndpoint::listenForConnectionWithRV(const char *base, int port) {
 }
 
 void ReplyEndpoint::dialConnection(const char *url) {
-    throw SocketOpenError("Reply endpoint is trying to dial a connection!", DataSenderEndpoint::endpointType, DataSenderEndpoint::endpointIdentifier);
+    throw SocketOpenError("Reply endpoint is trying to dial a connection!", DataSenderEndpoint::socketType, DataSenderEndpoint::endpointIdentifier);
 }
 
 void ReplyEndpoint::setTimeout(int timeout) {

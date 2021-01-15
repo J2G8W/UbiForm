@@ -5,7 +5,7 @@
 // Use smart pointers to avoid complex memory management
 std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
     if(!socketOpen){
-        throw SocketOpenError("Could not receive message" , endpointType, endpointIdentifier);
+        throw SocketOpenError("Could not receive message" , socketType, endpointIdentifier);
     }
     int rv;
     char *buffer = nullptr;
@@ -37,7 +37,7 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
 // This is the public interface for asynchronously receiving messages
 void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *furtherUserData) {
     if(!socketOpen){
-        throw SocketOpenError("Could not async-receive message, socket is closed", endpointType, endpointIdentifier);
+        throw SocketOpenError("Could not async-receive message, socket is closed", socketType, endpointIdentifier);
     }
     auto *asyncData = new AsyncData(callb, this->receiverSchema, furtherUserData);
 
