@@ -8,6 +8,11 @@
 #include "../SocketMessage.h"
 #include "../SchemaRepresentation/EndpointSchema.h"
 
+/**
+ * This class represents a data receiver in our design. I have made the choice that it is only able to dial, not listen
+ * as this fits with the IOT scope best. The receive of messages is the same no matter the type of endpoint BUT our dialing
+ * process is different, hence why this is extended in the child classes
+ */
 class DataReceiverEndpoint {
 private:
     static void asyncCallback(void *data);
@@ -15,12 +20,11 @@ private:
     // Never freed...
     nng_aio *uniqueEndpointAioPointer;
 
-    // This is the data structure which we will pass into our callback
-    // Note this is not part of any class, it is hidden
+    /**
+     * This is the data structure used only internally for our async functions, it can have arbitrary data in it with
+     * the void*.
+     */
     struct AsyncData {
-        // The uniqueEndpointAioPointer has to be initialised by C style semantics
-
-
         void (*callback)(SocketMessage *, void *);
 
         std::shared_ptr<EndpointSchema> endpointSchema;
@@ -31,13 +35,13 @@ private:
                   void *furtherUserData, DataReceiverEndpoint* dataReceiverEndpoint) :
                 callback(cb), endpointSchema(endpointSchema) {
 
-            // So we allocate the async_io with a pointer to our asyncCallback and a pointer to this object
             this->owningEndpoint = dataReceiverEndpoint;
             this->furtherUserData = furtherUserData;
         };
     };
 
 protected:
+    // These are all used by child classes in reporting errors
     std::string endpointIdentifier;
     std::string endpointType;
     SocketType socketType;
@@ -56,29 +60,56 @@ public:
         receiverSchema = es;
     };
 
-    // This is implemented by extending classes as we want to specify socket type and do other useful things
+    /**
+    * Extended by child classes, to dial external connections
+    * @param url
+     * @throws NngError when we are unable to dial the url properly
+    */
     virtual void dialConnection(const char *url) = 0;
 
-    // Standard blocking receive of message.
+    /**
+     * Blocking receive of a message
+     * @return The message that was sent
+     * @throws NngError when the underlying connection, fails or timeouts or some other error
+     * @throws ValidationError when the message we receive does not conform to our schema
+     * @throws SocketOpenError when our socket has been closed
+     */
     std::unique_ptr<SocketMessage> receiveMessage();
 
-    // Here we receive a message asynchronously, it accepts a function which does some work on a SocketMessage
-    // NOTE that the SocketMessage should not be freed by the given func (library handles the memory management)
-    // Concept is that API users will provide "furtherData" which will be given to our callback as the void* pointer
-    void asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *);
 
+    /**
+     * We receive a message asynchronously, accepting a function which does work a SocketMessage. The function handles
+     * the memory management of the SocketMessage. Additionally we are able to pass in arbitrary data as additionalData
+     * which is then accessible as the second attribute in the called function
+     * @param callb - The function which is called when a SocketMessage is received - DON'T BE A BLOCKING FUNCTION or we
+     * can get deadlock scenarios
+     * @param additionalData - Extra data which you want to be available in the call back
+     * @throws SocketOpenError - When the socket is not open
+     */
+    void asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void * additionalData);
+
+    /**
+     * Get the URL we are currently dialled onto
+     * @return dialUrl
+     */
     std::string getDialUrl() { return dialUrl; }
 
     std::string &getReceiverEndpointID() { return endpointIdentifier; }
 
     std::string &getReceiverEndpointType() { return endpointType; }
 
+    /**
+     * This function close the socket, it is implemented in each individual endpoint as we do different things for different
+     * ones
+     */
     virtual void closeSocket() = 0;
 
     virtual ~DataReceiverEndpoint() = default;
 
-    // -1 is infinite time
-    // 0+ is in milliseconds
+    /**
+     * Set the timeout of the function for its receive functions. This applies to both Blocking and Async receives.
+     * @param ms_time - The time in milliseconds we want to set, note that -1 will give INFINITE TIME
+     */
     void setReceiveTimeout(int ms_time);
 };
 

@@ -8,8 +8,14 @@
 
 #include "../SchemaRepresentation/EndpointSchema.h"
 
+/**
+ * Class used to represent our endpoints which send data.
+ */
 class DataSenderEndpoint {
 private:
+    /**
+     * This is called once we are happy the message has been properly sent, and we cleanup the mess
+     */
     static void asyncCleanup(void *);
 
     int numSendFails = 0;
@@ -41,9 +47,19 @@ public:
 
     virtual int listenForConnectionWithRV(const char *base, int port) = 0;
 
-
+    /**
+     * Blocking send on our Socket
+     * @param s - Message to send
+     * @throws NngError - When there is underlying socket issues
+     * @throws SocketOpenError - When the socket has already been closed
+     */
     void sendMessage(SocketMessage &s);
 
+    /**
+     * Non blocking send on our socket
+     * @param s - Message to send
+     * @throws NngError - When we run out of space or something. Won't error on a send error (just throws it away)
+     */
     void asyncSendMessage(SocketMessage &s);
 
     int getListenPort() { return port; }
@@ -59,6 +75,10 @@ public:
         nng_aio_free(nngAioPointer);
     }
 
+    /**
+     * Set timeout for our sending (only blocking send)
+     * @param ms_time - Milliseconds to wait before erroring out. (-1 means inifinite time)
+     */
     void setSendTimeout(int ms_time);
 };
 

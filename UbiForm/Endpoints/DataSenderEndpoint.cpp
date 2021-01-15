@@ -36,7 +36,6 @@ void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
     nng_aio_set_msg(nngAioPointer, msg);
 
     nng_send_aio(*senderSocket, nngAioPointer);
-
 }
 
 void DataSenderEndpoint::asyncCleanup(void *data) {

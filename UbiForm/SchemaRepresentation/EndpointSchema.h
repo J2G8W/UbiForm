@@ -9,7 +9,10 @@
 #include "../SocketMessage.h"
 #include "../Utilities/SystemEnums.h"
 
-
+/**
+ * This class represents a JSON-schema for some endpoint in our component. It allows us to strongly type our incoming
+ * and outgoing messages from an endpoint
+ */
 class EndpointSchema {
     friend class ComponentManifest;
 
