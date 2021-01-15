@@ -12,23 +12,14 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
 
     size_t sz;
 
-    // Is effectively a blocking receive which waits until the correct information comes in until it returns
-    while (true) {
-        try{
-            if ((rv = nng_recv(*receiverSocket, &buffer, &sz, NNG_FLAG_ALLOC)) == 0) {
-                std::unique_ptr<SocketMessage> receivedMessage = std::make_unique<SocketMessage>(buffer);
-                receiverSchema->validate(*receivedMessage);
-                nng_free(buffer, sz);
-                return receivedMessage;
-            }else{
-                throw NngError(rv, "nng_recv");
-            }
-        }catch(NngError &e){
-            throw;
-        }
-        catch(std::logic_error &e) {
-            std::cerr << "Failed message receive as:\n" << e.what() << "- retrying" << std::endl ;
-        }
+
+    if ((rv = nng_recv(*receiverSocket, &buffer, &sz, NNG_FLAG_ALLOC)) == 0) {
+        std::unique_ptr<SocketMessage> receivedMessage = std::make_unique<SocketMessage>(buffer);
+        receiverSchema->validate(*receivedMessage);
+        nng_free(buffer, sz);
+        return receivedMessage;
+    }else{
+        throw NngError(rv, "nng_recv");
     }
 }
 

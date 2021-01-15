@@ -10,13 +10,10 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
     // Effectively treat this as cast, as the pointer is still to stack memory
     const char *buffer = messageTextObject.c_str();
 
-    try {
-        senderSchema->validate(s);
-        if ((rv = nng_send(*senderSocket, (void *) buffer, strlen(buffer) + 1, 0)) != 0) {
-            throw NngError(rv, "nng_send");
-        }
-    } catch (std::logic_error &e){
-        std::cerr << "Message couldn't send as: " << e.what() << std::endl;
+
+    senderSchema->validate(s);
+    if ((rv = nng_send(*senderSocket, (void *) buffer, strlen(buffer) + 1, 0)) != 0) {
+        throw NngError(rv, "nng_send");
     }
 }
 
