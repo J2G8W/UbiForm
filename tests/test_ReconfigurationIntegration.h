@@ -52,6 +52,11 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1){
     senderComponent.getBackgroundRequester().requestCloseSocketOfType(receiverCompAddress,"generatedSubscriber");
     ASSERT_EQ(receiverEndpoints->size(), 0);
     ASSERT_THROW(subEndpoint->receiveMessage(),SocketOpenError);
+
+    std::string senderEndpointID = senderEndpoints->at(0)->getSenderEndpointID();
+    senderComponent.closeSocketOfId(senderEndpointID);
+    ASSERT_EQ(senderEndpoints->size(),0);
+    ASSERT_THROW(senderComponent.getSenderEndpointById(senderEndpointID),std::out_of_range);
 }
 
 

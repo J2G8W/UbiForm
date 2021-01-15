@@ -194,6 +194,9 @@ public:
      */
     void closeSocketsOfType(const std::string& endpointType);
 
+
+    void closeSocketOfId(const std::string& endpointId);
+
     /// Pretty much everything should stop once component is deleted
     ~Component();
 };

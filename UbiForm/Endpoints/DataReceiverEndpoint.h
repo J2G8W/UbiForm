@@ -67,6 +67,7 @@ public:
     std::string getDialUrl(){return dialUrl;}
 
     std::string& getReceiverEndpointID(){return endpointIdentifier;}
+    std::string& getReceiverEndpointType(){return endpointType;}
 
     virtual void closeSocket() = 0;
     virtual ~DataReceiverEndpoint() = default;

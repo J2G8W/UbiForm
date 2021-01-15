@@ -44,6 +44,7 @@ public:
     int getListenPort(){return port;}
 
     std::string& getSenderEndpointID(){return endpointIdentifier;}
+    std::string& getSenderEndpointType(){return endpointType;}
 
     virtual void closeSocket() = 0;
     virtual ~DataSenderEndpoint(){

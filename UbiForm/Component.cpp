@@ -320,3 +320,53 @@ int Component::getResourceDiscoveryHubPort() {
     }
 }
 
+void Component::closeSocketOfId(const std::string &endpointId) {
+    // We do the same thing for receiver and senders.
+    // Endpoints which are both don't matter about being closed twice
+
+
+    auto receiverEndpoint = idReceiverEndpoints.find(endpointId);
+    if(receiverEndpoint != idReceiverEndpoints.end()){
+        // Close the socket itself
+        receiverEndpoint->second->closeSocket();
+
+        // Get our endpoint out of the "By Type" container
+        auto possibleEndpointContainer = typeReceiverEndpoints.find(receiverEndpoint->second->getReceiverEndpointType());
+        if(possibleEndpointContainer != typeReceiverEndpoints.end()) {
+            std::vector<std::shared_ptr<DataReceiverEndpoint>>::iterator it;
+            it = possibleEndpointContainer->second->begin();
+            // Iterate over our possible container, used iterator due to deletions
+            while(it != possibleEndpointContainer->second->end()){
+                // If the pointers are equal (so they point at the same thing)
+                if((*it) == receiverEndpoint->second){
+                    it = possibleEndpointContainer->second->erase(it);
+                }else{
+                    it ++;
+                }
+            }
+        }
+
+        idReceiverEndpoints.erase(receiverEndpoint);
+    }
+
+    auto senderEndpoint = idSenderEndpoints.find(endpointId);
+    if(senderEndpoint != idSenderEndpoints.end()){
+        senderEndpoint->second->closeSocket();
+
+        auto possibleEndpointContainer = typeSenderEndpoints.find(senderEndpoint->second->getSenderEndpointType());
+        if(possibleEndpointContainer != typeSenderEndpoints.end()) {
+            std::vector<std::shared_ptr<DataSenderEndpoint>>::iterator it;
+            it = possibleEndpointContainer->second->begin();
+            while(it != possibleEndpointContainer->second->end()){
+                if((*it) == senderEndpoint->second){
+                    it = possibleEndpointContainer->second->erase(it);
+                }else{
+                    it ++;
+                }
+            }
+        }
+
+        idSenderEndpoints.erase(senderEndpoint);
+    }
+}
+
