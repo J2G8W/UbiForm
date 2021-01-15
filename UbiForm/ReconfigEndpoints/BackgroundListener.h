@@ -53,6 +53,8 @@ public:
     std::unique_ptr<SocketMessage> handleCloseSocketsRequest(SocketMessage &request);
 
     std::unique_ptr<SocketMessage> handleCloseRDH(SocketMessage &request);
+
+    std::unique_ptr<SocketMessage> handleCreateAndDial(SocketMessage &request);
 };
 
 

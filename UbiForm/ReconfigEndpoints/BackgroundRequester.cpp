@@ -105,9 +105,15 @@ int BackgroundRequester::requestCreateRDH(const std::string &componentUrl) {
     }
 }
 
-// Is necceassry?
 void BackgroundRequester::requestToCreateAndDial(const std::string &componentUrl, const std::string &socketType,
                                                  const std::string &endpointType, const std::string &remoteUrl) {
+    SocketMessage sm;
+
+    sm.addMember("endpointType", endpointType);
+    sm.addMember("requestType", BACKGROUND_REQUEST_CONNECTION);
+    sm.addMember("dialUrl",remoteUrl);
+
+    auto reply = sendRequest(componentUrl, sm);
 }
 
 // Return empty if error reply

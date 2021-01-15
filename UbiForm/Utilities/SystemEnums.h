@@ -51,6 +51,7 @@ enum ConnectionType {
 #define BACKGROUND_GET_LOCATIONS_OF_RDH "locations_rdh"
 #define BACKGROUND_CLOSE_SOCKETS "close_sockets"
 #define BACKGROUND_CLOSE_RDH "close_rdh"
+#define BACKGROUND_REQUEST_DIAL "req_dial"
 
 // Strings used for Resource Discovery comms
 // NOTE THAT THESE ARE ALSO DEFINED IN "SystemSchemas/resource_discovery_*_request.json"

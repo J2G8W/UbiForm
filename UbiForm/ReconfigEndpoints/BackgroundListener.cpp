@@ -239,3 +239,11 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleCloseRDH(SocketMessage 
     reply->addMember("error", false);
     return reply;
 }
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleCreateAndDial(SocketMessage& sm) {
+    std::string socketType = component->getComponentManifest().getSocketType(sm.getString("endpointType"));
+    component->createEndpointAndDial(socketType,sm.getString("endpointType"), sm.getString("dialUrl"));
+    auto reply = std::make_unique<SocketMessage>();
+    reply->addMember("error",false);
+    return reply;
+}
