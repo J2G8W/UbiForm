@@ -10,10 +10,10 @@
 
 class ReplyEndpoint : public DataReceiverEndpoint, public DataSenderEndpoint{
 public:
-    ReplyEndpoint(std::shared_ptr<EndpointSchema> replySchema, std::shared_ptr<EndpointSchema> requestSchema,
+    ReplyEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema,
                   const std::string &endpointType, const std::string &endpointIdentifier = "Reply") :
-        DataReceiverEndpoint(requestSchema, endpointIdentifier, SocketType::Reply, endpointType),
-        DataSenderEndpoint(replySchema, endpointIdentifier, SocketType::Reply, endpointType){
+        DataReceiverEndpoint(receiveSchema, endpointIdentifier, SocketType::Reply, endpointType),
+        DataSenderEndpoint(sendSchema, endpointIdentifier, SocketType::Reply, endpointType){
 
         senderSocket = new nng_socket;
 

@@ -18,12 +18,13 @@ private:
 
 public:
     BackgroundListener(Component * c, SystemSchemas & ss) : component(c), systemSchemas(ss),
-                                                            replyEndpoint(ss.getSystemSchema(
-                                                                    SystemSchemaName::generalEndpointResponse).getInternalSchema(),
-                                                                          ss.getSystemSchema(
-                                                                                  SystemSchemaName::generalEndpointRequest).getInternalSchema(),
-                                                                          "BackgroundListenerReply",
-                                                                          "BackgroundListenerReply") {
+                                                            replyEndpoint(
+                                                                    ss.getSystemSchema(
+                                                                            SystemSchemaName::generalEndpointRequest).getInternalSchema(),
+                                                                    ss.getSystemSchema(
+                                                                            SystemSchemaName::generalEndpointResponse).getInternalSchema(),
+                                                                    "BackgroundListenerReply",
+                                                                    "BackgroundListenerReply") {
     }
 
     void startBackgroundListen(const std::string &baseAddress, int port);

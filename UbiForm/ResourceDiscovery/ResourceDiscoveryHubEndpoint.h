@@ -27,12 +27,13 @@ private:
 
 public:
     explicit ResourceDiscoveryHubEndpoint(SystemSchemas &ss) : rdStore(ss),
-                                                               replyEndpoint(ss.getSystemSchema(
-                                                                       SystemSchemaName::generalRDResponse).getInternalSchema(),
-                                                                             ss.getSystemSchema(
-                                                                                     SystemSchemaName::generalRDRequest).getInternalSchema(),
-                                                                                "ResourceDiscoveryHub",
-                                                                             "ResourceDiscoveryHub") {}
+                                                               replyEndpoint(
+                                                                       ss.getSystemSchema(
+                                                                               SystemSchemaName::generalRDRequest).getInternalSchema(),
+                                                                       ss.getSystemSchema(
+                                                                               SystemSchemaName::generalRDResponse).getInternalSchema(),
+                                                                       "ResourceDiscoveryHub",
+                                                                       "ResourceDiscoveryHub") {}
     /**
      * Start the ResourceDiscoveryHub. In starting it we start a new thread
      * @param baseAddress - The address without the ":port" bit
