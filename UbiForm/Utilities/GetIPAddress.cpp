@@ -30,7 +30,7 @@ std::vector<std::string> getLinuxIpAddresses() {
                             host, NI_MAXHOST,
                             nullptr, 0, NI_NUMERICHOST);
             if (s != 0) {
-                throw std::logic_error("getnameinfo() failed: "+ std::string(gai_strerror(s)));
+                throw std::logic_error("getnameinfo() failed: " + std::string(gai_strerror(s)));
             }
             returnAddresses.emplace_back(host);
         }

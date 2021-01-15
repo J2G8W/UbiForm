@@ -4,7 +4,7 @@
 #include <nng/supplemental/util/platform.h>
 
 
-void SubscriberEndpoint::dialConnection(const char *url){
+void SubscriberEndpoint::dialConnection(const char *url) {
     int rv;
     if ((rv = nng_dial(*receiverSocket, url, nullptr, 0)) != 0) {
         throw NngError(rv, "Dialing " + std::string(url) + " for a subscriber connection");
@@ -25,9 +25,9 @@ SubscriberEndpoint::~SubscriberEndpoint() {
         // Make sure that the messages are flushed
         nng_msleep(200);
         // We only have one actual socket so only need to close 1.
-        if ( nng_close(*receiverSocket) == NNG_ECLOSED) {
+        if (nng_close(*receiverSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
-        }else{
+        } else {
             std::cout << "Subscriber socket " << DataReceiverEndpoint::endpointIdentifier << " closed" << std::endl;
         }
 
@@ -36,9 +36,9 @@ SubscriberEndpoint::~SubscriberEndpoint() {
 }
 
 void SubscriberEndpoint::closeSocket() {
-    if ( nng_close(*receiverSocket) == NNG_ECLOSED) {
+    if (nng_close(*receiverSocket) == NNG_ECLOSED) {
         std::cerr << "This socket had already been closed" << std::endl;
-    }else{
+    } else {
         std::cout << "Subscriber socket " << DataReceiverEndpoint::endpointIdentifier << " closed" << std::endl;
     }
     socketOpen = false;

@@ -2,7 +2,7 @@
 
 // Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(SocketMessage &s) {
-    if(!socketOpen){
+    if (!socketOpen) {
         throw SocketOpenError("Could not send message, socket is closed", socketType, endpointIdentifier);
     }
     int rv;
@@ -18,19 +18,19 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
 }
 
 void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
-    if(!socketOpen){
+    if (!socketOpen) {
         throw SocketOpenError("Could not async-send message, socket is closed", socketType, endpointIdentifier);
     }
     nng_aio_wait(nngAioPointer);
     std::string text = s.stringify();
-    const char * textArray = text.c_str();
+    const char *textArray = text.c_str();
 
-    nng_msg * msg;
+    nng_msg *msg;
     int rv;
-    if ((rv = nng_msg_alloc(&msg, 0)) !=0){
+    if ((rv = nng_msg_alloc(&msg, 0)) != 0) {
         throw NngError(rv, "Allocating async message space");
     }
-    if ((rv =nng_msg_append(msg, (void*) textArray, text.size()+1)) != 0){
+    if ((rv = nng_msg_append(msg, (void *) textArray, text.size() + 1)) != 0) {
         throw NngError(rv, "Creating Async Message");
     }
     nng_aio_set_msg(nngAioPointer, msg);
@@ -39,20 +39,20 @@ void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
 
 }
 
-void DataSenderEndpoint::asyncCleanup(void * data) {
-    auto * asyncInput = static_cast<DataSenderEndpoint *>(data);
+void DataSenderEndpoint::asyncCleanup(void *data) {
+    auto *asyncInput = static_cast<DataSenderEndpoint *>(data);
 
-    if (nng_aio_result(asyncInput->nngAioPointer) != 0){
+    if (nng_aio_result(asyncInput->nngAioPointer) != 0) {
         // Failed message send, we do cleanup
-        asyncInput->numSendFails ++;
-        nng_msg * msg = nng_aio_get_msg(asyncInput->nngAioPointer);
+        asyncInput->numSendFails++;
+        nng_msg *msg = nng_aio_get_msg(asyncInput->nngAioPointer);
         nng_msg_free(msg);
     }
 }
 
 void DataSenderEndpoint::setSendTimeout(int ms_time) {
-    int rv = nng_socket_set_ms(*senderSocket, NNG_OPT_SENDTIMEO,ms_time);
-    if(rv != 0){
-        throw NngError(rv,"Set send timeout");
+    int rv = nng_socket_set_ms(*senderSocket, NNG_OPT_SENDTIMEO, ms_time);
+    if (rv != 0) {
+        throw NngError(rv, "Set send timeout");
     }
 }

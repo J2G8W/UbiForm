@@ -8,12 +8,12 @@
 #define SUBSCRIBER_COMPONENT "SUBSCRIBER"
 #define PUBLISHER_COMPONENT "PUBLISHER"
 
-int main(int argc, char ** argv){
-    if (argc >= 2){
-        if (strcmp(argv[1], SUBSCRIBER_COMPONENT) == 0){
+int main(int argc, char **argv) {
+    if (argc >= 2) {
+        if (strcmp(argv[1], SUBSCRIBER_COMPONENT) == 0) {
             Component component("tcp://127.0.0.2");
 
-            FILE* pFile = fopen("JsonFiles/SubscriberManifest1.json", "r");
+            FILE *pFile = fopen("JsonFiles/SubscriberManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
             component.specifyManifest(pFile);
             fclose(pFile);
@@ -29,8 +29,8 @@ int main(int argc, char ** argv){
             std::unique_ptr<SocketMessage> s;
 
             auto subscriberEndpoints = component.getReceiverEndpointsByType("subscriberExample");
-            while(true){
-                for (const auto& endpoint : *subscriberEndpoints) {
+            while (true) {
+                for (const auto &endpoint : *subscriberEndpoints) {
                     s = endpoint->receiveMessage();
 
                     std::string date = s->getString("date");
@@ -44,10 +44,10 @@ int main(int argc, char ** argv){
             }
 
         }
-        if (strcmp(argv[1], PUBLISHER_COMPONENT) == 0){
+        if (strcmp(argv[1], PUBLISHER_COMPONENT) == 0) {
             Component component("tcp://127.0.0.1");
 
-            FILE* pFile = fopen("JsonFiles/PublisherManifest1.json", "r");
+            FILE *pFile = fopen("JsonFiles/PublisherManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
             component.specifyManifest(pFile);
             fclose(pFile);
@@ -59,7 +59,7 @@ int main(int argc, char ** argv){
             SocketMessage s;
             bool valid = true;
             auto publisherEndpoints = component.getSenderEndpointsByType("publisherExample");
-            while(true) {
+            while (true) {
                 if (!publisherEndpoints->empty()) {
                     s.addMember("reverse", valid);
                     valid = !valid;
@@ -75,9 +75,8 @@ int main(int argc, char ** argv){
                 nng_msleep(1000);
             }
         }
-    }
-    else{
-        std::cerr << "Error usage is " << argv[0] << " " << PUBLISHER_COMPONENT <<"|"<< SUBSCRIBER_COMPONENT << "\n";
+    } else {
+        std::cerr << "Error usage is " << argv[0] << " " << PUBLISHER_COMPONENT << "|" << SUBSCRIBER_COMPONENT << "\n";
     }
 }
 

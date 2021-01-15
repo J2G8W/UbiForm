@@ -25,16 +25,16 @@ find_package(RapidJSON)
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
         RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
+if (result)
     message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-endif()
+endif ()
 execute_process(COMMAND ${CMAKE_COMMAND} --build .
         RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
+if (result)
     message(FATAL_ERROR "Build step for googletest failed: ${result}")
-endif()
+endif ()
 
 # Prevent overriding the parent project's compiler/linker
 # settings on Windows
@@ -51,7 +51,7 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 # later. Otherwise we have to add them here ourselves.
 if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
-endif()
+endif ()
 
 set(endpointFiles ../UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoints/DataReceiverEndpoint.cpp
         ../UbiForm/Endpoints/DataSenderEndpoint.h ../UbiForm/Endpoints/DataSenderEndpoint.cpp
@@ -67,21 +67,19 @@ set(resourceDiscovery ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.
         ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.h)
 
 set(schemaFiles ../UbiForm/SchemaRepresentation/EndpointSchema.h ../UbiForm/SchemaRepresentation/EndpointSchema.cpp
-        ../UbiForm/SystemSchemas/SystemSchemas.h  ../UbiForm/SystemSchemas/SystemSchemas.cpp
+        ../UbiForm/SystemSchemas/SystemSchemas.h ../UbiForm/SystemSchemas/SystemSchemas.cpp
         ../UbiForm/SchemaRepresentation/GenericSchema.cpp ../UbiForm/SchemaRepresentation/GenericSchema.h)
 
 set(utilityFiles ../UbiForm/Utilities/UtilityFunctions.h ../UbiForm/Utilities/UtilityFunctions.cpp
         ../UbiForm/Utilities/SystemEnums.h ../UbiForm/Utilities/SystemEnums.cpp ../UbiForm/Utilities/GetIPAddress.cpp ../UbiForm/Utilities/GetIPAddress.h)
 
 set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
-        ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp  )
-
-
+        ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp)
 
 
 # Create library
 file(COPY ../UbiForm/SystemSchemas DESTINATION .)
-add_library(UbiForm  ${endpointFiles} ${reconfigEndpoints} ${resourceDiscovery} ${schemaFiles} ${utilityFiles} ${componentFiles})
+add_library(UbiForm ${endpointFiles} ${reconfigEndpoints} ${resourceDiscovery} ${schemaFiles} ${utilityFiles} ${componentFiles})
 target_link_libraries(UbiForm gtest_main gmock_main)
 
 # Create tests
@@ -92,7 +90,7 @@ if (BUILD_TESTS)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm ${NNG})
     file(COPY ../tests/TestManifests DESTINATION .)
-endif(BUILD_TESTS)
+endif (BUILD_TESTS)
 
 # Create examples
 if (BUILD_EXAMPLES)
@@ -111,4 +109,4 @@ if (BUILD_EXAMPLES)
 
     # Copy over our base JSON files for our examples to use
     file(COPY ../examples/JsonFiles DESTINATION .)
-endif(BUILD_EXAMPLES)
+endif (BUILD_EXAMPLES)

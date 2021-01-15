@@ -19,7 +19,7 @@ std::string convertValueType(ValueType vt) {
 }
 
 std::string convertFromSocketType(SocketType st) {
-    switch(st){
+    switch (st) {
         case Pair:
             return PAIR;
         case Publisher:
@@ -34,17 +34,17 @@ std::string convertFromSocketType(SocketType st) {
 }
 
 SocketType convertToSocketType(const std::string &st) {
-    if(st == PAIR){
+    if (st == PAIR) {
         return SocketType::Pair;
-    }else if(st == PUBLISHER){
+    } else if (st == PUBLISHER) {
         return SocketType::Publisher;
-    }else if(st == SUBSCRIBER){
+    } else if (st == SUBSCRIBER) {
         return SocketType::Subscriber;
-    }else if(st == REPLY){
+    } else if (st == REPLY) {
         return SocketType::Reply;
-    }else if(st == REQUEST){
+    } else if (st == REQUEST) {
         return SocketType::Request;
-    }else {
+    } else {
         throw std::logic_error("No socket type corresponds to " + st);
     }
 }

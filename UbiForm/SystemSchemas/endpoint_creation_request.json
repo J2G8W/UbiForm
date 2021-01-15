@@ -5,7 +5,11 @@
   "properties": {
     "socketType": {
       "type": "string",
-      "enum": ["pair","publisher","subscriber"]
+      "enum": [
+        "pair",
+        "publisher",
+        "subscriber"
+      ]
     },
     "endpointType": {
       "type": "string"

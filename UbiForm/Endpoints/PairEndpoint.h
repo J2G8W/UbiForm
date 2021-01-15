@@ -12,15 +12,15 @@ private:
 public:
     PairEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema,
                  const std::string &endpointType, const std::string &endpointIdentifier = "Pair") :
-        DataReceiverEndpoint(receiveSchema,endpointIdentifier,SocketType::Pair, endpointType),
-        DataSenderEndpoint(sendSchema,endpointIdentifier, SocketType::Pair, endpointType){
+            DataReceiverEndpoint(receiveSchema, endpointIdentifier, SocketType::Pair, endpointType),
+            DataSenderEndpoint(sendSchema, endpointIdentifier, SocketType::Pair, endpointType) {
 
         senderSocket = new nng_socket;
 
         int rv;
         if ((rv = nng_pair0_open(senderSocket)) != 0) {
             throw NngError(rv, "Making pair connection");
-        }else{
+        } else {
             DataReceiverEndpoint::socketOpen = true;
             DataSenderEndpoint::socketOpen = true;
         }
@@ -28,9 +28,12 @@ public:
         receiverSocket = senderSocket;
     }
 
-    void listenForConnection(const char *base, int port) override ;
+    void listenForConnection(const char *base, int port) override;
+
     int listenForConnectionWithRV(const char *base, int port) override;
+
     void dialConnection(const char *url) override;
+
     void closeSocket() override;
 
 

@@ -4,8 +4,8 @@
 
 void ReplyEndpoint::listenForConnection(const char *base, int port) {
     int rv = listenForConnectionWithRV(base, port);
-    if (rv != 0){
-        throw NngError(rv,"Listening on " + std::string(base));
+    if (rv != 0) {
+        throw NngError(rv, "Listening on " + std::string(base));
     }
 }
 
@@ -13,7 +13,7 @@ int ReplyEndpoint::listenForConnectionWithRV(const char *base, int port) {
     int rv;
     nng_listener l;
     std::string addr = std::string(base) + ":" + std::to_string(port);
-    if((rv = nng_listen(*senderSocket, addr.c_str(), &l, 0)) != 0) {
+    if ((rv = nng_listen(*senderSocket, addr.c_str(), &l, 0)) != 0) {
         return rv;
     }
     this->port = port;
@@ -22,7 +22,8 @@ int ReplyEndpoint::listenForConnectionWithRV(const char *base, int port) {
 }
 
 void ReplyEndpoint::dialConnection(const char *url) {
-    throw SocketOpenError("Reply endpoint is trying to dial a connection!", DataSenderEndpoint::socketType, DataSenderEndpoint::endpointIdentifier);
+    throw SocketOpenError("Reply endpoint is trying to dial a connection!", DataSenderEndpoint::socketType,
+                          DataSenderEndpoint::endpointIdentifier);
 }
 
 
@@ -30,7 +31,7 @@ void ReplyEndpoint::closeSocket() {
     if (DataReceiverEndpoint::socketOpen && DataSenderEndpoint::socketOpen) {
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
-        }else{
+        } else {
             std::cout << "Reply socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
         DataReceiverEndpoint::socketOpen = false;
@@ -46,7 +47,7 @@ ReplyEndpoint::~ReplyEndpoint() {
         // We only have one actual socket so only need to close 1.
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
-        }else{
+        } else {
             std::cout << "Reply socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
     }

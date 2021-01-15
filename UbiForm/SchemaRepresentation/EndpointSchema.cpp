@@ -1,7 +1,6 @@
 #include "EndpointSchema.h"
 
 
-
 // Validate a socket message against the manifest
 void EndpointSchema::validate(const SocketMessage &messageToValidate) {
 
@@ -18,9 +17,9 @@ void EndpointSchema::validate(const rapidjson::Value &doc) {
 
         std::ostringstream errorText;
         errorText << "Invalid schema property: " << sb.GetString();
-        errorText << "\nInvalid keyword: " <<  validator.GetInvalidSchemaKeyword();
+        errorText << "\nInvalid keyword: " << validator.GetInvalidSchemaKeyword();
         errorText << "\nSchema: " << this->stringify();
-        errorText << "\nDocument: " << stringifyValue((rapidjson::Value&) doc);
+        errorText << "\nDocument: " << stringifyValue((rapidjson::Value &) doc);
         throw ValidationError(errorText.str());
     }
 }
@@ -32,27 +31,27 @@ void EndpointSchema::completeUpdate(rapidjson::Value &doc) {
 }
 
 SocketMessage *EndpointSchema::getSchemaObject() {
-    auto * returnObject = new SocketMessage(*JSON_rep, true);
+    auto *returnObject = new SocketMessage(*JSON_rep, true);
     return returnObject;
 }
 
-ValueType EndpointSchema::getValueType(const std::string& fieldName) {
+ValueType EndpointSchema::getValueType(const std::string &fieldName) {
     auto properties = (*JSON_rep)["properties"].GetObject();
 
-    if(!(properties.HasMember(fieldName))){ throw AccessError("There is no field of name - " + fieldName);}
-    if(!properties[fieldName].IsObject()){throw AccessError("That field is not an object - " + fieldName);}
+    if (!(properties.HasMember(fieldName))) { throw AccessError("There is no field of name - " + fieldName); }
+    if (!properties[fieldName].IsObject()) { throw AccessError("That field is not an object - " + fieldName); }
     auto fieldObj = properties[fieldName].GetObject();
-    if(!(fieldObj.HasMember("type"))){throw AccessError("There is no type field - " + fieldName);}
+    if (!(fieldObj.HasMember("type"))) { throw AccessError("There is no type field - " + fieldName); }
     std::string valueType = fieldObj["type"].GetString();
 
 
-    if (valueType == "number"){return ValueType::Number;}
-    else if (valueType == "string"){return ValueType::String;}
-    else if(valueType == "boolean"){return ValueType::Boolean;}
-    else if (valueType == "object"){return ValueType::Object;}
-    else if (valueType == "array"){return ValueType::Array;}
-    else if (valueType == "null"){return ValueType::Null;}
-    else{throw ValidationError("No valid type in the schema for field: " + fieldName);}
+    if (valueType == "number") { return ValueType::Number; }
+    else if (valueType == "string") { return ValueType::String; }
+    else if (valueType == "boolean") { return ValueType::Boolean; }
+    else if (valueType == "object") { return ValueType::Object; }
+    else if (valueType == "array") { return ValueType::Array; }
+    else if (valueType == "null") { return ValueType::Null; }
+    else { throw ValidationError("No valid type in the schema for field: " + fieldName); }
 }
 
 std::vector<std::string> EndpointSchema::getAllProperties() {
@@ -60,78 +59,78 @@ std::vector<std::string> EndpointSchema::getAllProperties() {
     auto propertiesJSON = (*JSON_rep)["properties"].GetObject();
     propertyNames.reserve(propertiesJSON.MemberCount());
 
-    for (auto& v : propertiesJSON) {
+    for (auto &v : propertiesJSON) {
         propertyNames.emplace_back(v.name.GetString());
     }
     return propertyNames;
 }
 
 std::vector<std::string> EndpointSchema::getRequired() {
-    if (!(JSON_rep->HasMember("required") && (*JSON_rep)["required"].IsArray())){
+    if (!(JSON_rep->HasMember("required") && (*JSON_rep)["required"].IsArray())) {
         return std::vector<std::string>();
     }
     std::vector<std::string> requiredAttributes;
     auto requiredJSON = (*JSON_rep)["required"].GetArray();
     requiredAttributes.reserve(requiredJSON.Size());
 
-    for (auto& v : requiredJSON) {
+    for (auto &v : requiredJSON) {
         requiredAttributes.emplace_back(v.GetString());
     }
     return requiredAttributes;
 }
 
-void EndpointSchema::addProperty(const std::string& name, ValueType type) {
+void EndpointSchema::addProperty(const std::string &name, ValueType type) {
     auto properties = (*JSON_rep)["properties"].GetObject();
     rapidjson::Value newValue;
     newValue.SetString(convertValueType(type), *allocator);
-    if (properties.HasMember(name)){
+    if (properties.HasMember(name)) {
         properties[name].GetObject()["type"] = newValue;
-    }else{
+    } else {
         rapidjson::Value newObject(rapidjson::kObjectType);
         newObject.AddMember(rapidjson::Value("type").Move(), newValue, *allocator);
         rapidjson::Value nameValue(name, *allocator);
-        properties.AddMember(nameValue,newObject,*allocator);
+        properties.AddMember(nameValue, newObject, *allocator);
     }
     changeSchema();
 }
 
-void EndpointSchema::removeProperty(const std::string& name){
+void EndpointSchema::removeProperty(const std::string &name) {
     auto properties = (*JSON_rep)["properties"].GetObject();
-    if (properties.HasMember(name)){
+    if (properties.HasMember(name)) {
         properties.RemoveMember(name);
     }
     changeSchema();
 }
 
-void EndpointSchema::removeRequired(const std::string &name){
+void EndpointSchema::removeRequired(const std::string &name) {
     bool changeMade = false;
-    if (JSON_rep->HasMember("required") && (*JSON_rep)["required"].IsArray()){
+    if (JSON_rep->HasMember("required") && (*JSON_rep)["required"].IsArray()) {
         auto jsonArray = (*JSON_rep)["required"].GetArray();
         // Rapidjson issue 1316 shows method here.
         // We don't iterate in for loop as we don't want to "double jump" on erase
-        for(auto itr = jsonArray.Begin(); itr != jsonArray.End() ; ){
-            if (strncmp(name.c_str(),itr->GetString(), name.size()) == 0){
+        for (auto itr = jsonArray.Begin(); itr != jsonArray.End();) {
+            if (strncmp(name.c_str(), itr->GetString(), name.size()) == 0) {
                 itr = jsonArray.Erase(itr);
                 changeMade = true;
-            }else{
-                itr ++;
+            } else {
+                itr++;
             }
         }
     }
-    if (changeMade){changeSchema();}
+    if (changeMade) { changeSchema(); }
 }
 
 void EndpointSchema::addRequired(const std::string &name) {
     bool changeNeeded = true;
     if (JSON_rep->HasMember("required") && (*JSON_rep)["required"].IsArray()) {
         auto jsonArray = (*JSON_rep)["required"].GetArray();
-        for (auto &v : jsonArray){
-            if (strncmp(name.c_str(), v.GetString(), name.size()) == 0){
+        for (auto &v : jsonArray) {
+            if (strncmp(name.c_str(), v.GetString(), name.size()) == 0) {
                 changeNeeded = false;
                 break;
             }
         }
-        if (changeNeeded){
+        if (changeNeeded) {
             rapidjson::Value v(name, *allocator);
             jsonArray.PushBack(v, *allocator);
             changeSchema();
@@ -148,10 +147,10 @@ void EndpointSchema::setArrayType(const std::string &name, ValueType type) {
     items.AddMember(rapidjson::Value("type", *allocator).Move(),
                     rapidjson::Value(convertValueType(type), *allocator).Move(),
                     *allocator);
-    if (properties[name].HasMember("items")){
+    if (properties[name].HasMember("items")) {
         properties[name].GetObject()["items"] = items;
 
-    }else {
+    } else {
         properties[name].AddMember("items", items, *allocator);
     }
     changeSchema();
@@ -162,19 +161,19 @@ void EndpointSchema::setArrayObject(const std::string &name, EndpointSchema &es)
     addProperty(name, ValueType::Array);
 
     rapidjson::Value items(rapidjson::kObjectType);
-    items.AddMember("type","object", *allocator);
+    items.AddMember("type", "object", *allocator);
 
     rapidjson::Value subObjectProperties(rapidjson::kObjectType);
-    subObjectProperties.CopyFrom((*es.JSON_rep)["properties"],*allocator);
-    items.AddMember("properties",subObjectProperties,*allocator);
+    subObjectProperties.CopyFrom((*es.JSON_rep)["properties"], *allocator);
+    items.AddMember("properties", subObjectProperties, *allocator);
 
     rapidjson::Value subObjectRequired(rapidjson::kArrayType);
-    subObjectRequired.CopyFrom((*es.JSON_rep)["required"],*allocator);
+    subObjectRequired.CopyFrom((*es.JSON_rep)["required"], *allocator);
     items.AddMember("required", subObjectRequired, *allocator);
 
-    if (properties[name].HasMember("items")){
+    if (properties[name].HasMember("items")) {
         properties[name].GetObject()["items"] = items;
-    }else {
+    } else {
         properties[name].AddMember("items", items, *allocator);
     }
     changeSchema();
@@ -186,19 +185,19 @@ void EndpointSchema::setSubObject(const std::string &name, EndpointSchema &es) {
 
     addProperty(name, ValueType::Object);
     rapidjson::Value subObjectProperties(rapidjson::kObjectType);
-    subObjectProperties.CopyFrom((*es.JSON_rep)["properties"],*allocator);
+    subObjectProperties.CopyFrom((*es.JSON_rep)["properties"], *allocator);
 
-    if(properties[name].HasMember("properties")){
+    if (properties[name].HasMember("properties")) {
         properties[name].GetObject()["properties"] = subObjectProperties;
-    }else {
+    } else {
         properties[name].AddMember("properties", subObjectProperties, *allocator);
     }
 
     rapidjson::Value subObjectRequired(rapidjson::kArrayType);
-    subObjectRequired.CopyFrom((*es.JSON_rep)["required"],*allocator);
-    if(properties[name].HasMember("required")){
+    subObjectRequired.CopyFrom((*es.JSON_rep)["required"], *allocator);
+    if (properties[name].HasMember("required")) {
         properties[name].GetObject()["required"] = subObjectRequired;
-    }else {
+    } else {
         properties[name].AddMember("required", subObjectRequired, *allocator);
     }
     changeSchema();

@@ -14,21 +14,22 @@ class SubscriberEndpoint : public DataReceiverEndpoint {
 public:
     explicit SubscriberEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, const std::string &endpointType,
                                 const std::string &endpointIdentifier = "Subscriber") :
-            DataReceiverEndpoint(receiveSchema, endpointIdentifier, SocketType::Subscriber, endpointType){
+            DataReceiverEndpoint(receiveSchema, endpointIdentifier, SocketType::Subscriber, endpointType) {
         receiverSocket = new nng_socket;
         int rv;
         if ((rv = nng_sub0_open(receiverSocket)) != 0) {
             throw NngError(rv, "Opening subscriber socket");
-        }else{
+        } else {
             socketOpen = true;
         }
     }
+
     void dialConnection(const char *url) override;
+
     void closeSocket() override;
+
     ~SubscriberEndpoint();
 };
-
-
 
 
 #endif //UBIFORM_SUBSCRIBERENDPOINT_H

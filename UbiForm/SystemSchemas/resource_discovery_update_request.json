@@ -5,7 +5,9 @@
   "properties": {
     "request": {
       "type": "string",
-      "enum": ["update"]
+      "enum": [
+        "update"
+      ]
     },
     "newManifest": {
       "type": "object"
@@ -14,5 +16,8 @@
       "type": "string"
     }
   },
-  "required": ["request","newManifest"]
+  "required": [
+    "request",
+    "newManifest"
+  ]
 }

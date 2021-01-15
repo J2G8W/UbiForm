@@ -3,12 +3,14 @@
   "id": "resource_discovery_response_v1",
   "type": "object",
   "properties": {
-    "error" : {
+    "error": {
       "type": "boolean"
     },
-    "errorMsg" : {
+    "errorMsg": {
       "type": "string"
     }
   },
-  "required": ["error"]
+  "required": [
+    "error"
+  ]
 }

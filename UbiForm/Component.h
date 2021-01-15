@@ -99,16 +99,14 @@ public:
     ///@}
 
 
-    ///@{
+
     /**
-     * We create endpoints of a certain socketType
+     *
      * @param - Type refers to an identifier in the componentManifest
      * @param - Id is a unique identifier given to the new endpoint within the component
      */
-    std::shared_ptr<PairEndpoint> createNewPairEndpoint(const std::string& type, const std::string& id);
+    void createNewEndpoint(const std::string &type, const std::string &id);
 
-    void createNewEndpoint(const std::string& type, const std::string& id);
-    ///@}
 
     /**
      * Creates an endpoint of socketType which refers to the endpointType in the componentManifest. It then listens for
@@ -118,28 +116,34 @@ public:
      * @return The port number which the endpoint is listening on
      */
     int createEndpointAndListen(SocketType st, const std::string &endpointType);
+
     /**
      * Creates and dials
      * @param socketType - Specify what type of connection is created (Pair, Publisher etc)
      * @param localEndpointType - Refers to our own componentManifest
      * @param url - The complete URL to listen on (form tcp://_._._._:_)
      */
-    void createEndpointAndDial(const std::string &socketType, const std::string &localEndpointType, const std::string &url);
+    void
+    createEndpointAndDial(const std::string &socketType, const std::string &localEndpointType, const std::string &url);
 
     ///@{
     /// Get a pointer to endpoints, they are shared_ptr's which shouldn't be deleted, and may be closed without notice
     /// @throws std::out_of_range if the id does not appear in our OPEN endpoints
-    std::shared_ptr<DataReceiverEndpoint> getReceiverEndpointById(const std::string& id);
+    std::shared_ptr<DataReceiverEndpoint> getReceiverEndpointById(const std::string &id);
+
     /// @throws std::out_of_range if the id does not appear in our OPEN endpoints
-    std::shared_ptr<DataSenderEndpoint> getSenderEndpointById(const std::string& id);
+    std::shared_ptr<DataSenderEndpoint> getSenderEndpointById(const std::string &id);
     ///@}
 
     ///@{
     /// Get pointer to a vector of endpoints, again these will be manipulated without notice and will be added to and
     /// emptied as we go. Does not throw any access error for an endpoint type, but returns an empty vector which is filled
     /// if things of that type are created
-    std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > getReceiverEndpointsByType(const std::string &endpointType);
-    std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > getSenderEndpointsByType(const std::string &endpointType);
+    std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > >
+    getReceiverEndpointsByType(const std::string &endpointType);
+
+    std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > >
+    getSenderEndpointsByType(const std::string &endpointType);
     ///@}
 
 
@@ -151,6 +155,7 @@ public:
      * @throws NngError if there is an error listening on that port
      */
     void startBackgroundListen(int port);
+
     /**
      * @throws std::logic_error if we can't find a valid port on 5 attempts at randomisation
      */
@@ -164,25 +169,31 @@ public:
      * @param port
      */
     void startResourceDiscoveryHub(int port);
+
     int startResourceDiscoveryHub();
     ///@}
 
     void closeResourceDiscoveryHub();
 
-    std::string getSelfAddress(){return selfAddress;}
+    std::string getSelfAddress() { return selfAddress; }
+
     int getResourceDiscoveryHubPort();
 
 
-    ResourceDiscoveryConnEndpoint & getResourceDiscoveryConnectionEndpoint(){return resourceDiscoveryConnEndpoint;}
-    ComponentManifest& getComponentManifest(){return componentManifest;}
-    SystemSchemas & getSystemSchemas(){return systemSchemas;}
-    BackgroundRequester & getBackgroundRequester(){return backgroundRequester;}
+    ResourceDiscoveryConnEndpoint &getResourceDiscoveryConnectionEndpoint() { return resourceDiscoveryConnEndpoint; }
 
-    ConnectionType getComponentConnectionType(){return componentConnectionType;}
+    ComponentManifest &getComponentManifest() { return componentManifest; }
 
-    int getBackgroundPort(){return backgroundListener.getBackgroundPort();}
+    SystemSchemas &getSystemSchemas() { return systemSchemas; }
+
+    BackgroundRequester &getBackgroundRequester() { return backgroundRequester; }
+
+    ConnectionType getComponentConnectionType() { return componentConnectionType; }
+
+    int getBackgroundPort() { return backgroundListener.getBackgroundPort(); }
+
     /// @brief - Returns a reference to the vector of all the addresses that the component can listen on
-    std::vector<std::string>& getAllAddresses(){
+    std::vector<std::string> &getAllAddresses() {
         return availableAddresses;
     }
 
@@ -192,10 +203,10 @@ public:
      * when asked to do anything
      * @param endpointType
      */
-    void closeSocketsOfType(const std::string& endpointType);
+    void closeSocketsOfType(const std::string &endpointType);
 
 
-    void closeSocketOfId(const std::string& endpointId);
+    void closeSocketOfId(const std::string &endpointId);
 
     /// Pretty much everything should stop once component is deleted
     ~Component();

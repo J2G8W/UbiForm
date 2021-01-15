@@ -6,9 +6,10 @@
 #include "../ComponentManifest.h"
 
 class Component;
+
 class BackgroundRequester {
-    Component * component;
-    SystemSchemas& systemSchemas;
+    Component *component;
+    SystemSchemas &systemSchemas;
     RequestEndpoint requestEndpoint;
 
     /**
@@ -20,17 +21,17 @@ class BackgroundRequester {
      * @throws RemoteError when the remote address has an error in our request
      * @throws ValidationError when our request/response doesn't have the right setup
      */
-    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage & request);
+    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage &request);
 
 public:
-    BackgroundRequester(Component* c , SystemSchemas& ss):component(c), systemSchemas(ss),
-    // Purposely make the request endpoint have an empty schema
-                                                          requestEndpoint(ss.getSystemSchema(
-                                                                  SystemSchemaName::generalEndpointResponse).getInternalSchema(),
-                                                                          ss.getSystemSchema(
-                                                                                  SystemSchemaName::generalEndpointRequest).getInternalSchema(),
-                                                                          "BackgroundRequester",
-                                                                          "BackgroundRequester") {}
+    BackgroundRequester(Component *c, SystemSchemas &ss) : component(c), systemSchemas(ss),
+            // Purposely make the request endpoint have an empty schema
+                                                           requestEndpoint(ss.getSystemSchema(
+                                                                   SystemSchemaName::generalEndpointResponse).getInternalSchema(),
+                                                                           ss.getSystemSchema(
+                                                                                   SystemSchemaName::generalEndpointRequest).getInternalSchema(),
+                                                                           "BackgroundRequester",
+                                                                           "BackgroundRequester") {}
 
     void requestAndCreateConnection(const std::string &baseAddress, int port,
                                     const std::string &localEndpointType,
@@ -47,16 +48,18 @@ public:
                                const std::string &endpointType, EndpointSchema *receiverSchema,
                                EndpointSchema *sendSchema);
 
-    int requestCreateRDH(const std::string& componentUrl);
-    void requestToCreateAndDial(const std::string& componentUrl, const std::string &socketType,
+    int requestCreateRDH(const std::string &componentUrl);
+
+    void requestToCreateAndDial(const std::string &componentUrl, const std::string &socketType,
                                 const std::string &endpointType, const std::string &remoteUrl);
 
-    void requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest& newManifest);
+    void requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest);
 
-    std::vector<std::string> requestLocationsOfRDH(const std::string& componentUrl);
-    void requestCloseSocketOfType(const std::string& componentUrl, const std::string& endpointType);
+    std::vector<std::string> requestLocationsOfRDH(const std::string &componentUrl);
 
-    void requestCloseRDH(const std::string& componentUrl);
+    void requestCloseSocketOfType(const std::string &componentUrl, const std::string &endpointType);
+
+    void requestCloseRDH(const std::string &componentUrl);
 
 };
 

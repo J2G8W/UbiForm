@@ -7,5 +7,7 @@
       "type": "string"
     }
   },
-  "required": ["newID"]
+  "required": [
+    "newID"
+  ]
 }

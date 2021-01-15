@@ -1,4 +1,4 @@
-TEST(ReconfigurationIntegrationTest, IntegrationTest1){
+TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
     Component receiverComponent("ipc:///tmp/comp1");
     Component senderComponent("ipc:///tmp/comp2");
 
@@ -21,8 +21,8 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1){
                                                                    "generatedSubscriber",
                                                                    newEs.get(),
                                                                    nullptr);
-    senderComponent.getComponentManifest().addEndpoint(SocketType::Publisher,"generatedPublisher",
-                                                        nullptr, newEs);
+    senderComponent.getComponentManifest().addEndpoint(SocketType::Publisher, "generatedPublisher",
+                                                       nullptr, newEs);
     nng_msleep(300);
 
     ASSERT_NO_THROW(senderComponent.getComponentManifest().getSenderSchema("generatedPublisher"));
@@ -34,33 +34,33 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1){
                                                                               senderComponent.getBackgroundPort());
 
     SocketMessage original;
-    original.addMember("msg","HELLO WORLD");
+    original.addMember("msg", "HELLO WORLD");
 
     nng_msleep(300);
 
     auto senderEndpoints = senderComponent.getSenderEndpointsByType("generatedPublisher");
-    ASSERT_GT(senderEndpoints->size(),0);
+    ASSERT_GT(senderEndpoints->size(), 0);
     auto receiverEndpoints = receiverComponent.getReceiverEndpointsByType("generatedSubscriber");
-    ASSERT_GT(receiverEndpoints->size(),0);
+    ASSERT_GT(receiverEndpoints->size(), 0);
 
     senderEndpoints->at(0)->asyncSendMessage(original);
     auto receiveOriginal = receiverEndpoints->at(0)->receiveMessage();
 
-    ASSERT_EQ(original.getString("msg"),receiveOriginal->getString("msg"));
+    ASSERT_EQ(original.getString("msg"), receiveOriginal->getString("msg"));
 
     auto subEndpoint = receiverEndpoints->at(0);
-    senderComponent.getBackgroundRequester().requestCloseSocketOfType(receiverCompAddress,"generatedSubscriber");
+    senderComponent.getBackgroundRequester().requestCloseSocketOfType(receiverCompAddress, "generatedSubscriber");
     ASSERT_EQ(receiverEndpoints->size(), 0);
-    ASSERT_THROW(subEndpoint->receiveMessage(),SocketOpenError);
+    ASSERT_THROW(subEndpoint->receiveMessage(), SocketOpenError);
 
     std::string senderEndpointID = senderEndpoints->at(0)->getSenderEndpointID();
     senderComponent.closeSocketOfId(senderEndpointID);
-    ASSERT_EQ(senderEndpoints->size(),0);
-    ASSERT_THROW(senderComponent.getSenderEndpointById(senderEndpointID),std::out_of_range);
+    ASSERT_EQ(senderEndpoints->size(), 0);
+    ASSERT_THROW(senderComponent.getSenderEndpointById(senderEndpointID), std::out_of_range);
 }
 
 
-TEST(ReconfigurationIntegrationTest, IntegrationTest2){
+TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
     Component RDH("ipc:///tmp/RDH");
     Component receiverComponent("ipc:///tmp/comp1");
     Component senderComponent("ipc:///tmp/comp2");
@@ -82,14 +82,15 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
     senderComponent.getResourceDiscoveryConnectionEndpoint().registerWithHub(rdhLocation);
 
 
-    ASSERT_EQ(RDH.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(),1);
-    ASSERT_EQ(receiverComponent.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(),1);
-    ASSERT_EQ(senderComponent.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(),1);
+    ASSERT_EQ(RDH.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(), 1);
+    ASSERT_EQ(receiverComponent.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(), 1);
+    ASSERT_EQ(senderComponent.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(), 1);
 
     std::string receiverComponentId = receiverComponent.getResourceDiscoveryConnectionEndpoint().getId(
             receiverComponent.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().at(0));
 
-    auto receiverRep = receiverComponent.getResourceDiscoveryConnectionEndpoint().getComponentById(rdhLocation, receiverComponentId);
+    auto receiverRep = receiverComponent.getResourceDiscoveryConnectionEndpoint().getComponentById(rdhLocation,
+                                                                                                   receiverComponentId);
 
     ASSERT_NO_THROW(receiverRep->getName());
     ASSERT_EQ(receiverRep->getName(), "RECEIVER");
@@ -98,10 +99,11 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
     newEndpointSchema->addProperty("value", ValueType::Number);
     newEndpointSchema->addRequired("value");
     receiverComponent.getComponentManifest().addEndpoint(SocketType::Subscriber, "genSubscriber",
-                                                          newEndpointSchema, nullptr);
+                                                         newEndpointSchema, nullptr);
     receiverComponent.getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
 
-    receiverRep = receiverComponent.getResourceDiscoveryConnectionEndpoint().getComponentById(rdhLocation, receiverComponentId);
+    receiverRep = receiverComponent.getResourceDiscoveryConnectionEndpoint().getComponentById(rdhLocation,
+                                                                                              receiverComponentId);
 
     ASSERT_NO_THROW(receiverRep->getReceiverSchema("genSubscriber"));
     ASSERT_EQ(newEndpointSchema->stringify(), receiverRep->getReceiverSchema("genSubscriber")->stringify());
@@ -113,23 +115,25 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
     // Takes time for the background senderComponent to register with RDH
     nng_msleep(300);
 
-    std::map<std::string,std::string> empty;
+    std::map<std::string, std::string> empty;
     auto locations = receiverComponent.getResourceDiscoveryConnectionEndpoint().getComponentsBySchema("genSubscriber",
                                                                                                       empty);
-    ASSERT_EQ(locations.size(),1);
+    ASSERT_EQ(locations.size(), 1);
     ASSERT_EQ(locations.at(0)->getInteger("port"), senderComponent.getBackgroundPort());
     auto urls = locations.at(0)->getArray<std::string>("urls");
-    ASSERT_GT(urls.size(),0);
+    ASSERT_GT(urls.size(), 0);
 
     // Make two subscribers (but only one publisher)
-    receiverComponent.getBackgroundRequester().requestAndCreateConnection(urls.at(0), locations.at(0)->getInteger("port"),
+    receiverComponent.getBackgroundRequester().requestAndCreateConnection(urls.at(0),
+                                                                          locations.at(0)->getInteger("port"),
                                                                           "genSubscriber", "genPublisher");
-    receiverComponent.getBackgroundRequester().requestAndCreateConnection(urls.at(0), locations.at(0)->getInteger("port"),
+    receiverComponent.getBackgroundRequester().requestAndCreateConnection(urls.at(0),
+                                                                          locations.at(0)->getInteger("port"),
                                                                           "genSubscriber", "genPublisher");
 
 
     auto subscriberEndpoints = receiverComponent.getReceiverEndpointsByType("genSubscriber");
-    ASSERT_EQ(subscriberEndpoints->size(),2);
+    ASSERT_EQ(subscriberEndpoints->size(), 2);
 
     auto publisherEndpoints = senderComponent.getSenderEndpointsByType("genPublisher");
     ASSERT_EQ(publisherEndpoints->size(), 1);
@@ -143,7 +147,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2){
 }
 
 
-TEST(ReconfigurationIntegrationTest, IntegrationTest3){
+TEST(ReconfigurationIntegrationTest, IntegrationTest3) {
     Component receiverComponent("ipc:///tmp/comp1");
     Component senderComponent("ipc:///tmp/comp2");
 
@@ -153,7 +157,8 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest3){
     receiverComponent.startBackgroundListen();
     senderComponent.startBackgroundListen();
 
-    std::string receiverComponentFullAddress = "ipc:///tmp/comp1:" + std::to_string(receiverComponent.getBackgroundPort());
+    std::string receiverComponentFullAddress =
+            "ipc:///tmp/comp1:" + std::to_string(receiverComponent.getBackgroundPort());
 
     int rdhPort = senderComponent.getBackgroundRequester().requestCreateRDH(receiverComponentFullAddress);
     std::string rdhUrl = "ipc:///tmp/comp1:" + std::to_string(rdhPort);
@@ -164,7 +169,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest3){
     std::string receiverID = receiverComponent.getResourceDiscoveryConnectionEndpoint().getId(rdhUrl);
 
     auto cr = senderComponent.getResourceDiscoveryConnectionEndpoint().getComponentById(rdhUrl, receiverID);
-    ASSERT_EQ(cr->getPort(),receiverComponent.getBackgroundPort());
+    ASSERT_EQ(cr->getPort(), receiverComponent.getBackgroundPort());
     ASSERT_EQ(cr->getName(), receiverComponent.getComponentManifest().getName());
 
 
@@ -176,11 +181,11 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest3){
     ASSERT_EQ(receiverComponent.getComponentManifest().getName(), newName);
 
     cr = senderComponent.getResourceDiscoveryConnectionEndpoint().getComponentById(rdhUrl, receiverID);
-    ASSERT_EQ(cr->getPort(),receiverComponent.getBackgroundPort());
+    ASSERT_EQ(cr->getPort(), receiverComponent.getBackgroundPort());
     ASSERT_EQ(cr->getName(), newName);
 }
 
-TEST(ReconfigurationIntegrationTest, IntegrationTest4){
+TEST(ReconfigurationIntegrationTest, IntegrationTest4) {
     Component RDH1("ipc:///tmp/RDH1");
     Component RDH2("ipc:///tmp/RDH2");
     Component RDH3("ipc:///tmp/RDH3");
@@ -209,28 +214,28 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest4){
     std::vector<std::string> rdhLocations = baby.getBackgroundRequester().requestLocationsOfRDH(back1);
 
     ASSERT_EQ(rdhLocations.size(), 3);
-    bool testers[3]={false,false,false};
-    for(const std::string& loc : rdhLocations){
-        if(loc == loc1){testers[0] = true;}
-        if(loc == loc2){testers[1] = true;}
-        if(loc == loc3){testers[2] = true;}
+    bool testers[3] = {false, false, false};
+    for (const std::string &loc : rdhLocations) {
+        if (loc == loc1) { testers[0] = true; }
+        if (loc == loc2) { testers[1] = true; }
+        if (loc == loc3) { testers[2] = true; }
     }
-    for(bool & tester : testers){ASSERT_TRUE(tester);}
+    for (bool &tester : testers) { ASSERT_TRUE(tester); }
 
     RDH1.getResourceDiscoveryConnectionEndpoint().deRegisterFromAllHubs();
     rdhLocations = baby.getBackgroundRequester().requestLocationsOfRDH(back1);
-    ASSERT_EQ(rdhLocations.size(),0);
+    ASSERT_EQ(rdhLocations.size(), 0);
 
     auto compIds = baby.getResourceDiscoveryConnectionEndpoint().getComponentIdsFromHub(loc2);
     // loc2 Should only have itself register with it
-    ASSERT_EQ(compIds.size(),1);
+    ASSERT_EQ(compIds.size(), 1);
 
-    baby.getBackgroundRequester().requestCloseRDH(RDH1.getSelfAddress() + ":" + std::to_string(RDH1.getBackgroundPort()));
-    ASSERT_THROW(RDH1.getResourceDiscoveryHubPort(),std::logic_error);
+    baby.getBackgroundRequester().requestCloseRDH(
+            RDH1.getSelfAddress() + ":" + std::to_string(RDH1.getBackgroundPort()));
+    ASSERT_THROW(RDH1.getResourceDiscoveryHubPort(), std::logic_error);
     RDH1.startResourceDiscoveryHub();
     ASSERT_NO_THROW(RDH1.getResourceDiscoveryHubPort());
 }
-
 
 
 TEST(ReconfigurationIntegrationTest, IntegrationTest5) {

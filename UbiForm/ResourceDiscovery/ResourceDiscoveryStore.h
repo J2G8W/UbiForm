@@ -12,7 +12,7 @@
  * Class used by ResourceDiscoveryHub to make it easier to handle logic. It basically just generates responses to the
  * requrests it is passed. It doesn't care which Component it is attached so should get the same logic wherever
  */
-class ResourceDiscoveryStore{
+class ResourceDiscoveryStore {
 private:
 
     SystemSchemas &systemSchemas;
@@ -28,9 +28,9 @@ public:
      * @return The reply SocketMessage (should be memory handled pls)
      */
 
-     std::unique_ptr<SocketMessage> generateRDResponse(SocketMessage *sm);
+    std::unique_ptr<SocketMessage> generateRDResponse(SocketMessage *sm);
 
-    explicit ResourceDiscoveryStore(SystemSchemas & ss);
+    explicit ResourceDiscoveryStore(SystemSchemas &ss);
 };
 
 

@@ -20,14 +20,15 @@ void PairEndpoint::dialConnection(const char *url) {
 // Incoming means it will listen on an internal URL
 void PairEndpoint::listenForConnection(const char *base, int port) {
     int rv = listenForConnectionWithRV(base, port);
-    if (rv != 0){
-        throw NngError(rv,"Listening on " + std::string(base));
+    if (rv != 0) {
+        throw NngError(rv, "Listening on " + std::string(base));
     }
 }
+
 int PairEndpoint::listenForConnectionWithRV(const char *base, int port) {
     int rv;
     std::string addr = std::string(base) + ":" + std::to_string(port);
-    if((rv = nng_listen(*senderSocket, addr.c_str(), nullptr, 0)) != 0) {
+    if ((rv = nng_listen(*senderSocket, addr.c_str(), nullptr, 0)) != 0) {
         return rv;
     }
     this->dialUrl = base;
@@ -45,7 +46,7 @@ PairEndpoint::~PairEndpoint() {
         // We only have one actual socket so only need to close 1.
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
-        }else{
+        } else {
             std::cout << "Pair socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
     }
@@ -57,7 +58,7 @@ void PairEndpoint::closeSocket() {
     if (DataReceiverEndpoint::socketOpen && DataSenderEndpoint::socketOpen) {
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
-        }else{
+        } else {
             std::cout << "Pair socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
         DataReceiverEndpoint::socketOpen = false;

@@ -3,12 +3,12 @@
 #include "Component.h"
 #include <nng/supplemental/util/platform.h>
 
-TEST(EmptyComponent, EmptyManifest){
+TEST(EmptyComponent, EmptyManifest) {
     Component component("ipc:///tmp/EMPTY");
     ASSERT_THROW(component.getReceiverEndpointById("some_type"), std::out_of_range);
 }
 
-TEST(EmptyComponent, DeleteComponent){
+TEST(EmptyComponent, DeleteComponent) {
     Component component("ipc:///tmp/BORING");
     component.specifyManifest("{\"name\":\"TEST1\",\"schemas\":{}}");
     component.startBackgroundListen();
@@ -17,27 +17,27 @@ TEST(EmptyComponent, DeleteComponent){
     component.getBackgroundRequester();
 }
 
-class SimpleComponent : public testing::Test{
+class SimpleComponent : public testing::Test {
 protected:
     // Note we aren't REALLY testing the inputting of the manifest as this is done automatically
-    SimpleComponent(){
+    SimpleComponent() {
         component = new Component("ipc:///tmp/RDH");
-        if (pFile == nullptr){
+        if (pFile == nullptr) {
             std::cerr << "Error finding requisite file - " << "TestManifests/Component1.json" << std::endl;
         }
         component->specifyManifest(pFile);
     }
 
-    ~SimpleComponent() override{
+    ~SimpleComponent() override {
         delete component;
     }
 
-    FILE* pFile = fopen("TestManifests/Component1.json", "r");
-    Component* component;
+    FILE *pFile = fopen("TestManifests/Component1.json", "r");
+    Component *component;
 };
 
 
-TEST_F(SimpleComponent, CreateMultipleEndpoints){
+TEST_F(SimpleComponent, CreateMultipleEndpoints) {
     component->createNewEndpoint("pairExample", "PairEndpoint1");
     component->createNewEndpoint("pairExample", "PairEndpoint2");
 
@@ -45,8 +45,8 @@ TEST_F(SimpleComponent, CreateMultipleEndpoints){
     ASSERT_NO_THROW(component->getSenderEndpointById("PairEndpoint2"));
 }
 
-TEST_F(SimpleComponent, GetEndpoints){
-    component->createNewEndpoint("pairExample","TestEndpoint");
+TEST_F(SimpleComponent, GetEndpoints) {
+    component->createNewEndpoint("pairExample", "TestEndpoint");
 
     ASSERT_NO_THROW(component->getReceiverEndpointById("TestEndpoint"));
     ASSERT_NO_THROW(component->getSenderEndpointById("TestEndpoint"));
@@ -55,38 +55,38 @@ TEST_F(SimpleComponent, GetEndpoints){
     ASSERT_ANY_THROW(component->getReceiverEndpointById("NotAnEndpoint"));
 }
 
-TEST_F(SimpleComponent, WrongEndpointType){
-    ASSERT_THROW(component->createNewEndpoint("NotAType","TestEndpoint"), AccessError);
+TEST_F(SimpleComponent, WrongEndpointType) {
+    ASSERT_THROW(component->createNewEndpoint("NotAType", "TestEndpoint"), AccessError);
 }
 
 
-class PairBasedComponent : public testing::Test{
+class PairBasedComponent : public testing::Test {
 protected:
     // Note we aren't REALLY testing the inputting of the manifest as this is done automatically
-    PairBasedComponent(){
+    PairBasedComponent() {
         receiverComponent = new Component("ipc:///tmp/comp1");
         senderComponent = new Component("ipc:///tmp/comp2");
-        if (pFile == nullptr){
+        if (pFile == nullptr) {
             std::cerr << "Error finding requisite file - " << "TestManifests/Component1.json" << std::endl;
         }
         receiverComponent->specifyManifest(pFile);
-        fseek(pFile,0, SEEK_SET);
+        fseek(pFile, 0, SEEK_SET);
         senderComponent->specifyManifest(pFile);
         fclose(pFile);
 
     }
 
-    ~PairBasedComponent() override{
+    ~PairBasedComponent() override {
         delete receiverComponent;
         delete senderComponent;
     }
 
-    FILE* pFile = fopen("TestManifests/Component1.json", "r");
-    Component* receiverComponent;
-    Component* senderComponent;
+    FILE *pFile = fopen("TestManifests/Component1.json", "r");
+    Component *receiverComponent;
+    Component *senderComponent;
 };
 
-TEST_F(PairBasedComponent, FindEachOther){
+TEST_F(PairBasedComponent, FindEachOther) {
     // We use IPC to test our component - concept of ports is less clear, but it works
     senderComponent->startBackgroundListen(8000);
     ASSERT_NO_THROW(receiverComponent->getBackgroundRequester().requestAndCreateConnection("ipc:///tmp/comp2", 8000,

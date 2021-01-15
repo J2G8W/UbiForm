@@ -13,19 +13,19 @@
 #define PUBLISHER_CONNECTION "PUBLISHER"
 
 
-int main(int argc, char ** argv){
-    const char * componentAddress;
-    Component* component;
-    if (argc >= 2){
-        if (strcmp(argv[1], HUB) == 0){
-            if (argc == 3){
+int main(int argc, char **argv) {
+    const char *componentAddress;
+    Component *component;
+    if (argc >= 2) {
+        if (strcmp(argv[1], HUB) == 0) {
+            if (argc == 3) {
                 componentAddress = argv[2];
                 component = new Component(componentAddress);
-            }else{
+            } else {
                 component = new Component;
             }
 
-            FILE* pFile = fopen("JsonFiles/PublisherManifest1.json", "r");
+            FILE *pFile = fopen("JsonFiles/PublisherManifest1.json", "r");
             if (pFile == nullptr) perror("ERROR");
             component->specifyManifest(pFile);
             fclose(pFile);
@@ -44,7 +44,7 @@ int main(int argc, char ** argv){
             SocketMessage s;
             bool valid = true;
             auto publisherEndpoints = component->getSenderEndpointsByType("publisherExample");
-            while(true) {
+            while (true) {
                 if (!publisherEndpoints->empty()) {
                     s.addMember("reverse", valid);
                     valid = !valid;
@@ -59,12 +59,12 @@ int main(int argc, char ** argv){
                 }
                 nng_msleep(1000);
             }
-        }else{
+        } else {
 
-            if (argc >= 3){
+            if (argc >= 3) {
                 componentAddress = argv[2];
                 component = new Component(componentAddress);
-            }else{
+            } else {
                 component = new Component;
             }
 
@@ -79,13 +79,12 @@ int main(int argc, char ** argv){
                 component->startBackgroundListen();
                 std::cout << "Component Listening" << std::endl;
 
-                if (argc < 4){
+                if (argc < 4) {
                     std::cout << "Search for Resource Discovery Hubs" << std::endl;
                     component->getResourceDiscoveryConnectionEndpoint().searchForResourceDiscoveryHubs();
-                }else {
+                } else {
                     component->getResourceDiscoveryConnectionEndpoint().registerWithHub(argv[3]);
                 }
-
 
 
                 SocketMessage s;
@@ -118,15 +117,14 @@ int main(int argc, char ** argv){
                 std::cout << "MANIFEST SPECIFIED" << "\n";
 
 
-
-                if (argc < 4){
+                if (argc < 4) {
                     std::cout << "Search for Resource Discovery Hubs" << std::endl;
                     component->getResourceDiscoveryConnectionEndpoint().searchForResourceDiscoveryHubs();
-                }else {
+                } else {
                     component->getResourceDiscoveryConnectionEndpoint().registerWithHub(argv[3]);
                 }
                 auto RDHurls = component->getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs();
-                if(RDHurls.empty()){
+                if (RDHurls.empty()) {
                     std::cerr << "No Resource Discovery Hubs found" << std::endl;
                     return -1;
                 }
@@ -159,7 +157,7 @@ int main(int argc, char ** argv){
         }
     }
 
-    std::cerr << "Error usage is " << argv[0] << " " << HUB  << "[componentAddress]" << std::endl;
+    std::cerr << "Error usage is " << argv[0] << " " << HUB << "[componentAddress]" << std::endl;
     std::cerr << "or: " << argv[0] << " " << SUBSCRIBER_CONNECTION << "|" << PUBLISHER_CONNECTION;
     std::cerr << "[componentAddress]" << " [RDHlocation] " << std::endl;
 

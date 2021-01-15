@@ -5,8 +5,12 @@
   "properties": {
     "request": {
       "type": "string",
-      "enum": ["requestComponents"]
+      "enum": [
+        "requestComponents"
+      ]
     }
   },
-  "required": ["request"]
+  "required": [
+    "request"
+  ]
 }

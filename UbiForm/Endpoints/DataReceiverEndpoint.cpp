@@ -4,8 +4,8 @@
 // Receive a message, validate it against the socketManifest and return a pointer to the object.
 // Use smart pointers to avoid complex memory management
 std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
-    if(!socketOpen){
-        throw SocketOpenError("Could not receive message" , socketType, endpointIdentifier);
+    if (!socketOpen) {
+        throw SocketOpenError("Could not receive message", socketType, endpointIdentifier);
     }
     int rv;
     char *buffer = nullptr;
@@ -18,16 +18,15 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
         receiverSchema->validate(*receivedMessage);
         nng_free(buffer, sz);
         return receivedMessage;
-    }else{
+    } else {
         throw NngError(rv, "nng_recv");
     }
 }
 
 
-
 // This is the public interface for asynchronously receiving messages
 void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *furtherUserData) {
-    if(!socketOpen){
+    if (!socketOpen) {
         throw SocketOpenError("Could not async-receive message, socket is closed", socketType, endpointIdentifier);
     }
     auto *asyncData = new AsyncData(callb, this->receiverSchema, furtherUserData);
@@ -39,7 +38,7 @@ void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, vo
 // This is our explicitly defined callback, which does some processing THEN calls the input the callback
 // It cannot be called outside the class
 void DataReceiverEndpoint::asyncCallback(void *data) {
-    auto * asyncInput = static_cast<AsyncData *>(data);
+    auto *asyncInput = static_cast<AsyncData *>(data);
 
     int rv;
     if ((rv = nng_aio_result(asyncInput->nngAioPointer)) != 0) {
@@ -49,8 +48,8 @@ void DataReceiverEndpoint::asyncCallback(void *data) {
     }
 
     // Extract the message from our AioPointer and create a SocketMessage for easy handling
-    nng_msg * msgPointer = nng_aio_get_msg(asyncInput->nngAioPointer);
-    char* receivedJSON = static_cast<char *>(nng_msg_body(msgPointer));
+    nng_msg *msgPointer = nng_aio_get_msg(asyncInput->nngAioPointer);
+    char *receivedJSON = static_cast<char *>(nng_msg_body(msgPointer));
     auto *receivedMessage = new SocketMessage(receivedJSON);
 
     nng_msg_free(msgPointer);
@@ -58,8 +57,8 @@ void DataReceiverEndpoint::asyncCallback(void *data) {
     // If we fail, we don't retry we just display an error message and exit
     try {
         asyncInput->endpointSchema->validate(*receivedMessage);
-        asyncInput->callback(receivedMessage,asyncInput->furtherUserData);
-    }catch(std::logic_error &e) {
+        asyncInput->callback(receivedMessage, asyncInput->furtherUserData);
+    } catch (std::logic_error &e) {
         std::cerr << "Failed message receive as: " << e.what() << std::endl;
     }
     // Handle our own memory properly
@@ -68,9 +67,9 @@ void DataReceiverEndpoint::asyncCallback(void *data) {
 }
 
 void DataReceiverEndpoint::setReceiveTimeout(int ms_time) {
-    int rv = nng_socket_set_ms(*receiverSocket, NNG_OPT_RECVTIMEO,ms_time);
-    if(rv != 0){
-        throw NngError(rv,"Set receive timeout");
+    int rv = nng_socket_set_ms(*receiverSocket, NNG_OPT_RECVTIMEO, ms_time);
+    if (rv != 0) {
+        throw NngError(rv, "Set receive timeout");
     }
 }
 

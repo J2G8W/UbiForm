@@ -14,7 +14,10 @@
             "type": "boolean"
           }
         },
-        "required": ["date","reverse"]
+        "required": [
+          "date",
+          "reverse"
+        ]
       }
     }
   }

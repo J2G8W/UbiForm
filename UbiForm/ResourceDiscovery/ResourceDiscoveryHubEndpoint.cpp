@@ -10,28 +10,28 @@ void ResourceDiscoveryHubEndpoint::startResourceDiscover(const std::string &base
     this->rdThread = std::thread(rdBackground, this);
 }
 
-void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * rdhe) {
-    while (true){
+void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint *rdhe) {
+    while (true) {
         std::unique_ptr<SocketMessage> request;
         std::unique_ptr<SocketMessage> returnMsg;
         bool receiveError = false;
         try {
             request = rdhe->replyEndpoint.receiveMessage();
-        }catch(NngError &e){
-            if (e.errorCode == NNG_ECLOSED){
+        } catch (NngError &e) {
+            if (e.errorCode == NNG_ECLOSED) {
                 break;
-            }else{
-                std::cerr << "Resource Discovery Hub - " <<  e.what() << std::endl;
+            } else {
+                std::cerr << "Resource Discovery Hub - " << e.what() << std::endl;
                 break;
             }
-        }catch(SocketOpenError &e){
+        } catch (SocketOpenError &e) {
             break;
-        }catch(std::logic_error &e){
-            returnMsg->addMember("error",true);
-            returnMsg->addMember("errorMsg","Receive error "+ std::string(e.what()));
+        } catch (std::logic_error &e) {
+            returnMsg->addMember("error", true);
+            returnMsg->addMember("errorMsg", "Receive error " + std::string(e.what()));
             receiveError = true;
         }
-        if(!receiveError) {
+        if (!receiveError) {
             try {
                 returnMsg = rdhe->rdStore.generateRDResponse(request.get());
                 returnMsg->addMember("error", false);
@@ -54,16 +54,16 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * r
             }
         }
 
-        try{
+        try {
             rdhe->replyEndpoint.sendMessage(*returnMsg);
-        }catch(NngError &e){
-            if (e.errorCode == NNG_ECLOSED){
+        } catch (NngError &e) {
+            if (e.errorCode == NNG_ECLOSED) {
                 break;
-            }else{
-                std::cerr << "Resource Discovery Hub - " <<  e.what() << std::endl;
+            } else {
+                std::cerr << "Resource Discovery Hub - " << e.what() << std::endl;
                 break;
             }
-        }catch(SocketOpenError &e){
+        } catch (SocketOpenError &e) {
             break;
         }
     }
@@ -74,7 +74,7 @@ ResourceDiscoveryHubEndpoint::~ResourceDiscoveryHubEndpoint() {
     nng_msleep(300);
 
     // We detach our background thread so termination of the thread happens safely
-    if(rdThread.joinable()) {
+    if (rdThread.joinable()) {
         rdThread.join();
     }
 }

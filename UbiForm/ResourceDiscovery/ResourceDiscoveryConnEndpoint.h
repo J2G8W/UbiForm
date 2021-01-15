@@ -6,7 +6,8 @@
 #include "ComponentRepresentation.h"
 #include "../Endpoints/RequestEndpoint.h"
 
-class Component ;
+class Component;
+
 /**
  * A class which represents how we contact ResourceDiscoveryHubs. It provides the methods which you'd expect would be useful.
  * It currently makes a new NNG socket every time we want a request, may shift this to use UbiForm wrapper
@@ -15,41 +16,43 @@ class ResourceDiscoveryConnEndpoint {
 private:
     // Map from url to our id on that rdh
     std::map<std::string, std::string> resourceDiscoveryHubs;
-    Component * component;
+    Component *component;
 
     RequestEndpoint requestEndpoint;
-    SystemSchemas & systemSchemas;
+    SystemSchemas &systemSchemas;
 
-    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage & request);
+    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage &request);
 
     // We purposely delete copy and assignment operators such that there isn't stray references to this
     ResourceDiscoveryConnEndpoint(ResourceDiscoveryConnEndpoint &) = delete;
-    ResourceDiscoveryConnEndpoint& operator=(ResourceDiscoveryConnEndpoint &) = delete;
+
+    ResourceDiscoveryConnEndpoint &operator=(ResourceDiscoveryConnEndpoint &) = delete;
 
 public:
-    ResourceDiscoveryConnEndpoint(Component *component, SystemSchemas & ss) : component(component), systemSchemas(ss),
-                                                                              requestEndpoint(ss.getSystemSchema(
-                                                                                      SystemSchemaName::generalRDResponse).getInternalSchema(),
-                                                                                              ss.getSystemSchema(
-                                                                                                      SystemSchemaName::generalRDRequest).getInternalSchema(),
-                                                                                              "ResourceDiscoveryConnection",
-                                                                                              "ResourceDiscoveryConnection") {}
+    ResourceDiscoveryConnEndpoint(Component *component, SystemSchemas &ss) : component(component), systemSchemas(ss),
+                                                                             requestEndpoint(ss.getSystemSchema(
+                                                                                     SystemSchemaName::generalRDResponse).getInternalSchema(),
+                                                                                             ss.getSystemSchema(
+                                                                                                     SystemSchemaName::generalRDRequest).getInternalSchema(),
+                                                                                             "ResourceDiscoveryConnection",
+                                                                                             "ResourceDiscoveryConnection") {}
 
 
     std::unique_ptr<SocketMessage> generateRegisterRequest();
+
     /**
      * Send a request to a ResourceDiscoveryHub at url and if it comes back successfully we register it as a Hub we can talk to.
      * Note that it doesn't throw exceptions, just outputs to cerr
      * @param url - The COMPLETE url of the RDH
      */
-    void registerWithHub(const std::string& url);
+    void registerWithHub(const std::string &url);
 
     /**
      * Request ALL the IDs that a hub has.
      * @param url - The COMPLETE url of the RDH
      * @return Vector of IDs that hub has or an empty vector on error in contact
      */
-    std::vector<std::string> getComponentIdsFromHub(const std::string& url);
+    std::vector<std::string> getComponentIdsFromHub(const std::string &url);
 
     /**
      * Request the representation of a single component from an RDH
@@ -58,10 +61,11 @@ public:
      * @return std::unique_ptr to a ComponentRepresentation from the RDH
      * @throws std::logic_error when the RDH doesn't reply properly or has not component
      */
-    std::unique_ptr<ComponentRepresentation> getComponentById(const std::string& url, const std::string& id);
+    std::unique_ptr<ComponentRepresentation> getComponentById(const std::string &url, const std::string &id);
 
-    std::unique_ptr<SocketMessage> generateFindBySchemaRequest(const std::string& endpointType,
+    std::unique_ptr<SocketMessage> generateFindBySchemaRequest(const std::string &endpointType,
                                                                std::map<std::string, std::string> &otherValues);
+
     /**
      * Sends requests to all the RDHs we know about, for the components which match the endpointType we request.
      * Assumes we only want DataReceiverEndpoints back
@@ -71,7 +75,8 @@ public:
     std::vector<std::unique_ptr<SocketMessage>>
     getComponentsBySchema(const std::string &endpointType, std::map<std::string, std::string> &otherValues);
 
-    std::map<std::string, std::unique_ptr<ComponentRepresentation>> getComponentsByProperties(std::map<std::string, std::string> &properties);
+    std::map<std::string, std::unique_ptr<ComponentRepresentation>>
+    getComponentsByProperties(std::map<std::string, std::string> &properties);
 
     /**
      * Uses the getComponentsBySchema function to actually create connections to ALL of the available endpoints from our RDHs.
@@ -79,7 +84,7 @@ public:
      * any of the URLs for a component
      * @param endpointType - Reference to the endpointType in our ComponentManifest
      */
-    void createEndpointBySchema(const std::string& endpointType);
+    void createEndpointBySchema(const std::string &endpointType);
 
     /**
      * Get our ID on the RDH represented
@@ -87,7 +92,7 @@ public:
      * @return ID
      * @throws std::out_of_range when we haven't registered with that RDH yet
      */
-    std::string getId(const std::string& RdhUrl){
+    std::string getId(const std::string &RdhUrl) {
         return resourceDiscoveryHubs.at(RdhUrl);
     }
 
@@ -95,9 +100,9 @@ public:
      * Get the COMPLETE urls of all the RDHs we are connected to
      * @return Vector of complete urls (including port numbers)
      */
-    std::vector<std::string> getResourceDiscoveryHubs(){
+    std::vector<std::string> getResourceDiscoveryHubs() {
         std::vector<std::string> rdhs;
-        for(auto url : resourceDiscoveryHubs){
+        for (auto url : resourceDiscoveryHubs) {
             rdhs.push_back(url.first);
         }
         return rdhs;
@@ -108,7 +113,7 @@ public:
      */
     void updateManifestWithHubs();
 
-    void deRegisterFromHub(const std::string& rdhUrl);
+    void deRegisterFromHub(const std::string &rdhUrl);
 
     void searchForResourceDiscoveryHubs();
 

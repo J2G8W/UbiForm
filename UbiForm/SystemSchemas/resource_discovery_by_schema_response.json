@@ -24,9 +24,16 @@
             "type": "string"
           }
         },
-        "required": ["componentId","urls","port","endpointType"]
+        "required": [
+          "componentId",
+          "urls",
+          "port",
+          "endpointType"
+        ]
       }
     }
   },
-  "required": ["endpoints"]
+  "required": [
+    "endpoints"
+  ]
 }

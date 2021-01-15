@@ -4,10 +4,11 @@
 
 void PublisherEndpoint::listenForConnection(const char *base, int port) {
     int rv = listenForConnectionWithRV(base, 0);
-    if (rv != 0){
+    if (rv != 0) {
         throw NngError(rv, "Publisher listen at " + std::string(base));
     }
 }
+
 int PublisherEndpoint::listenForConnectionWithRV(const char *base, int port) {
     int rv;
     std::string addr = std::string(base) + ":" + std::to_string(port);
@@ -27,7 +28,7 @@ PublisherEndpoint::~PublisherEndpoint() {
         // We only have one actual socket so only need to close 1.
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
-        }else{
+        } else {
             std::cout << "Publisher socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
     }
@@ -38,7 +39,7 @@ PublisherEndpoint::~PublisherEndpoint() {
 void PublisherEndpoint::closeSocket() {
     if (nng_close(*senderSocket) == NNG_ECLOSED) {
         std::cerr << "This socket had already been closed" << std::endl;
-    }else{
+    } else {
         std::cout << "Publisher socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
     }
     DataSenderEndpoint::socketOpen = false;

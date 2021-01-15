@@ -2,13 +2,14 @@
 
 
 // Constructors
-ComponentManifest::ComponentManifest(FILE *jsonFP,SystemSchemas &ss): systemSchemas(ss) {
+ComponentManifest::ComponentManifest(FILE *jsonFP, SystemSchemas &ss) : systemSchemas(ss) {
     setManifest(jsonFP);
 }
 
 ComponentManifest::ComponentManifest(const char *jsonString, SystemSchemas &ss) : systemSchemas(ss) {
     setManifest(jsonString);
 }
+
 ComponentManifest::ComponentManifest(SocketMessage *sm, SystemSchemas &ss) : systemSchemas(ss) {
     setManifest(sm);
 }
@@ -24,7 +25,7 @@ void ComponentManifest::setManifest(FILE *jsonFP) {
     fillSchemaMaps();
 }
 
-void ComponentManifest::setManifest(const char* jsonString){
+void ComponentManifest::setManifest(const char *jsonString) {
     rapidjson::StringStream stream(jsonString);
     JSON_document.ParseStream(stream);
 
@@ -32,7 +33,7 @@ void ComponentManifest::setManifest(const char* jsonString){
     fillSchemaMaps();
 }
 
-void ComponentManifest::setManifest(SocketMessage *sm){
+void ComponentManifest::setManifest(SocketMessage *sm) {
     JSON_document.CopyFrom(sm->JSON_document, JSON_document.GetAllocator());
 
     checkParse();
@@ -42,8 +43,8 @@ void ComponentManifest::setManifest(SocketMessage *sm){
 
 // Check if we have parsed our manifest okay
 // Throws ParseError for parsing issues and ValidationError when manifest doesn't line up
-void ComponentManifest::checkParse(){
-    if (JSON_document.HasParseError()){
+void ComponentManifest::checkParse() {
+    if (JSON_document.HasParseError()) {
         std::ostringstream error;
         error << "Error parsing manifest, offset: " << JSON_document.GetErrorOffset();
         error << " , error: " << rapidjson::GetParseError_En(JSON_document.GetParseError()) << std::endl;
@@ -55,13 +56,15 @@ void ComponentManifest::checkParse(){
 
 void ComponentManifest::fillSchemaMaps() {
     assert(JSON_document["schemas"].IsObject());
-    for (auto &m : JSON_document["schemas"].GetObject()){
-        if (m.value.IsObject() && m.value.HasMember("send")){
-            std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&m.value["send"], JSON_document.GetAllocator());
+    for (auto &m : JSON_document["schemas"].GetObject()) {
+        if (m.value.IsObject() && m.value.HasMember("send")) {
+            std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&m.value["send"],
+                                                                                              JSON_document.GetAllocator());
             senderSchemas[std::string(m.name.GetString())] = endpointSchema;
         }
-        if (m.value.IsObject() && m.value.HasMember("receive")){
-            std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&m.value["receive"], JSON_document.GetAllocator());
+        if (m.value.IsObject() && m.value.HasMember("receive")) {
+            std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&m.value["receive"],
+                                                                                              JSON_document.GetAllocator());
             receiverSchemas[std::string(m.name.GetString())] = endpointSchema;
         }
     }
@@ -71,28 +74,29 @@ void ComponentManifest::fillSchemaMaps() {
 std::string ComponentManifest::getName() {
     return getProperty("name");
 }
+
 void ComponentManifest::setName(const std::string &name) {
-    setProperty("name",name);
+    setProperty("name", name);
 }
 
 SocketMessage *ComponentManifest::getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema) {
-    if (receiveSchema){
-        try{
+    if (receiveSchema) {
+        try {
             return getReceiverSchema(typeOfEndpoint)->getSchemaObject();
-        }catch(std::out_of_range &e){
+        } catch (std::out_of_range &e) {
             throw AccessError("No receive endpoint of that type found");
         }
-    }else{
-        try{
+    } else {
+        try {
             return getSenderSchema(typeOfEndpoint)->getSchemaObject();
-        }catch(std::out_of_range &e){
+        } catch (std::out_of_range &e) {
             throw AccessError("No sender endpoint of that type found");
         }
     }
 }
 
 std::shared_ptr<EndpointSchema> ComponentManifest::getReceiverSchema(const std::string &typeOfEndpoint) {
-    try{
+    try {
         return receiverSchemas.at(typeOfEndpoint);
     } catch (std::out_of_range &e) {
         // Explicit rethrow of the exception
@@ -101,7 +105,7 @@ std::shared_ptr<EndpointSchema> ComponentManifest::getReceiverSchema(const std::
 }
 
 std::shared_ptr<EndpointSchema> ComponentManifest::getSenderSchema(const std::string &typeOfEndpoint) {
-    try{
+    try {
         return senderSchemas.at(typeOfEndpoint);
     } catch (std::out_of_range &e) {
         // Explicit rethrow of the exception
@@ -109,9 +113,9 @@ std::shared_ptr<EndpointSchema> ComponentManifest::getSenderSchema(const std::st
     }
 }
 
-std::string ComponentManifest::getSocketType(const std::string& endpointType) {
-    const auto & schemas = JSON_document["schemas"].GetObject();
-    if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())){
+std::string ComponentManifest::getSocketType(const std::string &endpointType) {
+    const auto &schemas = JSON_document["schemas"].GetObject();
+    if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())) {
         throw AccessError("No endpoint of type: " + endpointType + " in manifest");
     }
 
@@ -131,7 +135,7 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
                           JSON_document.GetAllocator());
 
     if (socketType == SocketType::Pair || socketType == SocketType::Subscriber) {
-        if(receiveSchema == nullptr){
+        if (receiveSchema == nullptr) {
             throw std::logic_error("No receive Schema given");
         }
         rapidjson::Value jsonReceiveSchema(rapidjson::kObjectType);
@@ -142,7 +146,7 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
     }
 
     if (socketType == SocketType::Pair || socketType == SocketType::Publisher) {
-        if(sendSchema == nullptr){
+        if (sendSchema == nullptr) {
             throw std::logic_error("No send Schema given");
         }
         rapidjson::Value jsonSendSchema(rapidjson::kObjectType);
@@ -154,51 +158,53 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
         senderSchemas[typeOfEndpoint] = sendSchema;
     }
 
-    if (schemas.HasMember(typeOfEndpoint)){
+    if (schemas.HasMember(typeOfEndpoint)) {
         schemas.RemoveMember(typeOfEndpoint);
     }
-    schemas.AddMember(rapidjson::Value(typeOfEndpoint,JSON_document.GetAllocator()), newEndpoint.Move(),
+    schemas.AddMember(rapidjson::Value(typeOfEndpoint, JSON_document.GetAllocator()), newEndpoint.Move(),
                       JSON_document.GetAllocator());
 
 
     if (socketType == SocketType::Pair || socketType == SocketType::Subscriber) {
-        std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&(schemas[typeOfEndpoint].GetObject()["receive"]),
-                                                                                          JSON_document.GetAllocator());
+        std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(
+                &(schemas[typeOfEndpoint].GetObject()["receive"]),
+                JSON_document.GetAllocator());
         receiverSchemas[typeOfEndpoint] = endpointSchema;
     }
     if (socketType == SocketType::Pair || socketType == SocketType::Publisher) {
-        std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(&(schemas[typeOfEndpoint].GetObject()["send"]),
-                                                                                          JSON_document.GetAllocator());
+        std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(
+                &(schemas[typeOfEndpoint].GetObject()["send"]),
+                JSON_document.GetAllocator());
         senderSchemas[typeOfEndpoint] = endpointSchema;
     }
 }
 
 void ComponentManifest::setProperty(const std::string &propertyName, const std::string &value) {
-    if(propertyName == "urls" || propertyName == "port" || propertyName == "schemas"){
+    if (propertyName == "urls" || propertyName == "port" || propertyName == "schemas") {
         throw AccessError(propertyName + " is a reserved name");
     }
-    if(JSON_document.HasMember(propertyName)) {
+    if (JSON_document.HasMember(propertyName)) {
         JSON_document[propertyName] = rapidjson::Value(value, JSON_document.GetAllocator());
-    }else{
+    } else {
         JSON_document.AddMember(rapidjson::Value(propertyName, JSON_document.GetAllocator()),
-                                rapidjson::Value(value,JSON_document.GetAllocator()),
+                                rapidjson::Value(value, JSON_document.GetAllocator()),
                                 JSON_document.GetAllocator());
     }
 }
 
-std::string ComponentManifest::getProperty(const std::string& propertyName) {
-    if(JSON_document.HasMember(propertyName) && JSON_document[propertyName].IsString()){
+std::string ComponentManifest::getProperty(const std::string &propertyName) {
+    if (JSON_document.HasMember(propertyName) && JSON_document[propertyName].IsString()) {
         return JSON_document[propertyName].GetString();
-    }else{
+    } else {
         throw AccessError("Manifest does not have string property " + propertyName + "\n" + stringify());
     }
 }
 
 void ComponentManifest::removeProperty(const std::string &propertyName) {
-    if(propertyName == "urls" || propertyName == "port" || propertyName == "schemas" || propertyName == "name"){
+    if (propertyName == "urls" || propertyName == "port" || propertyName == "schemas" || propertyName == "name") {
         throw AccessError(propertyName + " is a reserved name");
     }
-    if(JSON_document.HasMember(propertyName)){
+    if (JSON_document.HasMember(propertyName)) {
         JSON_document.EraseMember(propertyName);
     }
 }
@@ -208,5 +214,5 @@ bool ComponentManifest::hasProperty(const std::string &property) {
 }
 
 
-ComponentManifest::~ComponentManifest()= default;
+ComponentManifest::~ComponentManifest() = default;
 

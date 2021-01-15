@@ -10,43 +10,44 @@
 #include <nng/supplemental/util/platform.h>
 
 
-
-
 // CONSTRUCTOR
 Component::Component(const std::string &baseAddress) : systemSchemas(),
-                                                       backgroundListener(this,systemSchemas), backgroundRequester(this, systemSchemas),
-                                                       selfAddress(baseAddress), resourceDiscoveryConnEndpoint(this, systemSchemas), componentManifest(systemSchemas){
+                                                       backgroundListener(this, systemSchemas),
+                                                       backgroundRequester(this, systemSchemas),
+                                                       selfAddress(baseAddress),
+                                                       resourceDiscoveryConnEndpoint(this, systemSchemas),
+                                                       componentManifest(systemSchemas) {
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
     std::cout << "Component made, self address is " << baseAddress << std::endl;
-    if(baseAddress.rfind("tcp",0)==0){
+    if (baseAddress.rfind("tcp", 0) == 0) {
         componentConnectionType = ConnectionType::LocalTCP;
         availableAddresses.push_back(baseAddress);
-    }else if (baseAddress.rfind("ipc", 0) ==0){
+    } else if (baseAddress.rfind("ipc", 0) == 0) {
         componentConnectionType = ConnectionType::IPC;
         availableAddresses.push_back(baseAddress);
-    }else{
+    } else {
         throw std::logic_error("The given address did not have a type of TCP or IPC");
     }
 }
 
-Component::Component():  systemSchemas(),
-        backgroundListener(this,systemSchemas), backgroundRequester(this, systemSchemas),
-         resourceDiscoveryConnEndpoint(this, systemSchemas), componentManifest(systemSchemas) {
+Component::Component() : systemSchemas(),
+                         backgroundListener(this, systemSchemas), backgroundRequester(this, systemSchemas),
+                         resourceDiscoveryConnEndpoint(this, systemSchemas), componentManifest(systemSchemas) {
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
 
     auto addresses = getLinuxIpAddresses();
-    for (const auto & address: addresses){
-        if(address.rfind("127.",0) != 0){
+    for (const auto &address: addresses) {
+        if (address.rfind("127.", 0) != 0) {
             availableAddresses.emplace_back("tcp://" + address);
         }
     }
-    if (availableAddresses.empty()){
+    if (availableAddresses.empty()) {
         throw std::logic_error("Could not find any networks to act on");
-    }else{
+    } else {
         std::cout << "Available IP addresses: " << std::endl;
-        for(const auto & address : availableAddresses){
+        for (const auto &address : availableAddresses) {
             std::cout << "\t" << address << std::endl;
         }
     }
@@ -56,41 +57,17 @@ Component::Component():  systemSchemas(),
 }
 
 
-
-// CREATE ENDPOINTS (don't connect)
-std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(const std::string& typeOfEndpoint, const std::string& id){
-    std::shared_ptr<EndpointSchema>recvSchema = componentManifest.getReceiverSchema(typeOfEndpoint);
-    std::shared_ptr<EndpointSchema>sendSchema = componentManifest.getSenderSchema(typeOfEndpoint);
-
-    std::shared_ptr<PairEndpoint> pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema,typeOfEndpoint, id);
-    idReceiverEndpoints.insert(std::make_pair(id, pe));
-    idSenderEndpoints.insert(std::make_pair(id, pe));
-
-
-    if (typeSenderEndpoints.count(typeOfEndpoint) == 1) {
-        typeSenderEndpoints.at(typeOfEndpoint)->push_back(pe);
-    }else{
-        typeSenderEndpoints.insert(std::make_pair(typeOfEndpoint,std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >(1,pe)));
-    }
-
-    if (typeReceiverEndpoints.count(typeOfEndpoint) == 1) {
-        typeReceiverEndpoints.at(typeOfEndpoint)->push_back(pe);
-    }else{
-        typeReceiverEndpoints.insert(std::make_pair(typeOfEndpoint,std::make_shared<std::vector<std::shared_ptr<DataReceiverEndpoint> > >(1,pe)));
-    }
-
-    return pe;
-}
-
 void Component::createNewEndpoint(const std::string &typeOfEndpoint, const std::string &id) {
     SocketType socketType = convertToSocketType(componentManifest.getSocketType(typeOfEndpoint));
 
     std::shared_ptr<EndpointSchema> recvSchema;
     std::shared_ptr<EndpointSchema> sendSchema;
-    if(socketType == SocketType::Pair || socketType == SocketType::Subscriber || socketType == SocketType::Request || socketType == SocketType::Reply ){
+    if (socketType == SocketType::Pair || socketType == SocketType::Subscriber || socketType == SocketType::Request ||
+        socketType == SocketType::Reply) {
         recvSchema = componentManifest.getReceiverSchema(typeOfEndpoint);
     }
-    if(socketType == SocketType::Pair || socketType == SocketType::Publisher || socketType == SocketType::Request || socketType == SocketType::Reply ){
+    if (socketType == SocketType::Pair || socketType == SocketType::Publisher || socketType == SocketType::Request ||
+        socketType == SocketType::Reply) {
         sendSchema = componentManifest.getSenderSchema(typeOfEndpoint);
     }
 
@@ -113,7 +90,7 @@ void Component::createNewEndpoint(const std::string &typeOfEndpoint, const std::
             senderEndpoint = pe;
             break;
         }
-        case Request:{
+        case Request: {
             auto pe = std::make_shared<RequestEndpoint>(recvSchema, sendSchema, typeOfEndpoint, id);
             receiverEndpoint = pe;
             senderEndpoint = pe;
@@ -122,23 +99,26 @@ void Component::createNewEndpoint(const std::string &typeOfEndpoint, const std::
     }
 
 
-
-    if(socketType == SocketType::Pair || socketType == SocketType::Subscriber || socketType == SocketType::Request || socketType == SocketType::Reply ){
+    if (socketType == SocketType::Pair || socketType == SocketType::Subscriber || socketType == SocketType::Request ||
+        socketType == SocketType::Reply) {
         idReceiverEndpoints.insert(std::make_pair(id, receiverEndpoint));
         if (typeReceiverEndpoints.count(typeOfEndpoint) == 1) {
             typeReceiverEndpoints.at(typeOfEndpoint)->push_back(receiverEndpoint);
-        }else{
+        } else {
             typeReceiverEndpoints.insert(std::make_pair(
                     typeOfEndpoint,
-                    std::make_shared<std::vector<std::shared_ptr<DataReceiverEndpoint> > >(1,receiverEndpoint)));
+                    std::make_shared<std::vector<std::shared_ptr<DataReceiverEndpoint> > >(1, receiverEndpoint)));
         }
     }
-    if(socketType == SocketType::Pair || socketType == SocketType::Publisher || socketType == SocketType::Request || socketType == SocketType::Reply ){
+    if (socketType == SocketType::Pair || socketType == SocketType::Publisher || socketType == SocketType::Request ||
+        socketType == SocketType::Reply) {
         idSenderEndpoints.insert(std::make_pair(id, senderEndpoint));
         if (typeSenderEndpoints.count(typeOfEndpoint) == 1) {
             typeSenderEndpoints.at(typeOfEndpoint)->push_back(senderEndpoint);
-        }else{
-            typeSenderEndpoints.insert(std::make_pair(typeOfEndpoint,std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >(1,senderEndpoint)));
+        } else {
+            typeSenderEndpoints.insert(std::make_pair(typeOfEndpoint,
+                                                      std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >(
+                                                              1, senderEndpoint)));
         }
     }
 }
@@ -146,17 +126,17 @@ void Component::createNewEndpoint(const std::string &typeOfEndpoint, const std::
 
 // GET OUR ENDPOINTS BY ID
 std::shared_ptr<DataReceiverEndpoint> Component::getReceiverEndpointById(const std::string &id) {
-    try{
+    try {
         return idReceiverEndpoints.at(id);
-    }catch(std::out_of_range &e){
+    } catch (std::out_of_range &e) {
         throw;
     }
 }
 
 std::shared_ptr<DataSenderEndpoint> Component::getSenderEndpointById(const std::string &id) {
-    try{
+    try {
         return idSenderEndpoints.at(id);
-    }catch(std::out_of_range &e){
+    } catch (std::out_of_range &e) {
         throw;
     }
 }
@@ -166,7 +146,7 @@ std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > >
 Component::getReceiverEndpointsByType(const std::string &endpointType) {
     try {
         return typeReceiverEndpoints.at(endpointType);
-    }catch(std::out_of_range &e){
+    } catch (std::out_of_range &e) {
         // Make an empty vector to return, this will get filled if things then come along later
         auto returnVector = std::make_shared<std::vector<std::shared_ptr<DataReceiverEndpoint> > >();
         typeReceiverEndpoints.insert(std::make_pair(endpointType, returnVector));
@@ -179,7 +159,7 @@ std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > >
 Component::getSenderEndpointsByType(const std::string &endpointType) {
     try {
         return typeSenderEndpoints.at(endpointType);
-    }catch(std::out_of_range &e){
+    } catch (std::out_of_range &e) {
         // Make an empty vector to return, this will get filled if things then come along later
         auto returnVector = std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >();
         typeSenderEndpoints.insert(std::make_pair(endpointType, returnVector));
@@ -208,8 +188,9 @@ void Component::startBackgroundListen() {
         throw std::logic_error("Could not find valid port to start on");
     }
 }
+
 void Component::startBackgroundListen(int port) {
-    if(backgroundListener.getBackgroundPort() == -1) {
+    if (backgroundListener.getBackgroundPort() == -1) {
         if (componentConnectionType == ConnectionType::TCP) {
             // Listen on all addresses
             backgroundListener.startBackgroundListen("tcp://*", port);
@@ -220,30 +201,32 @@ void Component::startBackgroundListen(int port) {
     }
 }
 
-int Component::createEndpointAndListen(SocketType st, const std::string& endpointType){
+int Component::createEndpointAndListen(SocketType st, const std::string &endpointType) {
     std::string socketId = generateNewSocketId();
     std::shared_ptr<DataSenderEndpoint> e;
     createNewEndpoint(endpointType, socketId);
-    try{
+    try {
         e = getSenderEndpointById(socketId);
-    }catch (std::out_of_range &e){
-        throw std::logic_error("Couldn't make endpoint of type " + endpointType + " socket type of " + convertFromSocketType(st));
+    } catch (std::out_of_range &e) {
+        throw std::logic_error(
+                "Couldn't make endpoint of type " + endpointType + " socket type of " + convertFromSocketType(st));
     }
 
 
     int rv = 1;
     std::string url;
-    while(rv != 0) {
-        if(componentConnectionType == ConnectionType::TCP){
+    while (rv != 0) {
+        if (componentConnectionType == ConnectionType::TCP) {
             url = "tcp://*";
-        }else {
+        } else {
             url = selfAddress;
         }
         rv = e->listenForConnectionWithRV(url.c_str(), lowestPort);
-        if (rv == NNG_EADDRINUSE){
+        if (rv == NNG_EADDRINUSE) {
             lowestPort = generateRandomPort();
-        }else if (rv != 0){
-            throw NngError(rv, "Create " + convertFromSocketType(st) + " listener at " + url + ":" + std::to_string(lowestPort));
+        } else if (rv != 0) {
+            throw NngError(rv, "Create " + convertFromSocketType(st) + " listener at " + url + ":" +
+                               std::to_string(lowestPort));
         }
     }
     std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":" << lowestPort;
@@ -251,19 +234,20 @@ int Component::createEndpointAndListen(SocketType st, const std::string& endpoin
     return lowestPort++;
 }
 
-void Component::createEndpointAndDial(const std::string& socketType, const std::string& localEndpointType, const std::string& url){
+void Component::createEndpointAndDial(const std::string &socketType, const std::string &localEndpointType,
+                                      const std::string &url) {
     std::shared_ptr<DataReceiverEndpoint> e;
     std::string socketId = generateNewSocketId();
     createNewEndpoint(localEndpointType, socketId);
-    try{
+    try {
         e = getReceiverEndpointById(socketId);
-    }catch (std::out_of_range &e){
+    } catch (std::out_of_range &e) {
         throw std::logic_error("Couldn't make endpoint of type " + localEndpointType + " socket type of " + socketType);
     }
 
-    this->lowestPort ++;
+    this->lowestPort++;
     e->dialConnection(url.c_str());
-    std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << url ;
+    std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << url;
     std::cout << "\n\tLocal ID of socket: " << socketId << std::endl;
 }
 
@@ -275,14 +259,15 @@ void Component::startResourceDiscoveryHub(int port) {
         std::string listenAddress;
         if (componentConnectionType == ConnectionType::TCP) {
             listenAddress = "tcp://*";
-        }else{
+        } else {
             listenAddress = selfAddress;
         }
         resourceDiscoveryHubEndpoint->startResourceDiscover(listenAddress, port);
-        std::cout << "Started Resource Discovery Hub at - " << listenAddress << ":"<<port << std::endl;
+        std::cout << "Started Resource Discovery Hub at - " << listenAddress << ":" << port << std::endl;
         resourceDiscoveryConnEndpoint.registerWithHub(selfAddress + ":" + std::to_string(port));
     }
 }
+
 int Component::startResourceDiscoveryHub() {
     if (resourceDiscoveryHubEndpoint == nullptr) {
         int nextPort = DEFAULT_RESOURCE_DISCOVERY_PORT;
@@ -305,7 +290,7 @@ int Component::startResourceDiscoveryHub() {
 }
 
 void Component::closeResourceDiscoveryHub() {
-    if(resourceDiscoveryHubEndpoint != nullptr){
+    if (resourceDiscoveryHubEndpoint != nullptr) {
         delete resourceDiscoveryHubEndpoint;
         resourceDiscoveryHubEndpoint = nullptr;
         std::cout << "Resource Discovery Hub ended" << std::endl;
@@ -313,25 +298,24 @@ void Component::closeResourceDiscoveryHub() {
 }
 
 
-
-Component::~Component(){
+Component::~Component() {
     delete resourceDiscoveryHubEndpoint;
 }
 
 void Component::closeSocketsOfType(const std::string &endpointType) {
-    if(typeReceiverEndpoints.count(endpointType) > 0){
+    if (typeReceiverEndpoints.count(endpointType) > 0) {
         auto vec = typeReceiverEndpoints.at(endpointType);
         auto it = vec->begin();
-        while(it != vec->end()){
+        while (it != vec->end()) {
             (*it)->closeSocket();
             it = vec->erase(it);
             idReceiverEndpoints.erase((*it)->getReceiverEndpointID());
         }
     }
-    if(typeSenderEndpoints.count(endpointType) > 0){
+    if (typeSenderEndpoints.count(endpointType) > 0) {
         auto vec = typeSenderEndpoints.at(endpointType);
         auto it = vec->begin();
-        while(it != vec->end()){
+        while (it != vec->end()) {
             (*it)->closeSocket();
             it = vec->erase(it);
             idSenderEndpoints.erase((*it)->getSenderEndpointID());
@@ -341,9 +325,9 @@ void Component::closeSocketsOfType(const std::string &endpointType) {
 
 
 int Component::getResourceDiscoveryHubPort() {
-    if(resourceDiscoveryHubEndpoint != nullptr) {
+    if (resourceDiscoveryHubEndpoint != nullptr) {
         return resourceDiscoveryHubEndpoint->getBackgroundPort();
-    }else{
+    } else {
         throw std::logic_error("No resource discovery hub is opne");
     }
 }
@@ -354,22 +338,23 @@ void Component::closeSocketOfId(const std::string &endpointId) {
 
 
     auto receiverEndpoint = idReceiverEndpoints.find(endpointId);
-    if(receiverEndpoint != idReceiverEndpoints.end()){
+    if (receiverEndpoint != idReceiverEndpoints.end()) {
         // Close the socket itself
         receiverEndpoint->second->closeSocket();
 
         // Get our endpoint out of the "By Type" container
-        auto possibleEndpointContainer = typeReceiverEndpoints.find(receiverEndpoint->second->getReceiverEndpointType());
-        if(possibleEndpointContainer != typeReceiverEndpoints.end()) {
+        auto possibleEndpointContainer = typeReceiverEndpoints.find(
+                receiverEndpoint->second->getReceiverEndpointType());
+        if (possibleEndpointContainer != typeReceiverEndpoints.end()) {
             std::vector<std::shared_ptr<DataReceiverEndpoint>>::iterator it;
             it = possibleEndpointContainer->second->begin();
             // Iterate over our possible container, used iterator due to deletions
-            while(it != possibleEndpointContainer->second->end()){
+            while (it != possibleEndpointContainer->second->end()) {
                 // If the pointers are equal (so they point at the same thing)
-                if((*it) == receiverEndpoint->second){
+                if ((*it) == receiverEndpoint->second) {
                     it = possibleEndpointContainer->second->erase(it);
-                }else{
-                    it ++;
+                } else {
+                    it++;
                 }
             }
         }
@@ -378,18 +363,18 @@ void Component::closeSocketOfId(const std::string &endpointId) {
     }
 
     auto senderEndpoint = idSenderEndpoints.find(endpointId);
-    if(senderEndpoint != idSenderEndpoints.end()){
+    if (senderEndpoint != idSenderEndpoints.end()) {
         senderEndpoint->second->closeSocket();
 
         auto possibleEndpointContainer = typeSenderEndpoints.find(senderEndpoint->second->getSenderEndpointType());
-        if(possibleEndpointContainer != typeSenderEndpoints.end()) {
+        if (possibleEndpointContainer != typeSenderEndpoints.end()) {
             std::vector<std::shared_ptr<DataSenderEndpoint>>::iterator it;
             it = possibleEndpointContainer->second->begin();
-            while(it != possibleEndpointContainer->second->end()){
-                if((*it) == senderEndpoint->second){
+            while (it != possibleEndpointContainer->second->end()) {
+                if ((*it) == senderEndpoint->second) {
                     it = possibleEndpointContainer->second->erase(it);
-                }else{
-                    it ++;
+                } else {
+                    it++;
                 }
             }
         }

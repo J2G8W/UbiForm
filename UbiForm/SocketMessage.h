@@ -16,7 +16,9 @@
 // Note that we need RAPIDJSON_HAS_STDSTRING turned on as we need std string usage
 class SocketMessage {
     friend class EndpointSchema;
+
     friend class ComponentRepresentation;
+
     friend class ComponentManifest;
 
 private:
@@ -34,11 +36,11 @@ private:
 
 
     // COPY CONSTRUCTOR - needed for sensible memory allocation!
-    SocketMessage(rapidjson::Value &inputObject, bool copyConstruct=true) {
+    SocketMessage(rapidjson::Value &inputObject, bool copyConstruct = true) {
         if (copyConstruct) {
             JSON_document.SetObject();
             JSON_document.CopyFrom(inputObject, JSON_document.GetAllocator());
-        }else{
+        } else {
             JSON_document.SetNull();
             JSON_document.Swap(inputObject);
         }
@@ -64,29 +66,33 @@ public:
      * These methods add or change attributes in the SocketMessage, we don't allow repeated attribute names (it overwrites)
      */
     void addMember(const std::string &attributeName, const std::string &value);
-    void addMember(const std::string &attributeName, const char * value);
+
+    void addMember(const std::string &attributeName, const char *value);
+
     void addMember(const std::string &attributeName, int value);
+
     void addMember(const std::string &attributeName, bool value);
 
     // Add an array
     // Note that this has to be defined in the header as templates are compiled here
-    template <class T>
-    void addMember(const std::string &attributeName, std::vector<T> inputArray){
+    template<class T>
+    void addMember(const std::string &attributeName, std::vector<T> inputArray) {
         rapidjson::Value key(attributeName, JSON_document.GetAllocator());
 
         rapidjson::Value valueArray(rapidjson::kArrayType);
         valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
-        for (T item : inputArray){
+        for (T item : inputArray) {
             rapidjson::Value v(item);
             valueArray.PushBack(v, JSON_document.GetAllocator());
         }
-        addOrSwap(key,valueArray);
+        addOrSwap(key, valueArray);
     }
 
-    void addMember(const std::string &attributeName, const std::vector<std::string>& inputArray);
+    void addMember(const std::string &attributeName, const std::vector<std::string> &inputArray);
 
     /// @brief Copy constructs the SocketMessages
-    void addMember(const std::string &attributeName, const std::vector<SocketMessage*>& inputArray);
+    void addMember(const std::string &attributeName, const std::vector<SocketMessage *> &inputArray);
+
     /// @brief Copy constructs the given SocketMessage
     void addMember(const std::string &attributeName, SocketMessage &socketMessage);
 
@@ -100,22 +106,26 @@ public:
      */
     void addMoveObject(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage);
 
-    void addMoveArrayOfObjects(const std::string &attributeName, std::vector<std::unique_ptr<SocketMessage>> &inputArray);
+    void
+    addMoveArrayOfObjects(const std::string &attributeName, std::vector<std::unique_ptr<SocketMessage>> &inputArray);
 
     ///@{
     /**
      * @name Getters from the SocketMessage
      */
     int getInteger(const std::string &attributeName);
+
     bool getBoolean(const std::string &attributeName);
+
     std::string getString(const std::string &attributeName);
+
     /// @brief This uses copy constructing
     std::unique_ptr<SocketMessage> getCopyObject(const std::string &attributeName);
 
-    template <class T>
+    template<class T>
     std::vector<T> getArray(const std::string &attributeName);
 
-    bool isNull(const std::string &attributeName){
+    bool isNull(const std::string &attributeName) {
         return JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsNull();
     }
     ///@}
@@ -128,6 +138,7 @@ public:
      * these should have short life spans
      */
     std::unique_ptr<SocketMessage> getMoveObject(const std::string &attributeName);
+
     /**
      * Move an array of objects from within the current object. NOTE that the parent must live as long as the new child due to memory handling
      * issues with rapidjson. If this is a problem use getArray which is less efficient but hasn't got memory issues
@@ -139,14 +150,14 @@ public:
     /**
      * @return whether the socketMessage itself is a null value
      */
-    bool isNull(){
+    bool isNull() {
         return JSON_document.IsNull();
     }
 
 
     std::vector<std::string> getKeys();
 
-    bool hasMember(const std::string& attributeName){
+    bool hasMember(const std::string &attributeName) {
         return JSON_document.HasMember(attributeName);
     }
 

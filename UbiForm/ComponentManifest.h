@@ -26,9 +26,10 @@ protected:
     std::map<std::string, std::shared_ptr<EndpointSchema> > receiverSchemas;
     std::map<std::string, std::shared_ptr<EndpointSchema> > senderSchemas;
 
-    SystemSchemas & systemSchemas;
+    SystemSchemas &systemSchemas;
 
     void checkParse();
+
     void fillSchemaMaps();
 
 public:
@@ -39,7 +40,7 @@ public:
      * @throws ParsingError - when input is malformed
      * @throws ValidationError - when input does not conform to SystemsSchemas
      */
-    ComponentManifest(const char *jsonString, SystemSchemas & es);
+    ComponentManifest(const char *jsonString, SystemSchemas &es);
 
     /**
      * @param jsonFP - FILE pointer to form manifest from, used instead of file streams as get
@@ -61,14 +62,16 @@ public:
      * @throws ParsingError - when input is malformed
      * @throws ValidationError - when input does not conform to SystemsSchemas
      */
-    ComponentManifest(SocketMessage* sm,SystemSchemas &ss );
+    ComponentManifest(SocketMessage *sm, SystemSchemas &ss);
 
     /// Create an empty Manifest which can be filled with functions
-    explicit ComponentManifest(SystemSchemas &ss) : ComponentManifest(R"({"name":"","schemas":{}})",ss){};
+    explicit ComponentManifest(SystemSchemas &ss) : ComponentManifest(R"({"name":"","schemas":{}})", ss) {};
 
     /// Copies the input rather than moving it
     void setManifest(FILE *jsonFP);
+
     void setManifest(const char *jsonString);
+
     void setManifest(SocketMessage *sm);
 
     /**
@@ -76,34 +79,39 @@ public:
      * @return pointer to EndpointSchema for that typeOfEndpoint
      * @throws std::out_of_range - when typeOfEndpoint does not exist
      */
-    std::shared_ptr<EndpointSchema> getReceiverSchema(const std::string& typeOfEndpoint);
+    std::shared_ptr<EndpointSchema> getReceiverSchema(const std::string &typeOfEndpoint);
+
     /**
      * @param typeOfEndpoint - specify typeOfEndpoint as described in Manifest
      * @return pointer to EndpointSchema for that typeOfEndpoint
      * @throws std::out_of_range - when typeOfEndpoint does not exist
      */
-    std::shared_ptr<EndpointSchema> getSenderSchema(const std::string& typeOfEndpoint);
+    std::shared_ptr<EndpointSchema> getSenderSchema(const std::string &typeOfEndpoint);
 
     /**
      * @param name - Input name to be set
      */
-    void setName(const std::string& name);
+    void setName(const std::string &name);
+
     /**
      * @return The name attached to the componentManifest
      */
     std::string getName();
 
-    void setProperty(const std::string& propertyName, const std::string& value);
-    std::string getProperty(const std::string& propertyName);
-    void removeProperty(const std::string& propertyName);
-    bool hasProperty(const std::string& propertyName);
+    void setProperty(const std::string &propertyName, const std::string &value);
+
+    std::string getProperty(const std::string &propertyName);
+
+    void removeProperty(const std::string &propertyName);
+
+    bool hasProperty(const std::string &propertyName);
 
     /**
      * @param typeOfEndpoint - specify typeOfEndpoint as described in Manifest
      * @return string of what type the socket is (e.g. pair)
      * @throws std::out_of_range - when typeOfEndpoint does not exist
      */
-    std::string getSocketType(const std::string& endpointType);
+    std::string getSocketType(const std::string &endpointType);
 
     /**
      * @return string representation of the component manifest
@@ -116,7 +124,7 @@ public:
      * @param receiveSchema - whether we want receive or send schema for that type
      * @return SocketMessage pointer which needs memory handling, used for sending our schema on the network
      */
-    SocketMessage * getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema);
+    SocketMessage *getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema);
 
 
     /**
@@ -127,7 +135,7 @@ public:
      * @param sendSchema - either a pointer to the schema for the endpoint of nullptr if relevant socketType doens't need sendSchema
      * @throws std::logic_error - when there aren't enough schemas given for the socketType
      */
-    void addEndpoint(SocketType socketType, const std::string& typeOfEndpoint,
+    void addEndpoint(SocketType socketType, const std::string &typeOfEndpoint,
                      std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema);
 
 
@@ -135,7 +143,7 @@ public:
      * We get a copy of the manifest but as a SocketMessage, such that it can be sent on the wire
      * @return - std::unique_ptr used such that we get automatic memory handling and move's work better
      */
-    std::unique_ptr<SocketMessage> getSocketMessageCopy(){
+    std::unique_ptr<SocketMessage> getSocketMessageCopy() {
         // Gets around private constructor
         return std::unique_ptr<SocketMessage>(new SocketMessage(this->JSON_document, true));
     }

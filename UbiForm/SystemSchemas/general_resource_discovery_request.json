@@ -3,9 +3,11 @@
   "id": "resource_discovery_request_v1",
   "type": "object",
   "properties": {
-    "request" : {
+    "request": {
       "type": "string"
     }
   },
-  "required": ["request"]
+  "required": [
+    "request"
+  ]
 }

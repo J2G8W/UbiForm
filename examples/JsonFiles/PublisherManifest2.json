@@ -17,7 +17,11 @@
             "type": "number"
           }
         },
-        "required": ["date","messagesSent","counter"]
+        "required": [
+          "date",
+          "messagesSent",
+          "counter"
+        ]
       }
     }
   }

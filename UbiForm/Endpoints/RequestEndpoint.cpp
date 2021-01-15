@@ -14,7 +14,7 @@ int RequestEndpoint::listenForConnectionWithRV(const char *base, int port) {
 
 void RequestEndpoint::dialConnection(const char *url) {
     int rv;
-    if(dialUrl != std::string(url)) {
+    if (dialUrl != std::string(url)) {
         // Before dialling a new location we close the old socket (means same endpoint can be reused)
         if (DataReceiverEndpoint::socketOpen && DataSenderEndpoint::socketOpen) {
             nng_msleep(300);
@@ -28,10 +28,11 @@ void RequestEndpoint::dialConnection(const char *url) {
         } else {
             DataReceiverEndpoint::socketOpen = true;
             DataSenderEndpoint::socketOpen = true;
+            // Use the same socket for sending and receiving
+            receiverSocket = senderSocket;
+            // Set timeout to a reasonably small value
             setReceiveTimeout(500);
         }
-        // Use the same socket for sending and receiving
-        receiverSocket = senderSocket;
         if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
             throw NngError(rv, "Dialing " + std::string(url) + " for a request connection");
         }
@@ -48,7 +49,7 @@ RequestEndpoint::~RequestEndpoint() {
         // We only have one actual socket so only need to close 1.
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
-        }else{
+        } else {
             std::cout << "Request socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
 
@@ -61,7 +62,7 @@ void RequestEndpoint::closeSocket() {
     if (DataReceiverEndpoint::socketOpen && DataSenderEndpoint::socketOpen) {
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
-        }else{
+        } else {
             std::cout << "Request socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
         DataReceiverEndpoint::socketOpen = false;

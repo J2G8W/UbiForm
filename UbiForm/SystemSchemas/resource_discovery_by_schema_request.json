@@ -5,7 +5,9 @@
   "properties": {
     "request": {
       "type": "string",
-      "enum": ["requestSchema"]
+      "enum": [
+        "requestSchema"
+      ]
     },
     "dataReceiverEndpoint": {
       "type": "boolean"
@@ -20,5 +22,10 @@
       }
     }
   },
-  "required": ["request","schema","dataReceiverEndpoint","specialProperties"]
+  "required": [
+    "request",
+    "schema",
+    "dataReceiverEndpoint",
+    "specialProperties"
+  ]
 }

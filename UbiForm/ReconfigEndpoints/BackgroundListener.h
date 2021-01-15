@@ -8,30 +8,31 @@
 #include "../Endpoints/ReplyEndpoint.h"
 
 class Component;
+
 class BackgroundListener {
 private:
     std::thread backgroundThread;
     int backgroundPort = -1;
-    Component * component;
-    SystemSchemas & systemSchemas;
+    Component *component;
+    SystemSchemas &systemSchemas;
     ReplyEndpoint replyEndpoint;
 
 public:
-    BackgroundListener(Component * c, SystemSchemas & ss) : component(c), systemSchemas(ss),
-                                                            replyEndpoint(
-                                                                    ss.getSystemSchema(
-                                                                            SystemSchemaName::generalEndpointRequest).getInternalSchema(),
-                                                                    ss.getSystemSchema(
-                                                                            SystemSchemaName::generalEndpointResponse).getInternalSchema(),
-                                                                    "BackgroundListenerReply",
-                                                                    "BackgroundListenerReply") {
+    BackgroundListener(Component *c, SystemSchemas &ss) : component(c), systemSchemas(ss),
+                                                          replyEndpoint(
+                                                                  ss.getSystemSchema(
+                                                                          SystemSchemaName::generalEndpointRequest).getInternalSchema(),
+                                                                  ss.getSystemSchema(
+                                                                          SystemSchemaName::generalEndpointResponse).getInternalSchema(),
+                                                                  "BackgroundListenerReply",
+                                                                  "BackgroundListenerReply") {
     }
 
     void startBackgroundListen(const std::string &baseAddress, int port);
 
     static void backgroundListen(BackgroundListener *backgroundListener);
 
-    int getBackgroundPort(){return backgroundPort;}
+    int getBackgroundPort() { return backgroundPort; }
 
     ~BackgroundListener();
 

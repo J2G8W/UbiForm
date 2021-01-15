@@ -13,15 +13,15 @@
 #define PUBLISHER_CONNECTION "PUBLISHER"
 
 
-int main(int argc, char ** argv){
-    const char * componentAddress;
-    Component* component;
-    if (argc >= 2){
-        if (strcmp(argv[1], HUB) == 0){
-            if (argc == 3){
+int main(int argc, char **argv) {
+    const char *componentAddress;
+    Component *component;
+    if (argc >= 2) {
+        if (strcmp(argv[1], HUB) == 0) {
+            if (argc == 3) {
                 componentAddress = argv[2];
                 component = new Component(componentAddress);
-            }else{
+            } else {
                 component = new Component;
             }
 
@@ -33,15 +33,16 @@ int main(int argc, char ** argv){
 
 
             bool update = false;
-            std::string rdhLoc = component->getSelfAddress() + ":" + std::to_string(component->getResourceDiscoveryHubPort());
+            std::string rdhLoc =
+                    component->getSelfAddress() + ":" + std::to_string(component->getResourceDiscoveryHubPort());
             std::string idWithRDH = component->getResourceDiscoveryConnectionEndpoint().getId(rdhLoc);
             bool somePublisher = false;
             std::unique_ptr<ComponentRepresentation> publisherRep;
             std::unique_ptr<ComponentRepresentation> subscriberRep;
             int counter = 0;
 
-            while(true){
-                if(!update) {
+            while (true) {
+                if (!update) {
                     for (auto &id : component->getResourceDiscoveryConnectionEndpoint().getComponentIdsFromHub(
                             rdhLoc)) {
                         auto compRep = component->getResourceDiscoveryConnectionEndpoint().getComponentById(rdhLoc, id);
@@ -49,15 +50,21 @@ int main(int argc, char ** argv){
                             somePublisher = true;
                             publisherRep = std::move(compRep);
                             std::cout << "Found Publisher" << std::endl;
-                        }else if (compRep != nullptr && somePublisher && compRep->getName() == "Subscriber"){
-                            for(const auto& url:compRep->getAllUrls()){
+                        } else if (compRep != nullptr && somePublisher && compRep->getName() == "Subscriber") {
+                            for (const auto &url:compRep->getAllUrls()) {
                                 std::string dialUrl = url + ":" + std::to_string(compRep->getPort());
-                                component->getBackgroundRequester().requestChangeEndpoint(dialUrl,SocketType::Subscriber,
+                                component->getBackgroundRequester().requestChangeEndpoint(dialUrl,
+                                                                                          SocketType::Subscriber,
                                                                                           "subscriberExample",
-                                                                                          publisherRep->getSenderSchema("publisherExample").get(),nullptr);
+                                                                                          publisherRep->getSenderSchema(
+                                                                                                  "publisherExample").get(),
+                                                                                          nullptr);
                                 std::cout << "Subscriber component added endpoint schema" << std::endl;
-                                component->getBackgroundRequester().tellToRequestAndCreateConnection(dialUrl,"subscriberExample",
-                                                                                                     "publisherExample",publisherRep->getAllUrls().at(0),
+                                component->getBackgroundRequester().tellToRequestAndCreateConnection(dialUrl,
+                                                                                                     "subscriberExample",
+                                                                                                     "publisherExample",
+                                                                                                     publisherRep->getAllUrls().at(
+                                                                                                             0),
                                                                                                      publisherRep->getPort());
                                 std::cout << "Subscriber has formed connection to publisher" << std::endl;
                                 update = true;
@@ -66,18 +73,18 @@ int main(int argc, char ** argv){
                             subscriberRep = std::move(compRep);
                         }
                     }
-                }else{
-                    if(counter++ == 3){
-                        for(const auto& url:subscriberRep->getAllUrls()){
+                } else {
+                    if (counter++ == 3) {
+                        for (const auto &url:subscriberRep->getAllUrls()) {
                             std::string dialUrl = url + ":" + std::to_string(subscriberRep->getPort());
-                            component->getBackgroundRequester().requestCloseSocketOfType(dialUrl,"subscriberExample");
+                            component->getBackgroundRequester().requestCloseSocketOfType(dialUrl, "subscriberExample");
                             break;
                         }
                         std::cout << "Subscriber socket closed" << std::endl;
 
-                        for(const auto& url:publisherRep->getAllUrls()){
+                        for (const auto &url:publisherRep->getAllUrls()) {
                             std::string dialUrl = url + ":" + std::to_string(publisherRep->getPort());
-                            component->getBackgroundRequester().requestCloseSocketOfType(dialUrl,"publisherExample");
+                            component->getBackgroundRequester().requestCloseSocketOfType(dialUrl, "publisherExample");
                             break;
                         }
                         std::cout << "Publisher socket closed" << std::endl;
@@ -87,12 +94,12 @@ int main(int argc, char ** argv){
             }
 
 
-        }else if (argc >=3){
+        } else if (argc >= 3) {
             const char *RDHAddress = argv[2];
-            if (argc == 4){
+            if (argc == 4) {
                 componentAddress = argv[3];
                 component = new Component(componentAddress);
-            }else{
+            } else {
                 component = new Component;
             }
 
@@ -105,7 +112,7 @@ int main(int argc, char ** argv){
 
                 component->startBackgroundListen();
 
-                while(true) {
+                while (true) {
                     try {
                         component->getResourceDiscoveryConnectionEndpoint().registerWithHub(RDHAddress);
                         break;
@@ -126,8 +133,8 @@ int main(int argc, char ** argv){
                         strftime(dateString, 30, "%A %B", p);
                         s.addMember("date", std::string(dateString));
 
-                        s.addMember("messagesSent",1);
-                        s.addMember("counter",counter++);
+                        s.addMember("messagesSent", 1);
+                        s.addMember("counter", counter++);
 
                         publisherEndpoints->at(0)->sendMessage(s);
                     }
@@ -150,8 +157,10 @@ int main(int argc, char ** argv){
                     for (const auto &endpoint : *subscriberEndpoints) {
                         s = endpoint->receiveMessage();
                         std::cout << "Receiving from: " << endpoint->getDialUrl() << std::endl;
-                        for(const std::string& name: component->getComponentManifest().getReceiverSchema("subscriberExample")->getRequired()){
-                            ValueType type = component->getComponentManifest().getReceiverSchema("subscriberExample")->getValueType(name);
+                        for (const std::string &name: component->getComponentManifest().getReceiverSchema(
+                                "subscriberExample")->getRequired()) {
+                            ValueType type = component->getComponentManifest().getReceiverSchema(
+                                    "subscriberExample")->getValueType(name);
                             switch (type) {
                                 case Number: {
                                     auto it = counters.find(name);
@@ -160,14 +169,16 @@ int main(int argc, char ** argv){
                                     } else {
                                         counters.insert(std::make_pair(name, s->getInteger(name)));
                                     }
-                                    std::cout << "\tTallyed value of " << name << " : " << counters.at(name) << std::endl;
+                                    std::cout << "\tTallyed value of " << name << " : " << counters.at(name)
+                                              << std::endl;
                                     break;
                                 }
                                 case String:
-                                    std::cout << "\tReceived " << name << " : " << s->getString(name) <<std::endl;
+                                    std::cout << "\tReceived " << name << " : " << s->getString(name) << std::endl;
                                     break;
                                 default:
-                                    std::cout << "\tUnsure how to handle " << name << " of type " <<  convertValueType(type) <<std::endl;
+                                    std::cout << "\tUnsure how to handle " << name << " of type "
+                                              << convertValueType(type) << std::endl;
                             }
                         }
                     }
@@ -177,7 +188,7 @@ int main(int argc, char ** argv){
         }
     }
 
-    std::cerr << "Error usage is " << argv[0] << " " << HUB  << "[componentAddress]" << std::endl;
+    std::cerr << "Error usage is " << argv[0] << " " << HUB << "[componentAddress]" << std::endl;
     std::cerr << "or: " << argv[0] << " " << SUBSCRIBER_CONNECTION << "|" << PUBLISHER_CONNECTION;
     std::cerr << " RDHlocation " << "[componentAddress]" << std::endl;
 

@@ -10,9 +10,9 @@
 class GenericSchema {
 private:
     std::shared_ptr<EndpointSchema> es;
-    rapidjson::Document  document;
+    rapidjson::Document document;
 
-    static rapidjson::Document InitiateFromFile(FILE *jsonFP){
+    static rapidjson::Document InitiateFromFile(FILE *jsonFP) {
         rapidjson::Document JSON_document;
         char readBuffer[65536];
         rapidjson::FileReadStream inputStream(jsonFP, readBuffer, sizeof(readBuffer));
@@ -25,21 +25,23 @@ public:
      * Creates a schema from file
      * @param jsonFP
      */
-    explicit GenericSchema(FILE * jsonFP) : document(InitiateFromFile(jsonFP)){
+    explicit GenericSchema(FILE *jsonFP) : document(InitiateFromFile(jsonFP)) {
         es = std::make_shared<EndpointSchema>(&document, document.GetAllocator());
     }
-    void validate(const SocketMessage &messageToValidate){
+
+    void validate(const SocketMessage &messageToValidate) {
         es->validate(messageToValidate);
     }
-    void validate(const rapidjson::Value &doc){
+
+    void validate(const rapidjson::Value &doc) {
         es->validate(doc);
     }
 
-    std::shared_ptr<EndpointSchema> getInternalSchema(){
+    std::shared_ptr<EndpointSchema> getInternalSchema() {
         return es;
     };
 
-    ~GenericSchema(){
+    ~GenericSchema() {
         document.Clear();
     }
 };

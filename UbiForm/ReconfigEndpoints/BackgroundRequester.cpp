@@ -9,11 +9,11 @@ std::unique_ptr<SocketMessage> BackgroundRequester::sendRequest(const std::strin
     requestEndpoint.dialConnection(url.c_str());
     requestEndpoint.sendMessage(request);
     auto reply = requestEndpoint.receiveMessage();
-    if(reply->getBoolean("error")){
-        if(reply->hasMember("errorMsg")){
+    if (reply->getBoolean("error")) {
+        if (reply->hasMember("errorMsg")) {
             throw RemoteError(reply->getString("errorMsg"), url);
-        }else{
-            throw RemoteError("No Error message",url);
+        } else {
+            throw RemoteError("No Error message", url);
         }
     }
     return reply;
@@ -26,23 +26,22 @@ void BackgroundRequester::requestAndCreateConnection(const std::string &baseAddr
 
     std::string localSocketType = component->getComponentManifest().getSocketType(localEndpointType);
     SocketMessage sm;
-    if (localSocketType == SUBSCRIBER){
-        sm.addMember("socketType",PUBLISHER);
-    }else if(localSocketType == REQUEST){
+    if (localSocketType == SUBSCRIBER) {
+        sm.addMember("socketType", PUBLISHER);
+    } else if (localSocketType == REQUEST) {
         sm.addMember("socketType", REPLY);
-    }
-    else{
+    } else {
         sm.addMember("socketType", localSocketType);
     }
 
-    sm.addMember("endpointType",remoteEndpointType);
+    sm.addMember("endpointType", remoteEndpointType);
     sm.addMember("requestType", BACKGROUND_REQUEST_CONNECTION);
 
     systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(sm);
 
-    std::string dialAddress = baseAddress + ":"  + std::to_string(port);
+    std::string dialAddress = baseAddress + ":" + std::to_string(port);
 
-    auto reply = sendRequest(dialAddress,sm);
+    auto reply = sendRequest(dialAddress, sm);
 
     systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(*reply);
     int newPort = reply->getInteger("port");
@@ -52,9 +51,9 @@ void BackgroundRequester::requestAndCreateConnection(const std::string &baseAddr
 void BackgroundRequester::requestAddRDH(const std::string &componentUrl, const std::string &rdhUrl) {
     SocketMessage sm;
     sm.addMember("requestType", BACKGROUND_ADD_RDH);
-    sm.addMember("url",rdhUrl);
+    sm.addMember("url", rdhUrl);
 
-    sendRequest(componentUrl,sm);
+    sendRequest(componentUrl, sm);
 }
 
 void BackgroundRequester::tellToRequestAndCreateConnection(const std::string &requesterAddress,
@@ -64,11 +63,11 @@ void BackgroundRequester::tellToRequestAndCreateConnection(const std::string &re
     SocketMessage sm;
     sm.addMember("requestType", BACKGROUND_TELL_TO_REQUEST_CONNECTION);
     sm.addMember("reqEndpointType", requesterEndpointType);
-    sm.addMember("remoteEndpointType",remoteEndpointType);
+    sm.addMember("remoteEndpointType", remoteEndpointType);
     sm.addMember("remoteAddress", remoteAddress);
-    sm.addMember("port",newPort);
+    sm.addMember("port", newPort);
 
-    sendRequest(requesterAddress,sm);
+    sendRequest(requesterAddress, sm);
 
 }
 
@@ -78,30 +77,30 @@ void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddr
     SocketMessage sm;
     sm.addMember("requestType", BACKGROUND_CHANGE_ENDPOINT_SCHEMA);
     sm.addMember("endpointType", endpointType);
-    if (receiverSchema == nullptr){sm.setNull("receiveSchema");}
-    else{
+    if (receiverSchema == nullptr) { sm.setNull("receiveSchema"); }
+    else {
         auto schemaObj = std::unique_ptr<SocketMessage>(receiverSchema->getSchemaObject());
         sm.addMoveObject("receiveSchema", std::move(schemaObj));
     }
-    if (sendSchema == nullptr){sm.setNull("sendSchema");}
-    else{
+    if (sendSchema == nullptr) { sm.setNull("sendSchema"); }
+    else {
         auto schemaObj = std::unique_ptr<SocketMessage>(sendSchema->getSchemaObject());
         sm.addMoveObject("sendSchema", std::move(schemaObj));
     }
-    sm.addMember("socketType",socketType);
+    sm.addMember("socketType", socketType);
 
 
-    sendRequest(componentAddress,sm);
+    sendRequest(componentAddress, sm);
 }
 
 int BackgroundRequester::requestCreateRDH(const std::string &componentUrl) {
     SocketMessage sm;
     sm.addMember("requestType", BACKGROUND_CREATE_RDH);
 
-    auto reply = sendRequest(componentUrl,sm);
+    auto reply = sendRequest(componentUrl, sm);
     try {
         return reply->getInteger("port");
-    }catch(AccessError &e){
+    } catch (AccessError &e) {
         throw ValidationError("No port number in returned message");
     }
 }
@@ -116,27 +115,28 @@ std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::s
     SocketMessage sm;
     sm.addMember("requestType", BACKGROUND_GET_LOCATIONS_OF_RDH);
 
-    auto reply = sendRequest(componentUrl,sm);
+    auto reply = sendRequest(componentUrl, sm);
     std::vector<std::string> locations;;
     try {
         locations = reply->getArray<std::string>("locations");
-    }catch(AccessError &e){
+    } catch (AccessError &e) {
         throw ValidationError("Returned message had no appropriate \"locations\"");
     }
     return locations;
 
 }
 
-void BackgroundRequester::requestCloseSocketOfType(const std::string &componentUrl, const std::string& endpointType) {
+void BackgroundRequester::requestCloseSocketOfType(const std::string &componentUrl, const std::string &endpointType) {
     SocketMessage sm;
     sm.addMember("requestType", BACKGROUND_CLOSE_SOCKETS);
-    sm.addMember("endpointType",endpointType);
+    sm.addMember("endpointType", endpointType);
 
-    sendRequest(componentUrl,sm);
+    sendRequest(componentUrl, sm);
 
 }
 
-void BackgroundRequester::requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest) {
+void
+BackgroundRequester::requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest) {
     SocketMessage sm;
     sm.addMember("requestType", BACKGROUND_CHANGE_MANIFEST);
     auto compRep = newManifest.getSocketMessageCopy();

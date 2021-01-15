@@ -34,6 +34,7 @@ public:
                                                                                SystemSchemaName::generalRDResponse).getInternalSchema(),
                                                                        "ResourceDiscoveryHub",
                                                                        "ResourceDiscoveryHub") {}
+
     /**
      * Start the ResourceDiscoveryHub. In starting it we start a new thread
      * @param baseAddress - The address without the ":port" bit
@@ -42,12 +43,11 @@ public:
      */
     void startResourceDiscover(const std::string &baseAddress, int port);
 
-    int getBackgroundPort(){return backgroundPort;}
+    int getBackgroundPort() { return backgroundPort; }
 
     ~ResourceDiscoveryHubEndpoint();
 
 };
-
 
 
 #endif //UBIFORM_RESOURCEDISCOVERYHUBENDPOINT_H

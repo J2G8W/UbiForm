@@ -13,28 +13,31 @@
 #define REQUEST "request"
 
 /// Describes the different sockets we can have
-enum SocketType{
-    Pair,Publisher,Subscriber, Reply, Request
+enum SocketType {
+    Pair, Publisher, Subscriber, Reply, Request
 };
+
 std::string convertFromSocketType(SocketType st);
-SocketType convertToSocketType(const std::string& st);
+
+SocketType convertToSocketType(const std::string &st);
 
 /// Describes the different types in our endpoint schemas/socket messages
-enum ValueType{
+enum ValueType {
     Number, String, Boolean, Object, Array, Null
 };
+
 std::string convertValueType(ValueType vt);
 
 /// Respresent the System Schemas
-enum SystemSchemaName{
-    componentManifest,endpointCreationRequest, endpointCreationResponse,
-    additionRequest,additionResponse,byIdRequest,byIdResponse,
-    bySchemaRequest, bySchemaResponse, componentIdsRequest, componentIdsResponse,updateRequest,
+enum SystemSchemaName {
+    componentManifest, endpointCreationRequest, endpointCreationResponse,
+    additionRequest, additionResponse, byIdRequest, byIdResponse,
+    bySchemaRequest, bySchemaResponse, componentIdsRequest, componentIdsResponse, updateRequest,
     generalRDRequest, generalRDResponse, generalEndpointRequest, generalEndpointResponse
 };
 
 /// Used on Component to describe how it has been loaded in
-enum ConnectionType{
+enum ConnectionType {
     IPC, TCP, LocalTCP
 };
 

@@ -5,11 +5,16 @@
   "properties": {
     "request": {
       "type": "string",
-      "enum": ["requestId"]
+      "enum": [
+        "requestId"
+      ]
     },
     "id": {
       "type": "string"
     }
   },
-  "required": ["request","id"]
+  "required": [
+    "request",
+    "id"
+  ]
 }

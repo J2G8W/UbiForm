@@ -10,5 +10,7 @@
       }
     }
   },
-  "required": ["components"]
+  "required": [
+    "components"
+  ]
 }

@@ -6,7 +6,7 @@
     "name": {
       "type": "string"
     },
-    "schemas" : {
+    "schemas": {
       "type": "object",
       "patternProperties": {
         "[A-Za-z0-9_]*": {
@@ -14,7 +14,11 @@
           "properties": {
             "socketType": {
               "type": "string",
-              "enum" : ["pair","publisher","subscriber"]
+              "enum": [
+                "pair",
+                "publisher",
+                "subscriber"
+              ]
             },
             "send": {
               "type": "object"
@@ -23,21 +27,26 @@
               "type": "object"
             }
           },
-          "required" : ["socketType"]
+          "required": [
+            "socketType"
+          ]
         }
       }
     },
-    "urls" : {
+    "urls": {
       "type": "array",
       "items": {
         "type": "string"
       }
     },
-    "port" : {
+    "port": {
       "type": "number"
     }
   },
-  "required": ["name","schemas"],
+  "required": [
+    "name",
+    "schemas"
+  ],
   "additionalProperties": {
     "type": "string"
   }

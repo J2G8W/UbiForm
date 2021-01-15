@@ -5,11 +5,16 @@
   "properties": {
     "request": {
       "type": "string",
-      "enum": ["addition"]
+      "enum": [
+        "addition"
+      ]
     },
     "manifest": {
       "type": "object"
     }
   },
-  "required": ["request","manifest"]
+  "required": [
+    "request",
+    "manifest"
+  ]
 }
