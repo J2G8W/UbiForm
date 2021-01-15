@@ -14,28 +14,29 @@ int RequestEndpoint::listenForConnectionWithRV(const char *base, int port) {
 
 void RequestEndpoint::dialConnection(const char *url) {
     int rv;
-    nng_msleep(300);
-    // Before dialling a new location we close the old socket (means same endpoint can be reused)
-    if(DataReceiverEndpoint::socketOpen && DataSenderEndpoint::socketOpen){
-        nng_close(*senderSocket);
-        //std::cout << "Request Socket closed to dial: " << url << std::endl;
-        DataReceiverEndpoint::socketOpen = false;
-        DataSenderEndpoint::socketOpen = false;
-    }
+    if(dialUrl != std::string(url)) {
+        // Before dialling a new location we close the old socket (means same endpoint can be reused)
+        if (DataReceiverEndpoint::socketOpen && DataSenderEndpoint::socketOpen) {
+            nng_msleep(300);
+            nng_close(*senderSocket);
+            DataReceiverEndpoint::socketOpen = false;
+            DataSenderEndpoint::socketOpen = false;
+        }
 
-    if ((rv = nng_req0_open(senderSocket)) != 0) {
-        throw NngError(rv, "Open RD connection request socket");
-    }else{
-        DataReceiverEndpoint::socketOpen = true;
-        DataSenderEndpoint::socketOpen = true;
-        setTimeout(500);
+        if ((rv = nng_req0_open(senderSocket)) != 0) {
+            throw NngError(rv, "Open RD connection request socket");
+        } else {
+            DataReceiverEndpoint::socketOpen = true;
+            DataSenderEndpoint::socketOpen = true;
+            setTimeout(500);
+        }
+        // Use the same socket for sending and receiving
+        receiverSocket = senderSocket;
+        if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
+            throw NngError(rv, "Dialing " + std::string(url) + " for a request connection");
+        }
+        this->dialUrl = url;
     }
-    // Use the same socket for sending and receiving
-    receiverSocket = senderSocket;
-    if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
-        throw NngError(rv, "Dialing " + std::string(url) + " for a request connection");
-    }
-    this->dialUrl = url;
 }
 
 // Destructor waits a short time before closing socket such that any unsent messages are released
