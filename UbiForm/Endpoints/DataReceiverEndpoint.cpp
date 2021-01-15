@@ -39,7 +39,6 @@ void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, vo
 // It cannot be called outside the class
 void DataReceiverEndpoint::asyncCallback(void *data) {
     auto *asyncInput = static_cast<AsyncData *>(data);
-
     int rv;
     if ((rv = nng_aio_result(asyncInput->nngAioPointer)) != 0) {
         std::cerr << "NNG async error\nError text: " << nng_strerror(rv) << std::endl;
@@ -50,19 +49,20 @@ void DataReceiverEndpoint::asyncCallback(void *data) {
     // Extract the message from our AioPointer and create a SocketMessage for easy handling
     nng_msg *msgPointer = nng_aio_get_msg(asyncInput->nngAioPointer);
     char *receivedJSON = static_cast<char *>(nng_msg_body(msgPointer));
-    auto *receivedMessage = new SocketMessage(receivedJSON);
+    std::unique_ptr<SocketMessage>receivedMessage = std::make_unique<SocketMessage>(receivedJSON);
+
 
     nng_msg_free(msgPointer);
 
     // If we fail, we don't retry we just display an error message and exit
     try {
         asyncInput->endpointSchema->validate(*receivedMessage);
-        asyncInput->callback(receivedMessage, asyncInput->furtherUserData);
+        asyncInput->callback(receivedMessage.get(), asyncInput->furtherUserData);
     } catch (std::logic_error &e) {
         std::cerr << "Failed message receive as: " << e.what() << std::endl;
     }
+
     // Handle our own memory properly
-    delete receivedMessage;
     delete asyncInput;
 }
 

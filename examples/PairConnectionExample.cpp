@@ -5,6 +5,14 @@
 
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
+#define RECEIVER_AIO "AIO"
+
+void simpleCallback(SocketMessage* sm, void * data){
+    auto endpoint = static_cast<DataReceiverEndpoint*>(data);
+    std::cout << sm->getInteger("temp") << std::endl;
+    endpoint->asyncReceiveMessage(simpleCallback,endpoint);
+}
+
 
 int main(int argc, char **argv) {
     if (argc >= 2) {
@@ -29,7 +37,28 @@ int main(int argc, char **argv) {
             }
 
         }
-        if (strcmp(argv[1], SENDER) == 0) {
+        else if (strcmp(argv[1], RECEIVER_AIO) == 0) {
+            Component receiver("tcp://127.0.0.2");
+            FILE *pFile = fopen("JsonFiles/PairManifest1.json", "r");
+            if (pFile == nullptr) perror("ERROR");
+            receiver.specifyManifest(pFile);
+            fclose(pFile);
+
+            std::cout << "MANIFEST SPECIFIED" << "\n";
+
+            receiver.getBackgroundRequester().requestAndCreateConnection(
+                    "tcp://127.0.0.1", 8000, "pairExample",
+                    "pairExample");
+            auto endpoints = receiver.getReceiverEndpointsByType("pairExample");
+            for (const auto &e: *endpoints) {
+                e->asyncReceiveMessage(simpleCallback, e.get());
+            }
+            while (true) {
+                nng_msleep(1000);
+            }
+
+        }
+        else if (strcmp(argv[1], SENDER) == 0) {
             Component sender("tcp://127.0.0.1");
 
             FILE *pFile = fopen("JsonFiles/PairManifest1.json", "r");

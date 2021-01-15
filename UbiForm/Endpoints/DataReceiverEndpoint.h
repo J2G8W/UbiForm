@@ -12,6 +12,8 @@ class DataReceiverEndpoint {
 private:
     static void asyncCallback(void *data);
 
+
+
     // This is the data structure which we will pass into our callback
     // Note this is not part of any class, it is hidden
     struct AsyncData {
@@ -25,15 +27,16 @@ private:
 
         AsyncData(void (*cb)(SocketMessage *, void *), std::shared_ptr<EndpointSchema> endpointSchema,
                   void *furtherUserData) :
-                callback(cb), endpointSchema(endpointSchema), nngAioPointer() {
+                callback(cb), endpointSchema(endpointSchema) {
 
             // So we allocate the async_io with a pointer to our asyncCallback and a pointer to this object
-            nng_aio_alloc(&(this->nngAioPointer), asyncCallback, this);
+            nng_aio_alloc(&(nngAioPointer), asyncCallback, this);
             this->furtherUserData = furtherUserData;
         };
 
         ~AsyncData() {
-            nng_aio_free(nngAioPointer);
+            // TODO - figure out how to close this PROPERLY
+            //nng_aio_free(nngAioPointer);
             // Rest of data handled automatically
         }
     };

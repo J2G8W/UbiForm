@@ -13,6 +13,18 @@
 #define PUBLISHER_CONNECTION "PUBLISHER"
 
 
+void subscriberHandleInfo(SocketMessage* sm, void* extraInfo){
+    auto* endpoint = static_cast<DataReceiverEndpoint*>(extraInfo);
+    std::string date = sm->getString("date");
+    if (sm->getBoolean("reverse")) {
+        std::cout << date << std::endl;
+    } else {
+        std::reverse(date.begin(), date.end());
+        std::cout << date << std::endl;
+    }
+    endpoint->asyncReceiveMessage(subscriberHandleInfo,endpoint);
+}
+
 int main(int argc, char **argv) {
     const char *componentAddress;
     Component *component;
@@ -140,18 +152,12 @@ int main(int argc, char **argv) {
 
                 std::unique_ptr<SocketMessage> s;
                 auto subscriberEndpoints = component->getReceiverEndpointsByType("subscriberExample");
-                while (true) {
-                    for (const auto &endpoint : *subscriberEndpoints) {
-                        s = endpoint->receiveMessage();
 
-                        std::string date = s->getString("date");
-                        if (s->getBoolean("reverse")) {
-                            std::cout << date << std::endl;
-                        } else {
-                            std::reverse(date.begin(), date.end());
-                            std::cout << date << std::endl;
-                        }
-                    }
+                for (const auto &endpoint : *subscriberEndpoints) {
+                    endpoint->asyncReceiveMessage(subscriberHandleInfo, endpoint.get());
+                }
+                while (true) {
+                    nng_msleep(3000);
                 }
             }
         }
