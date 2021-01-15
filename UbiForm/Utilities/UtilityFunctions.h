@@ -61,7 +61,7 @@ public:
 class SocketOpenError : public std::logic_error{
 public:
     SocketOpenError(const std::string &error, SocketType socketType, const std::string &endpointId)
-            : std::logic_error("Socket type: " + convertSocketType(socketType) + "\nEndpoint ID: " + endpointId + "\nError: " + error){}
+            : std::logic_error("Socket type: " + convertFromSocketType(socketType) + "\nEndpoint ID: " + endpointId + "\nError: " + error){}
 };
 
 // USE ONLY FOR TESTING PURPOSES

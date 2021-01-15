@@ -16,7 +16,8 @@
 enum SocketType{
     Pair,Publisher,Subscriber, Reply, Request
 };
-std::string convertSocketType(SocketType st);
+std::string convertFromSocketType(SocketType st);
+SocketType convertToSocketType(const std::string& st);
 
 /// Describes the different types in our endpoint schemas/socket messages
 enum ValueType{

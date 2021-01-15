@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "SystemEnums.h"
 
 std::string convertValueType(ValueType vt) {
@@ -17,7 +18,7 @@ std::string convertValueType(ValueType vt) {
     }
 }
 
-std::string convertSocketType(SocketType st) {
+std::string convertFromSocketType(SocketType st) {
     switch(st){
         case Pair:
             return PAIR;
@@ -29,5 +30,21 @@ std::string convertSocketType(SocketType st) {
             return REPLY;
         case Request:
             return REQUEST;
+    }
+}
+
+SocketType convertToSocketType(const std::string &st) {
+    if(st == PAIR){
+        return SocketType::Pair;
+    }else if(st == PUBLISHER){
+        return SocketType::Publisher;
+    }else if(st == SUBSCRIBER){
+        return SocketType::Subscriber;
+    }else if(st == REPLY){
+        return SocketType::Reply;
+    }else if(st == REQUEST){
+        return SocketType::Request;
+    }else {
+        throw std::logic_error("No socket type corresponds to " + st);
     }
 }
