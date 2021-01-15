@@ -127,7 +127,7 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
 
     rapidjson::Value newEndpoint(rapidjson::kObjectType);
     newEndpoint.AddMember(rapidjson::Value("socketType", JSON_document.GetAllocator()),
-                          rapidjson::Value(convertSocketType(socketType), JSON_document.GetAllocator()),
+                          rapidjson::Value(convertFromSocketType(socketType), JSON_document.GetAllocator()),
                           JSON_document.GetAllocator());
 
     if (socketType == SocketType::Pair || socketType == SocketType::Subscriber) {

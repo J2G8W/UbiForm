@@ -38,15 +38,15 @@ protected:
 
 
 TEST_F(SimpleComponent, CreateMultipleEndpoints){
-    component->createNewPairEndpoint("pairExample", "PairEndpoint1");
-    component->createNewPairEndpoint("pairExample", "PairEndpoint2");
+    component->createNewEndpoint("pairExample", "PairEndpoint1");
+    component->createNewEndpoint("pairExample", "PairEndpoint2");
 
     ASSERT_NO_THROW(component->getReceiverEndpointById("PairEndpoint1"));
     ASSERT_NO_THROW(component->getSenderEndpointById("PairEndpoint2"));
 }
 
 TEST_F(SimpleComponent, GetEndpoints){
-    component->createNewPairEndpoint("pairExample","TestEndpoint");
+    component->createNewEndpoint("pairExample","TestEndpoint");
 
     ASSERT_NO_THROW(component->getReceiverEndpointById("TestEndpoint"));
     ASSERT_NO_THROW(component->getSenderEndpointById("TestEndpoint"));
@@ -56,7 +56,7 @@ TEST_F(SimpleComponent, GetEndpoints){
 }
 
 TEST_F(SimpleComponent, WrongEndpointType){
-    ASSERT_ANY_THROW(component->createNewPairEndpoint("NotAType","TestEndpoint"));
+    ASSERT_THROW(component->createNewEndpoint("NotAType","TestEndpoint"), AccessError);
 }
 
 

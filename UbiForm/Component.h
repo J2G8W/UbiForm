@@ -106,8 +106,8 @@ public:
      * @param - Id is a unique identifier given to the new endpoint within the component
      */
     std::shared_ptr<PairEndpoint> createNewPairEndpoint(const std::string& type, const std::string& id);
-    std::shared_ptr<SubscriberEndpoint> createNewSubscriberEndpoint(const std::string& type, const std::string& id);
-    std::shared_ptr<PublisherEndpoint> createNewPublisherEndpoint(const std::string& type, const std::string& id);
+
+    void createNewEndpoint(const std::string& type, const std::string& id);
     ///@}
 
     /**

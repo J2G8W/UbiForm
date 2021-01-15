@@ -82,34 +82,65 @@ std::shared_ptr<PairEndpoint> Component::createNewPairEndpoint(const std::string
     return pe;
 }
 
-std::shared_ptr<PublisherEndpoint> Component::createNewPublisherEndpoint(const std::string& typeOfEndpoint, const std::string& id) {
-    std::shared_ptr<EndpointSchema>sendSchema = componentManifest.getSenderSchema(typeOfEndpoint);
+void Component::createNewEndpoint(const std::string &typeOfEndpoint, const std::string &id) {
+    SocketType socketType = convertToSocketType(componentManifest.getSocketType(typeOfEndpoint));
 
-    std::shared_ptr<PublisherEndpoint> pe = std::make_shared<PublisherEndpoint>(sendSchema,typeOfEndpoint, id);
-    idSenderEndpoints.insert(std::make_pair(id, pe));
-
-    if (typeSenderEndpoints.count(typeOfEndpoint) == 1) {
-        typeSenderEndpoints.at(typeOfEndpoint)->push_back(pe);
-    }else{
-        typeSenderEndpoints.insert(std::make_pair(typeOfEndpoint,std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >(1,pe)));
+    std::shared_ptr<EndpointSchema> recvSchema;
+    std::shared_ptr<EndpointSchema> sendSchema;
+    if(socketType == SocketType::Pair || socketType == SocketType::Subscriber || socketType == SocketType::Request || socketType == SocketType::Reply ){
+        recvSchema = componentManifest.getReceiverSchema(typeOfEndpoint);
+    }
+    if(socketType == SocketType::Pair || socketType == SocketType::Publisher || socketType == SocketType::Request || socketType == SocketType::Reply ){
+        sendSchema = componentManifest.getSenderSchema(typeOfEndpoint);
     }
 
-    return pe;
-}
-
-std::shared_ptr<SubscriberEndpoint> Component::createNewSubscriberEndpoint(const std::string& typeOfEndpoint, const std::string& id) {
-    std::shared_ptr<EndpointSchema>receiveSchema = componentManifest.getReceiverSchema(typeOfEndpoint);
-
-    std::shared_ptr<SubscriberEndpoint> pe = std::make_shared<SubscriberEndpoint>(receiveSchema,typeOfEndpoint, id);
-    idReceiverEndpoints.insert(std::make_pair(id, pe));
-
-    if (typeReceiverEndpoints.count(typeOfEndpoint) == 1) {
-        typeReceiverEndpoints.at(typeOfEndpoint)->push_back(pe);
-    }else{
-        typeReceiverEndpoints.insert(std::make_pair(typeOfEndpoint,std::make_shared<std::vector<std::shared_ptr<DataReceiverEndpoint> > >(1,pe)));
+    std::shared_ptr<DataReceiverEndpoint> receiverEndpoint;
+    std::shared_ptr<DataSenderEndpoint> senderEndpoint;
+    switch (socketType) {
+        case Pair: {
+            auto pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema, typeOfEndpoint, id);
+            receiverEndpoint = pe;
+            senderEndpoint = pe;
+        }
+        case Publisher:
+            senderEndpoint = std::make_shared<PublisherEndpoint>(sendSchema, typeOfEndpoint, id);
+        case Subscriber:
+            receiverEndpoint = std::make_shared<SubscriberEndpoint>(recvSchema, typeOfEndpoint, id);
+            break;
+        case Reply: {
+            auto pe = std::make_shared<ReplyEndpoint>(recvSchema, sendSchema, typeOfEndpoint, id);
+            receiverEndpoint = pe;
+            senderEndpoint = pe;
+            break;
+        }
+        case Request:{
+            auto pe = std::make_shared<RequestEndpoint>(recvSchema, sendSchema, typeOfEndpoint, id);
+            receiverEndpoint = pe;
+            senderEndpoint = pe;
+            break;
+        }
     }
 
-    return pe;
+
+
+    if(socketType == SocketType::Pair || socketType == SocketType::Subscriber || socketType == SocketType::Request || socketType == SocketType::Reply ){
+        idReceiverEndpoints.insert(std::make_pair(id, receiverEndpoint));
+        if (typeReceiverEndpoints.count(typeOfEndpoint) == 1) {
+            typeReceiverEndpoints.at(typeOfEndpoint)->push_back(receiverEndpoint);
+        }else{
+            typeReceiverEndpoints.insert(std::make_pair(
+                    typeOfEndpoint,
+                    std::make_shared<std::vector<std::shared_ptr<DataReceiverEndpoint> > >(1,receiverEndpoint)));
+        }
+    }
+    if(socketType == SocketType::Pair || socketType == SocketType::Publisher || socketType == SocketType::Request || socketType == SocketType::Reply ){
+        idSenderEndpoints.insert(std::make_pair(id, senderEndpoint));
+        if (typeSenderEndpoints.count(typeOfEndpoint) == 1) {
+            typeSenderEndpoints.at(typeOfEndpoint)->push_back(senderEndpoint);
+        }else{
+            typeSenderEndpoints.insert(std::make_pair(typeOfEndpoint,std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >(1,senderEndpoint)));
+        }
+    }
 }
 
 
@@ -192,15 +223,11 @@ void Component::startBackgroundListen(int port) {
 int Component::createEndpointAndListen(SocketType st, const std::string& endpointType){
     std::string socketId = generateNewSocketId();
     std::shared_ptr<DataSenderEndpoint> e;
-    switch (st) {
-        case Pair:
-            e = createNewPairEndpoint(endpointType, socketId);
-            break;
-        case Publisher:
-            e = createNewPublisherEndpoint(endpointType, socketId);
-            break;
-        default:
-            throw std::logic_error("Cannot open a connection for type " + std::to_string(st));
+    createNewEndpoint(endpointType, socketId);
+    try{
+        e = getSenderEndpointById(socketId);
+    }catch (std::out_of_range &e){
+        throw std::logic_error("Couldn't make endpoint of type " + endpointType + " socket type of " + convertFromSocketType(st));
     }
 
 
@@ -216,7 +243,7 @@ int Component::createEndpointAndListen(SocketType st, const std::string& endpoin
         if (rv == NNG_EADDRINUSE){
             lowestPort = generateRandomPort();
         }else if (rv != 0){
-            throw NngError(rv, "Create " + convertSocketType(st) + " listener at " + url + ":" + std::to_string(lowestPort));
+            throw NngError(rv, "Create " + convertFromSocketType(st) + " listener at " + url + ":" + std::to_string(lowestPort));
         }
     }
     std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":" << lowestPort;
@@ -227,10 +254,11 @@ int Component::createEndpointAndListen(SocketType st, const std::string& endpoin
 void Component::createEndpointAndDial(const std::string& socketType, const std::string& localEndpointType, const std::string& url){
     std::shared_ptr<DataReceiverEndpoint> e;
     std::string socketId = generateNewSocketId();
-    if (socketType == PAIR){
-        e = this->createNewPairEndpoint(localEndpointType, socketId);
-    }else if (socketType == SUBSCRIBER){
-        e = this->createNewSubscriberEndpoint(localEndpointType, socketId);
+    createNewEndpoint(localEndpointType, socketId);
+    try{
+        e = getReceiverEndpointById(socketId);
+    }catch (std::out_of_range &e){
+        throw std::logic_error("Couldn't make endpoint of type " + localEndpointType + " socket type of " + socketType);
     }
 
     this->lowestPort ++;
