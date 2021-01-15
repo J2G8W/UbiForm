@@ -29,9 +29,9 @@ void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, vo
     if (!socketOpen) {
         throw SocketOpenError("Could not async-receive message, socket is closed", socketType, endpointIdentifier);
     }
-    auto *asyncData = new AsyncData(callb, this->receiverSchema, furtherUserData);
-
-    nng_recv_aio(*receiverSocket, asyncData->nngAioPointer);
+    auto *asyncData = new AsyncData(callb, this->receiverSchema, furtherUserData, this);
+    nng_aio_alloc(&(uniqueEndpointAioPointer), asyncCallback, asyncData);
+    nng_recv_aio(*receiverSocket, uniqueEndpointAioPointer);
     // Purposely don't delete memory of asyncData as this will be used in the callback
 }
 
@@ -40,14 +40,14 @@ void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, vo
 void DataReceiverEndpoint::asyncCallback(void *data) {
     auto *asyncInput = static_cast<AsyncData *>(data);
     int rv;
-    if ((rv = nng_aio_result(asyncInput->nngAioPointer)) != 0) {
+    if ((rv = nng_aio_result(asyncInput->owningEndpoint->uniqueEndpointAioPointer)) != 0) {
         std::cerr << "NNG async error\nError text: " << nng_strerror(rv) << std::endl;
         delete asyncInput;
         return;
     }
 
     // Extract the message from our AioPointer and create a SocketMessage for easy handling
-    nng_msg *msgPointer = nng_aio_get_msg(asyncInput->nngAioPointer);
+    nng_msg *msgPointer = nng_aio_get_msg(asyncInput->owningEndpoint->uniqueEndpointAioPointer);
     char *receivedJSON = static_cast<char *>(nng_msg_body(msgPointer));
     std::unique_ptr<SocketMessage>receivedMessage = std::make_unique<SocketMessage>(receivedJSON);
 
