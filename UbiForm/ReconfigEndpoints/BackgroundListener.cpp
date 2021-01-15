@@ -14,9 +14,12 @@ void BackgroundListener::startBackgroundListen(const std::string &baseAddress, i
 void BackgroundListener::backgroundListen(BackgroundListener * backgroundListener) {
     while (true){
         std::unique_ptr<SocketMessage> request;
+        std::unique_ptr<SocketMessage> reply;
+        bool validRequest = true;
         try {
             request = backgroundListener->replyEndpoint.receiveMessage();
         }catch(NngError &e){
+            // For NNG errors we just gracefully end our background process
             if (e.errorCode == NNG_ECLOSED){
                 break;
             }else{
@@ -24,45 +27,54 @@ void BackgroundListener::backgroundListen(BackgroundListener * backgroundListene
                 break;
             }
         }catch(SocketOpenError &e){
+            // If the socket is no longer open then we just end our background process
             break;
+        }catch(std::logic_error &e){
+            // For validation errors or something similar, we return the error messahe
+            validRequest = false;
+            reply = std::make_unique<SocketMessage>();
+            reply->addMember("error",true);
+            reply->addMember("errorMsg", e.what());
         }
 
 
-        std::unique_ptr<SocketMessage> reply;
-        try{
-            request->getString("requestType");
-            if (request->getString("requestType") == BACKGROUND_REQUEST_CONNECTION) {
-                backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(*request);
-                reply = backgroundListener->handleConnectionRequest((*request));
-                backgroundListener->systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(*reply);
-            }else if(request->getString("requestType") == BACKGROUND_ADD_RDH){
-                reply = backgroundListener->handleAddRDH(*request);
-            }else if(request->getString("requestType") == BACKGROUND_TELL_TO_REQUEST_CONNECTION){
-                reply = backgroundListener->handleTellCreateConnectionRequest(*request);
-            }else if(request->getString("requestType") == BACKGROUND_CHANGE_ENDPOINT_SCHEMA){
-                reply = backgroundListener->handleChangeEndpointRequest(*request);
-            }else if(request->getString("requestType") == BACKGROUND_CREATE_RDH){
-                reply = backgroundListener->handleCreateRDHRequest(*request);
-            }else if(request->getString("requestType") == BACKGROUND_CHANGE_MANIFEST){
-                reply = backgroundListener->handleChangeManifestRequest(*request);
-            }else if(request->getString("requestType") == BACKGROUND_GET_LOCATIONS_OF_RDH){
-                reply = backgroundListener->handleRDHLocationsRequest(*request);
-            }else if(request->getString("requestType") == BACKGROUND_CLOSE_SOCKETS){
-                reply = backgroundListener->handleCloseSocketsRequest(*request);
-            }else if(request->getString("requestType") == BACKGROUND_CLOSE_RDH){
-                reply = backgroundListener->handleCloseRDH(*request);
+        if(!validRequest) {
+            try {
+                request->getString("requestType");
+                if (request->getString("requestType") == BACKGROUND_REQUEST_CONNECTION) {
+                    backgroundListener->systemSchemas.getSystemSchema(
+                            SystemSchemaName::endpointCreationRequest).validate(*request);
+                    reply = backgroundListener->handleConnectionRequest((*request));
+                    backgroundListener->systemSchemas.getSystemSchema(
+                            SystemSchemaName::endpointCreationResponse).validate(*reply);
+                } else if (request->getString("requestType") == BACKGROUND_ADD_RDH) {
+                    reply = backgroundListener->handleAddRDH(*request);
+                } else if (request->getString("requestType") == BACKGROUND_TELL_TO_REQUEST_CONNECTION) {
+                    reply = backgroundListener->handleTellCreateConnectionRequest(*request);
+                } else if (request->getString("requestType") == BACKGROUND_CHANGE_ENDPOINT_SCHEMA) {
+                    reply = backgroundListener->handleChangeEndpointRequest(*request);
+                } else if (request->getString("requestType") == BACKGROUND_CREATE_RDH) {
+                    reply = backgroundListener->handleCreateRDHRequest(*request);
+                } else if (request->getString("requestType") == BACKGROUND_CHANGE_MANIFEST) {
+                    reply = backgroundListener->handleChangeManifestRequest(*request);
+                } else if (request->getString("requestType") == BACKGROUND_GET_LOCATIONS_OF_RDH) {
+                    reply = backgroundListener->handleRDHLocationsRequest(*request);
+                } else if (request->getString("requestType") == BACKGROUND_CLOSE_SOCKETS) {
+                    reply = backgroundListener->handleCloseSocketsRequest(*request);
+                } else if (request->getString("requestType") == BACKGROUND_CLOSE_RDH) {
+                    reply = backgroundListener->handleCloseRDH(*request);
+                } else {
+                    throw ValidationError("requestType had value: " + request->getString("requestType"));
+                }
+            } catch (ValidationError &e) {
+                reply = std::make_unique<SocketMessage>();
+                reply->addMember("error", true);
+                reply->addMember("errorMsg", "Validation error - " + std::string(e.what()));
+            } catch (std::logic_error &e) {
+                reply = std::make_unique<SocketMessage>();
+                reply->addMember("error", true);
+                reply->addMember("errorMsg", e.what());
             }
-            else{
-                throw ValidationError("requestType had value: " + request->getString("requestType"));
-            }
-        }catch(ValidationError &e){
-            reply = std::make_unique<SocketMessage>();
-            reply->addMember("error",true);
-            reply->addMember("errorMsg","Validation error - " + std::string(e.what()));
-        }catch(std::logic_error &e){
-            reply = std::make_unique<SocketMessage>();
-            reply->addMember("error",true);
-            reply->addMember("errorMsg",e.what());
         }
 
         try {
