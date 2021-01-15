@@ -24,7 +24,7 @@ PublisherEndpoint::~PublisherEndpoint() {
     // We have to check if we ever initialised the receiverSocket before trying to close it
     if (senderSocket != nullptr && DataSenderEndpoint::socketOpen) {
         // Make sure that the messages are flushed
-        nng_msleep(1);
+        nng_msleep(300);
         // We only have one actual socket so only need to close 1.
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
