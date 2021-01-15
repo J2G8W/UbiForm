@@ -20,8 +20,6 @@ public:
     void listenForConnection(const char *base, int port) override ;
     int listenForConnectionWithRV(const char *base, int port) override;
 
-    // Milliseconds
-    void setTimeout(int timeout);
 
     void dialConnection(const char *url) override;
     void closeSocket() override;

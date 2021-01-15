@@ -25,9 +25,6 @@ void ReplyEndpoint::dialConnection(const char *url) {
     throw SocketOpenError("Reply endpoint is trying to dial a connection!", DataSenderEndpoint::socketType, DataSenderEndpoint::endpointIdentifier);
 }
 
-void ReplyEndpoint::setTimeout(int timeout) {
-    nng_socket_set_ms(*senderSocket, NNG_OPT_RECVTIMEO,timeout);
-}
 
 void ReplyEndpoint::closeSocket() {
     if (DataReceiverEndpoint::socketOpen && DataSenderEndpoint::socketOpen) {

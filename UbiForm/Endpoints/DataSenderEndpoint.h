@@ -52,6 +52,7 @@ public:
         nng_aio_free(nngAioPointer);
     }
 
+    void setSendTimeout(int ms_time);
 };
 
 

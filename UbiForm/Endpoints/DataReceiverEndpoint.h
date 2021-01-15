@@ -71,6 +71,10 @@ public:
 
     virtual void closeSocket() = 0;
     virtual ~DataReceiverEndpoint() = default;
+
+    // -1 is infinite time
+    // 0+ is in milliseconds
+    void setReceiveTimeout(int ms_time);
 };
 
 

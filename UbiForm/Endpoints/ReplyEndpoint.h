@@ -27,7 +27,7 @@ public:
         // Use the same socket for sending and receiving
         receiverSocket = senderSocket;
         // By default we have an infinite timeout
-        setTimeout(-1);
+        setReceiveTimeout(-1);
     }
 
     void listenForConnection(const char *base, int port) override ;
@@ -38,7 +38,6 @@ public:
     void closeSocket() override;
     ~ReplyEndpoint() override;
 
-    void setTimeout(int timeout);
 };
 
 

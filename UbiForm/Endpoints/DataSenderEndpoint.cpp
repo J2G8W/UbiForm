@@ -52,3 +52,10 @@ void DataSenderEndpoint::asyncCleanup(void * data) {
         nng_msg_free(msg);
     }
 }
+
+void DataSenderEndpoint::setSendTimeout(int ms_time) {
+    int rv = nng_socket_set_ms(*senderSocket, NNG_OPT_SENDTIMEO,ms_time);
+    if(rv != 0){
+        throw NngError(rv,"Set send timeout");
+    }
+}

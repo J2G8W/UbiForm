@@ -76,3 +76,10 @@ void DataReceiverEndpoint::asyncCallback(void *data) {
     delete asyncInput;
 }
 
+void DataReceiverEndpoint::setReceiveTimeout(int ms_time) {
+    int rv = nng_socket_set_ms(*receiverSocket, NNG_OPT_RECVTIMEO,ms_time);
+    if(rv != 0){
+        throw NngError(rv,"Set receive timeout");
+    }
+}
+
