@@ -18,7 +18,7 @@ private:
     static void asyncCallback(void *data);
 
     // Never freed...
-    nng_aio *uniqueEndpointAioPointer;
+    nng_aio *uniqueEndpointAioPointer = nullptr;
 
     /**
      * This is the data structure used only internally for our async functions, it can have arbitrary data in it with
@@ -104,7 +104,12 @@ public:
      */
     virtual void closeSocket() = 0;
 
-    virtual ~DataReceiverEndpoint() = default;
+    virtual ~DataReceiverEndpoint(){
+        if(uniqueEndpointAioPointer != nullptr) {
+            nng_aio_wait(uniqueEndpointAioPointer);
+            nng_aio_free(uniqueEndpointAioPointer);
+        }
+    }
 
     /**
      * Set the timeout of the function for its receive functions. This applies to both Blocking and Async receives.
