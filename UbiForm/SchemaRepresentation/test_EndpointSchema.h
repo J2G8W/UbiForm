@@ -38,9 +38,8 @@ TEST_F(EndpointSchemaSimpleChecks, CorrectValidationOfMessage) {
 }
 
 TEST_F(EndpointSchemaSimpleChecks, GetSchema) {
-    SocketMessage *schemaRep = endpointSchema.getSchemaObject();
+    auto schemaRep = endpointSchema.getSchemaObject();
     ASSERT_EQ(schemaRep->stringify(), std::string(schemaInput));
-    delete schemaRep;
 }
 
 TEST_F(EndpointSchemaSimpleChecks, GetType) {
@@ -49,9 +48,8 @@ TEST_F(EndpointSchemaSimpleChecks, GetType) {
     ASSERT_THROW(endpointSchema.getValueType("NOT A FIELD"), AccessError);
 
     // Make sure the schema hasn't been changed
-    SocketMessage *schemaRep = endpointSchema.getSchemaObject();
+    auto schemaRep = endpointSchema.getSchemaObject();
     ASSERT_EQ(schemaRep->stringify(), std::string(schemaInput));
-    delete schemaRep;
 }
 
 TEST_F(EndpointSchemaSimpleChecks, SimpleUpdate) {

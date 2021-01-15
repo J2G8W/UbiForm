@@ -149,12 +149,11 @@ TEST_F(ManifestExample, AddPairSchema) {
     sm.addMember("TEST", "HELLO");
     ASSERT_THROW(componentManifest->getReceiverSchema("pairExample")->validate(sm), ValidationError);
 
-    SocketMessage *schemaRep = componentManifest->getSchemaObject("pairExample", true);
+    std::unique_ptr<SocketMessage> schemaRep = componentManifest->getSchemaObject("pairExample", true);
     auto requiredArray = schemaRep->getArray<std::string>("required");
 
     ASSERT_EQ(requiredArray.size(), 1);
     ASSERT_EQ(requiredArray.at(0), "TEST");
-    delete schemaRep;
 }
 
 TEST_F(ManifestExample, AddSubscriberSchema) {

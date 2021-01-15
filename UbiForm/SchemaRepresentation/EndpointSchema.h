@@ -73,32 +73,97 @@ public:
      */
     void completeUpdate(rapidjson::Value &doc);
 
-    SocketMessage *getSchemaObject();
+    /**
+     *
+     * @return A copy of the schema represented as a SocketMessage
+     */
+    std::unique_ptr<SocketMessage> getSchemaObject();
 
+    ///@{
+    /**
+     * We validate a given input against our schema
+     * @param messageToValidate
+     * @throws ValidationError when our message does not validate
+     */
     void validate(const SocketMessage &messageToValidate);
 
+    /**
+     * We validate a given input against our schema
+     * @param doc
+     * @throws ValidationError when our message does not validate
+     */
     void validate(const rapidjson::Value &doc);
+    ///@}
 
+    /**
+     * Get the type of value that the field is
+     * @param fieldName
+     * @return The type of value that the given field is
+     * @throws AccessError when the fieldName isn't in the schema
+     */
     ValueType getValueType(const std::string &fieldName);
 
+    /**
+     * Gets the required field name for this schema
+     * @return Vector of required field names in schema
+     */
     std::vector<std::string> getRequired();
 
+    /**
+     * Gets all the property names that the schema checks against
+     * @return Vector of property name in the schema
+     */
     std::vector<std::string> getAllProperties();
 
+    /**
+     * We add a property of given type to our schema
+     * @param name - property name
+     * @param type - the type
+     */
     void addProperty(const std::string &name, ValueType type);
 
+    /**
+     * Remove property from our properties. If name is not in schema does nothing
+     * @param name
+     */
     void removeProperty(const std::string &name);
 
+    /**
+     * Add a property name as 'required' to our schema
+     * @param name
+     */
     void addRequired(const std::string &name);
 
+    /**
+     * Remove a property from the required list
+     * @param name
+     */
     void removeRequired(const std::string &name);
 
+    /**
+     * Set the given name to be an ARRAY OF TYPES
+     * @param name
+     * @param type
+     */
     void setArrayType(const std::string &name, ValueType type);
 
+    /**
+     * Set the given name to be an ARRAY OF given schemas
+     * @param name
+     * @param es
+     */
     void setArrayObject(const std::string &name, EndpointSchema &es);
 
+    /**
+     * Set the given name to be a sub object within the schema
+     * @param name
+     * @param es
+     */
     void setSubObject(const std::string &name, EndpointSchema &es);
 
+    /**
+     * @return String representation of the schema
+     */
     std::string stringify();
 
     ~EndpointSchema() {

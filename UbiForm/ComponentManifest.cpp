@@ -79,7 +79,7 @@ void ComponentManifest::setName(const std::string &name) {
     setProperty("name", name);
 }
 
-SocketMessage *ComponentManifest::getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema) {
+std::unique_ptr<SocketMessage> ComponentManifest::getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema) {
     if (receiveSchema) {
         try {
             return getReceiverSchema(typeOfEndpoint)->getSchemaObject();

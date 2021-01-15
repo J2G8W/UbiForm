@@ -103,7 +103,7 @@ ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const std::string &en
     request->addMember("dataReceiverEndpoint", false);
 
     // We want our schema to be receiving data
-    auto schema = std::unique_ptr<SocketMessage>(component->getComponentManifest().getSchemaObject(endpointType, true));
+    auto schema = component->getComponentManifest().getSchemaObject(endpointType, true);
 
     request->addMoveObject("schema", std::move(schema));
 

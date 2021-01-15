@@ -30,8 +30,8 @@ void EndpointSchema::completeUpdate(rapidjson::Value &doc) {
     changeSchema();
 }
 
-SocketMessage *EndpointSchema::getSchemaObject() {
-    auto *returnObject = new SocketMessage(*JSON_rep, true);
+std::unique_ptr<SocketMessage> EndpointSchema::getSchemaObject() {
+    auto returnObject = std::unique_ptr<SocketMessage>(new SocketMessage(*JSON_rep, true));
     return returnObject;
 }
 
@@ -51,7 +51,7 @@ ValueType EndpointSchema::getValueType(const std::string &fieldName) {
     else if (valueType == "object") { return ValueType::Object; }
     else if (valueType == "array") { return ValueType::Array; }
     else if (valueType == "null") { return ValueType::Null; }
-    else { throw ValidationError("No valid type in the schema for field: " + fieldName); }
+    else { throw AccessError("No valid type in the schema for field: " + fieldName); }
 }
 
 std::vector<std::string> EndpointSchema::getAllProperties() {

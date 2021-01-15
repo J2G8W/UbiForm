@@ -124,7 +124,7 @@ public:
      * @param receiveSchema - whether we want receive or send schema for that type
      * @return SocketMessage pointer which needs memory handling, used for sending our schema on the network
      */
-    SocketMessage *getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema);
+    std::unique_ptr<SocketMessage> getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema);
 
 
     /**

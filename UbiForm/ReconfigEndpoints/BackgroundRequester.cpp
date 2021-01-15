@@ -79,12 +79,12 @@ void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddr
     sm.addMember("endpointType", endpointType);
     if (receiverSchema == nullptr) { sm.setNull("receiveSchema"); }
     else {
-        auto schemaObj = std::unique_ptr<SocketMessage>(receiverSchema->getSchemaObject());
+        auto schemaObj = receiverSchema->getSchemaObject();
         sm.addMoveObject("receiveSchema", std::move(schemaObj));
     }
     if (sendSchema == nullptr) { sm.setNull("sendSchema"); }
     else {
-        auto schemaObj = std::unique_ptr<SocketMessage>(sendSchema->getSchemaObject());
+        auto schemaObj = sendSchema->getSchemaObject();
         sm.addMoveObject("sendSchema", std::move(schemaObj));
     }
     sm.addMember("socketType", socketType);
