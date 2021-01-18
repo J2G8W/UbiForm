@@ -17,7 +17,6 @@ option(BUILD_EXAMPLES "Build examples programs" OFF)
 # Directory of NNG in relation to current location
 set(nng_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../nng/android_build/src)
 
->>>>>>> bfa70047a76a8aa8d90a4639948f54459825b7f1
 
 message(${nng_DIR}/build/libnng.a)
 list(APPEND CMAKE_PREFIX_PATH ${nng_DIR})
