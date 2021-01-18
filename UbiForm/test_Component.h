@@ -1,7 +1,6 @@
 #include "gtest/gtest.h"
 
 #include <windows.h>
-
 #include "Component.h"
 
 TEST(EmptyComponent, NoManifest){
