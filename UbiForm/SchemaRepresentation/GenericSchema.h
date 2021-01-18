@@ -42,7 +42,6 @@ public:
     };
 
     ~GenericSchema() {
-        document.Clear();
     }
 };
 
