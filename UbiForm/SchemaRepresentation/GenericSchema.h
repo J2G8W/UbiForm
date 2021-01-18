@@ -28,6 +28,9 @@ public:
     explicit GenericSchema(FILE *jsonFP) : document(InitiateFromFile(jsonFP)) {
         es = std::make_shared<EndpointSchema>(&document, document.GetAllocator());
     }
+    GenericSchema() : document(){
+        es = std::make_shared<EndpointSchema>();
+    }
 
     void validate(const SocketMessage &messageToValidate) {
         es->validate(messageToValidate);
