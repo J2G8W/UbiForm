@@ -4,7 +4,7 @@
 #ifdef __linux__
 #define LINUX_BUILD
 #endif
-#ifdef _WIND32
+#ifdef _WIN32
 #define WINDOWS_BUILD
 #endif
 #ifdef __ANDROID__
