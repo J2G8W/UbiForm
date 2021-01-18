@@ -39,11 +39,13 @@ public:
             FILE *pFile = fopen(files[i], "r");
             if (pFile == nullptr) {
                 std::string errorMsg = "Error opening file - " + std::string(files[i]);
-                throw AccessError(errorMsg);
+                auto es = std::make_shared<GenericSchema>();
+                systemSchemas.insert(std::make_pair(static_cast<SystemSchemaName>(i), es));
+            }else {
+                auto es = std::make_shared<GenericSchema>(pFile);
+                systemSchemas.insert(std::make_pair(static_cast<SystemSchemaName>(i), es));
+                fclose(pFile);
             }
-            auto es = std::make_shared<GenericSchema>(pFile);
-            systemSchemas.insert(std::make_pair(static_cast<SystemSchemaName>(i), es));
-            fclose(pFile);
         }
 
         SystemSchemas::numberOfInstances++;
