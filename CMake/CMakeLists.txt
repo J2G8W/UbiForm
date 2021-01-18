@@ -13,15 +13,18 @@ option(BUILD_EXAMPLES "Build examples programs" OFF)
 
 # Note that both of these libraries need to be pre-installed at the moment, they don't come with
 
+
+#set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.0.1\\5.0.1\\msvc2010\\")
 # Directory of NNG in relation to current location
-set(nng_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../nng)
+#set(nng_dir )
+set(nng_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../nng/android_build/src)
 
-message(${nng_dir}/build/libnng.a)
-
+message(${nng_DIR}/build/libnng.a)
+list(APPEND CMAKE_PREFIX_PATH ${nng_DIR})
 # Setup nng library
-add_library(NNG SHARED IMPORTED)
-set_target_properties(NNG PROPERTIES IMPORTED_IMPLIB  ${nng_dir}/build/libnng.a)
-set_target_properties(NNG PROPERTIES IMPORTED_LOCATION  ${nng_dir}/build/libnng.a)
+#add_library(NNG SHARED IMPORTED)
+#set_target_properties(NNG PROPERTIES IMPORTED_IMPLIB  ${nng_dir}/build/libnng.a)
+#set_target_properties(NNG PROPERTIES IMPORTED_LOCATION  ${nng_dir}/build/libnng.a)
 
 
 find_package(nng CONFIG REQUIRED)
@@ -30,7 +33,7 @@ find_package(nng CONFIG REQUIRED)
 ADD_DEFINITIONS(-DRAPIDJSON_HAS_STDSTRING)
 set(rapidjson_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../rapidjson)
 
-include_directories(${nng_dir}/include)
+#include_directories(${nng_DIR}/include)
 include_directories(${rapidjson_dir}/include)
 
 

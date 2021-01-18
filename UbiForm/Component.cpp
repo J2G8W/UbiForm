@@ -134,7 +134,7 @@ void Component::startBackgroundListen(int port) {
         throw NngError(rv, "Listening on " + backgroundListenAddress);
     }
 
-    this->backgroundThread = std::thread(backgroundListen,this);
+    //this->backgroundThread = std::thread(backgroundListen,this);
 
 }
 

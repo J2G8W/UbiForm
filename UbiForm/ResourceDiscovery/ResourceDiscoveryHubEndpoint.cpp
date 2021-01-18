@@ -11,7 +11,7 @@ void ResourceDiscoveryHubEndpoint::startResourceDiscover(const std::string& urlI
     if ((rv = nng_listen(rdSocket, urlInit.c_str(), nullptr, 0)) != 0) {
         throw NngError(rv, "Listening on " + urlInit + " for RDH");
     }
-    this->rdThread = std::thread(rdBackground, this);
+    //this->rdThread = std::thread(rdBackground, this);
 }
 
 void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint * rdhe) {
