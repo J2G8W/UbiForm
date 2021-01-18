@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
 #include "GetIPAddress.h"
 
-TEST(IpAddress, Linux) {
+TEST(IpAddress, General) {
     std::vector<std::string> addrs;
-    ASSERT_NO_THROW(addrs = getLinuxIpAddresses());
+    ASSERT_NO_THROW(addrs = getIpAddresses());
     for (auto a : addrs) {
         std::cout << a << std::endl;
     }

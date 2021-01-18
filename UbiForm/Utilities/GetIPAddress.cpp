@@ -1,5 +1,7 @@
 #include "GetIPAddress.h"
 
+#ifdef LINUX_BUILD
+
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -38,3 +40,24 @@ std::vector<std::string> getLinuxIpAddresses() {
     freeifaddrs(ifaddr);
     return returnAddresses;
 }
+
+#endif
+
+std::vector<std::string> getIpAddresses() {
+#ifdef LINUX_BUILD
+    return getLinuxIpAddresses();
+#endif
+#ifdef WINDOWS_BUILD
+    return getWindowsIpAddresses();
+#endif
+    std::vector<std::string> empty;
+    return empty;
+}
+
+#ifdef WINDOWS_BUILD
+std::vector<std::string> getWindowsIpAddresses(){
+    std::vector<std::string> returnVector;
+    returnVector.emplace_back("127.0.0.1");
+    return returnVector;
+}
+#endif

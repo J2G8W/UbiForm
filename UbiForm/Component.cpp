@@ -37,7 +37,7 @@ Component::Component() : systemSchemas(),
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
 
-    auto addresses = getLinuxIpAddresses();
+    auto addresses = getIpAddresses();
     for (const auto &address: addresses) {
         if (address.rfind("127.", 0) != 0) {
             availableAddresses.emplace_back("tcp://" + address);
