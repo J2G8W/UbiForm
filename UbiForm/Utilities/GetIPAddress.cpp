@@ -55,9 +55,36 @@ std::vector<std::string> getIpAddresses() {
 }
 
 #ifdef WINDOWS_BUILD
+#include <stdio.h>
+#include <WinSock.h>
+#pragma comment(lib, "wsock32.lib")
 std::vector<std::string> getWindowsIpAddresses(){
-    std::vector<std::string> returnVector;
-    returnVector.emplace_back("127.0.0.1");
+	 
+	std::vector<std::string> returnVector;
+	WORD wVersionRequested;
+	WSADATA wsaData;
+	char name[255];
+	PHOSTENT hostinfo;
+	wVersionRequested = MAKEWORD( 1, 1 );
+	char *ip;
+
+	if ( WSAStartup( wVersionRequested, &wsaData ) == 0 ){
+		if( gethostname ( name, sizeof(name)) == 0){
+
+			if((hostinfo = gethostbyname(name)) != NULL){
+				int nCount = 0;
+				while(hostinfo->h_addr_list[nCount])
+				{
+				 ip = inet_ntoa(*(
+					  struct in_addr *)hostinfo->h_addr_list[nCount]);
+
+				 returnVector.emplace_back(ip);
+				 nCount++;
+				}
+			}
+		}
+	}
+    
     return returnVector;
 }
 #endif
