@@ -14,6 +14,12 @@ option(BUILD_EXAMPLES "Build examples programs" OFF)
 # Note that both of these libraries need to be pre-installed at the moment, they don't come with
 
 
+# Directory of NNG in relation to current location
+set(nng_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../nng/android_build/src)
+
+
+message(${nng_DIR}/build/libnng.a)
+list(APPEND CMAKE_PREFIX_PATH ${nng_DIR})
 # Setup nng library
 find_package(nng CONFIG REQUIRED)
 
@@ -21,8 +27,8 @@ find_package(nng CONFIG REQUIRED)
 ADD_DEFINITIONS(-DRAPIDJSON_HAS_STDSTRING)
 set(rapidjson_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../rapidjson)
 
+#include_directories(${nng_DIR}/include)
 include_directories(${rapidjson_dir}/include)
-
 
 
 set(endpointFiles ../UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoints/DataReceiverEndpoint.cpp
@@ -89,11 +95,11 @@ if (BUILD_TESTS)
 	if (CMAKE_VERSION VERSION_LESS 2.8.11)
 		include_directories("${gtest_SOURCE_DIR}/include")
 	endif()
-	
+
     set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h
             ../UbiForm/SchemaRepresentation/test_EndpointSchema.h ../UbiForm/test_Component.h
             ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h ../UbiForm/SystemSchemas/test_SystemSchemas.h ../tests/test_ReconfigurationIntegration.h ../UbiForm/Utilities/test_GetIPAddresses.h)
- 
+
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm)
     file(COPY ../tests/TestManifests DESTINATION .)
