@@ -23,12 +23,8 @@ int main(int argc, char ** argv){
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            component.requestAndCreateConnection("subscriberExample",
-                                                 "tcp://127.0.0.1:8000",
-                                                 "publisherExample");
-            component.requestAndCreateConnection("subscriberExample",
-                                                 "tcp://127.0.0.1:8000",
-                                                 "publisherExample");
+            std::shared_ptr<SubscriberEndpoint> pe = component.createNewSubscriberEndpoint("subscriberExample","PHIL is a twat 2");
+			pe->dialConnection("tcp://192.168.1.236:8002");
             std::unique_ptr<SocketMessage> s;
 
             auto subscriberEndpoints = component.getReceiverEndpointsByType("subscriberExample");
