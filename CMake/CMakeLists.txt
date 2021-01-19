@@ -12,7 +12,8 @@ option(BUILD_TESTS "Build test programs" OFF)
 option(BUILD_EXAMPLES "Build examples programs" OFF)
 
 # Setup nng library
-find_package(nng CONFIG REQUIRED)
+include_directories(nng-master/include)
+add_subdirectory(nng-master)
 
 # Setup rapidjson
 ADD_DEFINITIONS(-DRAPIDJSON_HAS_STDSTRING)
@@ -53,7 +54,7 @@ set(componentFiles ../include/UbiForm/ComponentManifest.h ../UbiForm/ComponentMa
 # Create library
 file(COPY ../UbiForm/SystemSchemas DESTINATION .)
 add_library(UbiForm ${endpointFiles} ${reconfigEndpoints} ${resourceDiscovery} ${schemaFiles} ${utilityFiles} ${componentFiles})
-target_link_libraries(UbiForm nng::nng)
+target_link_libraries(UbiForm nng)
 
 
 # Create tests
