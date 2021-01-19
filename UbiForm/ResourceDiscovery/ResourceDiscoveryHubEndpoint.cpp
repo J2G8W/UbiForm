@@ -25,6 +25,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint *rd
                 break;
             }
         } catch (SocketOpenError &e) {
+            std::cerr << e.what() << std::endl;
             break;
         } catch (std::logic_error &e) {
             returnMsg->addMember("error", true);

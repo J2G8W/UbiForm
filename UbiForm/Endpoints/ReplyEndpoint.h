@@ -16,18 +16,7 @@ public:
             DataSenderEndpoint(sendSchema, endpointIdentifier, SocketType::Reply, endpointType) {
 
         senderSocket = new nng_socket;
-
-        int rv;
-        if ((rv = nng_rep0_open(senderSocket)) != 0) {
-            throw NngError(rv, "Open RD connection request socket");
-        } else {
-            DataReceiverEndpoint::socketOpen = true;
-            DataSenderEndpoint::socketOpen = true;
-        }
-        // Use the same socket for sending and receiving
-        receiverSocket = senderSocket;
-        // By default we have an infinite timeout
-        setReceiveTimeout(-1);
+        openEndpoint();
     }
 
     void listenForConnection(const char *base, int port) override;
@@ -38,6 +27,7 @@ public:
     void dialConnection(const char *url) override;
 
     void closeSocket() override;
+    void openEndpoint() override;
 
     ~ReplyEndpoint() override;
 

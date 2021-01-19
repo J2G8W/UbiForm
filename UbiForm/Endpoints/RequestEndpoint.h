@@ -14,6 +14,7 @@ public:
             DataReceiverEndpoint(receiveSchema, endpointIdentifier, SocketType::Request, endpointType),
             DataSenderEndpoint(sendSchema, endpointIdentifier, SocketType::Request, endpointType) {
         senderSocket = new nng_socket;
+        openEndpoint();
     }
 
     // SHOULD NOT LISTEN FOR CONNECTION
@@ -25,6 +26,7 @@ public:
     void dialConnection(const char *url) override;
 
     void closeSocket() override;
+    void openEndpoint() override;
 
     ~RequestEndpoint() override;
 };

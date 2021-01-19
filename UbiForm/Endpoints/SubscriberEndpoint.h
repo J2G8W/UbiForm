@@ -16,17 +16,13 @@ public:
                                 const std::string &endpointIdentifier = "Subscriber") :
             DataReceiverEndpoint(receiveSchema, endpointIdentifier, SocketType::Subscriber, endpointType) {
         receiverSocket = new nng_socket;
-        int rv;
-        if ((rv = nng_sub0_open(receiverSocket)) != 0) {
-            throw NngError(rv, "Opening subscriber socket");
-        } else {
-            socketOpen = true;
-        }
+        openEndpoint();
     }
 
     void dialConnection(const char *url) override;
 
     void closeSocket() override;
+    void openEndpoint() override;
 
     ~SubscriberEndpoint();
 };

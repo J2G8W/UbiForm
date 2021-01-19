@@ -2,7 +2,7 @@
 
 // Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(SocketMessage &s) {
-    if (!socketOpen) {
+    if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed)) {
         throw SocketOpenError("Could not send message, socket is closed", socketType, endpointIdentifier);
     }
     int rv;
@@ -18,7 +18,7 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
 }
 
 void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
-    if (!socketOpen) {
+    if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed)) {
         throw SocketOpenError("Could not async-send message, socket is closed", socketType, endpointIdentifier);
     }
     nng_aio_wait(nngAioPointer);
@@ -53,5 +53,36 @@ void DataSenderEndpoint::setSendTimeout(int ms_time) {
     int rv = nng_socket_set_ms(*senderSocket, NNG_OPT_SENDTIMEO, ms_time);
     if (rv != 0) {
         throw NngError(rv, "Set send timeout");
+    }
+}
+
+void DataSenderEndpoint::listenForConnection(const char *base, int port) {
+    int rv = listenForConnectionWithRV(base, port);
+    if (rv != 0) {
+        throw NngError(rv, "Listening on " + std::string(base));
+    }
+}
+
+int DataSenderEndpoint::listenForConnectionWithRV(const char *base, int port) {
+    int rv;
+    std::string addr = std::string(base) + ":" + std::to_string(port);
+    if ((rv = nng_listen(*senderSocket, addr.c_str(), nullptr, 0)) != 0) {
+        return rv;
+    }
+    this->endpointState = EndpointState::Listening;
+    this->listenPort = port;
+    return rv;
+}
+
+void DataSenderEndpoint::closeSocket() {
+    if (endpointState == EndpointState::Dialed ||
+         endpointState  == EndpointState::Listening ||
+         endpointState  == EndpointState::Open) {
+        if (nng_close(*senderSocket) == NNG_ECLOSED) {
+            std::cerr << "This socket had already been closed" << std::endl;
+        } else {
+            std::cout << "Pair socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
+        }
+        endpointState = EndpointState::Closed;
     }
 }

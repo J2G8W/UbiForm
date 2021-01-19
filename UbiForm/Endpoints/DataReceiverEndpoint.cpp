@@ -4,7 +4,7 @@
 // Receive a message, validate it against the socketManifest and return a pointer to the object.
 // Use smart pointers to avoid complex memory management
 std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
-    if (!socketOpen) {
+    if (!(endpointState == EndpointState::Dialed || endpointState == EndpointState::Listening)) {
         throw SocketOpenError("Could not receive message", socketType, endpointIdentifier);
     }
     int rv;
@@ -26,7 +26,7 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
 
 // This is the public interface for asynchronously receiving messages
 void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *furtherUserData) {
-    if (!socketOpen) {
+    if (!(endpointState == EndpointState::Dialed || endpointState == EndpointState::Listening)) {
         throw SocketOpenError("Could not async-receive message, socket is closed", socketType, endpointIdentifier);
     }
     auto *asyncData = new AsyncData(callb, this->receiverSchema, furtherUserData, this);
@@ -71,5 +71,14 @@ void DataReceiverEndpoint::setReceiveTimeout(int ms_time) {
     if (rv != 0) {
         throw NngError(rv, "Set receive timeout");
     }
+}
+
+void DataReceiverEndpoint::dialConnection(const char *url) {
+    int rv;
+    if ((rv = nng_dial(*receiverSocket, url, nullptr, 0)) != 0) {
+        throw NngError(rv, "Dialing " + std::string(url) + " for a pair connection");
+    }
+    this->dialUrl = url;
+    this->endpointState = EndpointState::Dialed;
 }
 

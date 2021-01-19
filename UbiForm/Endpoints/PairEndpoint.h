@@ -16,16 +16,7 @@ public:
             DataSenderEndpoint(sendSchema, endpointIdentifier, SocketType::Pair, endpointType) {
 
         senderSocket = new nng_socket;
-
-        int rv;
-        if ((rv = nng_pair0_open(senderSocket)) != 0) {
-            throw NngError(rv, "Making pair connection");
-        } else {
-            DataReceiverEndpoint::socketOpen = true;
-            DataSenderEndpoint::socketOpen = true;
-        }
-        // Use the same socket for sending and receiving
-        receiverSocket = senderSocket;
+        openEndpoint();
     }
 
     void listenForConnection(const char *base, int port) override;
@@ -35,6 +26,8 @@ public:
     void dialConnection(const char *url) override;
 
     void closeSocket() override;
+
+    void openEndpoint() override;
 
 
     ~PairEndpoint();

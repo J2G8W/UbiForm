@@ -335,9 +335,15 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest6){
     ASSERT_EQ(component2.getSenderEndpointsByType("PUB")->size(),1);
     ASSERT_EQ(component1.getReceiverEndpointsByType("SUB")->size(),1);
 
+    // Test requestCloseSocketOfId
     auto endpointInfo = component2.getBackgroundRequester().requestEndpointInfo(component1Address);
     ASSERT_GT(endpointInfo.size(),0);
 
     component2.getBackgroundRequester().requestCloseSocketOfId(component1Address,endpointInfo.at(0)->getString("id"));
     ASSERT_EQ(component1.getReceiverEndpointsByType("SUB")->size(),0);
+
+    // Test changing Manifest with hanging pointer to socket
+    auto pubEndpoint = component2.getSenderEndpointsByType("PUB")->at(0);
+    component2.specifyManifest(R"({"name":"TEST1","schemas":{}})");
+    pubEndpoint->listenForConnection("ipc:///tmp/component2",2000);
 }

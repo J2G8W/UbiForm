@@ -32,6 +32,8 @@ protected:
     std::shared_ptr<EndpointSchema> senderSchema;
     bool socketOpen = false;
     int listenPort = -1;
+
+    EndpointState endpointState = EndpointState::Invalid;
 public:
     explicit DataSenderEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
                                 SocketType socketType, const std::string &endpointType) :
@@ -43,9 +45,9 @@ public:
     };
 
     // This is implemented by extending classes as we want to specify socket type and do other useful things
-    virtual void listenForConnection(const char *base, int port) = 0;
+    virtual void listenForConnection(const char *base, int port);
 
-    virtual int listenForConnectionWithRV(const char *base, int port) = 0;
+    virtual int listenForConnectionWithRV(const char *base, int port);
 
     /**
      * Blocking send on our Socket
@@ -68,7 +70,12 @@ public:
 
     std::string &getSenderEndpointType() { return endpointType; }
 
-    virtual void closeSocket() = 0;
+    virtual void openEndpoint() = 0;
+    virtual void closeSocket();
+
+    virtual void invalidateEndpoint(){
+        endpointState = EndpointState::Invalid;
+    }
 
     virtual ~DataSenderEndpoint() {
         nng_aio_wait(nngAioPointer);

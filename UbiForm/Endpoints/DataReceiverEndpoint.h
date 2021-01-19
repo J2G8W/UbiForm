@@ -51,7 +51,7 @@ protected:
     // Schema is shared with the parent that houses this endpoint
     std::shared_ptr<EndpointSchema> receiverSchema;
 
-    bool socketOpen = false;
+    EndpointState endpointState = EndpointState::Invalid;
     std::string dialUrl = "";
 public:
     explicit DataReceiverEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
@@ -65,7 +65,7 @@ public:
     * @param url
      * @throws NngError when we are unable to dial the url properly
     */
-    virtual void dialConnection(const char *url) = 0;
+    virtual void dialConnection(const char *url);
 
     /**
      * Blocking receive of a message
@@ -103,6 +103,12 @@ public:
      * ones
      */
     virtual void closeSocket() = 0;
+
+    virtual void openEndpoint() = 0;
+
+    virtual void invalidateEndpoint(){
+        endpointState = EndpointState::Invalid;
+    }
 
     virtual ~DataReceiverEndpoint(){
         if(uniqueEndpointAioPointer != nullptr) {

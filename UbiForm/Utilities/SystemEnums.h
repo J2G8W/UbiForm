@@ -41,6 +41,10 @@ enum ConnectionType {
     IPC, TCP, LocalTCP
 };
 
+enum EndpointState {
+    Invalid, Closed, Open, Dialed, Listening
+};
+
 // Strings used for Background Requester and Listener
 #define BACKGROUND_CREATE_AND_LISTEN "req_conn"
 #define BACKGROUND_ADD_RDH "add_rdh"
