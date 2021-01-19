@@ -99,21 +99,10 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
 std::unique_ptr<SocketMessage> BackgroundListener::handleCreateAndListen(SocketMessage &request) {
     try {
         systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(request);
+
         auto socketType = component->getComponentManifest().getSocketType(request.getString("endpointType"));
-        int port;
-        if (socketType == PAIR || socketType == REPLY) {
-            port = component->createEndpointAndListen(request.getString("endpointType"));
-        } else if (socketType == PUBLISHER) {
-            auto existingPublishers = component->getSenderEndpointsByType(request.getString("endpointType"));
-            if (existingPublishers->empty()) {
-                port = component->createEndpointAndListen(
-                        request.getString("endpointType"));
-            } else {
-                port = existingPublishers->at(0)->getListenPort();
-            }
-        } else {
-            throw std::logic_error("Not a valid socketType request");
-        }
+        int port = component->createEndpointAndListen(request.getString("endpointType"));
+
         auto reply = std::make_unique<SocketMessage>();
         reply->addMember("port", port);
         reply->addMember("error", false);

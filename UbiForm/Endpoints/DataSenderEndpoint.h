@@ -69,6 +69,8 @@ public:
 
     std::string &getSenderEndpointType() { return endpointType; }
 
+    EndpointState getSenderState(){return endpointState;}
+
     virtual void openEndpoint() = 0;
 
     virtual void closeSocket();

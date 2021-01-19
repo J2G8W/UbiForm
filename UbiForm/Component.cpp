@@ -225,7 +225,28 @@ void Component::startBackgroundListen(int port) {
 int Component::createEndpointAndListen(const std::string &endpointType) {
     std::string socketId = generateNewSocketId();
     std::shared_ptr<DataSenderEndpoint> e;
-    createNewEndpoint(endpointType, socketId);
+    // If we already have a publisher or reply endpoint already then we don't want to make a new one
+    if(componentManifest.getSocketType(endpointType) == PUBLISHER || componentManifest.getSocketType(endpointType) == REPLY){
+        if(getSenderEndpointsByType(endpointType)->empty()){
+            createNewEndpoint(endpointType,socketId);
+        } else {
+            EndpointState senderState = getSenderEndpointsByType(endpointType)->at(0)->getSenderState();
+            switch (senderState) {
+                case Closed:
+                    getSenderEndpointsByType(endpointType)->at(0)->openEndpoint();
+                    break;
+                case Open:
+                case Listening:
+                    socketId = getSenderEndpointsByType(endpointType)->at(0)->getSenderEndpointID();
+                    break;
+                default:
+                    createNewEndpoint(endpointType,socketId);
+            }
+        }
+    }else{
+        createNewEndpoint(endpointType, socketId);
+    }
+
     try {
         e = getSenderEndpointById(socketId);
     } catch (std::out_of_range &e) {
@@ -233,34 +254,39 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
                 "Couldn't make endpoint of type " + endpointType);
     }
 
-
-    int rv = 1;
-    std::string url;
-    while (rv != 0) {
-        if (componentConnectionType == ConnectionType::TCP) {
-            url = "tcp://*";
-        } else {
-            url = selfAddress;
+    if(e->getSenderState() != EndpointState::Listening) {
+        int rv = 1;
+        std::string url;
+        while (rv != 0) {
+            if (componentConnectionType == ConnectionType::TCP) {
+                url = "tcp://*";
+            } else {
+                url = selfAddress;
+            }
+            rv = e->listenForConnectionWithRV(url.c_str(), lowestPort);
+            if (rv == NNG_EADDRINUSE) {
+                lowestPort = generateRandomPort();
+            } else if (rv != 0) {
+                std::string errorString = "Create ";
+                errorString.append(endpointType).append("listener at ").append(url).append(":").append(
+                        std::to_string(lowestPort));
+                throw NngError(rv, errorString);
+            }
         }
-        rv = e->listenForConnectionWithRV(url.c_str(), lowestPort);
-        if (rv == NNG_EADDRINUSE) {
-            lowestPort = generateRandomPort();
-        } else if (rv != 0) {
-            std::string errorString = "Create ";
-            errorString.append(endpointType).append("listener at ").append(url).append(":").append(
-                    std::to_string(lowestPort));
-            throw NngError(rv, errorString);
+        try {
+            componentManifest.addListenPort(endpointType, lowestPort);
+            resourceDiscoveryConnEndpoint.addListenerPortForAllHubs(endpointType, lowestPort);
+        } catch (AccessError &e) {
+            //IGNORED AS THIS JUST MEANS WE HAVE A PAIR
         }
+        std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":"
+                  << lowestPort;
+        std::cout << "\n\tLocal ID of socket: " << socketId <<  "\n\tSocket Type: " ;
+        std::cout << componentManifest.getSocketType(endpointType) << std::endl;
+        return lowestPort++;
+    }else{
+        return e->getListenPort();
     }
-    try {
-        componentManifest.addListenPort(endpointType, lowestPort);
-        resourceDiscoveryConnEndpoint.addListenerPortForAllHubs(endpointType,lowestPort);
-    } catch (AccessError &e) {
-        //IGNORED AS THIS JUST MEANS WE HAVE A PAIR
-    }
-    std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":" << lowestPort;
-    std::cout << "\n\tLocal ID of socket: " << socketId << std::endl;
-    return lowestPort++;
 }
 
 void Component::createEndpointAndDial(const std::string &localEndpointType, const std::string &dialUrl) {
@@ -277,7 +303,8 @@ void Component::createEndpointAndDial(const std::string &localEndpointType, cons
     try {
         e->dialConnection(dialUrl.c_str());
         std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << dialUrl;
-        std::cout << "\n\tLocal ID of socket: " << socketId << std::endl;
+        std::cout << "\n\tLocal ID of socket: " << socketId << "\n\tSocket Type: " ;
+        std::cout << componentManifest.getSocketType(localEndpointType) << std::endl;
     } catch (NngError &e) {
         closeAndInvalidateSocketById(socketId);
         throw;
