@@ -73,11 +73,16 @@ enum EndpointState {
 // Strings used for Resource Discovery comms
 // NOTE THAT THESE ARE ALSO DEFINED IN "SystemSchemas/resource_discovery_*_request.json"
 #define RESOURCE_DISCOVERY_ADD_COMPONENT "addition"
+#define RESOURCE_DISCOVERY_DEREGISTER_COMPONENT "deRegister"
+#define RESOURCE_DISCOVERY_UPDATE_MANIFEST "update"
+#define RESOURCE_DISCOVERY_NOTIFY_SOCKET_LISTEN "socketListen"
+
 #define RESOURCE_DISCOVERY_REQUEST_BY_ID "requestId"
 #define RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA "requestSchema"
 #define RESOURCE_DISCOVERY_REQUEST_BY_PROPERTIES "requestProperties"
 #define RESOURCE_DISCOVERY_REQUEST_COMPONENTS "requestComponents"
-#define RESOURCE_DISCOVERY_UPDATE_MANIFEST "update"
-#define RESOURCE_DISCOVERY_DEREGISTER_COMPONENT "deRegister"
+
+
+
 
 #endif //UBIFORM_SYSTEMENUMS_H

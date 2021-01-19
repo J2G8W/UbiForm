@@ -119,6 +119,8 @@ public:
     void searchForResourceDiscoveryHubs();
 
     void deRegisterFromAllHubs();
+
+    void addListenerPortForAllHubs(const std::string& endpointType, int port);
 };
 
 

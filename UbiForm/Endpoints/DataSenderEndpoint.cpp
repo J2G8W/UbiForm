@@ -89,7 +89,7 @@ void DataSenderEndpoint::closeSocket() {
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
         } else {
-            std::cout << "Pair socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
+            std::cout << convertFromSocketType(socketType)<< " socket: " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
         endpointState = EndpointState::Closed;
     }

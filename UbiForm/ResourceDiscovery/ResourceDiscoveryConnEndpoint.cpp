@@ -299,3 +299,21 @@ void ResourceDiscoveryConnEndpoint::deRegisterFromAllHubs() {
         deRegisterFromHub(it->first);
     }
 }
+
+void ResourceDiscoveryConnEndpoint::addListenerPortForAllHubs(const std::string &endpointType, int port) {
+    SocketMessage request;
+    request.addMember("request",RESOURCE_DISCOVERY_NOTIFY_SOCKET_LISTEN);
+    request.addMember("endpointType",endpointType);
+    request.addMember("port",port);
+
+    for (auto &locationIdPair : resourceDiscoveryHubs) {
+        request.addMember("id", locationIdPair.second);
+        try {
+            auto reply = sendRequest(locationIdPair.first, request);
+
+        } catch (std::logic_error &e) {
+            std::cerr << "Problem connecting to " << locationIdPair.first << "\n\t" << e.what() << std::endl;
+        }
+
+    }
+}

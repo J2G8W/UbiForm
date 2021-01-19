@@ -254,6 +254,7 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
     }
     try {
         componentManifest.addListenPort(endpointType, lowestPort);
+        resourceDiscoveryConnEndpoint.addListenerPortForAllHubs(endpointType,lowestPort);
     } catch (AccessError &e) {
         //IGNORED AS THIS JUST MEANS WE HAVE A PAIR
     }

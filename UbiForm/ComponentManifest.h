@@ -156,9 +156,11 @@ public:
 
     void removeListenPort(const std::string &endpointType);
 
+    bool hasListenPort(const std::string &endpointType);
+
     ~ComponentManifest();
 
-    bool hasListenPort(const std::string &endpointType);
+
 };
 
 
