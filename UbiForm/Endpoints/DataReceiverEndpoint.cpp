@@ -90,3 +90,16 @@ void DataReceiverEndpoint::dialConnection(const char *url) {
     }
 }
 
+void DataReceiverEndpoint::closeEndpoint() {
+    if (endpointState == EndpointState::Dialed ||
+        endpointState == EndpointState::Listening ||
+        endpointState == EndpointState::Open) {
+        if (nng_close(*receiverSocket) == NNG_ECLOSED) {
+            std::cerr << "This socket had already been closed" << std::endl;
+        } else {
+            std::cout << convertFromSocketType(socketType)<< " socket: " << DataReceiverEndpoint::endpointIdentifier << " closed" << std::endl;
+        }
+        endpointState = EndpointState::Closed;
+    }
+}
+

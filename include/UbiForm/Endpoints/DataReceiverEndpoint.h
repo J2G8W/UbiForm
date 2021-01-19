@@ -102,7 +102,7 @@ public:
      * This function close the socket, it is implemented in each individual endpoint as we do different things for different
      * ones
      */
-    virtual void closeEndpoint() = 0;
+    virtual void closeEndpoint() ;
 
     virtual void openEndpoint() = 0;
 

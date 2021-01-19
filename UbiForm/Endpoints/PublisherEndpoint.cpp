@@ -36,11 +36,3 @@ PublisherEndpoint::~PublisherEndpoint() {
     delete senderSocket;
 }
 
-void PublisherEndpoint::closeEndpoint() {
-    if (nng_close(*senderSocket) == NNG_ECLOSED) {
-        std::cerr << "This socket had already been closed" << std::endl;
-    } else {
-        std::cout << "Publisher socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
-    }
-    DataSenderEndpoint::endpointState = EndpointState::Closed;
-}

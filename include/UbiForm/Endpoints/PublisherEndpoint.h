@@ -18,8 +18,6 @@ public:
     }
 
 
-    void closeEndpoint() override;
-
     void openEndpoint() override;
 
     void invalidateEndpoint() override {

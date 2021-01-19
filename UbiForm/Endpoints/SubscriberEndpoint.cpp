@@ -34,14 +34,6 @@ SubscriberEndpoint::~SubscriberEndpoint() {
     delete receiverSocket;
 }
 
-void SubscriberEndpoint::closeEndpoint() {
-    if (nng_close(*receiverSocket) == NNG_ECLOSED) {
-        std::cerr << "This socket had already been closed" << std::endl;
-    } else {
-        std::cout << "Subscriber socket " << DataReceiverEndpoint::endpointIdentifier << " closed" << std::endl;
-    }
-    DataReceiverEndpoint::endpointState = EndpointState::Closed;
-}
 
 void SubscriberEndpoint::openEndpoint() {
     if (DataReceiverEndpoint::endpointState == EndpointState::Closed) {
