@@ -48,6 +48,7 @@ enum EndpointState {
 // Strings used for Background Requester and Listener
 #define BACKGROUND_CREATE_AND_LISTEN "req_conn"
 #define BACKGROUND_ADD_RDH "add_rdh"
+#define BACKGROUND_REMOVE_RDH "remove_rdh"
 #define BACKGROUND_TELL_TO_REQUEST_CONNECTION "tell_req_conn"
 #define BACKGROUND_CHANGE_ENDPOINT_SCHEMA "add_endpoint_schema"
 #define BACKGROUND_CREATE_RDH "create_rdh"

@@ -70,6 +70,12 @@ void BackgroundRequester::requestAddRDH(const std::string &componentUrl, const s
 
     sendRequest(componentUrl, sm);
 }
+void BackgroundRequester::requestRemoveRDH(const std::string &componentUrl, const std::string &rdhUrl) {
+    SocketMessage sm;
+    sm.addMember("requestType", BACKGROUND_REMOVE_RDH);
+    sm.addMember("url",rdhUrl);
+    sendRequest(componentUrl, sm);
+}
 
 void BackgroundRequester::tellToRequestAndCreateConnection(const std::string &requesterAddress,
                                                            const std::string &requesterEndpointType,

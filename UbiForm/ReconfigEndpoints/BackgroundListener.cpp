@@ -40,33 +40,35 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
 
         if (validRequest) {
             try {
-                request->getString("requestType");
-                if (request->getString("requestType") == BACKGROUND_CREATE_AND_LISTEN) {
+                std::string requestType = request->getString("requestType");
+                if (requestType == BACKGROUND_CREATE_AND_LISTEN) {
                     reply = backgroundListener->handleCreateAndListen((*request));
-                } else if (request->getString("requestType") == BACKGROUND_CREATE_AND_DIAL) {
+                } else if (requestType == BACKGROUND_CREATE_AND_DIAL) {
                     reply = backgroundListener->handleCreateAndDial(*request);
-                } else if (request->getString("requestType") == BACKGROUND_ADD_RDH) {
+                } else if (requestType == BACKGROUND_ADD_RDH) {
                     reply = backgroundListener->handleAddRDH(*request);
-                } else if (request->getString("requestType") == BACKGROUND_TELL_TO_REQUEST_CONNECTION) {
+                } else if (requestType == BACKGROUND_REMOVE_RDH) {
+                    reply = backgroundListener->handleRemoveRDH(*request);
+                } else if (requestType == BACKGROUND_TELL_TO_REQUEST_CONNECTION) {
                     reply = backgroundListener->handleTellCreateConnectionRequest(*request);
-                } else if (request->getString("requestType") == BACKGROUND_CHANGE_ENDPOINT_SCHEMA) {
+                } else if (requestType == BACKGROUND_CHANGE_ENDPOINT_SCHEMA) {
                     reply = backgroundListener->handleChangeEndpointRequest(*request);
-                } else if (request->getString("requestType") == BACKGROUND_CREATE_RDH) {
+                } else if (requestType == BACKGROUND_CREATE_RDH) {
                     reply = backgroundListener->handleCreateRDHRequest(*request);
-                } else if (request->getString("requestType") == BACKGROUND_CHANGE_MANIFEST) {
+                } else if (requestType == BACKGROUND_CHANGE_MANIFEST) {
                     reply = backgroundListener->handleChangeManifestRequest(*request);
-                } else if (request->getString("requestType") == BACKGROUND_GET_LOCATIONS_OF_RDH) {
+                } else if (requestType == BACKGROUND_GET_LOCATIONS_OF_RDH) {
                     reply = backgroundListener->handleRDHLocationsRequest(*request);
-                } else if (request->getString("requestType") == BACKGROUND_CLOSE_SOCKETS) {
+                } else if (requestType == BACKGROUND_CLOSE_SOCKETS) {
                     reply = backgroundListener->handleCloseSocketsRequest(*request);
-                } else if (request->getString("requestType") == BACKGROUND_CLOSE_ENDPOINT_BY_ID) {
+                } else if (requestType == BACKGROUND_CLOSE_ENDPOINT_BY_ID) {
                     reply = backgroundListener->handleCloseEndpointByIdRequest(*request);
-                } else if (request->getString("requestType") == BACKGROUND_CLOSE_RDH) {
+                } else if (requestType == BACKGROUND_CLOSE_RDH) {
                     reply = backgroundListener->handleCloseRDH(*request);
-                } else if (request->getString("requestType") == BACKGROUND_REQUEST_ENDPOINT_INFO) {
+                } else if (requestType == BACKGROUND_REQUEST_ENDPOINT_INFO) {
                     reply = backgroundListener->handleEndpointInfoRequest(*request);
                 } else {
-                    throw ValidationError("requestType had value: " + request->getString("requestType"));
+                    throw ValidationError("requestType had value: " + requestType);
                 }
             } catch (ValidationError &e) {
                 reply = std::make_unique<SocketMessage>();
@@ -124,6 +126,13 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleCreateAndListen(SocketM
 std::unique_ptr<SocketMessage> BackgroundListener::handleAddRDH(SocketMessage &request) {
     auto reply = std::make_unique<SocketMessage>();
     component->getResourceDiscoveryConnectionEndpoint().registerWithHub(request.getString("url"));
+    reply->addMember("error", false);
+    return reply;
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleRemoveRDH(SocketMessage &request){
+    auto reply = std::make_unique<SocketMessage>();
+    component->getResourceDiscoveryConnectionEndpoint().deRegisterFromHub(request.getString("url"));
     reply->addMember("error", false);
     return reply;
 }
@@ -226,15 +235,6 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleCloseSocketsRequest(Soc
     return reply;
 }
 
-BackgroundListener::~BackgroundListener() {
-    replyEndpoint.closeSocket();
-    nng_msleep(300);
-
-    // We detach our background thread so termination of the thread happens safely
-    if (backgroundThread.joinable()) {
-        backgroundThread.join();
-    }
-}
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleCloseRDH(SocketMessage &sm) {
     component->closeResourceDiscoveryHub();
@@ -304,4 +304,15 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleCloseEndpointByIdReques
     auto reply = std::make_unique<SocketMessage>();
     reply->addMember("error", false);
     return reply;
+}
+
+
+BackgroundListener::~BackgroundListener() {
+    replyEndpoint.closeSocket();
+    nng_msleep(300);
+
+    // We detach our background thread so termination of the thread happens safely
+    if (backgroundThread.joinable()) {
+        backgroundThread.join();
+    }
 }

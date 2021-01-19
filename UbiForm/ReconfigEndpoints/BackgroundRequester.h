@@ -55,6 +55,8 @@ public:
 
     void requestAddRDH(const std::string &componentUrl, const std::string &rdhUrl);
 
+    void requestRemoveRDH(const std::string& componentUrl, const std::string& rdhUrl);
+
     std::vector<std::string> requestLocationsOfRDH(const std::string &componentUrl);
 
 

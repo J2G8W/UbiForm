@@ -26,6 +26,8 @@ private:
 
     std::unique_ptr<SocketMessage> handleAddRDH(SocketMessage &request);
 
+    std::unique_ptr<SocketMessage> handleRemoveRDH(SocketMessage &request);
+
     std::unique_ptr<SocketMessage> handleTellCreateConnectionRequest(SocketMessage &request);
 
     std::unique_ptr<SocketMessage> handleChangeEndpointRequest(SocketMessage &request);
