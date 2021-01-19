@@ -78,8 +78,11 @@ public:
      */
     Component();
 
-    /** Specifies the manifest of the component (will overwrite previous manifest if one exists).
-     * All constructors are copy constructors from their location and close ALL connected endpoints on update*/
+    /**
+     * @name Specify Manifests
+     * Specifies the manifest of the component (will overwrite previous manifest if one exists).
+     * All constructors are copy constructors from their location and close ALL connected endpoints on update and will
+     * update any relevant RDHs once done*/
     ///@{
     void specifyManifest(FILE *jsonFP);
 
@@ -114,19 +117,31 @@ public:
     void
     createEndpointAndDial(const std::string &localEndpointType, const std::string &dialUrl);
 
+
     ///@{
-    /// Get a pointer to endpoints, they are shared_ptr's which shouldn't be deleted, and may be closed without notice
-    /// @throws std::out_of_range if the id does not appear in our OPEN endpoints
+    /**
+     * @brief Get a pointer to endpoints, they are shared_ptr's which shouldn't be deleted, and may be closed without notice
+     * @name Get Endpoints by ID
+     * @throws std::out_of_range if the id does not appear in our OPEN endpoints
+     * @param id - The local id of the endpoint we want
+     * @return A shared_ptr to an endpoint, note that this may be in an "Invalid" state at some, at which point any actions throw SocketOpenError
+    **/
     std::shared_ptr<DataReceiverEndpoint> getReceiverEndpointById(const std::string &id);
 
-    /// @throws std::out_of_range if the id does not appear in our OPEN endpoints
     std::shared_ptr<DataSenderEndpoint> getSenderEndpointById(const std::string &id);
     ///@}
 
+
     ///@{
-    /// Get pointer to a vector of endpoints, again these will be manipulated without notice and will be added to and
-    /// emptied as we go. Does not throw any access error for an endpoint type, but returns an empty vector which is filled
-    /// if things of that type are created
+    /**
+     * @brief Get pointer to a vector of endpoints, again these will be manipulated without notice and will be added to and
+     * emptied as we go. Does not throw any access error for an endpoint type, but returns an empty vector which is filled
+     * if things of that type are created
+     * @name Get Endpoint by type
+     * @param endpointType - The type of endpoint we want (referenced in the ComponentManifest)
+     * @return A pointer to a vector of endpoint (we say a pointer so that we can manipulate the vector in BackgroundListener)
+     *
+     */
     std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > >
     getReceiverEndpointsByType(const std::string &endpointType);
 
@@ -135,23 +150,23 @@ public:
     ///@}
 
 
+
     ///@{
     /**
-     * Start a background listener process for the component which will handle requests for reconfiguration of the component.
+     * @name Start Background Listen
+     * @brief Start a background listener process for the component which will handle requests for reconfiguration of the component.
      * You can only have one background listener at a time.
      * @param port - specific port to listen to
      * @throws NngError if there is an error listening on that port
      */
     void startBackgroundListen(int port);
 
-    /**
-     * @throws std::logic_error if we can't find a valid port on 5 attempts at randomisation
-     */
     void startBackgroundListen();
     ///@}
 
     ///@{
     /**
+     * @name Start Resource Discovery Hub
      * Start a ResourceDiscoveryHub process for the component which will store other components on the network and handle requests.
      * You can only have on RDH at a time
      * @param port
@@ -161,23 +176,39 @@ public:
     int startResourceDiscoveryHub();
     ///@}
 
+    /**
+     * Close the Resource Discovery Hub attached to the component. If there is no RDH then we don't do anything
+     */
     void closeResourceDiscoveryHub();
 
+    /**
+     * @return The self address is the address by which the componet can reach itself
+     */
     std::string getSelfAddress() { return selfAddress; }
 
+    /**
+     * @return The port that the RDH is on
+     * @throws std::logic_error - when there is no RDH started
+     */
     int getResourceDiscoveryHubPort();
 
 
+    /// @return A reference to our Resource Discovery Connection Endpoint, from which we make RDH requests
     ResourceDiscoveryConnEndpoint &getResourceDiscoveryConnectionEndpoint() { return resourceDiscoveryConnEndpoint; }
 
+    /// @return A reference to the Component Manifest which we can change/read. Note that changes to manifest may need "updateManifestWithHubs()"
     ComponentManifest &getComponentManifest() { return componentManifest; }
 
+    /// @return A reference to the SystemSchemas object we have. The Component should have the only copy of the SystemSchemas
     SystemSchemas &getSystemSchemas() { return systemSchemas; }
 
+    /// @return A reference to our Background Requester so we can make requests to other parties
     BackgroundRequester &getBackgroundRequester() { return backgroundRequester; }
 
+    /// @return The type of connection our Component makes (either TCP, LocalTCP or IPC)
     ConnectionType getComponentConnectionType() { return componentConnectionType; }
 
+    /// @return The background port of our listener. Set to -1 if there is no Background Listener
     int getBackgroundPort() { return backgroundListener.getBackgroundPort(); }
 
     /// @brief - Returns a reference to the vector of all the addresses that the component can listen on
@@ -187,15 +218,21 @@ public:
 
     /**
      * Close the sockets of endpointType. The vector which represents the endpointType is emptied and if users haven't got pointers
-     * the endpoints will be deleted. If the users to do have their own pointers, then we set the endpoints to closed and they throw exception
+     * the endpoints will be deleted. If the users to do have their own pointers, then we set the endpoints to INVALID and they throw exception
      * when asked to do anything
      * @param endpointType
      */
     void closeAndInvalidateSocketsOfType(const std::string &endpointType);
 
-
+    /**
+     * Close by id. Makes the given endpoint Invalid, does nothing if the endpointID does not exist
+     * @param endpointId
+     */
     void closeAndInvalidateSocketById(const std::string &endpointId);
 
+    /**
+     * Close all the used made sockets on our component (apart from pre-defined sockets)
+     */
     void closeAndInvalidateAllSockets();
 
     /// Pretty much everything should stop once component is deleted

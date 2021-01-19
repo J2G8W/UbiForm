@@ -67,7 +67,7 @@ public:
     /// Create an empty Manifest which can be filled with functions
     explicit ComponentManifest(SystemSchemas &ss) : ComponentManifest(R"({"name":"","schemas":{}})", ss) {};
 
-    ///@brief Copy constructors for set our manifest, close sockets AND tell ResourceDiscoveryHubs of the change
+    ///@brief Copy constructors for set our manifest
     ///@{
     void setManifest(FILE *jsonFP);
 
