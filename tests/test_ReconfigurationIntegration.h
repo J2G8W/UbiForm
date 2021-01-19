@@ -23,13 +23,13 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
                                                                    "generatedSubscriber",
                                                                    newEs.get(),
                                                                    nullptr);
-    ASSERT_NO_THROW(senderComponent.getComponentManifest().getSenderSchema("generatedPublisher"));
+    ASSERT_NO_THROW(receiverComponent.getComponentManifest().getReceiverSchema("generatedSubscriber"));
 
     // Test local change endpoint
     senderComponent.getComponentManifest().addEndpoint(SocketType::Publisher, "generatedPublisher",
                                                        nullptr, newEs);
+    ASSERT_NO_THROW(senderComponent.getComponentManifest().getSenderSchema("generatedPublisher"));
 
-    ASSERT_NO_THROW(receiverComponent.getComponentManifest().getReceiverSchema("generatedSubscriber"));
 
     // Test tellToRequestAndCreateConnection
     senderComponent.getBackgroundRequester().tellToRequestAndCreateConnection(receiverCompAddress,
@@ -324,6 +324,9 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest6){
 
     component1.startBackgroundListen();
     component2.startBackgroundListen();
+
+    std::string component1Address = component1.getSelfAddress() + ":" + std::to_string(component1.getBackgroundPort());
+
     // Test localListenThenRequestRemoteDial
     ASSERT_NO_THROW(component2.getBackgroundRequester().localListenThenRequestRemoteDial(
                 component1.getSelfAddress()+":"+std::to_string(component1.getBackgroundPort()),
@@ -331,4 +334,10 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest6){
 
     ASSERT_EQ(component2.getSenderEndpointsByType("PUB")->size(),1);
     ASSERT_EQ(component1.getReceiverEndpointsByType("SUB")->size(),1);
+
+    auto endpointInfo = component2.getBackgroundRequester().requestEndpointInfo(component1Address);
+    ASSERT_GT(endpointInfo.size(),0);
+
+    component2.getBackgroundRequester().requestCloseSocketOfId(component1Address,endpointInfo.at(0)->getString("id"));
+    ASSERT_EQ(component1.getReceiverEndpointsByType("SUB")->size(),0);
 }

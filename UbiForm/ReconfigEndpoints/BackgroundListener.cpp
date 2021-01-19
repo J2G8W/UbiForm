@@ -59,6 +59,8 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                     reply = backgroundListener->handleRDHLocationsRequest(*request);
                 } else if (request->getString("requestType") == BACKGROUND_CLOSE_SOCKETS) {
                     reply = backgroundListener->handleCloseSocketsRequest(*request);
+                } else if (request->getString("requestType") == BACKGROUND_CLOSE_ENDPOINT_BY_ID) {
+                    reply = backgroundListener->handleCloseEndpointByIdRequest(*request);
                 } else if (request->getString("requestType") == BACKGROUND_CLOSE_RDH) {
                     reply = backgroundListener->handleCloseRDH(*request);
                 } else if (request->getString("requestType") == BACKGROUND_REQUEST_ENDPOINT_INFO) {
@@ -294,5 +296,12 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleEndpointInfoRequest(Soc
     reply->addMoveArrayOfObjects("endpoints",endpoints);
     reply->addMember("error",false);
 
+    return reply;
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleCloseEndpointByIdRequest(SocketMessage &re) {
+    component->closeSocketOfId(re.getString("endpointId"));
+    auto reply = std::make_unique<SocketMessage>();
+    reply->addMember("error",false);
     return reply;
 }

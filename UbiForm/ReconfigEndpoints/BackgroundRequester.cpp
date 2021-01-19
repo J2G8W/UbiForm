@@ -168,3 +168,12 @@ std::vector<std::unique_ptr<SocketMessage>> BackgroundRequester::requestEndpoint
 
     return reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
 }
+
+void BackgroundRequester::requestCloseSocketOfId(const std::string& componentUrl, const std::string& endpointId) {
+    SocketMessage sm;
+    sm.addMember("requestType", BACKGROUND_CLOSE_ENDPOINT_BY_ID);
+    sm.addMember("endpointId", endpointId);
+
+    sendRequest(componentUrl,sm);
+
+}
