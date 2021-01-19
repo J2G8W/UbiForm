@@ -10,9 +10,9 @@ ResourceDiscoveryConnEndpoint::sendRequest(const std::string &url, SocketMessage
     auto reply = requestEndpoint.receiveMessage();
     if (reply->getBoolean("error")) {
         if (reply->hasMember("errorMsg")) {
-            throw std::logic_error("Error with request: " + reply->getString("errorMsg"));
+            throw RemoteError("Error with request: " + reply->getString("errorMsg"), url);
         } else {
-            throw std::logic_error("Error with request, no error message");
+            throw RemoteError("Error with request, no error message", url);
         }
     }
     return reply;
@@ -168,11 +168,11 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string &en
                 connection = true;
                 break;
             } catch (std::logic_error &e) {
-                // PASS
+                continue;
             }
         }
         if (!connection) {
-            std::cerr << "Error connecting to " << location->stringify() << std::endl;
+            std::cerr << "Wasn't able to connect to " << location->stringify() << std::endl;
         }
     }
 }
@@ -225,13 +225,16 @@ void ResourceDiscoveryConnEndpoint::searchForResourceDiscoveryHubs() {
                         std::cout << "Found Resource Discovery Hub: " << url << std::endl;
                         break;
                     } catch (std::logic_error &e) {
-                        //IGNORED
+                        continue;
                     }
                 }
             } catch (std::logic_error &e) {
-                // IGNORED
+                continue;
             }
         }
+    }
+    if(!found){
+        throw std::logic_error("Unable to find any Resource Discovery Hub");
     }
 }
 
@@ -281,10 +284,11 @@ void ResourceDiscoveryConnEndpoint::deRegisterFromHub(const std::string &rdhUrl)
     try {
         auto reply = sendRequest(rdhUrl, request);
         std::cout << "De-registered from " << rdhUrl << std::endl;
-        resourceDiscoveryHubs.erase(rdhUrl);
     } catch (std::logic_error &e) {
         std::cerr << "Error with de-register from " << rdhUrl << "\n" << e.what() << std::endl;
     }
+    // Either way we don't want to contact that hub again
+    resourceDiscoveryHubs.erase(rdhUrl);
 }
 
 void ResourceDiscoveryConnEndpoint::deRegisterFromAllHubs() {
