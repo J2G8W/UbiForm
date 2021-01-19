@@ -43,9 +43,21 @@ public:
         nng_aio_set_timeout(nngAioPointer, 50);
     };
 
-    // This is implemented by extending classes as we want to specify socket type and do other useful things
+    /**
+     * We listen for a connection to us
+     * @param base - The base address we want to listen on (e.g. tcp://127.0.0.1). Often we use "tcp:// *" (without the space)
+     * @param port - The port to listen on
+     * @throws NngError - when we are unable to listen on that address for whatever reason
+     */
     virtual void listenForConnection(const char *base, int port);
 
+    /**
+     * Listen for a connection but don't throw any errors and instead return a return variable to do things with. Should
+     * not be used unless you know what to do (use normal listenForConnection)
+     * @param base - The base address we want to listen on (e.g. tcp://127.0.0.1). Often we use "tcp:// *" (without the space)
+     * @param port - The port to listen on
+     * @return A return variable representing how the listening has gone
+     */
     virtual int listenForConnectionWithRV(const char *base, int port);
 
     /**

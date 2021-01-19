@@ -94,18 +94,31 @@ public:
      */
     std::string getDialUrl() { return dialUrl; }
 
+    /**
+     * @return The identifier of the socket in the component
+     */
     std::string &getReceiverEndpointID() { return endpointIdentifier; }
 
+    /**
+     * @return The endpointType (which refers to our componentManifest)
+     */
     std::string &getReceiverEndpointType() { return endpointType; }
 
     /**
-     * This function close the socket, it is implemented in each individual endpoint as we do different things for different
-     * ones
+     * This function closes our socket. If extended it should call the parent then handle states of other things.
+     * Note that a closed socket must be re-opened before being use for dialing etc
      */
     virtual void closeEndpoint() ;
 
+    /**
+     * Open a socket ready for it dial someone
+     */
     virtual void openEndpoint() = 0;
 
+    /**
+     * Invalidate the endpoint so it can't be opened, or dialed or do anything. (Designed for use when our manifest
+     * has changed and we don't want this endpoint to anything anymore
+     */
     virtual void invalidateEndpoint() = 0;
 
     virtual ~DataReceiverEndpoint() {
