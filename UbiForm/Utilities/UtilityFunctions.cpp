@@ -32,7 +32,8 @@ bool compareSchemaObjects(rapidjson::Value &schema1, rapidjson::Value &schema2) 
           && schema2.HasMember("properties") && schema2["properties"].IsObject())) {
         return false;
     }
-    if (schema1["properties"].Size() != schema2["properties"].Size()) { return false; }
+
+    if(schema1["properties"].MemberCount() != schema2["properties"].MemberCount()){return false;}
 
     auto properties1 = schema1["properties"].GetObject();
     auto properties2 = schema2["properties"].GetObject();
