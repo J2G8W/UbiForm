@@ -312,7 +312,6 @@ void Component::createEndpointAndDial(const std::string &localEndpointType, cons
 }
 
 
-// CREATE RDHUB
 void Component::startResourceDiscoveryHub(int port) {
     if (resourceDiscoveryHubEndpoint == nullptr) {
         this->resourceDiscoveryHubEndpoint = new ResourceDiscoveryHubEndpoint(systemSchemas);
@@ -383,6 +382,9 @@ void Component::closeAndInvalidateSocketsOfType(const std::string &endpointType)
             idSenderEndpoints.erase((*it)->getSenderEndpointID());
         }
     }
+    if(componentManifest.hasListenPort(endpointType)){
+        componentManifest.removeListenPort(endpointType);
+    }
 }
 
 
@@ -421,7 +423,9 @@ void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
                 }
             }
         }
-
+        if(componentManifest.hasListenPort(receiverEndpoint->second->getReceiverEndpointType())){
+            componentManifest.removeListenPort(receiverEndpoint->second->getReceiverEndpointType());
+        }
         idReceiverEndpoints.erase(receiverEndpoint);
     }
 
