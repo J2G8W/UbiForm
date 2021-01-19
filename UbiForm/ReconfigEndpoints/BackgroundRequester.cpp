@@ -23,11 +23,12 @@ std::unique_ptr<SocketMessage> BackgroundRequester::sendRequest(const std::strin
 void BackgroundRequester::requestRemoteListenThenDial(const std::string &locationOfRemote, int remotePort,
                                                       const std::string &localEndpointType,
                                                       const std::string &remoteEndpointType) {
-    int port = requestToCreateAndListen(locationOfRemote+":"+std::to_string(remotePort),remoteEndpointType);
+    int port = requestToCreateAndListen(locationOfRemote + ":" + std::to_string(remotePort), remoteEndpointType);
     component->createEndpointAndDial(localEndpointType, locationOfRemote + ":" + std::to_string(port));
 }
 
-int BackgroundRequester::requestToCreateAndListen(const std::string& componentAddress, const std::string& endpointType){
+int
+BackgroundRequester::requestToCreateAndListen(const std::string &componentAddress, const std::string &endpointType) {
     SocketMessage sm;
     sm.addMember("endpointType", endpointType);
     sm.addMember("requestType", BACKGROUND_CREATE_AND_LISTEN);
@@ -39,14 +40,15 @@ int BackgroundRequester::requestToCreateAndListen(const std::string& componentAd
 }
 
 
-void BackgroundRequester::localListenThenRequestRemoteDial(const std::string& componentAddress,  const std::string& localEndpointType,
-                                                           const std::string& remoteEndpointType){
+void BackgroundRequester::localListenThenRequestRemoteDial(const std::string &componentAddress,
+                                                           const std::string &localEndpointType,
+                                                           const std::string &remoteEndpointType) {
     int listeningPort = component->createEndpointAndListen(localEndpointType);
     std::vector<std::string> selfLocations;
-    for(const auto& addr: component->getAllAddresses()){
-        selfLocations.emplace_back(addr+":"+std::to_string(listeningPort));
+    for (const auto &addr: component->getAllAddresses()) {
+        selfLocations.emplace_back(addr + ":" + std::to_string(listeningPort));
     }
-    requestToCreateAndDial(componentAddress, remoteEndpointType,selfLocations);
+    requestToCreateAndDial(componentAddress, remoteEndpointType, selfLocations);
 }
 
 void BackgroundRequester::requestToCreateAndDial(const std::string &componentUrl, const std::string &endpointType,
@@ -161,7 +163,7 @@ void BackgroundRequester::requestCloseRDH(const std::string &componentUrl) {
 
 }
 
-std::vector<std::unique_ptr<SocketMessage>> BackgroundRequester::requestEndpointInfo(const std::string& componentUrl) {
+std::vector<std::unique_ptr<SocketMessage>> BackgroundRequester::requestEndpointInfo(const std::string &componentUrl) {
     SocketMessage sm;
     sm.addMember("requestType", BACKGROUND_REQUEST_ENDPOINT_INFO);
     auto reply = sendRequest(componentUrl, sm);
@@ -169,11 +171,11 @@ std::vector<std::unique_ptr<SocketMessage>> BackgroundRequester::requestEndpoint
     return reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
 }
 
-void BackgroundRequester::requestCloseSocketOfId(const std::string& componentUrl, const std::string& endpointId) {
+void BackgroundRequester::requestCloseSocketOfId(const std::string &componentUrl, const std::string &endpointId) {
     SocketMessage sm;
     sm.addMember("requestType", BACKGROUND_CLOSE_ENDPOINT_BY_ID);
     sm.addMember("endpointId", endpointId);
 
-    sendRequest(componentUrl,sm);
+    sendRequest(componentUrl, sm);
 
 }

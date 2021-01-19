@@ -41,7 +41,7 @@ public:
                 std::string errorMsg = "Error opening file - " + std::string(files[i]);
                 auto es = std::make_shared<GenericSchema>();
                 systemSchemas.insert(std::make_pair(static_cast<SystemSchemaName>(i), es));
-            }else {
+            } else {
                 auto es = std::make_shared<GenericSchema>(pFile);
                 systemSchemas.insert(std::make_pair(static_cast<SystemSchemaName>(i), es));
                 fclose(pFile);

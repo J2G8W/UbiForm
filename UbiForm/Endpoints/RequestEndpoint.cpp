@@ -16,10 +16,11 @@ void RequestEndpoint::dialConnection(const char *url) {
     int rv;
     if (dialUrl != std::string(url)) {
         // Before dialling a new location we close the old socket (means same endpoint can be reused)
-        if (DataReceiverEndpoint::endpointState == EndpointState::Dialed || DataReceiverEndpoint::endpointState == EndpointState::Listening) {
+        if (DataReceiverEndpoint::endpointState == EndpointState::Dialed ||
+            DataReceiverEndpoint::endpointState == EndpointState::Listening) {
             closeSocket();
         }
-        if (DataReceiverEndpoint::endpointState == EndpointState::Closed){
+        if (DataReceiverEndpoint::endpointState == EndpointState::Closed) {
             openEndpoint();
         }
 
@@ -38,11 +39,11 @@ RequestEndpoint::~RequestEndpoint() {
     // We have to check if we ever initialised the receiverSocket before trying to close it
     if (senderSocket != nullptr) {
         if ((DataReceiverEndpoint::endpointState == EndpointState::Dialed ||
-             DataReceiverEndpoint::endpointState  == EndpointState::Listening ||
-             DataReceiverEndpoint::endpointState  == EndpointState::Open) &&
+             DataReceiverEndpoint::endpointState == EndpointState::Listening ||
+             DataReceiverEndpoint::endpointState == EndpointState::Open) &&
             (DataSenderEndpoint::endpointState == EndpointState::Dialed ||
-             DataSenderEndpoint::endpointState  == EndpointState::Listening ||
-             DataSenderEndpoint::endpointState  == EndpointState::Open)) {
+             DataSenderEndpoint::endpointState == EndpointState::Listening ||
+             DataSenderEndpoint::endpointState == EndpointState::Open)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
@@ -59,14 +60,15 @@ RequestEndpoint::~RequestEndpoint() {
 
 void RequestEndpoint::closeSocket() {
     DataSenderEndpoint::closeSocket();
-    if(DataReceiverEndpoint::endpointState != EndpointState::Invalid) {
+    if (DataReceiverEndpoint::endpointState != EndpointState::Invalid) {
         DataReceiverEndpoint::endpointState = EndpointState::Closed;
     }
 }
 
 void RequestEndpoint::openEndpoint() {
     int rv;
-    if(DataReceiverEndpoint::endpointState == EndpointState::Closed && DataSenderEndpoint::endpointState == EndpointState::Closed) {
+    if (DataReceiverEndpoint::endpointState == EndpointState::Closed &&
+        DataSenderEndpoint::endpointState == EndpointState::Closed) {
         if ((rv = nng_req0_open(senderSocket)) != 0) {
             throw NngError(rv, "Open RD connection request socket");
         } else {
@@ -77,7 +79,8 @@ void RequestEndpoint::openEndpoint() {
             // Set timeout to a reasonably small value
             setReceiveTimeout(500);
         }
-    }else{
-        throw SocketOpenError("Can't open endpoint",DataSenderEndpoint::socketType,DataSenderEndpoint::endpointIdentifier);
+    } else {
+        throw SocketOpenError("Can't open endpoint", DataSenderEndpoint::socketType,
+                              DataSenderEndpoint::endpointIdentifier);
     }
 }

@@ -25,18 +25,22 @@ class BackgroundRequester {
 
 public:
     BackgroundRequester(Component *c, SystemSchemas &ss) : component(c), systemSchemas(ss),
-            requestEndpoint(ss.getSystemSchema(SystemSchemaName::generalEndpointResponse).getInternalSchema(),
-                            ss.getSystemSchema(SystemSchemaName::generalEndpointRequest).getInternalSchema(),
-                            "BackgroundRequester",
-                            "BackgroundRequester") {}
+                                                           requestEndpoint(ss.getSystemSchema(
+                                                                   SystemSchemaName::generalEndpointResponse).getInternalSchema(),
+                                                                           ss.getSystemSchema(
+                                                                                   SystemSchemaName::generalEndpointRequest).getInternalSchema(),
+                                                                           "BackgroundRequester",
+                                                                           "BackgroundRequester") {}
 
     void requestRemoteListenThenDial(const std::string &locationOfRemote, int remotePort,
                                      const std::string &localEndpointType,
                                      const std::string &remoteEndpointType);
+
     int requestToCreateAndListen(const std::string &componentAddress, const std::string &endpointType);
 
     void localListenThenRequestRemoteDial(const std::string &componentAddress, const std::string &localEndpointType,
                                           const std::string &remoteEndpointType);
+
     void requestToCreateAndDial(const std::string &componentUrl, const std::string &endpointType,
                                 const std::vector<std::string> &remoteUrls);
 
@@ -46,12 +50,16 @@ public:
                                           const std::string &remoteAddress, int newPort);
 
     int requestCreateRDH(const std::string &componentUrl);
+
     void requestCloseRDH(const std::string &componentUrl);
+
     void requestAddRDH(const std::string &componentUrl, const std::string &rdhUrl);
+
     std::vector<std::string> requestLocationsOfRDH(const std::string &componentUrl);
 
 
     void requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest);
+
     void requestChangeEndpoint(const std::string &componentAddress, SocketType socketType,
                                const std::string &endpointType, EndpointSchema *receiverSchema,
                                EndpointSchema *sendSchema);
@@ -59,9 +67,9 @@ public:
 
     void requestCloseSocketOfType(const std::string &componentUrl, const std::string &endpointType);
 
-    std::vector<std::unique_ptr<SocketMessage>> requestEndpointInfo(const std::string& componentUrl);
+    std::vector<std::unique_ptr<SocketMessage>> requestEndpointInfo(const std::string &componentUrl);
 
-    void requestCloseSocketOfId(const std::string& componentUrl, const std::string& endpointId);
+    void requestCloseSocketOfId(const std::string &componentUrl, const std::string &endpointId);
 };
 
 

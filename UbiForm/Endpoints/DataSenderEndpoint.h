@@ -70,6 +70,7 @@ public:
     std::string &getSenderEndpointType() { return endpointType; }
 
     virtual void openEndpoint() = 0;
+
     virtual void closeSocket();
 
     virtual void invalidateEndpoint() = 0;

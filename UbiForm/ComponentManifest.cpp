@@ -79,7 +79,8 @@ void ComponentManifest::setName(const std::string &name) {
     setProperty("name", name);
 }
 
-std::unique_ptr<SocketMessage> ComponentManifest::getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema) {
+std::unique_ptr<SocketMessage>
+ComponentManifest::getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema) {
     if (receiveSchema) {
         try {
             return getReceiverSchema(typeOfEndpoint)->getSchemaObject();
@@ -215,7 +216,7 @@ bool ComponentManifest::hasProperty(const std::string &property) {
 
 std::vector<std::string> ComponentManifest::getAllEndpointTypes() {
     std::vector<std::string> endpointTypes;
-    for(auto&m: JSON_document["schemas"].GetObject()){
+    for (auto &m: JSON_document["schemas"].GetObject()) {
         endpointTypes.emplace_back(m.name.GetString());
     }
     return endpointTypes;
@@ -227,17 +228,17 @@ void ComponentManifest::addListenPort(const std::string &endpointType, int port)
         throw AccessError("No endpoint of type: " + endpointType + " in manifest");
     }
     std::string socketType = std::string(schemas[endpointType].GetObject()["socketType"].GetString());
-    if(!(socketType == PUBLISHER || socketType == REPLY)){
+    if (!(socketType == PUBLISHER || socketType == REPLY)) {
         throw AccessError(endpointType + " is not valid to add listener port");
     }
-    if(schemas[endpointType].HasMember("listenPort")){
+    if (schemas[endpointType].HasMember("listenPort")) {
         schemas[endpointType].GetObject()["listenPort"] = rapidjson::Value(port);
-    }else {
+    } else {
         schemas[endpointType].AddMember("listenPort", port, JSON_document.GetAllocator());
     }
 }
 
-bool ComponentManifest::hasListenPort(const std::string& endpointType){
+bool ComponentManifest::hasListenPort(const std::string &endpointType) {
     const auto &schemas = JSON_document["schemas"].GetObject();
     if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())) {
         return false;
@@ -250,7 +251,7 @@ int ComponentManifest::getListenPort(const std::string &endpointType) {
     if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())) {
         throw AccessError("No endpoint of type: " + endpointType + " in manifest");
     }
-    if(!schemas[endpointType].GetObject().HasMember("listenPort")){
+    if (!schemas[endpointType].GetObject().HasMember("listenPort")) {
         throw AccessError(endpointType + " has no valid listenPort");
     }
     return schemas[endpointType].GetObject()["listenPort"].GetInt();
@@ -261,7 +262,7 @@ void ComponentManifest::removeListenPort(const std::string &endpointType) {
     if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())) {
         throw AccessError("No endpoint of type: " + endpointType + " in manifest");
     }
-    if(schemas[endpointType].GetObject().HasMember("listenPort")){
+    if (schemas[endpointType].GetObject().HasMember("listenPort")) {
         schemas[endpointType].GetObject().EraseMember("listenPort");
     }
 }

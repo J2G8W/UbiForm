@@ -76,7 +76,6 @@ void Component::specifyManifest(SocketMessage *sm) {
 }
 
 
-
 void Component::createNewEndpoint(const std::string &endpointType, const std::string &endpointId) {
     SocketType socketType = convertToSocketType(componentManifest.getSocketType(endpointType));
 
@@ -248,13 +247,14 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
             lowestPort = generateRandomPort();
         } else if (rv != 0) {
             std::string errorString = "Create ";
-            errorString.append(endpointType).append("listener at ").append(url).append(":").append(std::to_string(lowestPort));
+            errorString.append(endpointType).append("listener at ").append(url).append(":").append(
+                    std::to_string(lowestPort));
             throw NngError(rv, errorString);
         }
     }
-    try{
-        componentManifest.addListenPort(endpointType,lowestPort);
-    }catch(AccessError &e){
+    try {
+        componentManifest.addListenPort(endpointType, lowestPort);
+    } catch (AccessError &e) {
         //IGNORED AS THIS JUST MEANS WE HAVE A PAIR
     }
     std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":" << lowestPort;
@@ -277,7 +277,7 @@ void Component::createEndpointAndDial(const std::string &localEndpointType, cons
         e->dialConnection(dialUrl.c_str());
         std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << dialUrl;
         std::cout << "\n\tLocal ID of socket: " << socketId << std::endl;
-    }catch(NngError &e){
+    } catch (NngError &e) {
         closeAndInvalidateSocketById(socketId);
         throw;
     }
@@ -420,7 +420,7 @@ void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
 }
 
 void Component::closeAndInvalidateAllSockets() {
-    for(const auto& endpointType : componentManifest.getAllEndpointTypes()){
+    for (const auto &endpointType : componentManifest.getAllEndpointTypes()) {
         closeAndInvalidateSocketsOfType(endpointType);
     }
 }

@@ -13,8 +13,8 @@
 #define PUBLISHER_CONNECTION "PUBLISHER"
 
 
-void subscriberHandleInfo(SocketMessage* sm, void* extraInfo){
-    auto* endpoint = static_cast<DataReceiverEndpoint*>(extraInfo);
+void subscriberHandleInfo(SocketMessage *sm, void *extraInfo) {
+    auto *endpoint = static_cast<DataReceiverEndpoint *>(extraInfo);
     std::string date = sm->getString("date");
     if (sm->getBoolean("reverse")) {
         std::cout << date << std::endl;
@@ -22,7 +22,7 @@ void subscriberHandleInfo(SocketMessage* sm, void* extraInfo){
         std::reverse(date.begin(), date.end());
         std::cout << date << std::endl;
     }
-    endpoint->asyncReceiveMessage(subscriberHandleInfo,endpoint);
+    endpoint->asyncReceiveMessage(subscriberHandleInfo, endpoint);
 }
 
 int main(int argc, char **argv) {

@@ -28,11 +28,11 @@ private:
         void (*callback)(SocketMessage *, void *);
 
         std::shared_ptr<EndpointSchema> endpointSchema;
-        DataReceiverEndpoint* owningEndpoint;
+        DataReceiverEndpoint *owningEndpoint;
         void *furtherUserData;
 
         AsyncData(void (*cb)(SocketMessage *, void *), std::shared_ptr<EndpointSchema> endpointSchema,
-                  void *furtherUserData, DataReceiverEndpoint* dataReceiverEndpoint) :
+                  void *furtherUserData, DataReceiverEndpoint *dataReceiverEndpoint) :
                 callback(cb), endpointSchema(endpointSchema) {
 
             this->owningEndpoint = dataReceiverEndpoint;
@@ -86,7 +86,7 @@ public:
      * @param additionalData - Extra data which you want to be available in the call back
      * @throws SocketOpenError - When the socket is not open
      */
-    void asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void * additionalData);
+    void asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *additionalData);
 
     /**
      * Get the URL we are currently dialled onto
@@ -106,10 +106,10 @@ public:
 
     virtual void openEndpoint() = 0;
 
-    virtual void invalidateEndpoint() =0;
+    virtual void invalidateEndpoint() = 0;
 
-    virtual ~DataReceiverEndpoint(){
-        if(uniqueEndpointAioPointer != nullptr) {
+    virtual ~DataReceiverEndpoint() {
+        if (uniqueEndpointAioPointer != nullptr) {
             nng_aio_wait(uniqueEndpointAioPointer);
             nng_aio_free(uniqueEndpointAioPointer);
         }

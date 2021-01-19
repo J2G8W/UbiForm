@@ -22,10 +22,11 @@ public:
     void dialConnection(const char *url) override;
 
     void closeSocket() override;
+
     void openEndpoint() override;
 
 
-    void invalidateEndpoint() override{
+    void invalidateEndpoint() override {
         DataReceiverEndpoint::endpointState = EndpointState::Invalid;
     }
 

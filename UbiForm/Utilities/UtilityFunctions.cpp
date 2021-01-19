@@ -33,7 +33,7 @@ bool compareSchemaObjects(rapidjson::Value &schema1, rapidjson::Value &schema2) 
         return false;
     }
 
-    if(schema1["properties"].MemberCount() != schema2["properties"].MemberCount()){return false;}
+    if (schema1["properties"].MemberCount() != schema2["properties"].MemberCount()) { return false; }
 
     auto properties1 = schema1["properties"].GetObject();
     auto properties2 = schema2["properties"].GetObject();

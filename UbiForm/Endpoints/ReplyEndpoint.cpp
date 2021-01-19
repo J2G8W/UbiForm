@@ -11,7 +11,7 @@ void ReplyEndpoint::dialConnection(const char *url) {
 
 void ReplyEndpoint::closeSocket() {
     DataSenderEndpoint::closeSocket();
-    if(DataReceiverEndpoint::endpointState != EndpointState::Invalid) {
+    if (DataReceiverEndpoint::endpointState != EndpointState::Invalid) {
         DataReceiverEndpoint::endpointState = EndpointState::Closed;
     }
 }
@@ -20,11 +20,11 @@ ReplyEndpoint::~ReplyEndpoint() {
     // We have to check if we ever initialised the receiverSocket before trying to close it
     if (senderSocket != nullptr) {
         if ((DataReceiverEndpoint::endpointState == EndpointState::Dialed ||
-             DataReceiverEndpoint::endpointState  == EndpointState::Listening ||
-             DataReceiverEndpoint::endpointState  == EndpointState::Open) &&
+             DataReceiverEndpoint::endpointState == EndpointState::Listening ||
+             DataReceiverEndpoint::endpointState == EndpointState::Open) &&
             (DataSenderEndpoint::endpointState == EndpointState::Dialed ||
-             DataSenderEndpoint::endpointState  == EndpointState::Listening ||
-             DataSenderEndpoint::endpointState  == EndpointState::Open)) {
+             DataSenderEndpoint::endpointState == EndpointState::Listening ||
+             DataSenderEndpoint::endpointState == EndpointState::Open)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
@@ -40,7 +40,8 @@ ReplyEndpoint::~ReplyEndpoint() {
 }
 
 void ReplyEndpoint::openEndpoint() {
-    if(DataSenderEndpoint::endpointState == EndpointState::Closed && DataReceiverEndpoint::endpointState == EndpointState::Closed) {
+    if (DataSenderEndpoint::endpointState == EndpointState::Closed &&
+        DataReceiverEndpoint::endpointState == EndpointState::Closed) {
         int rv;
         if ((rv = nng_rep0_open(senderSocket)) != 0) {
             throw NngError(rv, "Open reply socket");
@@ -52,8 +53,9 @@ void ReplyEndpoint::openEndpoint() {
         receiverSocket = senderSocket;
         // By default we have an infinite timeout
         setReceiveTimeout(-1);
-    }else{
-        throw SocketOpenError("Can't open endpoint",DataSenderEndpoint::socketType,DataSenderEndpoint::endpointIdentifier);
+    } else {
+        throw SocketOpenError("Can't open endpoint", DataSenderEndpoint::socketType,
+                              DataSenderEndpoint::endpointIdentifier);
     }
 }
 
@@ -62,8 +64,8 @@ void ReplyEndpoint::listenForConnection(const char *base, int port) {
 }
 
 int ReplyEndpoint::listenForConnectionWithRV(const char *base, int port) {
-    int rv =  DataSenderEndpoint::listenForConnectionWithRV(base, port);
-    if(rv == 0) {
+    int rv = DataSenderEndpoint::listenForConnectionWithRV(base, port);
+    if (rv == 0) {
         DataReceiverEndpoint::endpointState = EndpointState::Listening;
     }
     return rv;
