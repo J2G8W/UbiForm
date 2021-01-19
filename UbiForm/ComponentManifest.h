@@ -150,6 +150,10 @@ public:
 
     std::vector<std::string> getAllEndpointTypes();
 
+    void addListenPort(const std::string& endpointType,int port);
+    int getListenPort(const std::string& endpointType);
+    void removeListenPort(const std::string& endpointType);
+
     ~ComponentManifest();
 };
 

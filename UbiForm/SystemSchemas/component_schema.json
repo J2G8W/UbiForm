@@ -20,6 +20,9 @@
                 "subscriber"
               ]
             },
+            "listenPort": {
+              "type": "number"
+            },
             "send": {
               "type": "object"
             },

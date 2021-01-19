@@ -252,6 +252,11 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
             throw NngError(rv, errorString);
         }
     }
+    try{
+        componentManifest.addListenPort(endpointType,lowestPort);
+    }catch(AccessError &e){
+        //IGNORED AS THIS JUST MEANS WE HAVE A PAIR
+    }
     std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":" << lowestPort;
     std::cout << "\n\tLocal ID of socket: " << socketId << std::endl;
     return lowestPort++;
