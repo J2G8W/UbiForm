@@ -18,7 +18,7 @@ public:
     }
 
 
-    void closeSocket() override;
+    void closeEndpoint() override;
 
     void openEndpoint() override;
 

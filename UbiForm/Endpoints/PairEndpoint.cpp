@@ -32,8 +32,8 @@ PairEndpoint::~PairEndpoint() {
     delete senderSocket;
 }
 
-void PairEndpoint::closeSocket() {
-    DataSenderEndpoint::closeSocket();
+void PairEndpoint::closeEndpoint() {
+    DataSenderEndpoint::closeEndpoint();
     if (DataReceiverEndpoint::endpointState != EndpointState::Invalid) {
         DataReceiverEndpoint::endpointState = EndpointState::Closed;
     }

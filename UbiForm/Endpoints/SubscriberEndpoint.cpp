@@ -34,7 +34,7 @@ SubscriberEndpoint::~SubscriberEndpoint() {
     delete receiverSocket;
 }
 
-void SubscriberEndpoint::closeSocket() {
+void SubscriberEndpoint::closeEndpoint() {
     if (nng_close(*receiverSocket) == NNG_ECLOSED) {
         std::cerr << "This socket had already been closed" << std::endl;
     } else {

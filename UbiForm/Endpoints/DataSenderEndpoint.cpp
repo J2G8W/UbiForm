@@ -82,7 +82,7 @@ int DataSenderEndpoint::listenForConnectionWithRV(const char *base, int port) {
     }
 }
 
-void DataSenderEndpoint::closeSocket() {
+void DataSenderEndpoint::closeEndpoint() {
     if (endpointState == EndpointState::Dialed ||
         endpointState == EndpointState::Listening ||
         endpointState == EndpointState::Open) {

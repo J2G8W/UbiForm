@@ -71,7 +71,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint *rd
 }
 
 ResourceDiscoveryHubEndpoint::~ResourceDiscoveryHubEndpoint() {
-    replyEndpoint.closeSocket();
+    replyEndpoint.closeEndpoint();
     nng_msleep(300);
 
     // We detach our background thread so termination of the thread happens safely

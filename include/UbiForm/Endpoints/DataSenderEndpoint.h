@@ -73,7 +73,7 @@ public:
 
     virtual void openEndpoint() = 0;
 
-    virtual void closeSocket();
+    virtual void closeEndpoint();
 
     virtual void invalidateEndpoint() = 0;
 

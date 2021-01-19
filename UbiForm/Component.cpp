@@ -366,7 +366,7 @@ void Component::closeAndInvalidateSocketsOfType(const std::string &endpointType)
         auto vec = typeReceiverEndpoints.at(endpointType);
         auto it = vec->begin();
         while (it != vec->end()) {
-            (*it)->closeSocket();
+            (*it)->closeEndpoint();
             (*it)->invalidateEndpoint();
             it = vec->erase(it);
             idReceiverEndpoints.erase((*it)->getReceiverEndpointID());
@@ -376,7 +376,7 @@ void Component::closeAndInvalidateSocketsOfType(const std::string &endpointType)
         auto vec = typeSenderEndpoints.at(endpointType);
         auto it = vec->begin();
         while (it != vec->end()) {
-            (*it)->closeSocket();
+            (*it)->closeEndpoint();
             (*it)->invalidateEndpoint();
             it = vec->erase(it);
             idSenderEndpoints.erase((*it)->getSenderEndpointID());
@@ -404,7 +404,7 @@ void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
     auto receiverEndpoint = idReceiverEndpoints.find(endpointId);
     if (receiverEndpoint != idReceiverEndpoints.end()) {
         // Close the socket itself
-        receiverEndpoint->second->closeSocket();
+        receiverEndpoint->second->closeEndpoint();
         receiverEndpoint->second->invalidateEndpoint();
 
         // Get our endpoint out of the "By Type" container
@@ -431,7 +431,7 @@ void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
 
     auto senderEndpoint = idSenderEndpoints.find(endpointId);
     if (senderEndpoint != idSenderEndpoints.end()) {
-        senderEndpoint->second->closeSocket();
+        senderEndpoint->second->closeEndpoint();
         senderEndpoint->second->invalidateEndpoint();
 
         auto possibleEndpointContainer = typeSenderEndpoints.find(senderEndpoint->second->getSenderEndpointType());

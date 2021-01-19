@@ -21,7 +21,7 @@ public:
 
     void dialConnection(const char *url) override;
 
-    void closeSocket() override;
+    void closeEndpoint() override;
 
     void openEndpoint() override;
 

@@ -311,7 +311,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleCloseEndpointByIdReques
 
 
 BackgroundListener::~BackgroundListener() {
-    replyEndpoint.closeSocket();
+    replyEndpoint.closeEndpoint();
     nng_msleep(300);
 
     // We detach our background thread so termination of the thread happens safely

@@ -18,7 +18,7 @@ void RequestEndpoint::dialConnection(const char *url) {
         // Before dialling a new location we close the old socket (means same endpoint can be reused)
         if (DataReceiverEndpoint::endpointState == EndpointState::Dialed ||
             DataReceiverEndpoint::endpointState == EndpointState::Listening) {
-            closeSocket();
+            closeEndpoint();
         }
         if (DataReceiverEndpoint::endpointState == EndpointState::Closed) {
             openEndpoint();
@@ -58,8 +58,8 @@ RequestEndpoint::~RequestEndpoint() {
     delete senderSocket;
 }
 
-void RequestEndpoint::closeSocket() {
-    DataSenderEndpoint::closeSocket();
+void RequestEndpoint::closeEndpoint() {
+    DataSenderEndpoint::closeEndpoint();
     if (DataReceiverEndpoint::endpointState != EndpointState::Invalid) {
         DataReceiverEndpoint::endpointState = EndpointState::Closed;
     }

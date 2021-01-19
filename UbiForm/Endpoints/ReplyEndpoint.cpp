@@ -9,8 +9,8 @@ void ReplyEndpoint::dialConnection(const char *url) {
 }
 
 
-void ReplyEndpoint::closeSocket() {
-    DataSenderEndpoint::closeSocket();
+void ReplyEndpoint::closeEndpoint() {
+    DataSenderEndpoint::closeEndpoint();
     if (DataReceiverEndpoint::endpointState != EndpointState::Invalid) {
         DataReceiverEndpoint::endpointState = EndpointState::Closed;
     }
