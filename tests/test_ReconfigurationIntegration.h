@@ -31,11 +31,12 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
     ASSERT_NO_THROW(senderComponent.getComponentManifest().getSenderSchema("generatedPublisher"));
 
 
-    // Test tellToRequestAndCreateConnection
-    senderComponent.getBackgroundRequester().tellToRequestAndCreateConnection(receiverCompAddress,
-                                                                              "generatedSubscriber",
-                                                                              "generatedPublisher", "ipc:///tmp/comp2",
-                                                                              senderComponent.getBackgroundPort());
+    // Test request3rdPartyRemoteListenThenDial
+    senderComponent.getBackgroundRequester().request3rdPartyRemoteListenThenDial(receiverCompAddress,
+                                                                                 "generatedSubscriber",
+                                                                                 "generatedPublisher",
+                                                                                 "ipc:///tmp/comp2",
+                                                                                 senderComponent.getBackgroundPort());
 
     SocketMessage original;
     original.addMember("msg", "HELLO WORLD");

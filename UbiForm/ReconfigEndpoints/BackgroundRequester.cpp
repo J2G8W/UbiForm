@@ -77,19 +77,31 @@ void BackgroundRequester::requestRemoveRDH(const std::string &componentUrl, cons
     sendRequest(componentUrl, sm);
 }
 
-void BackgroundRequester::tellToRequestAndCreateConnection(const std::string &requesterAddress,
-                                                           const std::string &requesterEndpointType,
-                                                           const std::string &remoteEndpointType,
-                                                           const std::string &remoteAddress, int newPort) {
+void BackgroundRequester::request3rdPartyRemoteListenThenDial(const std::string &requesterAddress,
+                                                              const std::string &requesterEndpointType,
+                                                              const std::string &remoteEndpointType,
+                                                              const std::string &remoteAddress, int remotePort) {
     SocketMessage sm;
-    sm.addMember("requestType", BACKGROUND_TELL_TO_REQUEST_CONNECTION);
+    sm.addMember("requestType", BACKGROUND_3RD_PARTY_REMOTE_LISTEN_THEN_DIAL);
     sm.addMember("reqEndpointType", requesterEndpointType);
     sm.addMember("remoteEndpointType", remoteEndpointType);
     sm.addMember("remoteAddress", remoteAddress);
-    sm.addMember("port", newPort);
+    sm.addMember("port", remotePort);
 
     sendRequest(requesterAddress, sm);
+}
 
+void BackgroundRequester::request3rdPartyListenThenRemoteDial(const std::string &listenAddress,
+                                                              const std::string &listenEndpointType,
+                                                              const std::string &dialEndpointType,
+                                                              const std::string &dialerAddress) {
+    SocketMessage sm;
+    sm.addMember("requestType", BACKGROUND_3RD_PARTY_LOCAL_LISTEN_THEN_REMOTE_DIAL);
+    sm.addMember("listenEndpointType", listenEndpointType);
+    sm.addMember("dialEndpointType", dialEndpointType);
+    sm.addMember("dialerAddress", dialerAddress);
+
+    sendRequest(listenAddress, sm);
 }
 
 void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddress, SocketType socketType,

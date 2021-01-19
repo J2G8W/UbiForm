@@ -49,8 +49,10 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                     reply = backgroundListener->handleAddRDH(*request);
                 } else if (requestType == BACKGROUND_REMOVE_RDH) {
                     reply = backgroundListener->handleRemoveRDH(*request);
-                } else if (requestType == BACKGROUND_TELL_TO_REQUEST_CONNECTION) {
-                    reply = backgroundListener->handleTellCreateConnectionRequest(*request);
+                } else if (requestType == BACKGROUND_3RD_PARTY_REMOTE_LISTEN_THEN_DIAL) {
+                    reply = backgroundListener->handle3rdPartyRemoteListenThenDial(*request);
+                } else if (requestType == BACKGROUND_3RD_PARTY_LOCAL_LISTEN_THEN_REMOTE_DIAL) {
+                    reply = backgroundListener->handle3rdPartyLocalListenThenRemoteDial(*request);
                 } else if (requestType == BACKGROUND_CHANGE_ENDPOINT_SCHEMA) {
                     reply = backgroundListener->handleChangeEndpointRequest(*request);
                 } else if (requestType == BACKGROUND_CREATE_RDH) {
@@ -126,10 +128,22 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleRemoveRDH(SocketMessage
     return reply;
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionRequest(SocketMessage &request) {
+std::unique_ptr<SocketMessage> BackgroundListener::handle3rdPartyRemoteListenThenDial(SocketMessage &request) {
     component->getBackgroundRequester().requestRemoteListenThenDial(
-            request.getString("remoteAddress"), request.getInteger("port"), request.getString("reqEndpointType"),
+            request.getString("remoteAddress"),
+            request.getInteger("port"),
+            request.getString("reqEndpointType"),
             request.getString("remoteEndpointType"));
+    auto reply = std::make_unique<SocketMessage>();
+    reply->addMember("error", false);
+    return reply;
+
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handle3rdPartyLocalListenThenRemoteDial(SocketMessage &request){
+    component->getBackgroundRequester().localListenThenRequestRemoteDial(request.getString("dialerAddress"),
+                                                                         request.getString("listenEndpointType"),
+                                                                         request.getString("dialEndpointType"));
     auto reply = std::make_unique<SocketMessage>();
     reply->addMember("error", false);
     return reply;

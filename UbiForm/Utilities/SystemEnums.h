@@ -58,7 +58,8 @@ enum EndpointState {
 
 #define BACKGROUND_GET_LOCATIONS_OF_RDH "locations_rdh"
 
-#define BACKGROUND_TELL_TO_REQUEST_CONNECTION "tell_req_conn"
+#define BACKGROUND_3RD_PARTY_REMOTE_LISTEN_THEN_DIAL "tell_req_conn"
+#define BACKGROUND_3RD_PARTY_LOCAL_LISTEN_THEN_REMOTE_DIAL "3_local_listen"
 
 #define BACKGROUND_CHANGE_ENDPOINT_SCHEMA "add_endpoint_schema"
 #define BACKGROUND_CHANGE_MANIFEST "change_manifest"

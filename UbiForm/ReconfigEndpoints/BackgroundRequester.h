@@ -44,10 +44,10 @@ public:
     void requestToCreateAndDial(const std::string &componentUrl, const std::string &endpointType,
                                 const std::vector<std::string> &remoteUrls);
 
-    void tellToRequestAndCreateConnection(const std::string &requesterAddress,
-                                          const std::string &requesterEndpointType,
-                                          const std::string &remoteEndpointType,
-                                          const std::string &remoteAddress, int newPort);
+    void request3rdPartyRemoteListenThenDial(const std::string &requesterAddress,
+                                             const std::string &requesterEndpointType,
+                                             const std::string &remoteEndpointType,
+                                             const std::string &remoteAddress, int remotePort);
 
     int requestCreateRDH(const std::string &componentUrl);
 
@@ -74,6 +74,9 @@ public:
     void requestCloseSocketOfId(const std::string &componentUrl, const std::string &endpointId);
 
     std::unique_ptr<ComponentManifest> requestComponentManifest(const std::string &componentUrl);
+
+    void request3rdPartyListenThenRemoteDial(const std::string &listenAddress, const std::string &listenEndpointType,
+                                             const std::string &dialEndpointType, const std::string &dialerAddress);
 };
 
 

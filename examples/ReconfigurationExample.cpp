@@ -60,12 +60,12 @@ int main(int argc, char **argv) {
                                                                                                   "publisherExample").get(),
                                                                                           nullptr);
                                 std::cout << "Subscriber component added endpoint schema" << std::endl;
-                                component->getBackgroundRequester().tellToRequestAndCreateConnection(dialUrl,
-                                                                                                     "subscriberExample",
-                                                                                                     "publisherExample",
-                                                                                                     publisherRep->getAllUrls().at(
-                                                                                                             0),
-                                                                                                     publisherRep->getPort());
+                                component->getBackgroundRequester().request3rdPartyRemoteListenThenDial(dialUrl,
+                                                                                                        "subscriberExample",
+                                                                                                        "publisherExample",
+                                                                                                        publisherRep->getAllUrls().at(
+                                                                                                                0),
+                                                                                                        publisherRep->getPort());
                                 std::cout << "Subscriber has formed connection to publisher" << std::endl;
                                 update = true;
                                 break;
