@@ -59,6 +59,7 @@ public:
 
     void requestCloseSocketOfType(const std::string &componentUrl, const std::string &endpointType);
 
+    std::vector<std::unique_ptr<SocketMessage>> requestEndpointInfo(const std::string& componentUrl);
 };
 
 

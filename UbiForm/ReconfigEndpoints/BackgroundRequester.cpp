@@ -160,3 +160,11 @@ void BackgroundRequester::requestCloseRDH(const std::string &componentUrl) {
     sendRequest(componentUrl, sm);
 
 }
+
+std::vector<std::unique_ptr<SocketMessage>> BackgroundRequester::requestEndpointInfo(const std::string& componentUrl) {
+    SocketMessage sm;
+    sm.addMember("requestType", BACKGROUND_REQUEST_ENDPOINT_INFO);
+    auto reply = sendRequest(componentUrl, sm);
+
+    return reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
+}

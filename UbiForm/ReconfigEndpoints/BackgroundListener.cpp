@@ -61,7 +61,9 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                     reply = backgroundListener->handleCloseSocketsRequest(*request);
                 } else if (request->getString("requestType") == BACKGROUND_CLOSE_RDH) {
                     reply = backgroundListener->handleCloseRDH(*request);
-                } else {
+                } else if (request->getString("requestType") == BACKGROUND_REQUEST_ENDPOINT_INFO) {
+                    reply = backgroundListener->handleEndpointInfoRequest(*request);
+                }else {
                     throw ValidationError("requestType had value: " + request->getString("requestType"));
                 }
             } catch (ValidationError &e) {
@@ -257,5 +259,40 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleCreateAndDial(SocketMes
 
     auto reply = std::make_unique<SocketMessage>();
     reply->addMember("error",false);
+    return reply;
+}
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleEndpointInfoRequest(SocketMessage &request) {
+    std::unique_ptr<SocketMessage> reply = std::make_unique<SocketMessage>();
+    std::vector<std::string> endpointTypes = component->getComponentManifest().getAllEndpointTypes();
+    std::vector<std::unique_ptr<SocketMessage>> endpoints;
+    for(const auto& type:endpointTypes){
+
+        auto receivers = component->getReceiverEndpointsByType(type);
+        for(const auto& recvEndpoint: *receivers){
+            if(!recvEndpoint->getDialUrl().empty()){
+                std::unique_ptr<SocketMessage> mini = std::make_unique<SocketMessage>();
+                mini->addMember("id",recvEndpoint->getReceiverEndpointID());
+                mini->addMember("dialUrl",recvEndpoint->getDialUrl());
+                mini->addMember("endpointType",type);
+                mini->addMember("socketType",component->getComponentManifest().getSocketType(type));
+                endpoints.push_back(std::move(mini));
+            }
+        }
+        auto senders = component->getSenderEndpointsByType(type);
+        for(const auto& sendEndpoint: *senders){
+            if(sendEndpoint->getListenPort() != -1){
+                std::unique_ptr<SocketMessage> mini = std::make_unique<SocketMessage>();
+                mini->addMember("id",sendEndpoint->getSenderEndpointID());
+                mini->addMember("listenPort",sendEndpoint->getListenPort());
+                mini->addMember("endpointType",type);
+                mini->addMember("socketType",component->getComponentManifest().getSocketType(type));
+                endpoints.push_back(std::move(mini));
+            }
+        }
+    }
+    reply->addMoveArrayOfObjects("endpoints",endpoints);
+    reply->addMember("error",false);
+
     return reply;
 }

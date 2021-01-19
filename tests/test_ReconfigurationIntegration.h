@@ -144,6 +144,14 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
 
     auto receiverMsg = subscriberEndpoints->at(0)->receiveMessage();
     ASSERT_EQ(receiverMsg->getInteger("value"), 42);
+
+    auto reply = RDH.getBackgroundRequester().requestEndpointInfo(senderComponentComplete);
+    ASSERT_EQ(reply.size(),1);
+    ASSERT_EQ(reply.at(0)->getString("endpointType"),"genPublisher");
+
+    reply = RDH.getBackgroundRequester().requestEndpointInfo(receiverComponent.getSelfAddress() + ":" + std::to_string(receiverComponent.getBackgroundPort()));
+    ASSERT_EQ(reply.size(),2);
+
 }
 
 

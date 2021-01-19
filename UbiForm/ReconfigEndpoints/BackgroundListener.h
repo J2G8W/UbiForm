@@ -41,6 +41,8 @@ private:
     std::unique_ptr<SocketMessage> handleCloseRDH(SocketMessage &request);
 
     std::unique_ptr<SocketMessage> handleCreateAndDial(SocketMessage &request);
+
+    std::unique_ptr<SocketMessage> handleEndpointInfoRequest(SocketMessage &request);
     ///@}
 
 public:
