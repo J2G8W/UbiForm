@@ -20,6 +20,9 @@
           "port": {
             "type": "number"
           },
+          "listenPort": {
+            "type": "number"
+          },
           "endpointType": {
             "type": "string"
           }

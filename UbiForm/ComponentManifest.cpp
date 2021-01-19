@@ -237,6 +237,14 @@ void ComponentManifest::addListenPort(const std::string &endpointType, int port)
     }
 }
 
+bool ComponentManifest::hasListenPort(const std::string& endpointType){
+    const auto &schemas = JSON_document["schemas"].GetObject();
+    if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())) {
+        return false;
+    }
+    return schemas[endpointType].GetObject().HasMember("listenPort");
+}
+
 int ComponentManifest::getListenPort(const std::string &endpointType) {
     const auto &schemas = JSON_document["schemas"].GetObject();
     if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())) {

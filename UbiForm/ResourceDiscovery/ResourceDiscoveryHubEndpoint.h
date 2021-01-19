@@ -27,13 +27,11 @@ private:
 
 public:
     explicit ResourceDiscoveryHubEndpoint(SystemSchemas &ss) : rdStore(ss),
-                                                               replyEndpoint(
-                                                                       ss.getSystemSchema(
-                                                                               SystemSchemaName::generalRDRequest).getInternalSchema(),
-                                                                       ss.getSystemSchema(
-                                                                               SystemSchemaName::generalRDResponse).getInternalSchema(),
-                                                                       "ResourceDiscoveryHub",
-                                                                       "ResourceDiscoveryHub") {}
+        replyEndpoint(
+                ss.getSystemSchema(SystemSchemaName::generalRDRequest).getInternalSchema(),
+                ss.getSystemSchema(SystemSchemaName::generalRDResponse).getInternalSchema(),
+                "ResourceDiscoveryHub",
+                "ResourceDiscoveryHub") {}
 
     /**
      * Start the ResourceDiscoveryHub. In starting it we start a new thread

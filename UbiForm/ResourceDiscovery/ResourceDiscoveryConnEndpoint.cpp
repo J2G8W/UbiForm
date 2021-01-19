@@ -156,9 +156,15 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string &en
         bool connection = false;
         for (const auto &url: location->getArray<std::string>("urls")) {
             try {
-                component->getBackgroundRequester().requestRemoteListenThenDial(url, location->getInteger("port"),
-                                                                                endpointType,
-                                                                                location->getString("endpointType"));
+                if(location->hasMember("listenPort")){
+                    std::string dialUrl = url+":"+std::to_string(location->getInteger("listenPort"));
+                    component->createEndpointAndDial(endpointType,dialUrl);
+                }else {
+                    component->getBackgroundRequester().requestRemoteListenThenDial(url, location->getInteger("port"),
+                                                                                    endpointType,
+                                                                                    location->getString(
+                                                                                            "endpointType"));
+                }
                 connection = true;
                 break;
             } catch (std::logic_error &e) {

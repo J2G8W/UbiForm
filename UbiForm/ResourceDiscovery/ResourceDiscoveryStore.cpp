@@ -75,6 +75,9 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
                 endpoint->addMember("urls", componentRep.second->getAllUrls());
                 endpoint->addMember("port", componentRep.second->getPort());
                 endpoint->addMember("endpointType", id);
+                if(componentRep.second->hasListenPort(id)){
+                    endpoint->addMember("listenPort", componentRep.second->getListenPort(id));
+                }
                 returnEndpoints.emplace_back(endpoint);
             }
         }

@@ -66,6 +66,7 @@ public:
     std::unique_ptr<SocketMessage> generateFindBySchemaRequest(const std::string &endpointType,
                                                                std::map<std::string, std::string> &otherValues);
 
+
     /**
      * Sends requests to all the RDHs we know about, for the components which match the endpointType we request.
      * Assumes we only want DataReceiverEndpoints back
