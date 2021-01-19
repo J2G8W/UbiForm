@@ -22,7 +22,7 @@ private:
     ReplyEndpoint replyEndpoint;
 
     ///@{
-    std::unique_ptr<SocketMessage> handleConnectionRequest(SocketMessage &request);
+    std::unique_ptr<SocketMessage> handleCreateAndListen(SocketMessage &request);
 
     std::unique_ptr<SocketMessage> handleAddRDH(SocketMessage &request);
 

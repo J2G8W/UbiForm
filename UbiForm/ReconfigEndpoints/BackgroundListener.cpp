@@ -41,12 +41,8 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
         if (validRequest) {
             try {
                 request->getString("requestType");
-                if (request->getString("requestType") == BACKGROUND_REQUEST_CONNECTION) {
-                    backgroundListener->systemSchemas.getSystemSchema(
-                            SystemSchemaName::endpointCreationRequest).validate(*request);
-                    reply = backgroundListener->handleConnectionRequest((*request));
-                    backgroundListener->systemSchemas.getSystemSchema(
-                            SystemSchemaName::endpointCreationResponse).validate(*reply);
+                if (request->getString("requestType") == BACKGROUND_CREATE_AND_LISTEN) {
+                    reply = backgroundListener->handleCreateAndListen((*request));
                 } else if (request->getString("requestType") == BACKGROUND_ADD_RDH) {
                     reply = backgroundListener->handleAddRDH(*request);
                 } else if (request->getString("requestType") == BACKGROUND_TELL_TO_REQUEST_CONNECTION) {
@@ -92,17 +88,18 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
     }
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleConnectionRequest(SocketMessage &request) {
+std::unique_ptr<SocketMessage> BackgroundListener::handleCreateAndListen(SocketMessage &request) {
     try {
         systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(request);
+        auto socketType = component->getComponentManifest().getSocketType(request.getString("endpointType"));
         int port;
-        if (request.getString("socketType") == PAIR) {
-            port = component->createEndpointAndListen(SocketType::Pair, request.getString("endpointType"));
-        } else if (request.getString("socketType") == PUBLISHER) {
+        if (socketType == PAIR || socketType == REPLY) {
+            port = component->createEndpointAndListen(request.getString("endpointType"));
+        } else if (socketType == PUBLISHER) {
             auto existingPublishers = component->getSenderEndpointsByType(request.getString("endpointType"));
             if (existingPublishers->empty()) {
-                port = component->createEndpointAndListen(SocketType::Publisher,
-                                                          request.getString("endpointType"));
+                port = component->createEndpointAndListen(
+                        request.getString("endpointType"));
             } else {
                 port = existingPublishers->at(0)->getListenPort();
             }
@@ -126,7 +123,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleAddRDH(SocketMessage &r
 }
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleTellCreateConnectionRequest(SocketMessage &request) {
-    component->getBackgroundRequester().requestAndCreateConnection(
+    component->getBackgroundRequester().requestRemoteListenThenDial(
             request.getString("remoteAddress"), request.getInteger("port"), request.getString("reqEndpointType"),
             request.getString("remoteEndpointType"));
     auto reply = std::make_unique<SocketMessage>();
@@ -242,7 +239,20 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleCloseRDH(SocketMessage 
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleCreateAndDial(SocketMessage& sm) {
     std::string socketType = component->getComponentManifest().getSocketType(sm.getString("endpointType"));
-    component->createEndpointAndDial(socketType,sm.getString("endpointType"), sm.getString("dialUrl"));
+    bool success = false;
+    for(const auto& url: sm.getArray<std::string>("dialUrls")) {
+        try {
+            component->createEndpointAndDial(sm.getString("endpointType"), url);
+            success = true;
+            break;
+        }catch(NngError&e){
+            continue;
+        }
+    }
+    if(!success){
+        throw std::logic_error("Could not dial any of the given urls");
+    }
+
     auto reply = std::make_unique<SocketMessage>();
     reply->addMember("error",false);
     return reply;

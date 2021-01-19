@@ -124,12 +124,12 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
     ASSERT_GT(urls.size(), 0);
 
     // Make two subscribers (but only one publisher)
-    receiverComponent.getBackgroundRequester().requestAndCreateConnection(urls.at(0),
-                                                                          locations.at(0)->getInteger("port"),
-                                                                          "genSubscriber", "genPublisher");
-    receiverComponent.getBackgroundRequester().requestAndCreateConnection(urls.at(0),
-                                                                          locations.at(0)->getInteger("port"),
-                                                                          "genSubscriber", "genPublisher");
+    receiverComponent.getBackgroundRequester().requestRemoteListenThenDial(urls.at(0),
+                                                                           locations.at(0)->getInteger("port"),
+                                                                           "genSubscriber", "genPublisher");
+    receiverComponent.getBackgroundRequester().requestRemoteListenThenDial(urls.at(0),
+                                                                           locations.at(0)->getInteger("port"),
+                                                                           "genSubscriber", "genPublisher");
 
 
     auto subscriberEndpoints = receiverComponent.getReceiverEndpointsByType("genSubscriber");

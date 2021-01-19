@@ -30,12 +30,12 @@ public:
                             "BackgroundRequester",
                             "BackgroundRequester") {}
 
-    void requestAndCreateConnection(const std::string &baseAddress, int port,
-                                    const std::string &localEndpointType,
-                                    const std::string &remoteEndpointType);
+    void requestRemoteListenThenDial(const std::string &locationOfRemote, int remotePort,
+                                     const std::string &localEndpointType,
+                                     const std::string &remoteEndpointType);
 
-    void requestToCreateAndDial(const std::string &componentUrl, const std::string &socketType,
-                                const std::string &endpointType, const std::string &remoteUrl);
+    void requestToCreateAndDial(const std::string &componentUrl, const std::string &endpointType,
+                                const std::vector<std::string> &remoteUrls);
 
 
 
@@ -58,6 +58,10 @@ public:
 
     void requestCloseSocketOfType(const std::string &componentUrl, const std::string &endpointType);
 
+    int requestToCreateAndListen(const std::string &componentAddress, const std::string &endpointType);
+
+    void localListenThenRequestRemoteDial(const std::string &componentAddress, const std::string &localEndpointType,
+                                          const std::string &remoteEndpointType);
 };
 
 

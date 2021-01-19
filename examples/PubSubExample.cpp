@@ -20,10 +20,10 @@ int main(int argc, char **argv) {
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            component.getBackgroundRequester().requestAndCreateConnection(
+            component.getBackgroundRequester().requestRemoteListenThenDial(
                     "tcp://127.0.0.1", 8000, "subscriberExample",
                     "publisherExample");
-            component.getBackgroundRequester().requestAndCreateConnection(
+            component.getBackgroundRequester().requestRemoteListenThenDial(
                     "tcp://127.0.0.1", 8000, "subscriberExample",
                     "publisherExample");
             std::unique_ptr<SocketMessage> s;

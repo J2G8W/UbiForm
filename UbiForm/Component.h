@@ -79,7 +79,7 @@ public:
     Component();
 
     /** Specifies the manifest of the component (will overwrite previous manifest if one exists).
-     * All constructors are copy constructors from their location */
+     * All constructors are copy constructors from their location and close ALL connected endpoints on update*/
     ///@{
     void specifyManifest(FILE *jsonFP);
 
@@ -95,26 +95,24 @@ public:
      * @param - Type refers to an identifier in the componentManifest
      * @param - Id is a unique identifier given to the new endpoint within the component
      */
-    void createNewEndpoint(const std::string &type, const std::string &id);
+    void createNewEndpoint(const std::string &endpointType, const std::string &endpointId);
 
 
     /**
      * Creates an endpoint of socketType which refers to the endpointType in the componentManifest. It then listens for
      * incoming connections.
-     * @param st - Specify what type of connection is created (Pair, Publisher etc)
      * @param endpointType - Specifies what type of connection is created (refers to componentManifest)
      * @return The port number which the endpoint is listening on
      */
-    int createEndpointAndListen(SocketType st, const std::string &endpointType);
+    int createEndpointAndListen(const std::string &endpointType);
 
     /**
      * Creates and dials
-     * @param socketType - Specify what type of connection is created (Pair, Publisher etc)
      * @param localEndpointType - Refers to our own componentManifest
-     * @param url - The complete URL to listen on (form tcp://_._._._:_)
+     * @param dialUrl - The complete URL to listen on (form tcp://_._._._:_)
      */
     void
-    createEndpointAndDial(const std::string &socketType, const std::string &localEndpointType, const std::string &url);
+    createEndpointAndDial(const std::string &localEndpointType, const std::string &dialUrl);
 
     ///@{
     /// Get a pointer to endpoints, they are shared_ptr's which shouldn't be deleted, and may be closed without notice

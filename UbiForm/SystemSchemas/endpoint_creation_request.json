@@ -3,20 +3,11 @@
   "id": "endpoint_creation_request_v1",
   "type": "object",
   "properties": {
-    "socketType": {
-      "type": "string",
-      "enum": [
-        "pair",
-        "publisher",
-        "subscriber"
-      ]
-    },
     "endpointType": {
       "type": "string"
     }
   },
   "required": [
-    "socketType",
     "endpointType"
   ]
 }

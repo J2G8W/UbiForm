@@ -20,33 +20,46 @@ std::unique_ptr<SocketMessage> BackgroundRequester::sendRequest(const std::strin
 }
 
 
-void BackgroundRequester::requestAndCreateConnection(const std::string &baseAddress, int port,
-                                                     const std::string &localEndpointType,
-                                                     const std::string &remoteEndpointType) {
+void BackgroundRequester::requestRemoteListenThenDial(const std::string &locationOfRemote, int remotePort,
+                                                      const std::string &localEndpointType,
+                                                      const std::string &remoteEndpointType) {
+    int port = requestToCreateAndListen(locationOfRemote+":"+std::to_string(remotePort),remoteEndpointType);
+    component->createEndpointAndDial(localEndpointType, locationOfRemote + ":" + std::to_string(port));
+}
 
-    std::string localSocketType = component->getComponentManifest().getSocketType(localEndpointType);
+int BackgroundRequester::requestToCreateAndListen(const std::string& componentAddress, const std::string& endpointType){
     SocketMessage sm;
-    if (localSocketType == SUBSCRIBER) {
-        sm.addMember("socketType", PUBLISHER);
-    } else if (localSocketType == REQUEST) {
-        sm.addMember("socketType", REPLY);
-    } else {
-        sm.addMember("socketType", localSocketType);
-    }
-
-    sm.addMember("endpointType", remoteEndpointType);
-    sm.addMember("requestType", BACKGROUND_REQUEST_CONNECTION);
+    sm.addMember("endpointType", endpointType);
+    sm.addMember("requestType", BACKGROUND_CREATE_AND_LISTEN);
 
     systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(sm);
-
-    std::string dialAddress = baseAddress + ":" + std::to_string(port);
-
-    auto reply = sendRequest(dialAddress, sm);
-
+    auto reply = sendRequest(componentAddress, sm);
     systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationResponse).validate(*reply);
-    int newPort = reply->getInteger("port");
-    component->createEndpointAndDial(localSocketType, localEndpointType, baseAddress + ":" + std::to_string(newPort));
+    return reply->getInteger("port");
 }
+
+
+void BackgroundRequester::localListenThenRequestRemoteDial(const std::string& componentAddress,  const std::string& localEndpointType,
+                                                           const std::string& remoteEndpointType){
+    int listeningPort = component->createEndpointAndListen(localEndpointType);
+    std::vector<std::string> selfLocations;
+    for(const auto& addr: component->getAllAddresses()){
+        selfLocations.emplace_back(addr+":"+std::to_string(listeningPort));
+    }
+    requestToCreateAndDial(componentAddress, remoteEndpointType,selfLocations);
+}
+
+void BackgroundRequester::requestToCreateAndDial(const std::string &componentUrl, const std::string &endpointType,
+                                                 const std::vector<std::string> &remoteUrls) {
+    SocketMessage sm;
+
+    sm.addMember("endpointType", endpointType);
+    sm.addMember("requestType", BACKGROUND_CREATE_AND_LISTEN);
+    sm.addMember("dialUrls", remoteUrls);
+
+    auto reply = sendRequest(componentUrl, sm);
+}
+
 
 void BackgroundRequester::requestAddRDH(const std::string &componentUrl, const std::string &rdhUrl) {
     SocketMessage sm;
@@ -103,17 +116,6 @@ int BackgroundRequester::requestCreateRDH(const std::string &componentUrl) {
     } catch (AccessError &e) {
         throw ValidationError("No port number in returned message");
     }
-}
-
-void BackgroundRequester::requestToCreateAndDial(const std::string &componentUrl, const std::string &socketType,
-                                                 const std::string &endpointType, const std::string &remoteUrl) {
-    SocketMessage sm;
-
-    sm.addMember("endpointType", endpointType);
-    sm.addMember("requestType", BACKGROUND_REQUEST_CONNECTION);
-    sm.addMember("dialUrl",remoteUrl);
-
-    auto reply = sendRequest(componentUrl, sm);
 }
 
 // Return empty if error reply

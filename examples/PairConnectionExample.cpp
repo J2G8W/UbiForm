@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            receiver.getBackgroundRequester().requestAndCreateConnection(
+            receiver.getBackgroundRequester().requestRemoteListenThenDial(
                     "tcp://127.0.0.1", 8000, "pairExample",
                     "pairExample");
             auto endpoints = receiver.getReceiverEndpointsByType("pairExample");
@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
-            receiver.getBackgroundRequester().requestAndCreateConnection(
+            receiver.getBackgroundRequester().requestRemoteListenThenDial(
                     "tcp://127.0.0.1", 8000, "pairExample",
                     "pairExample");
             auto endpoints = receiver.getReceiverEndpointsByType("pairExample");

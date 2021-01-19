@@ -42,7 +42,7 @@ enum ConnectionType {
 };
 
 // Strings used for Background Requester and Listener
-#define BACKGROUND_REQUEST_CONNECTION "req_conn"
+#define BACKGROUND_CREATE_AND_LISTEN "req_conn"
 #define BACKGROUND_ADD_RDH "add_rdh"
 #define BACKGROUND_TELL_TO_REQUEST_CONNECTION "tell_req_conn"
 #define BACKGROUND_CHANGE_ENDPOINT_SCHEMA "add_endpoint_schema"
@@ -51,7 +51,7 @@ enum ConnectionType {
 #define BACKGROUND_GET_LOCATIONS_OF_RDH "locations_rdh"
 #define BACKGROUND_CLOSE_SOCKETS "close_sockets"
 #define BACKGROUND_CLOSE_RDH "close_rdh"
-#define BACKGROUND_REQUEST_DIAL "req_dial"
+#define BACKGROUND_CREATE_AND_DIAL "req_dial"
 
 // Strings used for Resource Discovery comms
 // NOTE THAT THESE ARE ALSO DEFINED IN "SystemSchemas/resource_discovery_*_request.json"
