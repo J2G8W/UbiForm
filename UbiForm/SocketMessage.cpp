@@ -149,6 +149,7 @@ std::unique_ptr<SocketMessage> SocketMessage::getCopyObject(const std::string &a
     }
 }
 
+///@private
 template<>
 std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
@@ -270,4 +271,8 @@ std::vector<std::string> SocketMessage::getKeys() {
         keyArray.emplace_back(attribute.name.GetString());
     }
     return keyArray;
+}
+
+bool SocketMessage::isNull(const std::string &attributeName) {
+    return JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsNull();
 }

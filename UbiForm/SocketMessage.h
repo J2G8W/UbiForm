@@ -13,7 +13,10 @@
 #include "Utilities/UtilityFunctions.h"
 
 
-// Note that we need RAPIDJSON_HAS_STDSTRING turned on as we need std string usage
+/**
+ * This class is used to represent all message around the system. It is an abstraction of a JSON object and can be turned
+ * into a string for when we are sending. Note this class only work with RAPIDJSON_HAS_STDSTRING turned on
+ */
 class SocketMessage {
     friend class EndpointSchema;
 
@@ -48,22 +51,26 @@ private:
 
 public:
     /**
-     * Create an empty socket message that we can add to
+     * @brief Create an empty socket message that we can add to
      */
     SocketMessage() : JSON_document() {
         JSON_document.SetObject();
     };
 
     /**
-     * Create socket message from string input, largely for use from networks
+     * @brief Create socket message from string input, largely for use from networks
      * @param jsonString - string input
      */
     explicit SocketMessage(const char *jsonString);
 
+    /// Returns a string of the SocketMessage for debugging and sending on wire
+    std::string stringify() { return stringifyValue(JSON_document); };
+
     ///@{
     /**
-     * @name addMember
+     * @name Add Member (Copy constructors)
      * These methods add or change attributes in the SocketMessage, we don't allow repeated attribute names (it overwrites)
+     * and all the methods exist to COPY in
      */
     void addMember(const std::string &attributeName, const std::string &value);
 
@@ -73,7 +80,6 @@ public:
 
     void addMember(const std::string &attributeName, bool value);
 
-    // Add an array
     // Note that this has to be defined in the header as templates are compiled here
     template<class T>
     void addMember(const std::string &attributeName, std::vector<T> inputArray) {
@@ -90,28 +96,31 @@ public:
 
     void addMember(const std::string &attributeName, const std::vector<std::string> &inputArray);
 
-    /// @brief Copy constructs the SocketMessages
     void addMember(const std::string &attributeName, const std::vector<SocketMessage *> &inputArray);
 
-    /// @brief Copy constructs the given SocketMessage
     void addMember(const std::string &attributeName, SocketMessage &socketMessage);
 
     void setNull(const std::string &attributeName);
     ///@}
 
+
+    ///@{
+    ///@name Add Member (move constructors)
     /**
-     * @brief Moves the value from the the input socketMessage into us, use unique_ptr such that users can't mess with this
+     * @brief Moves the value from the the input socketMessage into us. Once a message is moved in (std::unique_ptr) we have
+     * ownership and deltion of it.
      * @param attributeName - name of attribute
-     * @param socketMessage - thing to be moved into us
      */
     void addMoveObject(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage);
 
-    void
-    addMoveArrayOfObjects(const std::string &attributeName, std::vector<std::unique_ptr<SocketMessage>> &inputArray);
+    void addMoveArrayOfObjects(const std::string &attributeName, std::vector<std::unique_ptr<SocketMessage>> &inputArray);
+    ///@}
 
     ///@{
     /**
-     * @name Getters from the SocketMessage
+     * @name Getters from the SocketMessage (Copy Constructor)
+     * @param attributeName - The attribute we want
+     * @throws AccessError - The desired attribute is not in the SocketMessage or is the wrong type
      */
     int getInteger(const std::string &attributeName);
 
@@ -119,33 +128,27 @@ public:
 
     std::string getString(const std::string &attributeName);
 
-    /// @brief This uses copy constructing
     std::unique_ptr<SocketMessage> getCopyObject(const std::string &attributeName);
+
+    bool isNull(const std::string &attributeName);
 
     template<class T>
     std::vector<T> getArray(const std::string &attributeName);
-
-    bool isNull(const std::string &attributeName) {
-        return JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsNull();
-    }
     ///@}
 
+    ///@{
+    ///@name - Getters from SocketMessage (move rather than copy)
     /**
-     * Move an object from within the current object. NOTE that the parent must live as long as the new child due to memory handling
-     * issues with rapidjson. If this is a problem use getCopyObject which is less efficient but hasn't got memory issues
+     * Move  from within the current object. NOTE that the parent must live as long as the new child due to memory handling
+     * issues with rapidjson. If this is a problem use copy versions which are less efficient but hasn't got memory issues
      * @param attributeName - Attribute to get
-     * @return std::unique_ptr to a SocketMessage which is the sub-object desired, uses special pointers to make CLEAR that
-     * these should have short life spans
+     * @throws AccessError - The desired attribute is not in the SocketMessage or is the wrong type
      */
     std::unique_ptr<SocketMessage> getMoveObject(const std::string &attributeName);
 
-    /**
-     * Move an array of objects from within the current object. NOTE that the parent must live as long as the new child due to memory handling
-     * issues with rapidjson. If this is a problem use getArray which is less efficient but hasn't got memory issues
-     * @param attributeName - Attibutre to get
-     * @return vector of std::unique_ptr's for ease of memory handling
-     */
     std::vector<std::unique_ptr<SocketMessage> > getMoveArrayOfObjects(const std::string &attributeName);
+    ///@}
+
 
     /**
      * @return whether the socketMessage itself is a null value
@@ -154,15 +157,21 @@ public:
         return JSON_document.IsNull();
     }
 
-
+    /**
+     * @brief Get all the properties names that are associated with the messages
+     * @return Vector of the property name of the SocketMessage
+     */
     std::vector<std::string> getKeys();
 
+    /**
+     * @breif Check if SocketMessage has property
+     * @param attributeName - Attribute name to search on
+     * @return Whether the SocketMessage has an attribute of the given name
+     */
     bool hasMember(const std::string &attributeName) {
         return JSON_document.HasMember(attributeName);
     }
 
-    /// Returns a string of the SocketMessage for debugging and sending on wire
-    std::string stringify() { return stringifyValue(JSON_document); };
 
     ~SocketMessage();
 };
