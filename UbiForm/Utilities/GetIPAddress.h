@@ -2,7 +2,9 @@
 #define UBIFORM_GETIPADDRESS_H
 
 #ifdef __linux__
+#ifndef __ANDROID__
 #define LINUX_BUILD
+#endif
 #endif
 #ifdef _WIN32
 #define WINDOWS_BUILD
