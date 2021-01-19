@@ -50,9 +50,13 @@ void DataSenderEndpoint::asyncCleanup(void *data) {
 }
 
 void DataSenderEndpoint::setSendTimeout(int ms_time) {
-    int rv = nng_socket_set_ms(*senderSocket, NNG_OPT_SENDTIMEO, ms_time);
-    if (rv != 0) {
-        throw NngError(rv, "Set send timeout");
+    if(!(endpointState == EndpointState::Closed || endpointState == EndpointState::Invalid)) {
+        int rv = nng_socket_set_ms(*senderSocket, NNG_OPT_SENDTIMEO, ms_time);
+        if (rv != 0) {
+            throw NngError(rv, "Set send timeout");
+        }
+    }else{
+        throw SocketOpenError("Can't set timeout if endpoint not open",socketType,endpointIdentifier);
     }
 }
 
@@ -64,14 +68,18 @@ void DataSenderEndpoint::listenForConnection(const char *base, int port) {
 }
 
 int DataSenderEndpoint::listenForConnectionWithRV(const char *base, int port) {
-    int rv;
-    std::string addr = std::string(base) + ":" + std::to_string(port);
-    if ((rv = nng_listen(*senderSocket, addr.c_str(), nullptr, 0)) != 0) {
+    if(endpointState == EndpointState::Open) {
+        int rv;
+        std::string addr = std::string(base) + ":" + std::to_string(port);
+        if ((rv = nng_listen(*senderSocket, addr.c_str(), nullptr, 0)) != 0) {
+            return rv;
+        }
+        this->endpointState = EndpointState::Listening;
+        this->listenPort = port;
         return rv;
+    }else{
+        throw SocketOpenError("Can't listen if endpoint not open",socketType,endpointIdentifier);
     }
-    this->endpointState = EndpointState::Listening;
-    this->listenPort = port;
-    return rv;
 }
 
 void DataSenderEndpoint::closeSocket() {

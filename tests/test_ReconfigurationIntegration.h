@@ -61,7 +61,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
 
     // Test local close socket
     std::string senderEndpointID = senderEndpoints->at(0)->getSenderEndpointID();
-    senderComponent.closeSocketOfId(senderEndpointID);
+    senderComponent.closeAndInvalidateSocketById(senderEndpointID);
     ASSERT_EQ(senderEndpoints->size(), 0);
     ASSERT_THROW(senderComponent.getSenderEndpointById(senderEndpointID), std::out_of_range);
 }
@@ -345,5 +345,9 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest6){
     // Test changing Manifest with hanging pointer to socket
     auto pubEndpoint = component2.getSenderEndpointsByType("PUB")->at(0);
     component2.specifyManifest(R"({"name":"TEST1","schemas":{}})");
-    pubEndpoint->listenForConnection("ipc:///tmp/component2",2000);
+    ASSERT_THROW(pubEndpoint->listenForConnection("ipc:///tmp/component2",2000),SocketOpenError);
+    SocketMessage sm;
+    ASSERT_THROW(pubEndpoint->sendMessage(sm),SocketOpenError);
+    ASSERT_THROW(pubEndpoint->asyncSendMessage(sm),SocketOpenError);
+    ASSERT_THROW(pubEndpoint->openEndpoint(),SocketOpenError);
 }

@@ -58,19 +58,19 @@ Component::Component() : systemSchemas(),
 
 
 void Component::specifyManifest(FILE *jsonFP) {
-    closeAllSockets();
+    closeAndInvalidateAllSockets();
     componentManifest.setManifest(jsonFP);
     resourceDiscoveryConnEndpoint.updateManifestWithHubs();
 }
 
 void Component::specifyManifest(const char *jsonString) {
-    closeAllSockets();
+    closeAndInvalidateAllSockets();
     componentManifest.setManifest(jsonString);
     resourceDiscoveryConnEndpoint.updateManifestWithHubs();
 }
 
 void Component::specifyManifest(SocketMessage *sm) {
-    closeAllSockets();
+    closeAndInvalidateAllSockets();
     componentManifest.setManifest(sm);
     resourceDiscoveryConnEndpoint.updateManifestWithHubs();
 }
@@ -278,7 +278,7 @@ void Component::createEndpointAndDial(const std::string &localEndpointType, cons
         std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << dialUrl;
         std::cout << "\n\tLocal ID of socket: " << socketId << std::endl;
     }catch(NngError &e){
-        closeSocketOfId(socketId);
+        closeAndInvalidateSocketById(socketId);
         throw;
     }
 }
@@ -334,12 +334,13 @@ Component::~Component() {
     delete resourceDiscoveryHubEndpoint;
 }
 
-void Component::closeSocketsOfType(const std::string &endpointType) {
+void Component::closeAndInvalidateSocketsOfType(const std::string &endpointType) {
     if (typeReceiverEndpoints.count(endpointType) > 0) {
         auto vec = typeReceiverEndpoints.at(endpointType);
         auto it = vec->begin();
         while (it != vec->end()) {
             (*it)->closeSocket();
+            (*it)->invalidateEndpoint();
             it = vec->erase(it);
             idReceiverEndpoints.erase((*it)->getReceiverEndpointID());
         }
@@ -349,6 +350,7 @@ void Component::closeSocketsOfType(const std::string &endpointType) {
         auto it = vec->begin();
         while (it != vec->end()) {
             (*it)->closeSocket();
+            (*it)->invalidateEndpoint();
             it = vec->erase(it);
             idSenderEndpoints.erase((*it)->getSenderEndpointID());
         }
@@ -364,7 +366,7 @@ int Component::getResourceDiscoveryHubPort() {
     }
 }
 
-void Component::closeSocketOfId(const std::string &endpointId) {
+void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
     // We do the same thing for receiver and senders.
     // Endpoints which are both don't matter about being closed twice
 
@@ -373,6 +375,7 @@ void Component::closeSocketOfId(const std::string &endpointId) {
     if (receiverEndpoint != idReceiverEndpoints.end()) {
         // Close the socket itself
         receiverEndpoint->second->closeSocket();
+        receiverEndpoint->second->invalidateEndpoint();
 
         // Get our endpoint out of the "By Type" container
         auto possibleEndpointContainer = typeReceiverEndpoints.find(
@@ -397,6 +400,7 @@ void Component::closeSocketOfId(const std::string &endpointId) {
     auto senderEndpoint = idSenderEndpoints.find(endpointId);
     if (senderEndpoint != idSenderEndpoints.end()) {
         senderEndpoint->second->closeSocket();
+        senderEndpoint->second->invalidateEndpoint();
 
         auto possibleEndpointContainer = typeSenderEndpoints.find(senderEndpoint->second->getSenderEndpointType());
         if (possibleEndpointContainer != typeSenderEndpoints.end()) {
@@ -415,9 +419,9 @@ void Component::closeSocketOfId(const std::string &endpointId) {
     }
 }
 
-void Component::closeAllSockets() {
+void Component::closeAndInvalidateAllSockets() {
     for(const auto& endpointType : componentManifest.getAllEndpointTypes()){
-        closeSocketsOfType(endpointType);
+        closeAndInvalidateSocketsOfType(endpointType);
     }
 }
 

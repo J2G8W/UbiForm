@@ -221,7 +221,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleRDHLocationsRequest(Soc
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleCloseSocketsRequest(SocketMessage &request) {
     auto reply = std::make_unique<SocketMessage>();
-    component->closeSocketsOfType(request.getString("endpointType"));
+    component->closeAndInvalidateSocketsOfType(request.getString("endpointType"));
     reply->addMember("error", false);
     return reply;
 }
@@ -300,7 +300,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleEndpointInfoRequest(Soc
 }
 
 std::unique_ptr<SocketMessage> BackgroundListener::handleCloseEndpointByIdRequest(SocketMessage &re) {
-    component->closeSocketOfId(re.getString("endpointId"));
+    component->closeAndInvalidateSocketById(re.getString("endpointId"));
     auto reply = std::make_unique<SocketMessage>();
     reply->addMember("error",false);
     return reply;

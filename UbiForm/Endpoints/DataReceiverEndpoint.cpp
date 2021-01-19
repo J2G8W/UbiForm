@@ -67,18 +67,26 @@ void DataReceiverEndpoint::asyncCallback(void *data) {
 }
 
 void DataReceiverEndpoint::setReceiveTimeout(int ms_time) {
-    int rv = nng_socket_set_ms(*receiverSocket, NNG_OPT_RECVTIMEO, ms_time);
-    if (rv != 0) {
-        throw NngError(rv, "Set receive timeout");
+    if(!(endpointState == EndpointState::Closed || endpointState == EndpointState::Invalid)) {
+        int rv = nng_socket_set_ms(*receiverSocket, NNG_OPT_RECVTIMEO, ms_time);
+        if (rv != 0) {
+            throw NngError(rv, "Set receive timeout");
+        }
+    }else{
+        throw SocketOpenError("Can't set timeout if endpoint not open",socketType,endpointIdentifier);
     }
 }
 
 void DataReceiverEndpoint::dialConnection(const char *url) {
-    int rv;
-    if ((rv = nng_dial(*receiverSocket, url, nullptr, 0)) != 0) {
-        throw NngError(rv, "Dialing " + std::string(url) + " for a pair connection");
+    if(endpointState == EndpointState::Open) {
+        int rv;
+        if ((rv = nng_dial(*receiverSocket, url, nullptr, 0)) != 0) {
+            throw NngError(rv, "Dialing " + std::string(url) + " for a pair connection");
+        }
+        this->dialUrl = url;
+        this->endpointState = EndpointState::Dialed;
+    }else{
+        throw SocketOpenError("Can't dial if endpoint not open",socketType,endpointIdentifier);
     }
-    this->dialUrl = url;
-    this->endpointState = EndpointState::Dialed;
 }
 

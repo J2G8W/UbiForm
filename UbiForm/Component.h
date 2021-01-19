@@ -191,12 +191,12 @@ public:
      * when asked to do anything
      * @param endpointType
      */
-    void closeSocketsOfType(const std::string &endpointType);
+    void closeAndInvalidateSocketsOfType(const std::string &endpointType);
 
 
-    void closeSocketOfId(const std::string &endpointId);
+    void closeAndInvalidateSocketById(const std::string &endpointId);
 
-    void closeAllSockets();
+    void closeAndInvalidateAllSockets();
 
     /// Pretty much everything should stop once component is deleted
     ~Component();
