@@ -43,6 +43,8 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                 request->getString("requestType");
                 if (request->getString("requestType") == BACKGROUND_CREATE_AND_LISTEN) {
                     reply = backgroundListener->handleCreateAndListen((*request));
+                } else if (request->getString("requestType") == BACKGROUND_CREATE_AND_DIAL) {
+                    reply = backgroundListener->handleCreateAndDial(*request);
                 } else if (request->getString("requestType") == BACKGROUND_ADD_RDH) {
                     reply = backgroundListener->handleAddRDH(*request);
                 } else if (request->getString("requestType") == BACKGROUND_TELL_TO_REQUEST_CONNECTION) {

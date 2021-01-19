@@ -54,7 +54,7 @@ void BackgroundRequester::requestToCreateAndDial(const std::string &componentUrl
     SocketMessage sm;
 
     sm.addMember("endpointType", endpointType);
-    sm.addMember("requestType", BACKGROUND_CREATE_AND_LISTEN);
+    sm.addMember("requestType", BACKGROUND_CREATE_AND_DIAL);
     sm.addMember("dialUrls", remoteUrls);
 
     auto reply = sendRequest(componentUrl, sm);

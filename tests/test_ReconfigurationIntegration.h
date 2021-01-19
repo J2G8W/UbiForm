@@ -274,3 +274,24 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest5) {
     ASSERT_NO_THROW(receiverTypeMap.at(component2.getResourceDiscoveryConnectionEndpoint().getId(RdhAddress)));
     ASSERT_NO_THROW(receiverTypeMap.at(component3.getResourceDiscoveryConnectionEndpoint().getId(RdhAddress)));
 }
+
+TEST(ReconfigurationIntegrationTest, IntegrationTest6){
+    Component component1("ipc:///tmp/component1");
+    Component component2("ipc:///tmp/component2");
+
+    std::shared_ptr<EndpointSchema> schema = std::make_shared<EndpointSchema>();
+    schema->addProperty("TEST",ValueType::Number);
+
+    component1.getComponentManifest().addEndpoint(SocketType::Subscriber,"SUB",schema, nullptr);
+    component2.getComponentManifest().addEndpoint(SocketType::Publisher, "PUB", nullptr,schema);
+
+    component1.startBackgroundListen();
+    component2.startBackgroundListen();
+
+    ASSERT_NO_THROW(component2.getBackgroundRequester().localListenThenRequestRemoteDial(
+                component1.getSelfAddress()+":"+std::to_string(component1.getBackgroundPort()),
+                "PUB", "SUB"));
+
+    ASSERT_EQ(component2.getSenderEndpointsByType("PUB")->size(),1);
+    ASSERT_EQ(component1.getReceiverEndpointsByType("SUB")->size(),1);
+}
