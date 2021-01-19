@@ -1,6 +1,6 @@
 #include <random>
 #include <chrono>
-#include "ResourceDiscoveryStore.h"
+#include "../../include/UbiForm/ResourceDiscovery/ResourceDiscoveryStore.h"
 
 std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm) {
     std::string request;

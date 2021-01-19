@@ -1,5 +1,5 @@
 #include <memory>
-#include "SocketMessage.h"
+#include "../include/UbiForm/SocketMessage.h"
 
 // Note that dependants is handled automatically by unique_ptr
 SocketMessage::~SocketMessage() = default;

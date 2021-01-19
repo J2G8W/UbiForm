@@ -35,7 +35,7 @@ public:
      * @param doc - The rapidjson value which represents our schema
      * @param al - The memory allocator which stores the memory of the given doc
      */
-    EndpointSchema(rapidjson::Value *doc, rapidjson::MemoryPoolAllocator<> &al) {
+    explicit EndpointSchema(rapidjson::Value *doc, rapidjson::MemoryPoolAllocator<> &al) {
         allocator = &al;
         JSON_rep = doc;
         schema = new rapidjson::SchemaDocument(*JSON_rep);
@@ -47,7 +47,7 @@ public:
      * copying this schema
      * @param sm - Parent message (don't delete before deletion of this object)
      */
-    EndpointSchema(SocketMessage &sm) {
+    explicit EndpointSchema(SocketMessage &sm) {
         JSON_rep = &sm.JSON_document;
         allocator = &(sm.JSON_document.GetAllocator());
         schema = new rapidjson::SchemaDocument(*JSON_rep);

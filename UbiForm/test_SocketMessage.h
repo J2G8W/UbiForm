@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "SocketMessage.h"
+#include "../include/UbiForm/SocketMessage.h"
 
 TEST(SocketMessage, Stringify) {
     std::string jsonString = R"({"temperature":42,"value":"HELLO WORLD!"})";

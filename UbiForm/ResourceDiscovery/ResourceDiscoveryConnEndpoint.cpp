@@ -1,5 +1,5 @@
-#include "ResourceDiscoveryConnEndpoint.h"
-#include "../Component.h"
+#include "../../include/UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
+#include "../../include/UbiForm/Component.h"
 #include <nng/protocol/reqrep0/req.h>
 
 std::unique_ptr<SocketMessage>

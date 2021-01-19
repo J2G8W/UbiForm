@@ -1,5 +1,5 @@
 
-#include "ResourceDiscoveryHubEndpoint.h"
+#include "../../include/UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.h"
 #include <nng/nng.h>
 #include <nng/supplemental/util/platform.h>
 #include <nng/protocol/reqrep0/rep.h>

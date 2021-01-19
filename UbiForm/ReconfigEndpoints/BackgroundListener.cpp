@@ -1,8 +1,8 @@
 #include <nng/nng.h>
 #include <nng/supplemental/util/platform.h>
-#include "BackgroundListener.h"
-#include "../Component.h"
-#include "../ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
+#include "../../include/UbiForm/ReconfigurationEndpoints/BackgroundListener.h"
+#include "../../include/UbiForm/Component.h"
+#include "../../include/UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
 void BackgroundListener::startBackgroundListen(const std::string &baseAddress, int port) {
     replyEndpoint.listenForConnection(baseAddress.c_str(), port);

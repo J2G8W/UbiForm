@@ -4,7 +4,7 @@
 #include <thread>
 #include <nng/nng.h>
 #include <nng/protocol/reqrep0/rep.h>
-#include "../SystemSchemas/SystemSchemas.h"
+#include "../../../UbiForm/SystemSchemas/SystemSchemas.h"
 #include "../Endpoints/ReplyEndpoint.h"
 
 class Component;

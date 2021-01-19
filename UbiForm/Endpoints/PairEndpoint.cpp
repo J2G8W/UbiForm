@@ -5,7 +5,7 @@
 
 
 #include "../Utilities/UtilityFunctions.h"
-#include "PairEndpoint.h"
+#include "../../include/UbiForm/Endpoints/PairEndpoint.h"
 
 
 // Destructor waits a short time before closing socket such that any unsent messages are released

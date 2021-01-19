@@ -1,4 +1,4 @@
-#include "EndpointSchema.h"
+#include "../../include/UbiForm/SchemaRepresentation/EndpointSchema.h"
 
 
 // Validate a socket message against the manifest

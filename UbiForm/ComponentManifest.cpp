@@ -1,4 +1,4 @@
-#include "ComponentManifest.h"
+#include "../include/UbiForm/ComponentManifest.h"
 
 
 // Constructors

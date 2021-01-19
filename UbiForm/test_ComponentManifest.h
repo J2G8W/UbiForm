@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "ComponentManifest.h"
+#include "../include/UbiForm/ComponentManifest.h"
 
 #include <string>
 

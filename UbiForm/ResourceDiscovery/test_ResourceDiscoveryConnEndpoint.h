@@ -1,4 +1,4 @@
-#include "ResourceDiscoveryConnEndpoint.h"
+#include "../../include/UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
 class test_RDC : public testing::Test {
 protected:

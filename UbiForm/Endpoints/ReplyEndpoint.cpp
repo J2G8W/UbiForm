@@ -1,6 +1,6 @@
 #include <nng/nng.h>
 #include <nng/supplemental/util/platform.h>
-#include "ReplyEndpoint.h"
+#include "../../include/UbiForm/Endpoints/ReplyEndpoint.h"
 
 
 void ReplyEndpoint::dialConnection(const char *url) {

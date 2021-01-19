@@ -1,4 +1,4 @@
-#include "ComponentRepresentation.h"
+#include "../../include/UbiForm/ResourceDiscovery/ComponentRepresentation.h"
 
 bool ComponentRepresentation::isEqual(const std::string &endpointId, bool recv, SocketMessage &sm) {
     const auto &schemas = JSON_document["schemas"].GetObject();

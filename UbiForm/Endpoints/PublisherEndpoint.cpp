@@ -1,6 +1,6 @@
 #include <nng/nng.h>
 #include <nng/supplemental/util/platform.h>
-#include "PublisherEndpoint.h"
+#include "../../include/UbiForm/Endpoints/PublisherEndpoint.h"
 
 void PublisherEndpoint::openEndpoint() {
     if (DataSenderEndpoint::endpointState == EndpointState::Closed) {

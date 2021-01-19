@@ -1,9 +1,9 @@
 #include <string>
 #include <nng/nng.h>
 #include <nng/protocol/reqrep0/req.h>
-#include "BackgroundRequester.h"
-#include "BackgroundListener.h"
-#include "../Component.h"
+#include "../../include/UbiForm/ReconfigurationEndpoints/BackgroundRequester.h"
+#include "../../include/UbiForm/ReconfigurationEndpoints/BackgroundListener.h"
+#include "../../include/UbiForm/Component.h"
 
 std::unique_ptr<SocketMessage> BackgroundRequester::sendRequest(const std::string &url, SocketMessage &request) {
     requestEndpoint.dialConnection(url.c_str());

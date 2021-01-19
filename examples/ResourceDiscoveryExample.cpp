@@ -1,6 +1,6 @@
 #include <algorithm>
-#include "../UbiForm/Component.h"
-#include "../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
+#include "../include/UbiForm/Component.h"
+#include "../include/UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
 #include <iomanip>
 #include <nng/supplemental/util/platform.h>

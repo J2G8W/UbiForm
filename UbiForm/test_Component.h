@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "Component.h"
+#include "../include/UbiForm/Component.h"
 #include <nng/supplemental/util/platform.h>
 
 TEST(EmptyComponent, EmptyManifest) {

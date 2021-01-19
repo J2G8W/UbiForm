@@ -1,6 +1,6 @@
 #include <nng/nng.h>
 #include <nng/supplemental/util/platform.h>
-#include "RequestEndpoint.h"
+#include "../../include/UbiForm/Endpoints/RequestEndpoint.h"
 
 void RequestEndpoint::listenForConnection(const char *base, int port) {
     throw SocketOpenError("Request socket trying to listen for connection",

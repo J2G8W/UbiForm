@@ -1,4 +1,4 @@
-#include "DataReceiverEndpoint.h"
+#include "../../include/UbiForm/Endpoints/DataReceiverEndpoint.h"
 
 
 // Receive a message, validate it against the socketManifest and return a pointer to the object.

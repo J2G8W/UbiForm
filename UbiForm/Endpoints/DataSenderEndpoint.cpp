@@ -1,4 +1,4 @@
-#include "DataSenderEndpoint.h"
+#include "../../include/UbiForm/Endpoints/DataSenderEndpoint.h"
 
 // Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(SocketMessage &s) {

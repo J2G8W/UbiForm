@@ -1,8 +1,8 @@
 #ifndef UBIFORM_GENERICSCHEMA_H
 #define UBIFORM_GENERICSCHEMA_H
 
-#include "../SocketMessage.h"
-#include "EndpointSchema.h"
+#include "../../include/UbiForm/SocketMessage.h"
+#include "../../include/UbiForm/SchemaRepresentation/EndpointSchema.h"
 
 /**
  * We have wrapped an EndpointSchema object as these are to represent our SystemSchemas, and we don't need them to be changeable

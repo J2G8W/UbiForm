@@ -1,8 +1,8 @@
 
-#include "Component.h"
-#include "Utilities/SystemEnums.h"
+#include "../include/UbiForm/Component.h"
+#include "../include/UbiForm/Utilities/SystemEnums.h"
 
-#include "ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
+#include "../include/UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 #include "Utilities/GetIPAddress.h"
 
 #include <nng/protocol/reqrep0/rep.h>

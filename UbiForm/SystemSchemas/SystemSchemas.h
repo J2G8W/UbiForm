@@ -3,9 +3,9 @@
 
 #include <memory>
 #include <map>
-#include "../SchemaRepresentation/EndpointSchema.h"
+#include "../../include/UbiForm/SchemaRepresentation/EndpointSchema.h"
 #include "../SchemaRepresentation/GenericSchema.h"
-#include "../Utilities/SystemEnums.h"
+#include "../../include/UbiForm/Utilities/SystemEnums.h"
 
 class SystemSchemas {
 private:

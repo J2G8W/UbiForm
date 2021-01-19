@@ -1,4 +1,4 @@
-#include "SubscriberEndpoint.h"
+#include "../../include/UbiForm/Endpoints/SubscriberEndpoint.h"
 
 #include <nng/protocol/pubsub0/sub.h>
 #include <nng/supplemental/util/platform.h>

@@ -31,28 +31,33 @@ set(rapidjson_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../rapidjson)
 include_directories(${rapidjson_dir}/include)
 
 
-set(endpointFiles ../UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoints/DataReceiverEndpoint.cpp
-        ../UbiForm/Endpoints/DataSenderEndpoint.h ../UbiForm/Endpoints/DataSenderEndpoint.cpp
-        ../UbiForm/Endpoints/PairEndpoint.h ../UbiForm/Endpoints/PairEndpoint.cpp
-        ../UbiForm/Endpoints/SubscriberEndpoint.cpp ../UbiForm/Endpoints/SubscriberEndpoint.h
-        ../UbiForm/Endpoints/PublisherEndpoint.cpp ../UbiForm/Endpoints/PublisherEndpoint.h ../UbiForm/Endpoints/RequestEndpoint.cpp ../UbiForm/Endpoints/RequestEndpoint.h ../UbiForm/Endpoints/ReplyEndpoint.cpp ../UbiForm/Endpoints/ReplyEndpoint.h)
+set(endpointFiles ../include/UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoints/DataReceiverEndpoint.cpp
+        ../include/UbiForm/Endpoints/DataSenderEndpoint.h ../UbiForm/Endpoints/DataSenderEndpoint.cpp
+        ../include/UbiForm/Endpoints/PairEndpoint.h ../UbiForm/Endpoints/PairEndpoint.cpp
+        ../UbiForm/Endpoints/SubscriberEndpoint.cpp ../include/UbiForm/Endpoints/SubscriberEndpoint.h
+        ../UbiForm/Endpoints/PublisherEndpoint.cpp ../include/UbiForm/Endpoints/PublisherEndpoint.h
+		../UbiForm/Endpoints/RequestEndpoint.cpp ../include/UbiForm/Endpoints/RequestEndpoint.h
+		../UbiForm/Endpoints/ReplyEndpoint.cpp ../include/UbiForm/Endpoints/ReplyEndpoint.h)
 
-set(reconfigEndpoints ../UbiForm/ReconfigEndpoints/BackgroundListener.h ../UbiForm/ReconfigEndpoints/BackgroundListener.cpp ../UbiForm/ReconfigEndpoints/BackgroundRequester.cpp ../UbiForm/ReconfigEndpoints/BackgroundRequester.h)
+set(reconfigEndpoints ../include/UbiForm/ReconfigurationEndpoints/BackgroundListener.h ../UbiForm/ReconfigEndpoints/BackgroundListener.cpp
+		../UbiForm/ReconfigEndpoints/BackgroundRequester.cpp ../include/UbiForm/ReconfigurationEndpoints/BackgroundRequester.h)
 
-set(resourceDiscovery ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.h
-        ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h
-        ../UbiForm/ResourceDiscovery/ComponentRepresentation.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.cpp
-        ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.cpp ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.h)
+set(resourceDiscovery ../UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.cpp ../include/UbiForm/ResourceDiscovery/ResourceDiscoveryHubEndpoint.h
+        ../UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.cpp ../include/UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h
+		../include/UbiForm/ResourceDiscovery/ComponentRepresentation.h ../UbiForm/ResourceDiscovery/ComponentRepresentation.cpp
+        ../UbiForm/ResourceDiscovery/ResourceDiscoveryStore.cpp ../include/UbiForm/ResourceDiscovery/ResourceDiscoveryStore.h)
 
-set(schemaFiles ../UbiForm/SchemaRepresentation/EndpointSchema.h ../UbiForm/SchemaRepresentation/EndpointSchema.cpp
+set(schemaFiles ../include/UbiForm/SchemaRepresentation/EndpointSchema.h ../UbiForm/SchemaRepresentation/EndpointSchema.cpp
         ../UbiForm/SystemSchemas/SystemSchemas.h ../UbiForm/SystemSchemas/SystemSchemas.cpp
         ../UbiForm/SchemaRepresentation/GenericSchema.cpp ../UbiForm/SchemaRepresentation/GenericSchema.h)
 
 set(utilityFiles ../UbiForm/Utilities/UtilityFunctions.h ../UbiForm/Utilities/UtilityFunctions.cpp
-        ../UbiForm/Utilities/SystemEnums.h ../UbiForm/Utilities/SystemEnums.cpp ../UbiForm/Utilities/GetIPAddress.cpp ../UbiForm/Utilities/GetIPAddress.h)
+		../include/UbiForm/Utilities/SystemEnums.h ../UbiForm/Utilities/SystemEnums.cpp
+		../UbiForm/Utilities/GetIPAddress.cpp ../UbiForm/Utilities/GetIPAddress.h)
 
-set(componentFiles ../UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp ../UbiForm/Component.h ../UbiForm/Component.cpp
-        ../UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp)
+set(componentFiles ../include/UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp
+		../include/UbiForm/Component.h ../UbiForm/Component.cpp
+		../include/UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp)
 
 
 # Create library

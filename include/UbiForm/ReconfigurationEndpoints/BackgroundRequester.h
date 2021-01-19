@@ -1,7 +1,7 @@
 #ifndef UBIFORM_BACKGROUNDREQUESTER_H
 #define UBIFORM_BACKGROUNDREQUESTER_H
 
-#include "../SystemSchemas/SystemSchemas.h"
+#include "../../../UbiForm/SystemSchemas/SystemSchemas.h"
 #include "../Endpoints/RequestEndpoint.h"
 #include "../ComponentManifest.h"
 
