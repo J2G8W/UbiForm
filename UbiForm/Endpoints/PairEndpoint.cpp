@@ -40,15 +40,19 @@ void PairEndpoint::closeSocket() {
 }
 
 void PairEndpoint::openEndpoint() {
-    int rv;
-    if ((rv = nng_pair0_open(senderSocket)) != 0) {
-        throw NngError(rv, "Making pair connection");
-    } else {
-        DataSenderEndpoint::endpointState = EndpointState::Open;
-        DataReceiverEndpoint::endpointState = EndpointState::Open;
+    if(DataReceiverEndpoint::endpointState == EndpointState::Closed && DataSenderEndpoint::endpointState == EndpointState::Closed) {
+        int rv;
+        if ((rv = nng_pair0_open(senderSocket)) != 0) {
+            throw NngError(rv, "Making pair connection");
+        } else {
+            DataSenderEndpoint::endpointState = EndpointState::Open;
+            DataReceiverEndpoint::endpointState = EndpointState::Open;
+        }
+        // Use the same socket for sending and receiving
+        receiverSocket = senderSocket;
+    }else{
+        throw SocketOpenError("Can't open endpoint",DataSenderEndpoint::socketType,DataSenderEndpoint::endpointIdentifier);
     }
-    // Use the same socket for sending and receiving
-    receiverSocket = senderSocket;
 }
 
 void PairEndpoint::listenForConnection(const char *base, int port) {

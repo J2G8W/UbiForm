@@ -3,11 +3,15 @@
 #include "PublisherEndpoint.h"
 
 void PublisherEndpoint::openEndpoint() {
-    int rv;
-    if ((rv = nng_pub0_open(senderSocket)) != 0) {
-        throw NngError(rv, "Creation of publisher socket");
-    } else {
-        DataSenderEndpoint::endpointState = EndpointState::Open;
+    if(DataSenderEndpoint::endpointState == EndpointState::Closed) {
+        int rv;
+        if ((rv = nng_pub0_open(senderSocket)) != 0) {
+            throw NngError(rv, "Creation of publisher socket");
+        } else {
+            DataSenderEndpoint::endpointState = EndpointState::Open;
+        }
+    }else{
+        throw SocketOpenError("Can't open endpoint",DataSenderEndpoint::socketType,DataSenderEndpoint::endpointIdentifier);
     }
 }
 
@@ -22,7 +26,7 @@ PublisherEndpoint::~PublisherEndpoint() {
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
             } else {
-                std::cout << "Pair socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
+                std::cout << "Publisher socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
             }
             DataSenderEndpoint::endpointState = EndpointState::Invalid;
         }

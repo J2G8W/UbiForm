@@ -30,10 +30,9 @@ protected:
     // Socket is initialised in extending class
     nng_socket *senderSocket = nullptr;
     std::shared_ptr<EndpointSchema> senderSchema;
-    bool socketOpen = false;
     int listenPort = -1;
 
-    EndpointState endpointState = EndpointState::Invalid;
+    EndpointState endpointState = EndpointState::Closed;
 public:
     explicit DataSenderEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
                                 SocketType socketType, const std::string &endpointType) :
@@ -73,9 +72,7 @@ public:
     virtual void openEndpoint() = 0;
     virtual void closeSocket();
 
-    virtual void invalidateEndpoint(){
-        endpointState = EndpointState::Invalid;
-    }
+    virtual void invalidateEndpoint() = 0;
 
     virtual ~DataSenderEndpoint() {
         nng_aio_wait(nngAioPointer);

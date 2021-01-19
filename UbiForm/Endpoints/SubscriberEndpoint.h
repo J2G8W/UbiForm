@@ -24,6 +24,11 @@ public:
     void closeSocket() override;
     void openEndpoint() override;
 
+
+    void invalidateEndpoint() override{
+        DataReceiverEndpoint::endpointState = EndpointState::Invalid;
+    }
+
     ~SubscriberEndpoint();
 };
 

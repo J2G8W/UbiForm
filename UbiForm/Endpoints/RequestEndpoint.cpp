@@ -47,7 +47,7 @@ RequestEndpoint::~RequestEndpoint() {
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
             } else {
-                std::cout << "Pair socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
+                std::cout << "Request socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
             }
             DataSenderEndpoint::endpointState = EndpointState::Invalid;
             DataReceiverEndpoint::endpointState = EndpointState::Invalid;
@@ -66,14 +66,18 @@ void RequestEndpoint::closeSocket() {
 
 void RequestEndpoint::openEndpoint() {
     int rv;
-    if ((rv = nng_req0_open(senderSocket)) != 0) {
-        throw NngError(rv, "Open RD connection request socket");
-    } else {
-        DataReceiverEndpoint::endpointState = EndpointState::Open;
-        DataSenderEndpoint::endpointState = EndpointState::Open;
-        // Use the same socket for sending and receiving
-        receiverSocket = senderSocket;
-        // Set timeout to a reasonably small value
-        setReceiveTimeout(1000);
+    if(DataReceiverEndpoint::endpointState == EndpointState::Closed && DataSenderEndpoint::endpointState == EndpointState::Closed) {
+        if ((rv = nng_req0_open(senderSocket)) != 0) {
+            throw NngError(rv, "Open RD connection request socket");
+        } else {
+            DataReceiverEndpoint::endpointState = EndpointState::Open;
+            DataSenderEndpoint::endpointState = EndpointState::Open;
+            // Use the same socket for sending and receiving
+            receiverSocket = senderSocket;
+            // Set timeout to a reasonably small value
+            setReceiveTimeout(500);
+        }
+    }else{
+        throw SocketOpenError("Can't open endpoint",DataSenderEndpoint::socketType,DataSenderEndpoint::endpointIdentifier);
     }
 }

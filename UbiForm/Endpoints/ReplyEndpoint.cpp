@@ -29,7 +29,7 @@ ReplyEndpoint::~ReplyEndpoint() {
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
             } else {
-                std::cout << "Pair socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
+                std::cout << "Reply socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
             }
             DataSenderEndpoint::endpointState = EndpointState::Invalid;
             DataReceiverEndpoint::endpointState = EndpointState::Invalid;
@@ -40,17 +40,21 @@ ReplyEndpoint::~ReplyEndpoint() {
 }
 
 void ReplyEndpoint::openEndpoint() {
-    int rv;
-    if ((rv = nng_rep0_open(senderSocket)) != 0) {
-        throw NngError(rv, "Open RD connection request socket");
-    } else {
-        DataReceiverEndpoint::endpointState = EndpointState::Open;
-        DataSenderEndpoint::endpointState = EndpointState::Open;
+    if(DataSenderEndpoint::endpointState == EndpointState::Closed && DataReceiverEndpoint::endpointState == EndpointState::Closed) {
+        int rv;
+        if ((rv = nng_rep0_open(senderSocket)) != 0) {
+            throw NngError(rv, "Open reply socket");
+        } else {
+            DataReceiverEndpoint::endpointState = EndpointState::Open;
+            DataSenderEndpoint::endpointState = EndpointState::Open;
+        }
+        // Use the same socket for sending and receiving
+        receiverSocket = senderSocket;
+        // By default we have an infinite timeout
+        setReceiveTimeout(-1);
+    }else{
+        throw SocketOpenError("Can't open endpoint",DataSenderEndpoint::socketType,DataSenderEndpoint::endpointIdentifier);
     }
-    // Use the same socket for sending and receiving
-    receiverSocket = senderSocket;
-    // By default we have an infinite timeout
-    setReceiveTimeout(-1);
 }
 
 void ReplyEndpoint::listenForConnection(const char *base, int port) {

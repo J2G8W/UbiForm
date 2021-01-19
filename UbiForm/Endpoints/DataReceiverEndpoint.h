@@ -51,7 +51,7 @@ protected:
     // Schema is shared with the parent that houses this endpoint
     std::shared_ptr<EndpointSchema> receiverSchema;
 
-    EndpointState endpointState = EndpointState::Invalid;
+    EndpointState endpointState = EndpointState::Closed;
     std::string dialUrl = "";
 public:
     explicit DataReceiverEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
@@ -106,9 +106,7 @@ public:
 
     virtual void openEndpoint() = 0;
 
-    virtual void invalidateEndpoint(){
-        endpointState = EndpointState::Invalid;
-    }
+    virtual void invalidateEndpoint() =0;
 
     virtual ~DataReceiverEndpoint(){
         if(uniqueEndpointAioPointer != nullptr) {
