@@ -67,12 +67,14 @@ public:
     /// Create an empty Manifest which can be filled with functions
     explicit ComponentManifest(SystemSchemas &ss) : ComponentManifest(R"({"name":"","schemas":{}})", ss) {};
 
-    /// Copies the input rather than moving it
+    ///@brief Copy constructors for set our manifest, close sockets AND tell ResourceDiscoveryHubs of the change
+    ///@{
     void setManifest(FILE *jsonFP);
 
     void setManifest(const char *jsonString);
 
     void setManifest(SocketMessage *sm);
+    ///@}
 
     /**
      * @param typeOfEndpoint - specify typeOfEndpoint as described in Manifest
@@ -98,12 +100,34 @@ public:
      */
     std::string getName();
 
+    /**
+     * @brief Set an arbitrary property (as a string) for the manifest
+     * @param propertyName - The name of property you want
+     * @param value - The value
+     * @throws AccessError - When trying to change a reserved name ("urls","port","schemas")
+     */
     void setProperty(const std::string &propertyName, const std::string &value);
 
+    /**
+     * @brief Get the value of some property in the manifest
+     * @param propertyName - The name of the property you want
+     * @return A string of the property
+     * @throws AccessError - when the Manifest doesn't have the property
+     */
     std::string getProperty(const std::string &propertyName);
 
+    /**
+     * @brief Remove the property from the manifest
+     * @param propertyName - The name of the property
+     * @throws AccessError - When trying to remove a reserved name ("urls","port","schemas")
+     */
     void removeProperty(const std::string &propertyName);
 
+    /**
+     * @brief Check if the manifest has a member (is always a string member)
+     * @param propertyName - The name of the property
+     * @return Whether the manifest has the member
+     */
     bool hasProperty(const std::string &propertyName);
 
     /**
@@ -148,14 +172,42 @@ public:
         return std::unique_ptr<SocketMessage>(new SocketMessage(this->JSON_document, true));
     }
 
+    /**
+     * @brief Gets the name of all the possible endpoints that can be made from the manifest
+     * @return A vector of the names
+     */
     std::vector<std::string> getAllEndpointTypes();
 
+    /**
+     * The listen port is for special Endpoints (Publisher and Reply) where we have a single entity for any given endpointType.
+     * Adding the listenPort will specify in the manifest the port to find the given endpoint on
+     * @param endpointType
+     * @param port
+     * @throws AccessError - when the endpointType isn't valid or points to something which isn't Publisher or Reply
+     */
     void addListenPort(const std::string &endpointType, int port);
 
+    /**
+     * @brief Getter for the listen port of an endpoint
+     * @param endpointType
+     * @return The port for that endpoint
+     * @throws AccessError - when there isn't a port or no endpointType
+     */
     int getListenPort(const std::string &endpointType);
 
+    /**
+     * @brief Remove the listenPort for some endpoint
+     * @param endpointType
+     * @throws AccessError
+     */
     void removeListenPort(const std::string &endpointType);
 
+    /**
+     * @brief Check if endpointType has a listenPort
+     * @param endpointType
+     * @return
+     * @throws AccessError
+     */
     bool hasListenPort(const std::string &endpointType);
 
     ~ComponentManifest();
