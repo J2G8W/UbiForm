@@ -37,6 +37,7 @@ void RequestEndpoint::dialConnection(const char *url) {
             throw NngError(rv, "Dialing " + std::string(url) + " for a request connection");
         }
         this->dialUrl = url;
+        this->listenPort = -1;
     }
 }
 

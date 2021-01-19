@@ -31,7 +31,7 @@ protected:
     nng_socket *senderSocket = nullptr;
     std::shared_ptr<EndpointSchema> senderSchema;
     bool socketOpen = false;
-    int port = -1;
+    int listenPort = -1;
 public:
     explicit DataSenderEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
                                 SocketType socketType, const std::string &endpointType) :
@@ -62,7 +62,7 @@ public:
      */
     void asyncSendMessage(SocketMessage &s);
 
-    int getListenPort() { return port; }
+    int getListenPort() { return listenPort; }
 
     std::string &getSenderEndpointID() { return endpointIdentifier; }
 

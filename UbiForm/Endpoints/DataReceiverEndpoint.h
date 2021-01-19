@@ -52,7 +52,7 @@ protected:
     std::shared_ptr<EndpointSchema> receiverSchema;
 
     bool socketOpen = false;
-    std::string dialUrl;
+    std::string dialUrl = "";
 public:
     explicit DataReceiverEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
                                   SocketType socketType, const std::string &endpointType) :

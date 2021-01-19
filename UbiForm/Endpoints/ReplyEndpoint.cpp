@@ -16,8 +16,8 @@ int ReplyEndpoint::listenForConnectionWithRV(const char *base, int port) {
     if ((rv = nng_listen(*senderSocket, addr.c_str(), &l, 0)) != 0) {
         return rv;
     }
-    this->port = port;
-    this->dialUrl = base;
+    this->listenPort = port;
+    this->dialUrl = "";
     return rv;
 }
 

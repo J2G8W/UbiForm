@@ -15,6 +15,7 @@ void PairEndpoint::dialConnection(const char *url) {
         throw NngError(rv, "Dialing " + std::string(url) + " for a pair connection");
     }
     this->dialUrl = url;
+    this->listenPort = -1;
 }
 
 // Incoming means it will listen on an internal URL
@@ -31,8 +32,8 @@ int PairEndpoint::listenForConnectionWithRV(const char *base, int port) {
     if ((rv = nng_listen(*senderSocket, addr.c_str(), nullptr, 0)) != 0) {
         return rv;
     }
-    this->dialUrl = base;
-    this->port = port;
+    this->listenPort = port;
+    this->dialUrl = "";
     return rv;
 }
 

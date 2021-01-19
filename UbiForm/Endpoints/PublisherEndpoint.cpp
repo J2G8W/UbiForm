@@ -15,7 +15,7 @@ int PublisherEndpoint::listenForConnectionWithRV(const char *base, int port) {
     if ((rv = nng_listen(*senderSocket, addr.c_str(), nullptr, 0)) != 0) {
         return rv;
     }
-    this->port = port;
+    this->listenPort = port;
     return rv;
 }
 
