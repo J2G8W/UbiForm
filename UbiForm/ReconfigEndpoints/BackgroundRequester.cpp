@@ -177,6 +177,20 @@ std::vector<std::unique_ptr<SocketMessage>> BackgroundRequester::requestEndpoint
     return reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
 }
 
+std::unique_ptr<ComponentManifest> BackgroundRequester::requestComponentManifest(const std::string& componentUrl){
+    SocketMessage sm;
+    sm.addMember("requestType", BACKGROUND_GET_COMPONENT_MANIFEST);
+    auto reply = sendRequest(componentUrl,sm);
+
+    try {
+        std::unique_ptr<ComponentManifest> returnManifest =
+                std::make_unique<ComponentManifest>(reply->getMoveObject("manifest").get(),
+                                                    component->getSystemSchemas());
+    }catch(std::logic_error &e){
+        throw ValidationError("Returned Component Manifest was not valid\nReply: " + reply->stringify());
+    }
+}
+
 void BackgroundRequester::requestCloseSocketOfId(const std::string &componentUrl, const std::string &endpointId) {
     SocketMessage sm;
     sm.addMember("requestType", BACKGROUND_CLOSE_ENDPOINT_BY_ID);

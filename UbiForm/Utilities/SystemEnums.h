@@ -47,18 +47,28 @@ enum EndpointState {
 
 // Strings used for Background Requester and Listener
 #define BACKGROUND_CREATE_AND_LISTEN "req_conn"
-#define BACKGROUND_ADD_RDH "add_rdh"
-#define BACKGROUND_REMOVE_RDH "remove_rdh"
-#define BACKGROUND_TELL_TO_REQUEST_CONNECTION "tell_req_conn"
-#define BACKGROUND_CHANGE_ENDPOINT_SCHEMA "add_endpoint_schema"
-#define BACKGROUND_CREATE_RDH "create_rdh"
-#define BACKGROUND_CHANGE_MANIFEST "change_manifest"
-#define BACKGROUND_GET_LOCATIONS_OF_RDH "locations_rdh"
-#define BACKGROUND_CLOSE_SOCKETS "close_sockets"
-#define BACKGROUND_CLOSE_RDH "close_rdh"
 #define BACKGROUND_CREATE_AND_DIAL "req_dial"
 #define BACKGROUND_REQUEST_ENDPOINT_INFO "endpoint_info"
+
+#define BACKGROUND_ADD_RDH "add_rdh"
+#define BACKGROUND_REMOVE_RDH "remove_rdh"
+
+#define BACKGROUND_CREATE_RDH "create_rdh"
+#define BACKGROUND_CLOSE_RDH "close_rdh"
+
+#define BACKGROUND_GET_LOCATIONS_OF_RDH "locations_rdh"
+
+#define BACKGROUND_TELL_TO_REQUEST_CONNECTION "tell_req_conn"
+
+#define BACKGROUND_CHANGE_ENDPOINT_SCHEMA "add_endpoint_schema"
+#define BACKGROUND_CHANGE_MANIFEST "change_manifest"
+#define BACKGROUND_GET_COMPONENT_MANIFEST "get_manifest"
+
+#define BACKGROUND_CLOSE_SOCKETS "close_sockets"
 #define BACKGROUND_CLOSE_ENDPOINT_BY_ID "close_endpoint_id"
+
+
+
 
 // Strings used for Resource Discovery comms
 // NOTE THAT THESE ARE ALSO DEFINED IN "SystemSchemas/resource_discovery_*_request.json"

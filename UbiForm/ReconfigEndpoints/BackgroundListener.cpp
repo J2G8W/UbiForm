@@ -316,3 +316,10 @@ BackgroundListener::~BackgroundListener() {
         backgroundThread.join();
     }
 }
+
+std::unique_ptr<SocketMessage> BackgroundListener::handleManifestRequest(SocketMessage &request) {
+    std::unique_ptr<SocketMessage> reply = std::make_unique<SocketMessage>();
+    reply->addMoveObject("manifest", component->getComponentManifest().getSocketMessageCopy());
+    reply->addMember("error",false);
+    return reply;
+}

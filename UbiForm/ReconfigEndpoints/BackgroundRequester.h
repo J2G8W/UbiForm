@@ -72,6 +72,8 @@ public:
     std::vector<std::unique_ptr<SocketMessage>> requestEndpointInfo(const std::string &componentUrl);
 
     void requestCloseSocketOfId(const std::string &componentUrl, const std::string &endpointId);
+
+    std::unique_ptr<ComponentManifest> requestComponentManifest(const std::string &componentUrl);
 };
 
 
