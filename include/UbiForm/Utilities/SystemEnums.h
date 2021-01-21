@@ -42,7 +42,7 @@ enum ConnectionType {
 };
 
 enum EndpointState {
-    Invalid, Closed, Open, Dialed, Listening, Streaming
+    Invalid, Closed, Open, Dialed, Listening
 };
 
 // Strings used for Background Requester and Listener

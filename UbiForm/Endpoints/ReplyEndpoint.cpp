@@ -19,12 +19,10 @@ void ReplyEndpoint::closeEndpoint() {
 ReplyEndpoint::~ReplyEndpoint() {
     // We have to check if we ever initialised the receiverSocket before trying to close it
     if (senderSocket != nullptr) {
-        if ((DataReceiverEndpoint::endpointState == EndpointState::Dialed ||
-             DataReceiverEndpoint::endpointState == EndpointState::Listening ||
-             DataReceiverEndpoint::endpointState == EndpointState::Open) &&
-            (DataSenderEndpoint::endpointState == EndpointState::Dialed ||
-             DataSenderEndpoint::endpointState == EndpointState::Listening ||
-             DataSenderEndpoint::endpointState == EndpointState::Open)) {
+        if (!(DataReceiverEndpoint::endpointState == EndpointState::Closed ||
+              DataReceiverEndpoint::endpointState == EndpointState::Invalid) &&
+            (DataSenderEndpoint::endpointState == EndpointState::Closed ||
+             DataSenderEndpoint::endpointState == EndpointState::Invalid)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;

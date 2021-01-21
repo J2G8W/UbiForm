@@ -18,9 +18,8 @@ void SubscriberEndpoint::dialConnection(const char *url) {
 SubscriberEndpoint::~SubscriberEndpoint() {
     // We have to check if we ever initialised the receiverSocket before trying to close it
     if (receiverSocket != nullptr) {
-        if (DataReceiverEndpoint::endpointState == EndpointState::Dialed ||
-            DataReceiverEndpoint::endpointState == EndpointState::Listening ||
-            DataReceiverEndpoint::endpointState == EndpointState::Open) {
+        if (!(DataReceiverEndpoint::endpointState == EndpointState::Closed ||
+            DataReceiverEndpoint::endpointState == EndpointState::Invalid)) {
             nng_msleep(300);
             if (nng_close(*receiverSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;

@@ -38,8 +38,8 @@ protected:
 
     EndpointState endpointState = EndpointState::Closed;
 
-    bool threadOpen = false;
-    std::thread streamingThread;
+    bool senderThreadOpen = false;
+    std::thread senderStreamingThread;
 public:
     explicit DataSenderEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
                                 SocketType socketType, const std::string &endpointType) :
@@ -99,13 +99,12 @@ public:
     void sendStream(std::iostream &input, std::streamsize blockSize, bool holdWhenStreamEmpty);
 
     virtual ~DataSenderEndpoint() {
-        if(threadOpen) {
-            streamingThread.join();
+        if(senderThreadOpen) {
+            senderStreamingThread.join();
         }
 
-
         nng_aio_wait(nngAioPointer);
-        //nng_aio_free(nngAioPointer);
+        nng_aio_free(nngAioPointer);
     }
 
     /**
@@ -115,7 +114,6 @@ public:
     void setSendTimeout(int ms_time);
 
 
-    void endStream();
 };
 
 

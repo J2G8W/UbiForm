@@ -20,7 +20,7 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
 }
 
 void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
-    if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed || endpointState == EndpointState::Streaming)) {
+    if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed )) {
         throw SocketOpenError("Could not async-send message, socket is closed", socketType, endpointIdentifier);
     }
     nng_aio_wait(nngAioPointer);
@@ -94,24 +94,24 @@ void DataSenderEndpoint::closeEndpoint() {
         }
         endpointState = EndpointState::Closed;
     }
-    if(threadOpen){
-        streamingThread.join();
-        threadOpen = false;
+    if(senderThreadOpen){
+        senderStreamingThread.join();
+        senderThreadOpen = false;
     }
 }
 
 void DataSenderEndpoint::sendStream(std::iostream &input, std::streamsize blockSize, bool holdWhenStreamEmpty) {
     if(blockSize % 3 != 0){throw std::logic_error("Block size must be a multiple of 3");}
-    endpointState = EndpointState::Streaming;
-    threadOpen = true;
-    this->streamingThread = std::thread(DataSenderEndpoint::streamData, this, &input, blockSize, holdWhenStreamEmpty);
+
+    senderThreadOpen = true;
+    this->senderStreamingThread = std::thread(DataSenderEndpoint::streamData, this, &input, blockSize, holdWhenStreamEmpty);
 }
 
 void DataSenderEndpoint::streamData(DataSenderEndpoint *endpoint, std::iostream *stream, std::streamsize blockSize,
                                     bool holdWhenStreamEmpty) {
     char bytesToEncode[blockSize];
     int numBytes = 1;
-    while(endpoint->endpointState == EndpointState::Streaming) {
+    while(endpoint->endpointState == EndpointState::Dialed || endpoint->endpointState == EndpointState::Listening) {
         stream->read(bytesToEncode, blockSize);
         numBytes = stream->gcount();
 
@@ -140,11 +140,5 @@ void DataSenderEndpoint::streamData(DataSenderEndpoint *endpoint, std::iostream 
         }catch(std::logic_error &e){
             break;
         }
-    }
-}
-
-void DataSenderEndpoint::endStream(){
-    if(DataSenderEndpoint::endpointState == EndpointState::Streaming){
-        streamingThread.join();
     }
 }
