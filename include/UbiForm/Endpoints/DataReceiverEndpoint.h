@@ -5,6 +5,7 @@
 #include <memory>
 #include <utility>
 #include <nng/nng.h>
+#include <thread>
 #include "../SocketMessage.h"
 #include "../SchemaRepresentation/EndpointSchema.h"
 
@@ -15,6 +16,8 @@
  */
 class DataReceiverEndpoint {
 private:
+    static void streamData(DataReceiverEndpoint* endpoint, std::iostream* stream);
+
     static void asyncCallback(void *data);
 
     // Never freed...
@@ -53,6 +56,10 @@ protected:
 
     EndpointState endpointState = EndpointState::Closed;
     std::string dialUrl = "";
+
+    bool receiverThreadNeedsClosing = false;
+    bool receiverThreadEnded = true;
+    std::thread receiverStreamingThread;
 public:
     explicit DataReceiverEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
                                   SocketType socketType, const std::string &endpointType) :
@@ -122,6 +129,9 @@ public:
     virtual void invalidateEndpoint() = 0;
 
     virtual ~DataReceiverEndpoint() {
+        if(receiverThreadNeedsClosing){
+            receiverStreamingThread.join();
+        }
         if (uniqueEndpointAioPointer != nullptr) {
             nng_aio_wait(uniqueEndpointAioPointer);
             nng_aio_free(uniqueEndpointAioPointer);
@@ -133,6 +143,10 @@ public:
      * @param ms_time - The time in milliseconds we want to set, note that -1 will give INFINITE TIME
      */
     void setReceiveTimeout(int ms_time);
+
+    std::unique_ptr<SocketMessage> receiveStream(std::iostream& outputStream);
+
+    bool getReceiverThreadEnded(){return receiverThreadEnded;}
 };
 
 

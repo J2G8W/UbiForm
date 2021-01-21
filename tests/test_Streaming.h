@@ -36,25 +36,17 @@ TEST(StreamingTests, SendMessage){
     int fileSize = fs.tellg();
     fs.seekg(0, std::fstream::beg);
 
-    sendEndpoint->sendStream(fs, 2046, false);
-
-    auto t1 = std::chrono::high_resolution_clock::now();
-    std::string recvMessage;
-    while(true) {
-        auto message = recvEndpoint->receiveMessage();
-        if(message->hasMember("end") && message->getBoolean("end")){
-            break;
-        }
-        std::string r  = message->getString("bytes");
-        recvMessage += r;
-    }
-
-    auto decode = base64_decode(recvMessage);
-    ASSERT_EQ(fileSize,decode.size());
+    sendEndpoint->sendStream(fs, 10002, false);
     std::fstream out;
     out.open("receive.jpg",std::fstream::out|std::fstream::binary);
-    std::copy(decode.cbegin(),decode.cend(), std::ostream_iterator<unsigned char>(out));
-    ASSERT_EQ(fileSize,out.tellp());
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+    recvEndpoint->receiveStream(out);
+    while(!recvEndpoint->getReceiverThreadEnded()) {
+        nng_msleep(100);
+    }
+
+    ASSERT_EQ(fileSize,(int) out.tellp() - 1);
 
     auto t2 = std::chrono::high_resolution_clock::now();
 
