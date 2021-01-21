@@ -2,7 +2,7 @@
 
 void doStuff(Component* c, std::iostream* fs){
     auto sendEndpoint = c->getSenderEndpointsByType("streamSender")->at(0);
-    sendEndpoint->sendStream(*fs,2001);
+    sendEndpoint->sendStream(*fs, 2001, false);
 }
 
 
@@ -24,29 +24,36 @@ TEST(StreamingTests, SendMessage){
 
 
     auto recvEndpoint = recvComponent.getReceiverEndpointsByType("streamRecv")->at(0);
+    auto sendEndpoint = sendComponent.getSenderEndpointsByType("streamSender")->at(0);
 
 
     std::fstream fs;
-    fs.open("TestManifests/IMG_7786.JPG", std::fstream::in|std::fstream::binary);
+    fs.open("TestFiles/test_image1.JPG", std::fstream::in|std::fstream::binary);
     if(!fs.good()){
-        std::cerr << "Error with file" << std::endl;
+        throw std::logic_error("Error with file");
     }
-    std::thread t(doStuff,&sendComponent, &fs);
+    fs.seekg(0, std::fstream::end);
+    int fileSize = fs.tellg();
+    fs.seekg(0, std::fstream::beg);
+
+    sendEndpoint->sendStream(fs, 2046, false);
+
     std::string recvMessage;
     while(true) {
         auto message = recvEndpoint->receiveMessage();
-        std::string r  = message->getString("bytes");
-        recvMessage += r;
-        if(r.empty()){
+        if(message->hasMember("end") && message->getBoolean("end")){
+            std::cout << "ENDING" << std::endl;
             break;
         }
+        std::string r  = message->getString("bytes");
+        recvMessage += r;
     }
-    std::cout << "Size: " << recvMessage.size() << std::endl;
+
     auto decode = base64_decode(recvMessage);
-    std::cout << "Vector size: " << decode.size() << std::endl;
+    ASSERT_EQ(fileSize,decode.size());
     std::fstream out;
     out.open("receive.jpg",std::fstream::out|std::fstream::binary);
     std::copy(decode.cbegin(),decode.cend(), std::ostream_iterator<unsigned char>(out));
-    t.join();
+    ASSERT_EQ(fileSize,out.tellp());
 }
 

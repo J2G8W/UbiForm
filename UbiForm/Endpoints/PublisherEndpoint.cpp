@@ -20,9 +20,8 @@ void PublisherEndpoint::openEndpoint() {
 PublisherEndpoint::~PublisherEndpoint() {
     // We have to check if we ever initialised the receiverSocket before trying to close it
     if (senderSocket != nullptr) {
-        if (DataSenderEndpoint::endpointState == EndpointState::Dialed ||
-            DataSenderEndpoint::endpointState == EndpointState::Listening ||
-            DataSenderEndpoint::endpointState == EndpointState::Open) {
+        if (!(DataSenderEndpoint::endpointState == EndpointState::Closed ||
+            DataSenderEndpoint::endpointState == EndpointState::Invalid)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;

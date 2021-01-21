@@ -101,6 +101,7 @@ if (BUILD_TESTS)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm)
     file(COPY ../tests/TestManifests DESTINATION .)
+	file(COPY ../tests/TestFiles DESTINATION .)
 endif(BUILD_TESTS)
 
 # Create examples

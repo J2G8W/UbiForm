@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <nng/nng.h>
+#include <thread>
 #include "../SocketMessage.h"
 
 #include "../SchemaRepresentation/EndpointSchema.h"
@@ -22,6 +23,9 @@ private:
 
 
     nng_aio *nngAioPointer;
+
+    static void streamData(DataSenderEndpoint *endpoint, std::iostream *stream, std::streamsize blockSize,
+                           bool holdWhenStreamEmpty);
 protected:
     std::string endpointIdentifier;
     std::string endpointType;
@@ -33,6 +37,9 @@ protected:
     int listenPort = -1;
 
     EndpointState endpointState = EndpointState::Closed;
+
+    bool threadOpen = false;
+    std::thread streamingThread;
 public:
     explicit DataSenderEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
                                 SocketType socketType, const std::string &endpointType) :
@@ -89,11 +96,16 @@ public:
 
     virtual void invalidateEndpoint() = 0;
 
-    void sendStream(std::iostream& input, std::streamsize blockSize);
+    void sendStream(std::iostream &input, std::streamsize blockSize, bool holdWhenStreamEmpty);
 
     virtual ~DataSenderEndpoint() {
+        if(threadOpen) {
+            streamingThread.join();
+        }
+
+
         nng_aio_wait(nngAioPointer);
-        nng_aio_free(nngAioPointer);
+        //nng_aio_free(nngAioPointer);
     }
 
     /**
@@ -101,6 +113,9 @@ public:
      * @param ms_time - Milliseconds to wait before erroring out. (-1 means inifinite time)
      */
     void setSendTimeout(int ms_time);
+
+
+    void endStream();
 };
 
 

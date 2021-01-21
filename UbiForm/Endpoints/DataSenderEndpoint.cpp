@@ -1,5 +1,6 @@
 #include "../../include/UbiForm/Endpoints/DataSenderEndpoint.h"
 #include "../Utilities/base64.h"
+#include <nng/supplemental/util/platform.h>
 
 // Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(SocketMessage &s) {
@@ -19,7 +20,7 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
 }
 
 void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
-    if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed)) {
+    if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed || endpointState == EndpointState::Streaming)) {
         throw SocketOpenError("Could not async-send message, socket is closed", socketType, endpointIdentifier);
     }
     nng_aio_wait(nngAioPointer);
@@ -84,9 +85,8 @@ int DataSenderEndpoint::listenForConnectionWithRV(const char *base, int port) {
 }
 
 void DataSenderEndpoint::closeEndpoint() {
-    if (endpointState == EndpointState::Dialed ||
-        endpointState == EndpointState::Listening ||
-        endpointState == EndpointState::Open) {
+    if (!(endpointState == EndpointState::Closed ||
+        endpointState == EndpointState::Invalid)) {
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
         } else {
@@ -94,19 +94,57 @@ void DataSenderEndpoint::closeEndpoint() {
         }
         endpointState = EndpointState::Closed;
     }
+    if(threadOpen){
+        streamingThread.join();
+        threadOpen = false;
+    }
 }
 
-void DataSenderEndpoint::sendStream(std::iostream& input, std::streamsize blockSize) {
+void DataSenderEndpoint::sendStream(std::iostream &input, std::streamsize blockSize, bool holdWhenStreamEmpty) {
     if(blockSize % 3 != 0){throw std::logic_error("Block size must be a multiple of 3");}
+    endpointState = EndpointState::Streaming;
+    threadOpen = true;
+    this->streamingThread = std::thread(DataSenderEndpoint::streamData, this, &input, blockSize, holdWhenStreamEmpty);
+}
+
+void DataSenderEndpoint::streamData(DataSenderEndpoint *endpoint, std::iostream *stream, std::streamsize blockSize,
+                                    bool holdWhenStreamEmpty) {
     char bytesToEncode[blockSize];
     int numBytes = 1;
-    while(numBytes > 0) {
-        input.read(bytesToEncode, blockSize);
-        numBytes = input.gcount();
+    while(endpoint->endpointState == EndpointState::Streaming) {
+        stream->read(bytesToEncode, blockSize);
+        numBytes = stream->gcount();
+
+        if(numBytes == 0){
+            if(holdWhenStreamEmpty) {
+                nng_msleep(1000);
+                continue;
+            }else{
+                SocketMessage sm;
+                sm.addMember("end",true);
+                try{
+                    endpoint->asyncSendMessage(sm);
+                    break;
+                }catch (std::logic_error&e){
+                    break;
+                }
+            }
+        }
+
         std::string encodedMsg = base64_encode(reinterpret_cast<const unsigned char *>(bytesToEncode), numBytes);
 
         SocketMessage sm;
         sm.addMember("bytes", encodedMsg);
-        asyncSendMessage(sm);
+        try {
+            endpoint->asyncSendMessage(sm);
+        }catch(std::logic_error &e){
+            break;
+        }
+    }
+}
+
+void DataSenderEndpoint::endStream(){
+    if(DataSenderEndpoint::endpointState == EndpointState::Streaming){
+        streamingThread.join();
     }
 }
