@@ -9,16 +9,16 @@
 
 
 int main(int argc, char **argv) {
-    if (argc >= 2) {
+    if (argc >= 3) {
         if (strcmp(argv[1], RECEIVER) == 0) {
-            Component receiver("tcp://127.0.0.2");
+            Component receiver;
             std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
             receiver.getComponentManifest().addEndpoint(SocketType::Pair,"receiver",es,es);
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             receiver.getBackgroundRequester().requestRemoteListenThenDial(
-                    "tcp://127.0.0.1", 8000, "receiver",
+                    argv[2], 8000, "receiver",
                     "sender");
             auto endpoints = receiver.getReceiverEndpointsByType("receiver");
             while (endpoints->empty()){
@@ -27,10 +27,10 @@ int main(int argc, char **argv) {
             std::ofstream f;
 
             auto t1 = std::chrono::high_resolution_clock::now();
-            if(argc == 2) {
+            if(argc == 3) {
                 endpoints->at(0)->receiveStream(std::cout);
             }else{
-                f.open(argv[2], std::fstream::binary | std::fstream::out);
+                f.open(argv[3], std::fstream::binary | std::fstream::out);
                 endpoints->at(0)->receiveStream(f);
             }
             while (!endpoints->at(0)->getReceiverThreadEnded()) {
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
 
-            if (argc > 2) {
+            if (argc > 3) {
                 int fileSize = f.tellp();
                 int kiloByteSize = fileSize / 1024;
 
@@ -80,9 +80,11 @@ int main(int argc, char **argv) {
             file.close();
 
         } else {
-            std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << "|" << SENDER << "\n";
+            std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << "SENDER_ADDRESS [newFileLocation]\n";
+            std::cerr << argv[0] << " " << SENDER << " [fileLocation]" << std::endl;
         }
     } else {
-        std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << "|" << SENDER << "\n";
+        std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << "SENDER_ADDRESS [newFileLocation]\n";
+        std::cerr << argv[0] << " " << SENDER << " [fileLocation]" << std::endl;
     }
 }
