@@ -89,6 +89,8 @@ public:
 
     virtual void invalidateEndpoint() = 0;
 
+    void sendStream(std::iostream& input, std::streamsize blockSize);
+
     virtual ~DataSenderEndpoint() {
         nng_aio_wait(nngAioPointer);
         nng_aio_free(nngAioPointer);

@@ -1,4 +1,5 @@
 #include "../../include/UbiForm/Endpoints/DataSenderEndpoint.h"
+#include "../Utilities/base64.h"
 
 // Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(SocketMessage &s) {
@@ -92,5 +93,20 @@ void DataSenderEndpoint::closeEndpoint() {
             std::cout << convertFromSocketType(socketType)<< " socket: " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
         }
         endpointState = EndpointState::Closed;
+    }
+}
+
+void DataSenderEndpoint::sendStream(std::iostream& input, std::streamsize blockSize) {
+    if(blockSize % 3 != 0){throw std::logic_error("Block size must be a multiple of 3");}
+    char bytesToEncode[blockSize];
+    int numBytes = 1;
+    while(numBytes > 0) {
+        input.read(bytesToEncode, blockSize);
+        numBytes = input.gcount();
+        std::string encodedMsg = base64_encode(reinterpret_cast<const unsigned char *>(bytesToEncode), numBytes);
+
+        SocketMessage sm;
+        sm.addMember("bytes", encodedMsg);
+        asyncSendMessage(sm);
     }
 }
