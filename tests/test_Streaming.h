@@ -38,11 +38,11 @@ TEST(StreamingTests, SendMessage){
 
     sendEndpoint->sendStream(fs, 2046, false);
 
+    auto t1 = std::chrono::high_resolution_clock::now();
     std::string recvMessage;
     while(true) {
         auto message = recvEndpoint->receiveMessage();
         if(message->hasMember("end") && message->getBoolean("end")){
-            std::cout << "ENDING" << std::endl;
             break;
         }
         std::string r  = message->getString("bytes");
@@ -55,5 +55,13 @@ TEST(StreamingTests, SendMessage){
     out.open("receive.jpg",std::fstream::out|std::fstream::binary);
     std::copy(decode.cbegin(),decode.cend(), std::ostream_iterator<unsigned char>(out));
     ASSERT_EQ(fileSize,out.tellp());
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+
+    int kiloByteSize = fileSize/1024;
+
+    std::cout << "Streaming of file of size: " << kiloByteSize <<"KB took " << duration << " milliseconds" << std::endl;
 }
 
