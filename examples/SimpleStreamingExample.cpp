@@ -9,8 +9,8 @@
 
 
 int main(int argc, char **argv) {
-    if (argc >= 3) {
-        if (strcmp(argv[1], RECEIVER) == 0) {
+    if (argc >= 2) {
+        if (strcmp(argv[1], RECEIVER) == 0 && argc>=3) {
             Component receiver;
             std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
             receiver.getComponentManifest().addEndpoint(SocketType::Pair,"receiver",es,es);
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
             f.close();
 
         } else if (strcmp(argv[1], SENDER) == 0) {
-            Component sender("tcp://127.0.0.1");
+            Component sender;
 
             std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();;
             sender.getComponentManifest().addEndpoint(SocketType::Pair,"sender",es,es);
