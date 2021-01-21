@@ -100,14 +100,14 @@ void DataSenderEndpoint::closeEndpoint() {
     }
 }
 
-void DataSenderEndpoint::sendStream(std::iostream &input, std::streamsize blockSize, bool holdWhenStreamEmpty) {
+void DataSenderEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty) {
     if(blockSize % 3 != 0){throw std::logic_error("Block size must be a multiple of 3");}
 
     senderThreadOpen = true;
     this->senderStreamingThread = std::thread(DataSenderEndpoint::streamData, this, &input, blockSize, holdWhenStreamEmpty);
 }
 
-void DataSenderEndpoint::streamData(DataSenderEndpoint *endpoint, std::iostream *stream, std::streamsize blockSize,
+void DataSenderEndpoint::streamData(DataSenderEndpoint *endpoint, std::istream *stream, std::streamsize blockSize,
                                     bool holdWhenStreamEmpty) {
     char bytesToEncode[blockSize];
     int numBytes = 1;

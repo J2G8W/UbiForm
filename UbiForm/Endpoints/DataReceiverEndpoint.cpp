@@ -105,14 +105,14 @@ void DataReceiverEndpoint::closeEndpoint() {
     }
 }
 
-std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveStream(std::iostream &outputStream) {
+std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveStream(std::ostream &outputStream) {
     receiverThreadNeedsClosing = true;
     receiverThreadEnded = false;
     receiverStreamingThread = std::thread(streamData,this, &outputStream);
     return std::unique_ptr<SocketMessage>();
 }
 
-void DataReceiverEndpoint::streamData(DataReceiverEndpoint* endpoint, std::iostream* stream) {
+void DataReceiverEndpoint::streamData(DataReceiverEndpoint* endpoint, std::ostream *stream) {
     while(true) {
         std::unique_ptr<SocketMessage> message;
         try {

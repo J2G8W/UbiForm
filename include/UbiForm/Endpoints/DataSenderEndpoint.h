@@ -24,7 +24,7 @@ private:
 
     nng_aio *nngAioPointer;
 
-    static void streamData(DataSenderEndpoint *endpoint, std::iostream *stream, std::streamsize blockSize,
+    static void streamData(DataSenderEndpoint *endpoint, std::istream *stream, std::streamsize blockSize,
                            bool holdWhenStreamEmpty);
 protected:
     std::string endpointIdentifier;
@@ -96,7 +96,7 @@ public:
 
     virtual void invalidateEndpoint() = 0;
 
-    void sendStream(std::iostream &input, std::streamsize blockSize, bool holdWhenStreamEmpty);
+    void sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty);
 
     virtual ~DataSenderEndpoint() {
         if(senderThreadOpen) {

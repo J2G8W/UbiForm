@@ -16,7 +16,7 @@
  */
 class DataReceiverEndpoint {
 private:
-    static void streamData(DataReceiverEndpoint* endpoint, std::iostream* stream);
+    static void streamData(DataReceiverEndpoint* endpoint, std::ostream *stream);
 
     static void asyncCallback(void *data);
 
@@ -144,7 +144,7 @@ public:
      */
     void setReceiveTimeout(int ms_time);
 
-    std::unique_ptr<SocketMessage> receiveStream(std::iostream& outputStream);
+    std::unique_ptr<SocketMessage> receiveStream(std::ostream &outputStream);
 
     bool getReceiverThreadEnded(){return receiverThreadEnded;}
 };
