@@ -105,6 +105,7 @@ void DataSenderEndpoint::closeEndpoint() {
 void DataSenderEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty) {
     if(blockSize % 3 != 0){throw std::logic_error("Block size must be a multiple of 3");}
 
+    senderThreadEnded = false;
     senderThreadNeedsClosing = true;
     this->senderStreamingThread = std::thread(DataSenderEndpoint::streamData, this, &input, blockSize, holdWhenStreamEmpty);
 }

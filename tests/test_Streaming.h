@@ -40,20 +40,11 @@ TEST(StreamingTests, SendMessage){
     std::fstream out;
     out.open("receive.jpg",std::fstream::out|std::fstream::binary);
 
-    auto t1 = std::chrono::high_resolution_clock::now();
     recvEndpoint->receiveStream(out);
     while(!recvEndpoint->getReceiverThreadEnded()) {
         nng_msleep(100);
     }
 
     ASSERT_EQ(fileSize,(int) out.tellp() - 1);
-
-    auto t2 = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-
-    int kiloByteSize = fileSize/1024;
-
-    std::cout << "Streaming of file of size: " << kiloByteSize <<"KB took " << duration << " milliseconds" << std::endl;
 }
 

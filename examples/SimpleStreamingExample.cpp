@@ -25,15 +25,30 @@ int main(int argc, char **argv) {
                 nng_msleep(100);
             }
             std::ofstream f;
+
+            auto t1 = std::chrono::high_resolution_clock::now();
             if(argc == 2) {
                 endpoints->at(0)->receiveStream(std::cout);
             }else{
-                f.open(argv[3]);
+                f.open(argv[2], std::fstream::binary | std::fstream::out);
                 endpoints->at(0)->receiveStream(f);
             }
-            while (true) {
+            while (!endpoints->at(0)->getReceiverThreadEnded()) {
                 nng_msleep(1000);
             }
+
+            auto t2 = std::chrono::high_resolution_clock::now();
+
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+
+            if (argc > 2) {
+                int fileSize = f.tellp();
+                int kiloByteSize = fileSize / 1024;
+
+                std::cout << "Streaming of file of size: " << kiloByteSize << "KB took " << duration << " milliseconds"
+                          << std::endl;
+            }
+            f.close();
 
         } else if (strcmp(argv[1], SENDER) == 0) {
             Component sender("tcp://127.0.0.1");
@@ -52,12 +67,17 @@ int main(int argc, char **argv) {
             if(argc == 2) {
                 endpointVector->at(0)->sendStream(std::cin, 3, true);
             }else{
-                file.open(argv[2]);
+                file.open(argv[2], std::fstream::binary | std::fstream::in);
+                if(!file.good()){
+                    std::cerr << "Unable to open file " << argv[2] << std::endl;
+                    exit(1);
+                }
                 endpointVector->at(0)->sendStream(file, 10002, false);
             }
             while (!endpointVector->at(0)->getSenderThreadEnded()) {
                 nng_msleep(1000);
             }
+            file.close();
 
         } else {
             std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << "|" << SENDER << "\n";
