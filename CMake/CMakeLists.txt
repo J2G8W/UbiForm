@@ -118,6 +118,9 @@ if (BUILD_EXAMPLES)
     add_executable(resource_discovery_example ../examples/ResourceDiscoveryExample.cpp)
     target_link_libraries(resource_discovery_example UbiForm)
 
+	add_executable(simple_stream_example ../examples/SimpleStreamingExample.cpp)
+	target_link_libraries(simple_stream_example UbiForm)
+
     # Copy over our base JSON files for our examples to use
     file(COPY ../examples/JsonFiles DESTINATION .)
 endif(BUILD_EXAMPLES)
