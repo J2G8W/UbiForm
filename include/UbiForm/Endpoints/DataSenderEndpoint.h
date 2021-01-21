@@ -38,7 +38,8 @@ protected:
 
     EndpointState endpointState = EndpointState::Closed;
 
-    bool senderThreadOpen = false;
+    bool senderThreadNeedsClosing = false;
+    bool senderThreadEnded = true;
     std::thread senderStreamingThread;
 public:
     explicit DataSenderEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
@@ -99,7 +100,7 @@ public:
     void sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty);
 
     virtual ~DataSenderEndpoint() {
-        if(senderThreadOpen) {
+        if(senderThreadNeedsClosing) {
             senderStreamingThread.join();
         }
 
@@ -113,7 +114,7 @@ public:
      */
     void setSendTimeout(int ms_time);
 
-
+    bool getSenderThreadEnded(){return senderThreadEnded;}
 };
 
 

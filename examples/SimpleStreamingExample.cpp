@@ -2,6 +2,7 @@
 
 #include "../include/UbiForm/Component.h"
 #include <nng/supplemental/util/platform.h>
+#include <fstream>
 
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
@@ -23,7 +24,13 @@ int main(int argc, char **argv) {
             while (endpoints->empty()){
                 nng_msleep(100);
             }
-            endpoints->at(0)->receiveStream(std::cout);
+            std::ofstream f;
+            if(argc == 2) {
+                endpoints->at(0)->receiveStream(std::cout);
+            }else{
+                f.open(argv[3]);
+                endpoints->at(0)->receiveStream(f);
+            }
             while (true) {
                 nng_msleep(1000);
             }
@@ -41,8 +48,14 @@ int main(int argc, char **argv) {
             while (endpointVector->empty()){
                 nng_msleep(100);
             }
-            endpointVector->at(0)->sendStream(std::cin, 3, true);
-            while (true) {
+            std::ifstream file;
+            if(argc == 2) {
+                endpointVector->at(0)->sendStream(std::cin, 3, true);
+            }else{
+                file.open(argv[2]);
+                endpointVector->at(0)->sendStream(file, 10002, false);
+            }
+            while (!endpointVector->at(0)->getSenderThreadEnded()) {
                 nng_msleep(1000);
             }
 

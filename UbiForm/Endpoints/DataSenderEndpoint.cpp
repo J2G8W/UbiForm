@@ -96,16 +96,16 @@ void DataSenderEndpoint::closeEndpoint() {
         }
         endpointState = EndpointState::Closed;
     }
-    if(senderThreadOpen){
+    if(senderThreadNeedsClosing){
         senderStreamingThread.join();
-        senderThreadOpen = false;
+        senderThreadNeedsClosing = false;
     }
 }
 
 void DataSenderEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty) {
     if(blockSize % 3 != 0){throw std::logic_error("Block size must be a multiple of 3");}
 
-    senderThreadOpen = true;
+    senderThreadNeedsClosing = true;
     this->senderStreamingThread = std::thread(DataSenderEndpoint::streamData, this, &input, blockSize, holdWhenStreamEmpty);
 }
 
@@ -143,4 +143,5 @@ void DataSenderEndpoint::streamData(DataSenderEndpoint *endpoint, std::istream *
             break;
         }
     }
+    endpoint->senderThreadEnded = true;
 }
