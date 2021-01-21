@@ -45,6 +45,8 @@ enum EndpointState {
     Invalid, Closed, Open, Dialed, Listening
 };
 
+std::string convertEndpointState(EndpointState es);
+
 // Strings used for Background Requester and Listener
 #define BACKGROUND_CREATE_AND_LISTEN "req_conn"
 #define BACKGROUND_CREATE_AND_DIAL "req_dial"

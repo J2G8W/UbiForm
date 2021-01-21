@@ -5,7 +5,8 @@
 // Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(SocketMessage &s) {
     if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed)) {
-        throw SocketOpenError("Could not send message, socket is closed", socketType, endpointIdentifier);
+        throw SocketOpenError("Could not send message, in state: " + convertEndpointState(endpointState),
+                              socketType, endpointIdentifier);
     }
     int rv;
     std::string messageTextObject = s.stringify();
@@ -21,7 +22,8 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
 
 void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
     if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed )) {
-        throw SocketOpenError("Could not async-send message, socket is closed", socketType, endpointIdentifier);
+        throw SocketOpenError("Could not async-send message, socket is in state: " + convertEndpointState(endpointState),
+                              socketType, endpointIdentifier);
     }
     nng_aio_wait(nngAioPointer);
     std::string text = s.stringify();

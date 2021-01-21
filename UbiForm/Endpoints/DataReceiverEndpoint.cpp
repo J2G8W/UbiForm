@@ -5,7 +5,8 @@
 // Use smart pointers to avoid complex memory management
 std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
     if (!(endpointState == EndpointState::Dialed || endpointState == EndpointState::Listening)) {
-        throw SocketOpenError("Could not receive message", socketType, endpointIdentifier);
+        throw SocketOpenError("Could not receive message, in state: " + convertEndpointState(endpointState) ,
+                              socketType, endpointIdentifier);
     }
     int rv;
     char *buffer = nullptr;
@@ -29,7 +30,8 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
 // This is the public interface for asynchronously receiving messages
 void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *furtherUserData) {
     if (!(endpointState == EndpointState::Dialed || endpointState == EndpointState::Listening)) {
-        throw SocketOpenError("Could not async-receive message, socket is closed", socketType, endpointIdentifier);
+        throw SocketOpenError("Could not async-receive message, socket is closed, in state: " + convertEndpointState(endpointState),
+                              socketType, endpointIdentifier);
     }
     auto *asyncData = new AsyncData(callb, this->receiverSchema, furtherUserData, this);
     nng_aio_alloc(&(uniqueEndpointAioPointer), asyncCallback, asyncData);

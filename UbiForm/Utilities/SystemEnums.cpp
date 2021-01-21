@@ -48,3 +48,18 @@ SocketType convertToSocketType(const std::string &st) {
         throw std::logic_error("No socket type corresponds to " + st);
     }
 }
+
+std::string convertEndpointState(EndpointState es) {
+    switch (es) {
+        case Invalid:
+            return "Invalid";
+        case Closed:
+            return "Closed";
+        case Open:
+            return "Open";
+        case Dialed:
+            return "Dialed";
+        case Listening:
+            return "Listening";
+    }
+}
