@@ -213,6 +213,7 @@ public:
     ~ComponentManifest();
 
 
+    bool hasEndpoint(const std::string &endpointType);
 };
 
 

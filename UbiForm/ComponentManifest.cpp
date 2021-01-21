@@ -222,6 +222,10 @@ std::vector<std::string> ComponentManifest::getAllEndpointTypes() {
     return endpointTypes;
 }
 
+bool ComponentManifest::hasEndpoint(const std::string& endpointType){
+    return JSON_document["schemas"].GetObject().HasMember(endpointType);
+}
+
 void ComponentManifest::addListenPort(const std::string &endpointType, int port) {
     const auto &schemas = JSON_document["schemas"].GetObject();
     if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())) {
@@ -266,6 +270,7 @@ void ComponentManifest::removeListenPort(const std::string &endpointType) {
         schemas[endpointType].GetObject().EraseMember("listenPort");
     }
 }
+
 
 
 ComponentManifest::~ComponentManifest() = default;

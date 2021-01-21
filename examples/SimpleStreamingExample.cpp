@@ -8,6 +8,35 @@
 #define SENDER "SENDER"
 
 
+void receiveOnCreateFunction(std::shared_ptr<DataReceiverEndpoint> receive,
+                             std::shared_ptr<DataSenderEndpoint> send, void* extraData){
+    std::ofstream f;
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+    if(argc == 3) {
+        endpoints->at(0)->receiveStream(std::cout);
+    }else{
+        f.open(argv[3], std::fstream::binary | std::fstream::out);
+        endpoints->at(0)->receiveStream(f);
+    }
+    while (receive) {
+        nng_msleep(1000);
+    }
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+
+    if (argc > 3) {
+        int fileSize = f.tellp();
+        int kiloByteSize = fileSize / 1024;
+
+        std::cout << "Streaming of file of size: " << kiloByteSize << "KB took " << duration << " milliseconds"
+                  << std::endl;
+    }
+    f.close();
+}
+
 int main(int argc, char **argv) {
     if (argc >= 2) {
         if (strcmp(argv[1], RECEIVER) == 0 && argc>=3) {
@@ -24,31 +53,6 @@ int main(int argc, char **argv) {
             while (endpoints->empty()){
                 nng_msleep(100);
             }
-            std::ofstream f;
-
-            auto t1 = std::chrono::high_resolution_clock::now();
-            if(argc == 3) {
-                endpoints->at(0)->receiveStream(std::cout);
-            }else{
-                f.open(argv[3], std::fstream::binary | std::fstream::out);
-                endpoints->at(0)->receiveStream(f);
-            }
-            while (!endpoints->at(0)->getReceiverThreadEnded()) {
-                nng_msleep(1000);
-            }
-
-            auto t2 = std::chrono::high_resolution_clock::now();
-
-            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-
-            if (argc > 3) {
-                int fileSize = f.tellp();
-                int kiloByteSize = fileSize / 1024;
-
-                std::cout << "Streaming of file of size: " << kiloByteSize << "KB took " << duration << " milliseconds"
-                          << std::endl;
-            }
-            f.close();
 
         } else if (strcmp(argv[1], SENDER) == 0) {
             Component sender;

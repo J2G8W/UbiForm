@@ -120,6 +120,7 @@ void Component::createNewEndpoint(const std::string &endpointType, const std::st
     }
 
 
+
     if (socketType == SocketType::Pair || socketType == SocketType::Subscriber || socketType == SocketType::Request ||
         socketType == SocketType::Reply) {
         idReceiverEndpoints.insert(std::make_pair(endpointId, receiverEndpoint));
@@ -140,6 +141,15 @@ void Component::createNewEndpoint(const std::string &endpointType, const std::st
             typeSenderEndpoints.insert(std::make_pair(endpointType,
                                                       std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >(
                                                               1, senderEndpoint)));
+        }
+    }
+
+    if(startupFunctionsMap.count(endpointType) == 1){
+        Component::startupFunc f = startupFunctionsMap.at(endpointType);
+        if(startupDataMap.count(endpointType) == 1) {
+            f(receiverEndpoint, senderEndpoint,startupDataMap.at(endpointType));
+        }else{
+            f(receiverEndpoint, senderEndpoint, nullptr);
         }
     }
 }
@@ -454,6 +464,16 @@ void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
 void Component::closeAndInvalidateAllSockets() {
     for (const auto &endpointType : componentManifest.getAllEndpointTypes()) {
         closeAndInvalidateSocketsOfType(endpointType);
+    }
+}
+
+void
+Component::registerStartupFunction(const std::string &endpointType, startupFunc startupFunction, void *startupData) {
+    if(componentManifest.hasEndpoint(endpointType)) {
+        startupFunctionsMap[endpointType] = startupFunction;
+        if(startupData != nullptr){
+            startupDataMap[endpointType] = startupData;
+        }
     }
 }
 
