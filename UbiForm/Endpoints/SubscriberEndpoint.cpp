@@ -24,7 +24,7 @@ SubscriberEndpoint::~SubscriberEndpoint() {
             if (nng_close(*receiverSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
             } else {
-                std::cout << "Subscriber socket " << DataReceiverEndpoint::endpointIdentifier << " closed" << std::endl;
+                std::cout << "Subscriber socket " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }
@@ -43,7 +43,7 @@ void SubscriberEndpoint::openEndpoint() {
             endpointState = EndpointState::Open;
         }
     } else {
-        throw SocketOpenError("Can't open endpoint", DataReceiverEndpoint::socketType,
-                              DataReceiverEndpoint::endpointIdentifier);
+        throw SocketOpenError("Can't open endpoint", socketType,
+                              endpointIdentifier);
     }
 }

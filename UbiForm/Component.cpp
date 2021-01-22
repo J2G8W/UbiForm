@@ -247,7 +247,7 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
                     break;
                 case Open:
                 case Listening:
-                    socketId = getSenderEndpointsByType(endpointType)->at(0)->getSenderEndpointID();
+                    socketId = getSenderEndpointsByType(endpointType)->at(0)->getEndpointId();
                     break;
                 default:
                     createNewEndpoint(endpointType,socketId);
@@ -379,7 +379,7 @@ void Component::closeAndInvalidateSocketsOfType(const std::string &endpointType)
             (*it)->closeEndpoint();
             (*it)->invalidateEndpoint();
             it = vec->erase(it);
-            idReceiverEndpoints.erase((*it)->getReceiverEndpointID());
+            idReceiverEndpoints.erase((*it)->getEndpointId());
         }
     }
     if (typeSenderEndpoints.count(endpointType) > 0) {
@@ -389,7 +389,7 @@ void Component::closeAndInvalidateSocketsOfType(const std::string &endpointType)
             (*it)->closeEndpoint();
             (*it)->invalidateEndpoint();
             it = vec->erase(it);
-            idSenderEndpoints.erase((*it)->getSenderEndpointID());
+            idSenderEndpoints.erase((*it)->getEndpointId());
         }
     }
     if(componentManifest.hasListenPort(endpointType)){
@@ -419,7 +419,7 @@ void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
 
         // Get our endpoint out of the "By Type" container
         auto possibleEndpointContainer = typeReceiverEndpoints.find(
-                receiverEndpoint->second->getReceiverEndpointType());
+                receiverEndpoint->second->getEndpointType());
         if (possibleEndpointContainer != typeReceiverEndpoints.end()) {
             std::vector<std::shared_ptr<DataReceiverEndpoint>>::iterator it;
             it = possibleEndpointContainer->second->begin();
@@ -433,8 +433,8 @@ void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
                 }
             }
         }
-        if(componentManifest.hasListenPort(receiverEndpoint->second->getReceiverEndpointType())){
-            componentManifest.removeListenPort(receiverEndpoint->second->getReceiverEndpointType());
+        if(componentManifest.hasListenPort(receiverEndpoint->second->getEndpointType())){
+            componentManifest.removeListenPort(receiverEndpoint->second->getEndpointType());
         }
         idReceiverEndpoints.erase(receiverEndpoint);
     }
@@ -444,7 +444,7 @@ void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
         senderEndpoint->second->closeEndpoint();
         senderEndpoint->second->invalidateEndpoint();
 
-        auto possibleEndpointContainer = typeSenderEndpoints.find(senderEndpoint->second->getSenderEndpointType());
+        auto possibleEndpointContainer = typeSenderEndpoints.find(senderEndpoint->second->getEndpointType());
         if (possibleEndpointContainer != typeSenderEndpoints.end()) {
             std::vector<std::shared_ptr<DataSenderEndpoint>>::iterator it;
             it = possibleEndpointContainer->second->begin();
@@ -480,7 +480,7 @@ Component::registerStartupFunction(const std::string &endpointType, startupFunc 
 
 
 std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<DataReceiverEndpoint> e) {
-    if(componentManifest.getSocketType(e->getReceiverEndpointType()) == PAIR && e->getReceiverSocketType() == SocketType::Pair){
+    if(componentManifest.getSocketType(e->getEndpointType()) == PAIR && e->getEndpointSocketType() == SocketType::Pair){
         return std::static_pointer_cast<PairEndpoint>(e);
     }else{
         throw AccessError("Endpoint not a pair");
@@ -488,7 +488,7 @@ std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<DataReceiver
 }
 
 std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<DataSenderEndpoint> e) {
-    if(componentManifest.getSocketType(e->getSenderEndpointType()) == PAIR && e->getSenderSocketType() == SocketType::Pair){
+    if(componentManifest.getSocketType(e->getEndpointType()) == PAIR && e->getEndpointSocketType() == SocketType::Pair){
         return std::static_pointer_cast<PairEndpoint>(e);
     }else{
         throw AccessError("Endpoint not a pair");

@@ -22,8 +22,9 @@ private:
 public:
     PairEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema,
                  const std::string &endpointType, const std::string &endpointIdentifier = "Pair") :
-            DataReceiverEndpoint(receiveSchema, endpointIdentifier, SocketType::Pair, endpointType),
-            DataSenderEndpoint(sendSchema, endpointIdentifier, SocketType::Pair, endpointType) {
+                 Endpoint(endpointIdentifier, SocketType::Pair, endpointType),
+            DataReceiverEndpoint(receiveSchema),
+            DataSenderEndpoint(sendSchema) {
 
         senderSocket = new nng_socket;
         openEndpoint();

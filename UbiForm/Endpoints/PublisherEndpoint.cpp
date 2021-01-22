@@ -11,8 +11,8 @@ void PublisherEndpoint::openEndpoint() {
             endpointState = EndpointState::Open;
         }
     } else {
-        throw SocketOpenError("Can't open endpoint", DataSenderEndpoint::socketType,
-                              DataSenderEndpoint::endpointIdentifier);
+        throw SocketOpenError("Can't open endpoint", socketType,
+                              endpointIdentifier);
     }
 }
 
@@ -26,7 +26,7 @@ PublisherEndpoint::~PublisherEndpoint() {
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
             } else {
-                std::cout << "Publisher socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
+                std::cout << "Publisher socket " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }

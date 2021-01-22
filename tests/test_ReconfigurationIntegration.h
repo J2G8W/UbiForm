@@ -61,7 +61,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
     ASSERT_THROW(subEndpoint->receiveMessage(), SocketOpenError);
 
     // Test local close socket
-    std::string senderEndpointID = senderEndpoints->at(0)->getSenderEndpointID();
+    std::string senderEndpointID = senderEndpoints->at(0)->getEndpointId();
     senderComponent.closeAndInvalidateSocketById(senderEndpointID);
     ASSERT_EQ(senderEndpoints->size(), 0);
     ASSERT_THROW(senderComponent.getSenderEndpointById(senderEndpointID), std::out_of_range);

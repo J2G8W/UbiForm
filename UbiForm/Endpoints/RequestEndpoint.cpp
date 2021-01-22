@@ -4,12 +4,12 @@
 
 void RequestEndpoint::listenForConnection(const char *base, int port) {
     throw SocketOpenError("Request socket trying to listen for connection",
-                          DataSenderEndpoint::socketType, DataSenderEndpoint::endpointIdentifier);
+                          socketType, endpointIdentifier);
 }
 
 int RequestEndpoint::listenForConnectionWithRV(const char *base, int port) {
     throw SocketOpenError("Request socket trying to listen for connection",
-                          DataSenderEndpoint::socketType, DataSenderEndpoint::endpointIdentifier);
+                          socketType, endpointIdentifier);
 }
 
 void RequestEndpoint::dialConnection(const char *url) {
@@ -43,7 +43,7 @@ RequestEndpoint::~RequestEndpoint() {
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
             } else {
-                std::cout << "Request socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
+                std::cout << "Request socket " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }
@@ -69,7 +69,7 @@ void RequestEndpoint::openEndpoint() {
             setReceiveTimeout(500);
         }
     } else {
-        throw SocketOpenError("Can't open endpoint", DataSenderEndpoint::socketType,
-                              DataSenderEndpoint::endpointIdentifier);
+        throw SocketOpenError("Can't open endpoint", socketType,
+                              endpointIdentifier);
     }
 }

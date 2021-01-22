@@ -45,9 +45,7 @@ private:
 
 protected:
     // These are all used by child classes in reporting errors
-    std::string endpointIdentifier;
-    std::string endpointType;
-    SocketType socketType;
+
 
     // Socket is initialised in extending class
     nng_socket *receiverSocket = nullptr;
@@ -60,9 +58,7 @@ protected:
     std::unique_ptr<SocketMessage> rawReceiveMessage();
 
 public:
-    explicit DataReceiverEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
-                                  SocketType socketType, const std::string &endpointType) :
-            endpointIdentifier(endpointIdentifier), socketType(socketType), endpointType(endpointType) {
+    explicit DataReceiverEndpoint(std::shared_ptr<EndpointSchema> &es) {
         receiverSchema = es;
     };
 
@@ -100,17 +96,7 @@ public:
      */
     std::string getDialUrl() { return dialUrl; }
 
-    /**
-     * @return The identifier of the socket in the component
-     */
-    std::string &getReceiverEndpointID() { return endpointIdentifier; }
 
-    /**
-     * @return The endpointType (which refers to our componentManifest)
-     */
-    std::string &getReceiverEndpointType() { return endpointType; }
-
-    SocketType getReceiverSocketType(){return  socketType;}
 
     /**
      * This function closes our socket. If extended it should call the parent then handle states of other things.

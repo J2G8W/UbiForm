@@ -4,8 +4,8 @@
 
 
 void ReplyEndpoint::dialConnection(const char *url) {
-    throw SocketOpenError("Reply endpoint is trying to dial a connection!", DataSenderEndpoint::socketType,
-                          DataSenderEndpoint::endpointIdentifier);
+    throw SocketOpenError("Reply endpoint is trying to dial a connection!", socketType,
+                          endpointIdentifier);
 }
 
 
@@ -22,7 +22,7 @@ ReplyEndpoint::~ReplyEndpoint() {
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
             } else {
-                std::cout << "Reply socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
+                std::cout << "Reply socket " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
 
@@ -45,8 +45,8 @@ void ReplyEndpoint::openEndpoint() {
         // By default we have an infinite timeout
         setReceiveTimeout(-1);
     } else {
-        throw SocketOpenError("Can't open endpoint", DataSenderEndpoint::socketType,
-                              DataSenderEndpoint::endpointIdentifier);
+        throw SocketOpenError("Can't open endpoint", socketType,
+                              endpointIdentifier);
     }
 }
 

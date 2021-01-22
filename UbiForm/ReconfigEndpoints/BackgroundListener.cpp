@@ -277,7 +277,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleEndpointInfoRequest(Soc
         for (const auto &recvEndpoint: *receivers) {
             if (!recvEndpoint->getDialUrl().empty()) {
                 std::unique_ptr<SocketMessage> mini = std::make_unique<SocketMessage>();
-                mini->addMember("id", recvEndpoint->getReceiverEndpointID());
+                mini->addMember("id", recvEndpoint->getEndpointId());
                 mini->addMember("dialUrl", recvEndpoint->getDialUrl());
                 mini->addMember("endpointType", type);
                 mini->addMember("socketType", component->getComponentManifest().getSocketType(type));
@@ -288,7 +288,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleEndpointInfoRequest(Soc
         for (const auto &sendEndpoint: *senders) {
             if (sendEndpoint->getListenPort() != -1) {
                 std::unique_ptr<SocketMessage> mini = std::make_unique<SocketMessage>();
-                mini->addMember("id", sendEndpoint->getSenderEndpointID());
+                mini->addMember("id", sendEndpoint->getEndpointId());
                 mini->addMember("listenPort", sendEndpoint->getListenPort());
                 mini->addMember("endpointType", type);
                 mini->addMember("socketType", component->getComponentManifest().getSocketType(type));
