@@ -92,27 +92,37 @@ void Component::createNewEndpoint(const std::string &endpointType, const std::st
 
     std::shared_ptr<DataReceiverEndpoint> receiverEndpoint;
     std::shared_ptr<DataSenderEndpoint> senderEndpoint;
+
+    endpointStartupFunction startupFunc = nullptr;
+    void* extraData = nullptr;
+    if(startupFunctionsMap.count(endpointType)){
+        startupFunc = startupFunctionsMap.at(endpointType);
+        if(startupDataMap.count(endpointType)){
+            extraData = startupDataMap.at(endpointType);
+        }
+    }
+
     switch (socketType) {
         case Pair: {
-            auto pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema, endpointType, endpointId);
+            auto pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc,extraData);
             receiverEndpoint = pe;
             senderEndpoint = pe;
             break;
         }
         case Publisher:
-            senderEndpoint = std::make_shared<PublisherEndpoint>(sendSchema, endpointType, endpointId);
+            senderEndpoint = std::make_shared<PublisherEndpoint>(sendSchema, endpointType, endpointId, startupFunc, extraData);
             break;
         case Subscriber:
-            receiverEndpoint = std::make_shared<SubscriberEndpoint>(recvSchema, endpointType, endpointId);
+            receiverEndpoint = std::make_shared<SubscriberEndpoint>(recvSchema, endpointType, endpointId, startupFunc, extraData);
             break;
         case Reply: {
-            auto pe = std::make_shared<ReplyEndpoint>(recvSchema, sendSchema, endpointType, endpointId);
+            auto pe = std::make_shared<ReplyEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc, extraData);
             receiverEndpoint = pe;
             senderEndpoint = pe;
             break;
         }
         case Request: {
-            auto pe = std::make_shared<RequestEndpoint>(recvSchema, sendSchema, endpointType, endpointId);
+            auto pe = std::make_shared<RequestEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc, extraData);
             receiverEndpoint = pe;
             senderEndpoint = pe;
             break;
@@ -143,7 +153,6 @@ void Component::createNewEndpoint(const std::string &endpointType, const std::st
                                                               1, senderEndpoint)));
         }
     }
-
 }
 
 

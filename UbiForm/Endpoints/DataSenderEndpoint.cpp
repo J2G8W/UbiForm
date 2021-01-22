@@ -83,6 +83,7 @@ int DataSenderEndpoint::listenForConnectionWithRV(const char *base, int port) {
         }
         this->endpointState = EndpointState::Listening;
         this->listenPort = port;
+        startConnectionThread();
         return rv;
     } else {
         throw SocketOpenError("Can't listen if endpoint not open", socketType, endpointIdentifier);
