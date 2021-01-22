@@ -2,7 +2,7 @@
 
 
 TEST(StreamingTests, SendMessage){
-    // Use tcp as ipc doesn't gurantee ordering
+    // Use tcp as ipc doesn't guarantee ordering
     Component sendComponent("tcp://127.0.0.1");
     Component recvComponent("tcp://127.0.0.2");
     std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();

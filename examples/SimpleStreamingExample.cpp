@@ -8,37 +8,6 @@
 #define SENDER "SENDER"
 
 
-void receiveOnCreateFunction(std::shared_ptr<DataReceiverEndpoint> receive,
-                             std::shared_ptr<DataSenderEndpoint> send, void* extraData){
-    std::ofstream f;
-
-    auto t1 = std::chrono::high_resolution_clock::now();
-    /*
-    if(argc == 3) {
-        endpoints->at(0)->receiveStream(std::cout);
-    }else{
-        f.open(argv[3], std::fstream::binary | std::fstream::out);
-        endpoints->at(0)->receiveStream(f);
-    }
-    while (receive) {
-        nng_msleep(1000);
-    }
-
-    auto t2 = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-
-    if (argc > 3) {
-        int fileSize = f.tellp();
-        int kiloByteSize = fileSize / 1024;
-
-        std::cout << "Streaming of file of size: " << kiloByteSize << "KB took " << duration << " milliseconds"
-                  << std::endl;
-    }
-    f.close();
-     */
-}
-
 int main(int argc, char **argv) {
     if (argc >= 2) {
         if (strcmp(argv[1], RECEIVER) == 0 && argc>=3) {
@@ -52,9 +21,36 @@ int main(int argc, char **argv) {
                     argv[2], 8000, "receiver",
                     "sender");
             auto endpoints = receiver.getReceiverEndpointsByType("receiver");
-            while (endpoints->empty()){
-                nng_msleep(100);
+            if(endpoints->empty()){
+                throw std::logic_error("Oops couldn't create connection");
             }
+
+            std::ofstream f;
+
+            auto t1 = std::chrono::high_resolution_clock::now();
+            std::shared_ptr<PairEndpoint> pair = receiver.castToPair(endpoints->at(0));
+            if(argc == 3) {
+                pair->receiveStream(std::cout);
+            }else{
+                f.open(argv[3], std::fstream::binary | std::fstream::out);
+                pair->receiveStream(f);
+            }
+            while (!pair->getReceiverThreadEnded()) {
+                nng_msleep(1000);
+            }
+
+            auto t2 = std::chrono::high_resolution_clock::now();
+
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+
+            if (argc > 3) {
+                int fileSize = f.tellp();
+                int kiloByteSize = fileSize / 1024;
+
+                std::cout << "Streaming of file of size: " << kiloByteSize << "KB took " << duration << " milliseconds"
+                          << std::endl;
+            }
+            f.close();
 
         } else if (strcmp(argv[1], SENDER) == 0) {
             Component sender;
@@ -69,18 +65,19 @@ int main(int argc, char **argv) {
             while (endpointVector->empty()){
                 nng_msleep(100);
             }
+            auto pair = sender.castToPair(endpointVector->at(0));
             std::ifstream file;
             if(argc == 2) {
-                endpointVector->at(0)->sendStream(std::cin, 3, true);
+                pair->sendStream(std::cin, 3, true);
             }else{
                 file.open(argv[2], std::fstream::binary | std::fstream::in);
                 if(!file.good()){
                     std::cerr << "Unable to open file " << argv[2] << std::endl;
                     exit(1);
                 }
-                endpointVector->at(0)->sendStream(file, 10002, false);
+                pair->sendStream(file, 10002, false);
             }
-            while (!endpointVector->at(0)->getSenderThreadEnded()) {
+            while (!pair->getSenderThreadEnded()) {
                 nng_msleep(1000);
             }
             file.close();
