@@ -170,6 +170,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
 
     reply = RDH.getBackgroundRequester().requestEndpointInfo(receiverFullAddress);
     ASSERT_EQ(reply.size(), 2);
+    std::cout << reply.at(0)->stringify() << std::endl;
 
 }
 

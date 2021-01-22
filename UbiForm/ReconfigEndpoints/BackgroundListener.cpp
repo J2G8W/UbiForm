@@ -272,14 +272,22 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleEndpointInfoRequest(Soc
     std::vector<std::string> endpointTypes = component->getComponentManifest().getAllEndpointTypes();
     std::vector<std::unique_ptr<SocketMessage>> endpoints;
     for (const auto &type:endpointTypes) {
-
-        // TODO - sort this out
-        auto receivers = component->getEndpointsByType(type);
-        for (const auto &recvEndpoint: *receivers) {
+        auto endpointObjects = component->getEndpointsByType(type);
+        for (const auto &endpoint: *endpointObjects) {
             std::unique_ptr<SocketMessage> mini = std::make_unique<SocketMessage>();
-            mini->addMember("id", recvEndpoint->getEndpointId());
+            mini->addMember("id", endpoint->getEndpointId());
             mini->addMember("endpointType", type);
             mini->addMember("socketType", component->getComponentManifest().getSocketType(type));
+            try {
+                if (endpoint->getEndpointState() == EndpointState::Listening) {
+                    mini->addMember("listenPort", component->castToDataSenderEndpoint(endpoint)->getListenPort());
+                } else if (endpoint->getEndpointState() == EndpointState::Dialed) {
+                    mini->addMember("dialUrl", component->castToDataReceiverEndpoint(endpoint)->getDialUrl());
+                }
+            }catch(AccessError &e){
+                // EMPTY - error made with casting
+            }
+
             endpoints.push_back(std::move(mini));
 
         }
