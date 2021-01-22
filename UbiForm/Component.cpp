@@ -503,3 +503,11 @@ PairEndpoint *Component::castToPair(Endpoint *e) {
         throw AccessError("Endpoint not a pair");
     }
 }
+
+SubscriberEndpoint *Component::castToSubscriber(Endpoint *e) {
+    if(componentManifest.getSocketType(e->getEndpointType()) == SUBSCRIBER && e->getEndpointSocketType() == SocketType::Subscriber){
+        return dynamic_cast<SubscriberEndpoint*>(e);
+    }else{
+        throw AccessError("Endpoint not a subscriber");
+    }
+}

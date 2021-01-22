@@ -29,7 +29,8 @@ set(endpointFiles ../include/UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm
         ../UbiForm/Endpoints/SubscriberEndpoint.cpp ../include/UbiForm/Endpoints/SubscriberEndpoint.h
         ../UbiForm/Endpoints/PublisherEndpoint.cpp ../include/UbiForm/Endpoints/PublisherEndpoint.h
 		../UbiForm/Endpoints/RequestEndpoint.cpp ../include/UbiForm/Endpoints/RequestEndpoint.h
-		../UbiForm/Endpoints/ReplyEndpoint.cpp ../include/UbiForm/Endpoints/ReplyEndpoint.h ../UbiForm/Endpoints/Endpoint.cpp ../UbiForm/Endpoints/Endpoint.h)
+		../UbiForm/Endpoints/ReplyEndpoint.cpp ../include/UbiForm/Endpoints/ReplyEndpoint.h
+		../UbiForm/Endpoints/Endpoint.cpp ../include/UbiForm/Endpoints/Endpoint.h)
 
 set(reconfigEndpoints ../include/UbiForm/ReconfigurationEndpoints/BackgroundListener.h ../UbiForm/ReconfigEndpoints/BackgroundListener.cpp
 		../UbiForm/ReconfigEndpoints/BackgroundRequester.cpp ../include/UbiForm/ReconfigurationEndpoints/BackgroundRequester.h)
@@ -97,7 +98,7 @@ if (BUILD_TESTS)
             ../UbiForm/SchemaRepresentation/test_EndpointSchema.h ../UbiForm/test_Component.h
             ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h
 			../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h ../UbiForm/SystemSchemas/test_SystemSchemas.h
-			../tests/test_ReconfigurationIntegration.h ../UbiForm/Utilities/test_GetIPAddresses.h ../tests/test_Streaming.h)
+			../tests/test_ReconfigurationIntegration.h ../UbiForm/Utilities/test_GetIPAddresses.h ../tests/test_Streaming.h ../tests/test_EndpointCreation.h)
 
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm)

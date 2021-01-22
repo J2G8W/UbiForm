@@ -248,6 +248,8 @@ public:
     std::shared_ptr<PairEndpoint> castToPair(std::shared_ptr<DataSenderEndpoint> e);
 
     PairEndpoint* castToPair(Endpoint *e);
+    SubscriberEndpoint* castToSubscriber(Endpoint *e);
+
 
 };
 

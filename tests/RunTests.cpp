@@ -10,6 +10,7 @@
 #include "../UbiForm/SystemSchemas/test_SystemSchemas.h"
 #include "../UbiForm/Utilities/test_GetIPAddresses.h"
 
+#include "test_EndpointCreation.h"
 #include "test_Streaming.h"
 #include "test_ReconfigurationIntegration.h"
 
