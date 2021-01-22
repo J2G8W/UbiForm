@@ -44,6 +44,10 @@ public:
 
     void endConnectionThread();
 
+    void invalidateEndpoint(){ endpointState = EndpointState::Invalid;}
+
+    virtual void closeEndpoint() = 0;
+
     virtual ~Endpoint(){
         endConnectionThread();
     }

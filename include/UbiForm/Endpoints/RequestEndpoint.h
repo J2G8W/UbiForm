@@ -31,9 +31,6 @@ public:
 
     void openEndpoint() override;
 
-    void invalidateEndpoint() override {
-        endpointState = EndpointState::Invalid;
-    }
 
     ~RequestEndpoint() override;
 };

@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 
             SocketMessage s;
             bool valid = true;
-            auto publisherEndpoints = component->getSenderEndpointsByType("publisherExample");
+            auto publisherEndpoints = component->getEndpointsByType("publisherExample");
             while (true) {
                 if (!publisherEndpoints->empty()) {
                     s.addMember("reverse", valid);
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
                     strftime(dateString, 30, "%c", p);
                     s.addMember("date", std::string(dateString));
 
-                    publisherEndpoints->at(0)->sendMessage(s);
+                    component->castToDataSenderEndpoint(publisherEndpoints->at(0))->sendMessage(s);
                 }
                 nng_msleep(1000);
             }
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
 
                 SocketMessage s;
                 bool valid = true;
-                auto publisherEndpoints = component->getSenderEndpointsByType("publisherExample");
+                auto publisherEndpoints = component->getEndpointsByType("publisherExample");
                 while (true) {
                     if (!publisherEndpoints->empty()) {
                         s.addMember("reverse", valid);
@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
                         strftime(dateString, 30, "%A %B", p);
                         s.addMember("date", std::string(dateString));
 
-                        publisherEndpoints->at(0)->sendMessage(s);
+                        component->castToDataSenderEndpoint(publisherEndpoints->at(0))->sendMessage(s);
                     }
                     nng_msleep(1000);
                 }
@@ -151,10 +151,10 @@ int main(int argc, char **argv) {
                 component->getResourceDiscoveryConnectionEndpoint().createEndpointBySchema("subscriberExample");
 
                 std::unique_ptr<SocketMessage> s;
-                auto subscriberEndpoints = component->getReceiverEndpointsByType("subscriberExample");
+                auto subscriberEndpoints = component->getEndpointsByType("subscriberExample");
 
                 for (const auto &endpoint : *subscriberEndpoints) {
-                    endpoint->asyncReceiveMessage(subscriberHandleInfo, endpoint.get());
+                    component->castToDataReceiverEndpoint(endpoint)->asyncReceiveMessage(subscriberHandleInfo, endpoint.get());
                 }
                 while (true) {
                     nng_msleep(3000);

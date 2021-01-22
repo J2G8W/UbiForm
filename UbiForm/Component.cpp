@@ -92,6 +92,7 @@ void Component::createNewEndpoint(const std::string &endpointType, const std::st
 
     std::shared_ptr<DataReceiverEndpoint> receiverEndpoint;
     std::shared_ptr<DataSenderEndpoint> senderEndpoint;
+    std::shared_ptr<Endpoint> endpoint;
 
     endpointStartupFunction startupFunc = nullptr;
     void* extraData = nullptr;
@@ -107,51 +108,38 @@ void Component::createNewEndpoint(const std::string &endpointType, const std::st
             auto pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc,extraData);
             receiverEndpoint = pe;
             senderEndpoint = pe;
+            endpoint = pe;
             break;
         }
         case Publisher:
             senderEndpoint = std::make_shared<PublisherEndpoint>(sendSchema, endpointType, endpointId, startupFunc, extraData);
+            endpoint = senderEndpoint;
             break;
         case Subscriber:
             receiverEndpoint = std::make_shared<SubscriberEndpoint>(recvSchema, endpointType, endpointId, startupFunc, extraData);
+            endpoint = receiverEndpoint;
             break;
         case Reply: {
             auto pe = std::make_shared<ReplyEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc, extraData);
             receiverEndpoint = pe;
             senderEndpoint = pe;
+            endpoint = pe;
             break;
         }
         case Request: {
             auto pe = std::make_shared<RequestEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc, extraData);
             receiverEndpoint = pe;
             senderEndpoint = pe;
+            endpoint = pe;
             break;
         }
     }
 
-
-
-    if (socketType == SocketType::Pair || socketType == SocketType::Subscriber || socketType == SocketType::Request ||
-        socketType == SocketType::Reply) {
-        idReceiverEndpoints.insert(std::make_pair(endpointId, receiverEndpoint));
-        if (typeReceiverEndpoints.count(endpointType) == 1) {
-            typeReceiverEndpoints.at(endpointType)->push_back(receiverEndpoint);
-        } else {
-            typeReceiverEndpoints.insert(std::make_pair(
-                    endpointType,
-                    std::make_shared<std::vector<std::shared_ptr<DataReceiverEndpoint> > >(1, receiverEndpoint)));
-        }
-    }
-    if (socketType == SocketType::Pair || socketType == SocketType::Publisher || socketType == SocketType::Request ||
-        socketType == SocketType::Reply) {
-        idSenderEndpoints.insert(std::make_pair(endpointId, senderEndpoint));
-        if (typeSenderEndpoints.count(endpointType) == 1) {
-            typeSenderEndpoints.at(endpointType)->push_back(senderEndpoint);
-        } else {
-            typeSenderEndpoints.insert(std::make_pair(endpointType,
-                                                      std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >(
-                                                              1, senderEndpoint)));
-        }
+    endpointsById[endpointId] = endpoint;
+    if(endpointsByType.count(endpointType) == 1){
+        endpointsByType.at(endpointType)->push_back(endpoint);
+    }else{
+        endpointsByType[endpointType] = std::make_shared<std::vector<std::shared_ptr<Endpoint>>>(1,endpoint);
     }
 }
 
@@ -159,7 +147,7 @@ void Component::createNewEndpoint(const std::string &endpointType, const std::st
 // GET OUR ENDPOINTS BY ID
 std::shared_ptr<DataReceiverEndpoint> Component::getReceiverEndpointById(const std::string &id) {
     try {
-        return idReceiverEndpoints.at(id);
+        return castToDataReceiverEndpoint(endpointsById.at(id));
     } catch (std::out_of_range &e) {
         throw;
     }
@@ -167,37 +155,24 @@ std::shared_ptr<DataReceiverEndpoint> Component::getReceiverEndpointById(const s
 
 std::shared_ptr<DataSenderEndpoint> Component::getSenderEndpointById(const std::string &id) {
     try {
-        return idSenderEndpoints.at(id);
+        return castToDataSenderEndpoint(endpointsById.at(id));
     } catch (std::out_of_range &e) {
         throw;
     }
 }
 
-// GET OUR ENDPOINTS BY ENDPOINTTYPE
-std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > >
-Component::getReceiverEndpointsByType(const std::string &endpointType) {
-    try {
-        return typeReceiverEndpoints.at(endpointType);
-    } catch (std::out_of_range &e) {
+std::shared_ptr<std::vector<std::shared_ptr<Endpoint> > >
+Component::getEndpointsByType(const std::string& endpointType){
+    try{
+        return endpointsByType.at(endpointType);
+    }catch (std::out_of_range &e) {
         // Make an empty vector to return, this will get filled if things then come along later
-        auto returnVector = std::make_shared<std::vector<std::shared_ptr<DataReceiverEndpoint> > >();
-        typeReceiverEndpoints.insert(std::make_pair(endpointType, returnVector));
+        auto returnVector = std::make_shared<std::vector<std::shared_ptr<Endpoint> > >();
+        endpointsByType.insert(std::make_pair(endpointType, returnVector));
         return returnVector;
     }
 }
 
-
-std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > >
-Component::getSenderEndpointsByType(const std::string &endpointType) {
-    try {
-        return typeSenderEndpoints.at(endpointType);
-    } catch (std::out_of_range &e) {
-        // Make an empty vector to return, this will get filled if things then come along later
-        auto returnVector = std::make_shared<std::vector<std::shared_ptr<DataSenderEndpoint> > >();
-        typeSenderEndpoints.insert(std::make_pair(endpointType, returnVector));
-        return returnVector;
-    }
-}
 
 // THIS IS OUR COMPONENT LISTENING FOR REQUESTS TO MAKE SOCKETS
 void Component::startBackgroundListen() {
@@ -238,17 +213,17 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
     std::shared_ptr<DataSenderEndpoint> e;
     // If we already have a publisher or reply endpoint already then we don't want to make a new one
     if(componentManifest.getSocketType(endpointType) == PUBLISHER || componentManifest.getSocketType(endpointType) == REPLY){
-        if(getSenderEndpointsByType(endpointType)->empty()){
+        if(getEndpointsByType(endpointType)->empty()){
             createNewEndpoint(endpointType,socketId);
         } else {
-            EndpointState senderState = getSenderEndpointsByType(endpointType)->at(0)->getEndpointState();
+            EndpointState senderState = getEndpointsByType(endpointType)->at(0)->getEndpointState();
             switch (senderState) {
                 case Closed:
-                    getSenderEndpointsByType(endpointType)->at(0)->openEndpoint();
+                    castToDataSenderEndpoint(getEndpointsByType(endpointType)->at(0))->openEndpoint();
                     break;
                 case Open:
                 case Listening:
-                    socketId = getSenderEndpointsByType(endpointType)->at(0)->getEndpointId();
+                    socketId = getEndpointsByType(endpointType)->at(0)->getEndpointId();
                     break;
                 default:
                     createNewEndpoint(endpointType,socketId);
@@ -373,24 +348,14 @@ Component::~Component() {
 }
 
 void Component::closeAndInvalidateSocketsOfType(const std::string &endpointType) {
-    if (typeReceiverEndpoints.count(endpointType) > 0) {
-        auto vec = typeReceiverEndpoints.at(endpointType);
+    if(endpointsByType.count(endpointType) >0){
+        auto vec = endpointsByType.at(endpointType);
         auto it = vec->begin();
         while (it != vec->end()) {
             (*it)->closeEndpoint();
             (*it)->invalidateEndpoint();
             it = vec->erase(it);
-            idReceiverEndpoints.erase((*it)->getEndpointId());
-        }
-    }
-    if (typeSenderEndpoints.count(endpointType) > 0) {
-        auto vec = typeSenderEndpoints.at(endpointType);
-        auto it = vec->begin();
-        while (it != vec->end()) {
-            (*it)->closeEndpoint();
-            (*it)->invalidateEndpoint();
-            it = vec->erase(it);
-            idSenderEndpoints.erase((*it)->getEndpointId());
+            endpointsByType.erase((*it)->getEndpointId());
         }
     }
     if(componentManifest.hasListenPort(endpointType)){
@@ -412,53 +377,32 @@ void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
     // Endpoints which are both don't matter about being closed twice
 
 
-    auto receiverEndpoint = idReceiverEndpoints.find(endpointId);
-    if (receiverEndpoint != idReceiverEndpoints.end()) {
+    auto endpoint = endpointsById.find(endpointId);
+    if (endpoint != endpointsById.end()) {
         // Close the socket itself
-        receiverEndpoint->second->closeEndpoint();
-        receiverEndpoint->second->invalidateEndpoint();
+        endpoint->second->closeEndpoint();
+        endpoint->second->invalidateEndpoint();
 
         // Get our endpoint out of the "By Type" container
-        auto possibleEndpointContainer = typeReceiverEndpoints.find(
-                receiverEndpoint->second->getEndpointType());
-        if (possibleEndpointContainer != typeReceiverEndpoints.end()) {
-            std::vector<std::shared_ptr<DataReceiverEndpoint>>::iterator it;
+        auto possibleEndpointContainer = endpointsByType.find(
+                endpoint->second->getEndpointType());
+        if (possibleEndpointContainer != endpointsByType.end()) {
+            std::vector<std::shared_ptr<Endpoint>>::iterator it;
             it = possibleEndpointContainer->second->begin();
             // Iterate over our possible container, used iterator due to deletions
             while (it != possibleEndpointContainer->second->end()) {
                 // If the pointers are equal (so they point at the same thing)
-                if ((*it) == receiverEndpoint->second) {
+                if ((*it) == endpoint->second) {
                     it = possibleEndpointContainer->second->erase(it);
                 } else {
                     it++;
                 }
             }
         }
-        if(componentManifest.hasListenPort(receiverEndpoint->second->getEndpointType())){
-            componentManifest.removeListenPort(receiverEndpoint->second->getEndpointType());
+        if(componentManifest.hasListenPort(endpoint->second->getEndpointType())){
+            componentManifest.removeListenPort(endpoint->second->getEndpointType());
         }
-        idReceiverEndpoints.erase(receiverEndpoint);
-    }
-
-    auto senderEndpoint = idSenderEndpoints.find(endpointId);
-    if (senderEndpoint != idSenderEndpoints.end()) {
-        senderEndpoint->second->closeEndpoint();
-        senderEndpoint->second->invalidateEndpoint();
-
-        auto possibleEndpointContainer = typeSenderEndpoints.find(senderEndpoint->second->getEndpointType());
-        if (possibleEndpointContainer != typeSenderEndpoints.end()) {
-            std::vector<std::shared_ptr<DataSenderEndpoint>>::iterator it;
-            it = possibleEndpointContainer->second->begin();
-            while (it != possibleEndpointContainer->second->end()) {
-                if ((*it) == senderEndpoint->second) {
-                    it = possibleEndpointContainer->second->erase(it);
-                } else {
-                    it++;
-                }
-            }
-        }
-
-        idSenderEndpoints.erase(senderEndpoint);
+        endpointsById.erase(endpoint);
     }
 }
 
@@ -511,3 +455,47 @@ SubscriberEndpoint *Component::castToSubscriber(Endpoint *e) {
         throw AccessError("Endpoint not a subscriber");
     }
 }
+
+std::shared_ptr<DataReceiverEndpoint> Component::castToDataReceiverEndpoint(std::shared_ptr<Endpoint> e) {
+    // TODO - add safety
+    return std::dynamic_pointer_cast<DataReceiverEndpoint>(e);
+}
+
+std::shared_ptr<DataSenderEndpoint> Component::castToDataSenderEndpoint(std::shared_ptr<Endpoint> e) {
+    return std::dynamic_pointer_cast<DataSenderEndpoint>(e);
+}
+
+std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<Endpoint> e) {
+    if(componentManifest.getSocketType(e->getEndpointType()) == PAIR && e->getEndpointSocketType() == SocketType::Pair){
+        return std::dynamic_pointer_cast<PairEndpoint>(e);
+    }else{
+        throw AccessError("Endpoint not a pair");
+    }
+}
+
+std::shared_ptr<SubscriberEndpoint> Component::castToSubscriber(std::shared_ptr<Endpoint> e) {
+    if(componentManifest.getSocketType(e->getEndpointType()) == SUBSCRIBER && e->getEndpointSocketType() == SocketType::Subscriber){
+        return std::dynamic_pointer_cast<SubscriberEndpoint>(e);
+    }else{
+        throw AccessError("Endpoint not a pair");
+    }
+}
+
+PublisherEndpoint *Component::castToPublisher(Endpoint *e) {
+    if(componentManifest.getSocketType(e->getEndpointType()) == PUBLISHER && e->getEndpointSocketType() == SocketType::Publisher){
+        return dynamic_cast<PublisherEndpoint*>(e);
+    }else{
+        throw AccessError("Endpoint not a subscriber");
+    }
+}
+
+std::shared_ptr<PublisherEndpoint> Component::castToPublisher(std::shared_ptr<Endpoint> e) {
+    if(componentManifest.getSocketType(e->getEndpointType()) == PUBLISHER && e->getEndpointSocketType() == SocketType::Publisher){
+        return std::dynamic_pointer_cast<PublisherEndpoint>(e);
+    }else{
+        throw AccessError("Endpoint not a pair");
+    }
+}
+
+
+

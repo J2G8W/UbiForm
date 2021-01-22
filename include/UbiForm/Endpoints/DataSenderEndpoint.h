@@ -79,7 +79,6 @@ public:
 
     virtual void closeEndpoint();
 
-    virtual void invalidateEndpoint() = 0;
 
 
 

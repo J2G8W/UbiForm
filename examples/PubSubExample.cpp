@@ -28,10 +28,10 @@ int main(int argc, char **argv) {
                     "publisherExample");
             std::unique_ptr<SocketMessage> s;
 
-            auto subscriberEndpoints = component.getReceiverEndpointsByType("subscriberExample");
+            auto subscriberEndpoints = component.getEndpointsByType("subscriberExample");
             while (true) {
                 for (const auto &endpoint : *subscriberEndpoints) {
-                    s = endpoint->receiveMessage();
+                    s = component.castToDataReceiverEndpoint(endpoint)->receiveMessage();
 
                     std::string date = s->getString("date");
                     if (s->getBoolean("reverse")) {
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 
             SocketMessage s;
             bool valid = true;
-            auto publisherEndpoints = component.getSenderEndpointsByType("publisherExample");
+            auto publisherEndpoints = component.getEndpointsByType("publisherExample");
             while (true) {
                 if (!publisherEndpoints->empty()) {
                     s.addMember("reverse", valid);
@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
                     strftime(dateString, 30, "%c", p);
                     s.addMember("date", std::string(dateString));
 
-                    publisherEndpoints->at(0)->sendMessage(s);
+                    component.castToDataSenderEndpoint(publisherEndpoints->at(0))->sendMessage(s);
                 }
                 nng_msleep(1000);
             }

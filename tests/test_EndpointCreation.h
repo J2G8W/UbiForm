@@ -47,6 +47,7 @@ TEST_F(EndpointCreation, MultipleEndpoints){
     component.createEndpointAndListen("pairExample");
     nng_msleep(100);
     ASSERT_EQ(e->reached,4);
+    delete e;
 }
 
 TEST_F(EndpointCreation, ReListen) {
@@ -54,11 +55,12 @@ TEST_F(EndpointCreation, ReListen) {
     e->component = &component;
     component.registerStartupFunction("pairExample", simplePairFunc, e);
     component.createEndpointAndListen("pairExample");
-    auto endpoints = component.getSenderEndpointsByType("pairExample");
+    auto endpoints = component.getEndpointsByType("pairExample");
     ASSERT_EQ(endpoints->size(),1);
     endpoints->at(0)->closeEndpoint();
-    endpoints->at(0)->openEndpoint();
-    endpoints->at(0)->listenForConnection(component.getSelfAddress().c_str(),10000);
+    component.castToPair(endpoints->at(0))->openEndpoint();
+    component.castToPair(endpoints->at(0))->listenForConnection(component.getSelfAddress().c_str(),10000);
     nng_msleep(100);
     ASSERT_EQ(e->reached, 2);
+    delete e;
 }

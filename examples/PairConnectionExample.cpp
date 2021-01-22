@@ -28,10 +28,10 @@ int main(int argc, char **argv) {
             receiver.getBackgroundRequester().requestRemoteListenThenDial(
                     "tcp://127.0.0.1", 8000, "pairExample",
                     "pairExample");
-            auto endpoints = receiver.getReceiverEndpointsByType("pairExample");
+            auto endpoints = receiver.getEndpointsByType("pairExample");
             while (true) {
                 for (const auto &e: *endpoints) {
-                    auto msg = e->receiveMessage();
+                    auto msg = receiver.castToDataReceiverEndpoint(e)->receiveMessage();
                     std::cout << msg->getInteger("temp") << std::endl;
                 }
             }
@@ -48,9 +48,9 @@ int main(int argc, char **argv) {
             receiver.getBackgroundRequester().requestRemoteListenThenDial(
                     "tcp://127.0.0.1", 8000, "pairExample",
                     "pairExample");
-            auto endpoints = receiver.getReceiverEndpointsByType("pairExample");
+            auto endpoints = receiver.getEndpointsByType("pairExample");
             for (const auto &e: *endpoints) {
-                e->asyncReceiveMessage(simpleCallback, e.get());
+                receiver.castToDataReceiverEndpoint(e)->asyncReceiveMessage(simpleCallback, e.get());
             }
             while (true) {
                 nng_msleep(1000);
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             sender.startBackgroundListen(8000);
-            auto endpointVector = sender.getSenderEndpointsByType("pairExample");
+            auto endpointVector = sender.getEndpointsByType("pairExample");
             int i = 0;
             while (true) {
                 nng_msleep(1000);
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
                     sm.addMember("temp", i++);
                     sm.addMember("msg", std::string("HELLO WORLD!"));
                     for (const auto &e : *endpointVector) {
-                        e->asyncSendMessage(sm);
+                        sender.castToDataSenderEndpoint(e)->asyncSendMessage(sm);
                     }
 
                 } catch (std::out_of_range &e) {

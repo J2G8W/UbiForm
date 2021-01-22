@@ -35,12 +35,16 @@ private:
     std::map<std::string, void*> startupDataMap;
 
     // Note that we use shared pointers so there can be multiple active pointers, but there memory management is handled automatically
-    std::map<std::string, std::shared_ptr<DataReceiverEndpoint> > idReceiverEndpoints;
-    std::map<std::string, std::shared_ptr<DataSenderEndpoint> > idSenderEndpoints;
+    //std::map<std::string, std::shared_ptr<DataReceiverEndpoint> > idReceiverEndpoints;
+    //std::map<std::string, std::shared_ptr<DataSenderEndpoint> > idSenderEndpoints;
+
+    std::map<std::string, std::shared_ptr<Endpoint>> endpointsById;
+
+    std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<Endpoint> > >> endpointsByType;
 
     // Choice made to also store endpoints by TYPE, for speed of access and other things
-    std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > > typeReceiverEndpoints;
-    std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > > typeSenderEndpoints;
+    //std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > > typeReceiverEndpoints;
+    //std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > > typeSenderEndpoints;
 
 
     std::minstd_rand0 generator;
@@ -146,11 +150,8 @@ public:
      * @return A pointer to a vector of endpoint (we say a pointer so that we can manipulate the vector in BackgroundListener)
      *
      */
-    std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > >
-    getReceiverEndpointsByType(const std::string &endpointType);
+    std::shared_ptr<std::vector<std::shared_ptr<Endpoint>>> getEndpointsByType(const std::string &endpointType);
 
-    std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > >
-    getSenderEndpointsByType(const std::string &endpointType);
     ///@}
 
 
@@ -248,9 +249,14 @@ public:
     std::shared_ptr<PairEndpoint> castToPair(std::shared_ptr<DataSenderEndpoint> e);
 
     PairEndpoint* castToPair(Endpoint *e);
+    std::shared_ptr<PairEndpoint> castToPair(std::shared_ptr<Endpoint> e);
     SubscriberEndpoint* castToSubscriber(Endpoint *e);
+    std::shared_ptr<SubscriberEndpoint> castToSubscriber(std::shared_ptr<Endpoint> e);
+    PublisherEndpoint* castToPublisher(Endpoint *e);
+    std::shared_ptr<PublisherEndpoint> castToPublisher(std::shared_ptr<Endpoint> e);
 
-
+    std::shared_ptr<DataReceiverEndpoint> castToDataReceiverEndpoint(std::shared_ptr<Endpoint>);
+    std::shared_ptr<DataSenderEndpoint> castToDataSenderEndpoint(std::shared_ptr<Endpoint>);
 };
 
 

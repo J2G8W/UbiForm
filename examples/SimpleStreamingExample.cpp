@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
             receiver.getBackgroundRequester().requestRemoteListenThenDial(
                     argv[2], 8000, "receiver",
                     "sender");
-            auto endpoints = receiver.getReceiverEndpointsByType("receiver");
+            auto endpoints = receiver.getEndpointsByType("receiver");
             if(endpoints->empty()){
                 throw std::logic_error("Oops couldn't create connection");
             }
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
             sender.startBackgroundListen(8000);
-            auto endpointVector = sender.getSenderEndpointsByType("sender");
+            auto endpointVector = sender.getEndpointsByType("sender");
             while (endpointVector->empty()){
                 nng_msleep(100);
             }

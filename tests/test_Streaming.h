@@ -22,10 +22,10 @@ TEST(StreamingTests, SendMessage){
     sendComponent.getBackgroundRequester().localListenThenRequestRemoteDial(recvComponentAddress,"streamSender","streamRecv");
 
 
-    std::shared_ptr<DataReceiverEndpoint> uncastRecvEndpoint;
-    std::shared_ptr<DataSenderEndpoint> uncastSendEndpoint;
-    ASSERT_NO_THROW(uncastRecvEndpoint = recvComponent.getReceiverEndpointsByType("streamRecv")->at(0));
-    ASSERT_NO_THROW(uncastSendEndpoint = sendComponent.getSenderEndpointsByType("streamSender")->at(0));
+    std::shared_ptr<Endpoint> uncastRecvEndpoint;
+    std::shared_ptr<Endpoint> uncastSendEndpoint;
+    ASSERT_NO_THROW(uncastRecvEndpoint = recvComponent.getEndpointsByType("streamRecv")->at(0));
+    ASSERT_NO_THROW(uncastSendEndpoint = sendComponent.getEndpointsByType("streamSender")->at(0));
 
     std::shared_ptr<PairEndpoint> recvEndpoint;
     ASSERT_NO_THROW(recvEndpoint = recvComponent.castToPair(uncastRecvEndpoint));

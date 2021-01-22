@@ -43,19 +43,21 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
 
     nng_msleep(300);
 
-    auto senderEndpoints = senderComponent.getSenderEndpointsByType("generatedPublisher");
+    auto senderEndpoints = senderComponent.getEndpointsByType("generatedPublisher");
     ASSERT_GT(senderEndpoints->size(), 0);
-    auto receiverEndpoints = receiverComponent.getReceiverEndpointsByType("generatedSubscriber");
+    auto receiverEndpoints = receiverComponent.getEndpointsByType("generatedSubscriber");
     ASSERT_GT(receiverEndpoints->size(), 0);
 
     // Test simple Async Message
-    senderEndpoints->at(0)->asyncSendMessage(original);
-    auto receiveOriginal = receiverEndpoints->at(0)->receiveMessage();
+    senderComponent.castToDataSenderEndpoint(senderEndpoints->at(0))->asyncSendMessage(original);
+
+    auto subEndpoint = receiverComponent.castToSubscriber(receiverEndpoints->at(0));
+    auto receiveOriginal = subEndpoint->receiveMessage();
 
     ASSERT_EQ(original.getString("msg"), receiveOriginal->getString("msg"));
 
     // Test RequestCloseSocketOfType
-    auto subEndpoint = receiverEndpoints->at(0);
+
     senderComponent.getBackgroundRequester().requestCloseSocketOfType(receiverCompAddress, "generatedSubscriber");
     ASSERT_EQ(receiverEndpoints->size(), 0);
     ASSERT_THROW(subEndpoint->receiveMessage(), SocketOpenError);
@@ -147,18 +149,18 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
                                                                            "genSubscriber", "genPublisher");
 
 
-    auto subscriberEndpoints = receiverComponent.getReceiverEndpointsByType("genSubscriber");
+    auto subscriberEndpoints = receiverComponent.getEndpointsByType("genSubscriber");
     ASSERT_EQ(subscriberEndpoints->size(), 2);
 
-    auto publisherEndpoints = senderComponent.getSenderEndpointsByType("genPublisher");
+    auto publisherEndpoints = senderComponent.getEndpointsByType("genPublisher");
     ASSERT_EQ(publisherEndpoints->size(), 1);
 
     // Test simple message send
     SocketMessage sm;
     sm.addMember("value", 42);
-    publisherEndpoints->at(0)->asyncSendMessage(sm);
+    senderComponent.castToDataSenderEndpoint(publisherEndpoints->at(0))->asyncSendMessage(sm);
 
-    auto receiverMsg = subscriberEndpoints->at(0)->receiveMessage();
+    auto receiverMsg = receiverComponent.castToDataReceiverEndpoint(subscriberEndpoints->at(0))->receiveMessage();
     ASSERT_EQ(receiverMsg->getInteger("value"), 42);
 
     // Test requestEndpointInfo
@@ -335,18 +337,18 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest6) {
             component1.getSelfAddress() + ":" + std::to_string(component1.getBackgroundPort()),
             "PUB", "SUB"));
 
-    ASSERT_EQ(component2.getSenderEndpointsByType("PUB")->size(), 1);
-    ASSERT_EQ(component1.getReceiverEndpointsByType("SUB")->size(), 1);
+    ASSERT_EQ(component2.getEndpointsByType("PUB")->size(), 1);
+    ASSERT_EQ(component1.getEndpointsByType("SUB")->size(), 1);
 
     // Test requestCloseSocketOfId
     auto endpointInfo = component2.getBackgroundRequester().requestEndpointInfo(component1Address);
     ASSERT_GT(endpointInfo.size(), 0);
 
     component2.getBackgroundRequester().requestCloseSocketOfId(component1Address, endpointInfo.at(0)->getString("id"));
-    ASSERT_EQ(component1.getReceiverEndpointsByType("SUB")->size(), 0);
+    ASSERT_EQ(component1.getEndpointsByType("SUB")->size(), 0);
 
     // Test changing Manifest with hanging pointer to socket
-    auto pubEndpoint = component2.getSenderEndpointsByType("PUB")->at(0);
+    auto pubEndpoint = component2.castToDataSenderEndpoint(component2.getEndpointsByType("PUB")->at(0));
     component2.specifyManifest(R"({"name":"TEST1","schemas":{}})");
     ASSERT_THROW(pubEndpoint->listenForConnection("ipc:///tmp/component2", 2000), SocketOpenError);
     SocketMessage sm;

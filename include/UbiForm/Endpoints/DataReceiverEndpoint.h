@@ -109,11 +109,6 @@ public:
      */
     virtual void openEndpoint() = 0;
 
-    /**
-     * Invalidate the endpoint so it can't be opened, or dialed or do anything. (Designed for use when our manifest
-     * has changed and we don't want this endpoint to anything anymore
-     */
-    virtual void invalidateEndpoint() = 0;
 
     virtual ~DataReceiverEndpoint() {
         if (uniqueEndpointAioPointer != nullptr) {

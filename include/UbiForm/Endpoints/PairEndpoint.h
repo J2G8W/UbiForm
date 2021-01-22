@@ -42,9 +42,6 @@ public:
 
     void openEndpoint() override;
 
-    void invalidateEndpoint() override {
-        endpointState = EndpointState::Invalid;
-    }
 
     std::unique_ptr<SocketMessage> receiveStream(std::ostream &outputStream);
 

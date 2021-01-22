@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
 
                 SocketMessage s;
                 int counter = 1;
-                auto publisherEndpoints = component->getSenderEndpointsByType("publisherExample");
+                auto publisherEndpoints = component->getEndpointsByType("publisherExample");
                 while (true) {
                     if (!publisherEndpoints->empty()) {
                         char dateString[30];
@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
                         s.addMember("messagesSent", 1);
                         s.addMember("counter", counter++);
 
-                        publisherEndpoints->at(0)->sendMessage(s);
+                        component->castToDataSenderEndpoint(publisherEndpoints->at(0))->sendMessage(s);
                     }
                     nng_msleep(1000);
                 }
@@ -150,13 +150,14 @@ int main(int argc, char **argv) {
                 component->getResourceDiscoveryConnectionEndpoint().registerWithHub(locationOfRDH);
 
                 std::unique_ptr<SocketMessage> s;
-                auto subscriberEndpoints = component->getReceiverEndpointsByType("subscriberExample");
+                auto subscriberEndpoints = component->getEndpointsByType("subscriberExample");
 
                 std::map<std::string, int> counters;
                 while (true) {
                     for (const auto &endpoint : *subscriberEndpoints) {
-                        s = endpoint->receiveMessage();
-                        std::cout << "Receiving from: " << endpoint->getDialUrl() << std::endl;
+                        auto receiverEndpoint = component->castToDataReceiverEndpoint(endpoint);
+                        s = receiverEndpoint->receiveMessage();
+                        std::cout << "Receiving from: " << receiverEndpoint->getDialUrl() << std::endl;
                         for (const std::string &name: component->getComponentManifest().getReceiverSchema(
                                 "subscriberExample")->getRequired()) {
                             ValueType type = component->getComponentManifest().getReceiverSchema(

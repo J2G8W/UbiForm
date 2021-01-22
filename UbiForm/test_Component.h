@@ -95,6 +95,6 @@ TEST_F(PairBasedComponent, FindEachOther) {
 
     nng_msleep(1000);
     // No throw means that there is in fact a pair connection being created in our component
-    ASSERT_NO_THROW(receiverComponent->getReceiverEndpointsByType("pairExample")->at(0));
-    ASSERT_NO_THROW(senderComponent->getSenderEndpointsByType("pairExample")->at(0));
+    ASSERT_EQ(receiverComponent->getEndpointsByType("pairExample")->size(),1);
+    ASSERT_EQ(senderComponent->getEndpointsByType("pairExample")->size(),1);
 }
