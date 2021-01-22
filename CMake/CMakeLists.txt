@@ -10,6 +10,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 # Set options whether we build tests and examples
 option(BUILD_TESTS "Build test programs" OFF)
 option(BUILD_EXAMPLES "Build examples programs" OFF)
+option(BUILD_SOUND_EXAMPLES "Build sound based examples" OFF)
 
 # Setup nng library
 include_directories(nng-master/include)
@@ -121,6 +122,13 @@ if (BUILD_EXAMPLES)
 	add_executable(simple_stream_example ../examples/SimpleStreamingExample.cpp)
 	target_link_libraries(simple_stream_example UbiForm)
 
+
+
     # Copy over our base JSON files for our examples to use
     file(COPY ../examples/JsonFiles DESTINATION .)
 endif(BUILD_EXAMPLES)
+
+if(BUILD_SOUND_EXAMPLES)
+	add_executable(music_stream ../examples/MusicPlayerExample.cpp)
+	target_link_libraries(music_stream UbiForm sfml-audio)
+endif(BUILD_SOUND_EXAMPLES)
