@@ -21,19 +21,16 @@ private:
 
     ReplyEndpoint replyEndpoint;
     ResourceDiscoveryStore rdStore;
-    int backgroundPort;
+    int backgroundPort = -1;
 
     static void rdBackground(ResourceDiscoveryHubEndpoint *);
 
 public:
     explicit ResourceDiscoveryHubEndpoint(SystemSchemas &ss) : rdStore(ss),
-                                                               replyEndpoint(
-                                                                       ss.getSystemSchema(
-                                                                               SystemSchemaName::generalRDRequest).getInternalSchema(),
-                                                                       ss.getSystemSchema(
-                                                                               SystemSchemaName::generalRDResponse).getInternalSchema(),
-                                                                       "ResourceDiscoveryHub",
-                                                                       "ResourceDiscoveryHub") {}
+    replyEndpoint(ss.getSystemSchema(SystemSchemaName::generalRDRequest).getInternalSchema(),
+                  ss.getSystemSchema(SystemSchemaName::generalRDResponse).getInternalSchema(),
+                  "ResourceDiscoveryHub",
+                  "ResourceDiscoveryHub") {}
 
     /**
      * Start the ResourceDiscoveryHub. In starting it we start a new thread
@@ -43,6 +40,10 @@ public:
      */
     void startResourceDiscover(const std::string &baseAddress, int port);
 
+    /**
+     * Get the port that the RDH is listening on. If not started it returns -1
+     * @return
+     */
     int getBackgroundPort() { return backgroundPort; }
 
     ~ResourceDiscoveryHubEndpoint();

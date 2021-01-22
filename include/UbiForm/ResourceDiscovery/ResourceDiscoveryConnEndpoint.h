@@ -30,16 +30,21 @@ private:
 
 public:
     ResourceDiscoveryConnEndpoint(Component *component, SystemSchemas &ss) : component(component), systemSchemas(ss),
-                                                                             requestEndpoint(ss.getSystemSchema(
-                                                                                     SystemSchemaName::generalRDResponse).getInternalSchema(),
-                                                                                             ss.getSystemSchema(
-                                                                                                     SystemSchemaName::generalRDRequest).getInternalSchema(),
-                                                                                             "ResourceDiscoveryConnection",
-                                                                                             "ResourceDiscoveryConnection") {}
+        requestEndpoint(ss.getSystemSchema(SystemSchemaName::generalRDResponse).getInternalSchema(),
+                        ss.getSystemSchema(SystemSchemaName::generalRDRequest).getInternalSchema(),
+                        "ResourceDiscoveryConnection",
+                        "ResourceDiscoveryConnection") {}
 
 
+    ///@{
+    /**
+     * @name RequestGenerators
+     * @return The generated request
+     */
     std::unique_ptr<SocketMessage> generateRegisterRequest();
-
+    std::unique_ptr<SocketMessage> generateFindBySchemaRequest(const std::string &endpointType,
+                                                               std::map<std::string, std::string> &otherValues);
+    ///@}
     /**
      * Send a request to a ResourceDiscoveryHub at url and if it comes back successfully we register it as a Hub we can talk to.
      * Note that it doesn't throw exceptions, just outputs to cerr
@@ -63,8 +68,6 @@ public:
      */
     std::unique_ptr<ComponentRepresentation> getComponentById(const std::string &url, const std::string &id);
 
-    std::unique_ptr<SocketMessage> generateFindBySchemaRequest(const std::string &endpointType,
-                                                               std::map<std::string, std::string> &otherValues);
 
 
     /**
@@ -114,12 +117,29 @@ public:
      */
     void updateManifestWithHubs();
 
+    /**
+     * Deregister from the hub given. This means we no longer contact the hub
+     */
     void deRegisterFromHub(const std::string &rdhUrl);
 
+    /**
+     * We search for resource discovery hubs by looking for components with background listeners. We then try to connect
+     *  to the given RDHs, when we find 1 we stop as this is a slowwww process. We look for background listeners as each
+     *  component has a background listener but there may just be one RDH on the network, so we are more likely
+     *  to get a positive result
+     */
     void searchForResourceDiscoveryHubs();
 
+    /**
+     * Deregister from the all the hubs we currently have connection to
+     */
     void deRegisterFromAllHubs();
 
+    /**
+     * Tell all hubs that we have added a listenerPort for the given endpoint at port
+     * @param endpointType - The endpoint type to update
+     * @param port - The new port
+     */
     void addListenerPortForAllHubs(const std::string& endpointType, int port);
 };
 

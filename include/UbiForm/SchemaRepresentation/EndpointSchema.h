@@ -169,6 +169,11 @@ public:
      */
     std::string stringify();
 
+    /**
+     * This destructor has some complexity as our EndpointSchemas sometimes own their own data.
+     * Hence if the responsible for JSON flag is set, we cast our Value back to a Document and delete it, and if not
+     * we just leave it as is
+     */
     ~EndpointSchema() {
         delete schema;
         if (responsibleForJson) {

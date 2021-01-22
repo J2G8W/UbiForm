@@ -300,6 +300,7 @@ void ResourceDiscoveryConnEndpoint::deRegisterFromAllHubs() {
     }
 }
 
+// TODO - think about making this a background thead process
 void ResourceDiscoveryConnEndpoint::addListenerPortForAllHubs(const std::string &endpointType, int port) {
     SocketMessage request;
     request.addMember("request",RESOURCE_DISCOVERY_NOTIFY_SOCKET_LISTEN);

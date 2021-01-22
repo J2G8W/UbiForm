@@ -7,6 +7,10 @@
 
 class Component;
 
+/**
+ * This class is used to send requests to a background listener on another component. Note that we will directly throw
+ * errors from this if the request does not work. Look at sendRequest() to see what errors can be thrown.
+ */
 class BackgroundRequester {
     Component *component;
     SystemSchemas &systemSchemas;
@@ -25,12 +29,9 @@ class BackgroundRequester {
 
 public:
     BackgroundRequester(Component *c, SystemSchemas &ss) : component(c), systemSchemas(ss),
-                                                           requestEndpoint(ss.getSystemSchema(
-                                                                   SystemSchemaName::generalEndpointResponse).getInternalSchema(),
-                                                                           ss.getSystemSchema(
-                                                                                   SystemSchemaName::generalEndpointRequest).getInternalSchema(),
-                                                                           "BackgroundRequester",
-                                                                           "BackgroundRequester") {}
+    requestEndpoint(ss.getSystemSchema(SystemSchemaName::generalEndpointResponse).getInternalSchema(),
+                    ss.getSystemSchema(SystemSchemaName::generalEndpointRequest).getInternalSchema(),
+                    "BackgroundRequester","BackgroundRequester") {}
 
     void requestRemoteListenThenDial(const std::string &locationOfRemote, int remotePort,
                                      const std::string &localEndpointType,
@@ -49,6 +50,9 @@ public:
                                              const std::string &remoteEndpointType,
                                              const std::string &remoteAddress, int remotePort);
 
+    void request3rdPartyListenThenRemoteDial(const std::string &listenAddress, const std::string &listenEndpointType,
+                                             const std::string &dialEndpointType, const std::string &dialerAddress);
+
     int requestCreateRDH(const std::string &componentUrl);
 
     void requestCloseRDH(const std::string &componentUrl);
@@ -66,7 +70,6 @@ public:
                                const std::string &endpointType, EndpointSchema *receiverSchema,
                                EndpointSchema *sendSchema);
 
-
     void requestCloseSocketOfType(const std::string &componentUrl, const std::string &endpointType);
 
     std::vector<std::unique_ptr<SocketMessage>> requestEndpointInfo(const std::string &componentUrl);
@@ -74,9 +77,6 @@ public:
     void requestCloseSocketOfId(const std::string &componentUrl, const std::string &endpointId);
 
     std::unique_ptr<ComponentManifest> requestComponentManifest(const std::string &componentUrl);
-
-    void request3rdPartyListenThenRemoteDial(const std::string &listenAddress, const std::string &listenEndpointType,
-                                             const std::string &dialEndpointType, const std::string &dialerAddress);
 };
 
 

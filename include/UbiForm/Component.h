@@ -25,6 +25,10 @@
 #define DEFAULT_RESOURCE_DISCOVERY_PORT 7999
 
 
+/**
+ * The central concept to UbiForm. Each process should only need one component at any point and all network operations should
+ * go via the component (using the getters we access the actual function we want).
+ */
 class Component {
 private:
     SystemSchemas systemSchemas;
@@ -242,12 +246,36 @@ public:
      */
     void closeAndInvalidateAllSockets();
 
-    /// Pretty much everything should stop once component is deleted
+
+    /**
+     * This destructor takes some time as it gracefully closes each endpoint. This requires a short period of time as we
+     * need to a) Close the communications and b) Join any background thread that was running
+     */
     ~Component();
 
+    /**
+     * @brief This can be used to run the given function whenever the given endpoint is CONNECTED (that is it dials or listens).
+     * It runs as a std::thread in the background and is cleanly handled IF the given the function does
+     * not block on non-network calls. Additionally the function should not throw any exceptions as these are incredibly
+     * difficult to diagnose, so the suggestion is to wrap any work in try/catch for good debugging.
+     *
+     * If there is not an endpointType in our manifest then this function does nothing and if there is already a function
+     * registered then we overwrite this.
+     * @param endpointType - The type of endpoint we want to attach to
+     * @param startupFunction - The function we want to call whenever the endpoint connects. It receives a pointer
+     * to the created endpoint and the startupData which is provided
+     * @param startupData - Some arbitrary data which is passed as extra to the startup function (can be nullptr)
+     */
     void registerStartupFunction(const std::string &endpointType, endpointStartupFunction startupFunction, void *startupData);
 
 
+    /**
+     * @name Casting operations
+     * We give the ability for an endpoint to be DYNAMICALLY casted to the given type. We check that there shouldn't be an
+     * error on casting by looking at our manifest and endpoint SocketType
+     * @throws AccessError if the endpoint is the wrong type
+     */
+    ///{
     PairEndpoint* castToPair(Endpoint *e);
     std::shared_ptr<PairEndpoint> castToPair(std::shared_ptr<Endpoint> e);
 
@@ -256,6 +284,7 @@ public:
 
     std::shared_ptr<DataSenderEndpoint> castToDataSenderEndpoint(std::shared_ptr<Endpoint>);
     DataSenderEndpoint* castToDataSenderEndpoint(Endpoint*);
+    ///}
 };
 
 

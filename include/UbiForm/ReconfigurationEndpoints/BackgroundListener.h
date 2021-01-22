@@ -30,6 +30,8 @@ private:
 
     std::unique_ptr<SocketMessage> handle3rdPartyRemoteListenThenDial(SocketMessage &request);
 
+    std::unique_ptr<SocketMessage> handle3rdPartyLocalListenThenRemoteDial(SocketMessage &request);
+
     std::unique_ptr<SocketMessage> handleChangeEndpointRequest(SocketMessage &request);
 
     std::unique_ptr<SocketMessage> handleCreateRDHRequest(SocketMessage &request);
@@ -81,7 +83,6 @@ public:
 
     ~BackgroundListener();
 
-    std::unique_ptr<SocketMessage> handle3rdPartyLocalListenThenRemoteDial(SocketMessage &request);
 };
 
 

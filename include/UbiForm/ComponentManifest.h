@@ -210,9 +210,17 @@ public:
      */
     bool hasListenPort(const std::string &endpointType);
 
+    /**
+     * Simply deletes the underlying JSON object
+     */
     ~ComponentManifest();
 
 
+    /**
+     * Returns true if the manifest has an endpoint of the given type
+     * @param endpointType - the endpoint requested
+     * @return
+     */
     bool hasEndpoint(const std::string &endpointType);
 };
 

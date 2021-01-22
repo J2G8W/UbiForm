@@ -42,6 +42,7 @@ enum ConnectionType {
     IPC, TCP, LocalTCP
 };
 
+/// Represents the state an endpoint is in
 enum EndpointState {
     Invalid, Closed, Open, Dialed, Listening
 };
@@ -49,6 +50,8 @@ enum EndpointState {
 std::string convertEndpointState(EndpointState es);
 
 class Endpoint;
+/// This represents the type of functions which can be called on Endpoint startup. We give a pointer to the endpoint which
+/// has been started and a pointer to some arbitrary data structure which the developer can specify
 typedef void (*endpointStartupFunction)(Endpoint*, void *);
 
 
