@@ -56,6 +56,8 @@ protected:
     EndpointState endpointState = EndpointState::Closed;
     std::string dialUrl = "";
 
+    std::unique_ptr<SocketMessage> rawReceiveMessage();
+
 public:
     explicit DataReceiverEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
                                   SocketType socketType, const std::string &endpointType) :

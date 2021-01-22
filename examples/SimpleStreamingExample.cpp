@@ -12,8 +12,11 @@ int main(int argc, char **argv) {
     if (argc >= 2) {
         if (strcmp(argv[1], RECEIVER) == 0 && argc>=3) {
             Component receiver;
-            std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
-            receiver.getComponentManifest().addEndpoint(SocketType::Pair,"receiver",es,es);
+            std::shared_ptr<EndpointSchema> recv = std::make_shared<EndpointSchema>();
+            recv->addProperty("extraInfo",ValueType::String);
+            recv->addRequired("extraInfo");
+            std::shared_ptr<EndpointSchema> empty = std::make_shared<EndpointSchema>();
+            receiver.getComponentManifest().addEndpoint(SocketType::Pair,"receiver",recv,empty);
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
@@ -30,10 +33,12 @@ int main(int argc, char **argv) {
             auto t1 = std::chrono::high_resolution_clock::now();
             std::shared_ptr<PairEndpoint> pair = receiver.castToPair(endpoints->at(0));
             if(argc == 3) {
-                pair->receiveStream(std::cout);
+                auto extraInfo = pair->receiveStream(std::cout);
+                std::cout << "Extra info: " << extraInfo->getString("extraInfo") << std::endl;
             }else{
                 f.open(argv[3], std::fstream::binary | std::fstream::out);
-                pair->receiveStream(f);
+                auto extraInfo = pair->receiveStream(f);
+                std::cout << "Extra info: " << extraInfo->getString("extraInfo") << std::endl;
             }
             while (!pair->getReceiverThreadEnded()) {
                 nng_msleep(1000);
@@ -55,8 +60,11 @@ int main(int argc, char **argv) {
         } else if (strcmp(argv[1], SENDER) == 0) {
             Component sender;
 
-            std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();;
-            sender.getComponentManifest().addEndpoint(SocketType::Pair,"sender",es,es);
+            std::shared_ptr<EndpointSchema> send = std::make_shared<EndpointSchema>();
+            send->addProperty("extraInfo",ValueType::String);
+            send->addRequired("extraInfo");
+            std::shared_ptr<EndpointSchema> empty = std::make_shared<EndpointSchema>();
+            sender.getComponentManifest().addEndpoint(SocketType::Pair,"sender",empty,send);
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
@@ -67,15 +75,18 @@ int main(int argc, char **argv) {
             }
             auto pair = sender.castToPair(endpointVector->at(0));
             std::ifstream file;
+
+            SocketMessage initalMsg;
+            initalMsg.addMember("extraInfo","Stream incoming");
             if(argc == 2) {
-                pair->sendStream(std::cin, 3, true);
+                pair->sendStream(std::cin, 3, true, initalMsg);
             }else{
                 file.open(argv[2], std::fstream::binary | std::fstream::in);
                 if(!file.good()){
                     std::cerr << "Unable to open file " << argv[2] << std::endl;
                     exit(1);
                 }
-                pair->sendStream(file, 10002, false);
+                pair->sendStream(file, 10002, false, initalMsg);
             }
             while (!pair->getSenderThreadEnded()) {
                 nng_msleep(1000);

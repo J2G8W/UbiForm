@@ -1,15 +1,18 @@
 #include "../UbiForm/Utilities/base64.h"
 
+void sendStream(PairEndpoint* sendEndpoint, std::fstream* inputFile){
+    SocketMessage emptyMsg;
+    sendEndpoint->sendStream(*inputFile, 5001, false, emptyMsg);
+}
 
 TEST(StreamingTests, SendMessage){
     // Use tcp as ipc doesn't guarantee ordering
     Component sendComponent("tcp://127.0.0.1");
     Component recvComponent("tcp://127.0.0.2");
-    std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
-    es->addProperty("bytes",ValueType::String);
+    std::shared_ptr<EndpointSchema> empty = std::make_shared<EndpointSchema>();
 
-    sendComponent.getComponentManifest().addEndpoint(SocketType::Pair,"streamSender", es, es);
-    recvComponent.getComponentManifest().addEndpoint(SocketType::Pair, "streamRecv",es, es);
+    sendComponent.getComponentManifest().addEndpoint(SocketType::Pair, "streamSender", empty, empty);
+    recvComponent.getComponentManifest().addEndpoint(SocketType::Pair, "streamRecv", empty, empty);
 
     sendComponent.startBackgroundListen();
     recvComponent.startBackgroundListen();
@@ -39,7 +42,8 @@ TEST(StreamingTests, SendMessage){
     int fileSize = fs.tellg();
     fs.seekg(0, std::fstream::beg);
 
-    sendEndpoint->sendStream(fs, 5001, false);
+    // We start a new thread to send due to blocking nature of our inital message
+    std::thread sendThread(sendStream,sendEndpoint.get(),&fs);
     std::fstream out;
     out.open("receive.jpg",std::fstream::out|std::fstream::binary);
 
@@ -49,5 +53,5 @@ TEST(StreamingTests, SendMessage){
     }
 
     ASSERT_EQ(fileSize,(int) out.tellp() - 1);
+    sendThread.join();
 }
-

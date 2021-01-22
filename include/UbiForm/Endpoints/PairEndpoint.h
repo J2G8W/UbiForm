@@ -48,7 +48,8 @@ public:
 
     bool getReceiverThreadEnded(){return receiverThreadEnded;}
 
-    void sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty);
+    void sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty,
+                    SocketMessage &initialMessage);
     bool getSenderThreadEnded(){return senderThreadEnded;}
 
 

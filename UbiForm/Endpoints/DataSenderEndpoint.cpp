@@ -4,6 +4,11 @@
 
 // Send the SocketMessage object on our socket after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(SocketMessage &s) {
+    senderSchema->validate(s);
+    rawSendMessage(s);
+}
+
+void DataSenderEndpoint::rawSendMessage(SocketMessage &s) {
     if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed)) {
         throw SocketOpenError("Could not send message, in state: " + convertEndpointState(endpointState),
                               socketType, endpointIdentifier);
@@ -13,8 +18,6 @@ void DataSenderEndpoint::sendMessage(SocketMessage &s) {
     // Effectively treat this as cast, as the pointer is still to stack memory
     const char *buffer = messageTextObject.c_str();
 
-
-    senderSchema->validate(s);
     if ((rv = nng_send(*senderSocket, (void *) buffer, strlen(buffer) + 1, 0)) != 0) {
         throw NngError(rv, "nng_send");
     }

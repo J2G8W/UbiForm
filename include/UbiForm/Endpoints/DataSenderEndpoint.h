@@ -36,6 +36,8 @@ protected:
 
     EndpointState endpointState = EndpointState::Closed;
 
+    void rawSendMessage(SocketMessage& sm);
+
 public:
     explicit DataSenderEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
                                 SocketType socketType, const std::string &endpointType) :

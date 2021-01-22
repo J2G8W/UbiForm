@@ -4,6 +4,11 @@
 // Receive a message, validate it against the socketManifest and return a pointer to the object.
 // Use smart pointers to avoid complex memory management
 std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
+    auto msg = rawReceiveMessage();
+    receiverSchema->validate(*msg);
+    return msg;
+}
+std::unique_ptr<SocketMessage> DataReceiverEndpoint::rawReceiveMessage() {
     if (!(endpointState == EndpointState::Dialed || endpointState == EndpointState::Listening)) {
         throw SocketOpenError("Could not receive message, in state: " + convertEndpointState(endpointState) ,
                               socketType, endpointIdentifier);
@@ -13,11 +18,8 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
 
     size_t sz;
 
-
     if ((rv = nng_recv(*receiverSocket, &buffer, &sz, NNG_FLAG_ALLOC)) == 0) {
         std::unique_ptr<SocketMessage> receivedMessage = std::make_unique<SocketMessage>(buffer);
-
-        receiverSchema->validate(*receivedMessage);
 
         nng_free(buffer, sz);
         return receivedMessage;
@@ -106,6 +108,3 @@ void DataReceiverEndpoint::closeEndpoint() {
         endpointState = EndpointState::Closed;
     }
 }
-
-
-

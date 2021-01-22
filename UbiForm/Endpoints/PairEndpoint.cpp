@@ -89,17 +89,27 @@ void PairEndpoint::dialConnection(const char *url) {
 
 
 std::unique_ptr<SocketMessage> PairEndpoint::receiveStream(std::ostream &outputStream) {
+    std::unique_ptr<SocketMessage> initialMsg;
+
+    // Throws things
+    initialMsg = receiveMessage();
+    SocketMessage sm;
+    sm.addMember("ready",true);
+    rawSendMessage(sm);
+
     receiverThreadNeedsClosing = true;
     receiverThreadEnded = false;
     receiverStreamingThread = std::thread(streamReceiveData, this, &outputStream);
-    return std::unique_ptr<SocketMessage>();
+
+
+    return initialMsg;
 }
 
 void PairEndpoint::streamReceiveData(PairEndpoint *endpoint, std::ostream *stream) {
     while(true) {
         std::unique_ptr<SocketMessage> message;
         try {
-            message = endpoint->receiveMessage();
+            message = endpoint->rawReceiveMessage();
         }catch(std::logic_error &e){
             std::cerr << e.what() << std::endl;
             break;
@@ -113,8 +123,15 @@ void PairEndpoint::streamReceiveData(PairEndpoint *endpoint, std::ostream *strea
     endpoint->receiverThreadEnded = true;
 }
 
-void PairEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty) {
+void PairEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty,
+                              SocketMessage &initialMessage) {
     if(blockSize % 3 != 0){throw std::logic_error("Block size must be a multiple of 3");}
+
+    sendMessage(initialMessage);
+    auto reply = rawReceiveMessage();
+    if(!(reply->hasMember("ready") && reply->getBoolean("ready"))){
+        throw std::logic_error("Unable to start sending stream");
+    }
 
     senderThreadEnded = false;
     senderThreadNeedsClosing = true;
@@ -156,4 +173,5 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
         }
     }
     endpoint->senderThreadEnded = true;
+    std::cout << "Streaming ended" << std::endl;
 }
