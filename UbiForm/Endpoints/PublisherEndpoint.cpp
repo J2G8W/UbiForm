@@ -3,12 +3,12 @@
 #include "../../include/UbiForm/Endpoints/PublisherEndpoint.h"
 
 void PublisherEndpoint::openEndpoint() {
-    if (DataSenderEndpoint::endpointState == EndpointState::Closed) {
+    if (endpointState == EndpointState::Closed) {
         int rv;
         if ((rv = nng_pub0_open(senderSocket)) != 0) {
             throw NngError(rv, "Creation of publisher socket");
         } else {
-            DataSenderEndpoint::endpointState = EndpointState::Open;
+            endpointState = EndpointState::Open;
         }
     } else {
         throw SocketOpenError("Can't open endpoint", DataSenderEndpoint::socketType,
@@ -20,15 +20,15 @@ void PublisherEndpoint::openEndpoint() {
 PublisherEndpoint::~PublisherEndpoint() {
     // We have to check if we ever initialised the receiverSocket before trying to close it
     if (senderSocket != nullptr) {
-        if (!(DataSenderEndpoint::endpointState == EndpointState::Closed ||
-            DataSenderEndpoint::endpointState == EndpointState::Invalid)) {
+        if (!(endpointState == EndpointState::Closed ||
+            endpointState == EndpointState::Invalid)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
             } else {
                 std::cout << "Publisher socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
             }
-            DataSenderEndpoint::endpointState = EndpointState::Invalid;
+            endpointState = EndpointState::Invalid;
         }
     }
     // Note that we only delete once as the senderSocket points to the same place as the receiverSocket

@@ -8,11 +8,12 @@
 #include "../SocketMessage.h"
 
 #include "../SchemaRepresentation/EndpointSchema.h"
+#include "Endpoint.h"
 
 /**
  * Class used to represent our endpoints which send data.
  */
-class DataSenderEndpoint {
+class DataSenderEndpoint: virtual public Endpoint{
 private:
     /**
      * This is called once we are happy the message has been properly sent, and we cleanup the mess
@@ -34,7 +35,6 @@ protected:
     std::shared_ptr<EndpointSchema> senderSchema;
     int listenPort = -1;
 
-    EndpointState endpointState = EndpointState::Closed;
 
     void rawSendMessage(SocketMessage& sm);
 
@@ -88,7 +88,7 @@ public:
 
     SocketType getSenderSocketType(){return socketType;}
 
-    EndpointState getSenderState(){return endpointState;}
+
 
     virtual void openEndpoint() = 0;
 

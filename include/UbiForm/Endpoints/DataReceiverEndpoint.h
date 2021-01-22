@@ -8,13 +8,14 @@
 #include <thread>
 #include "../SocketMessage.h"
 #include "../SchemaRepresentation/EndpointSchema.h"
+#include "Endpoint.h"
 
 /**
  * This class represents a data receiver in our design. I have made the choice that it is only able to dial, not listen
  * as this fits with the IOT scope best. The receive of messages is the same no matter the type of endpoint BUT our dialing
  * process is different, hence why this is extended in the child classes
  */
-class DataReceiverEndpoint {
+class DataReceiverEndpoint : virtual public Endpoint {
 private:
 
     static void asyncCallback(void *data);
@@ -53,7 +54,7 @@ protected:
     // Schema is shared with the parent that houses this endpoint
     std::shared_ptr<EndpointSchema> receiverSchema;
 
-    EndpointState endpointState = EndpointState::Closed;
+
     std::string dialUrl = "";
 
     std::unique_ptr<SocketMessage> rawReceiveMessage();

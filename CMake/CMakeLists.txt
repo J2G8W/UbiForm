@@ -29,7 +29,7 @@ set(endpointFiles ../include/UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm
         ../UbiForm/Endpoints/SubscriberEndpoint.cpp ../include/UbiForm/Endpoints/SubscriberEndpoint.h
         ../UbiForm/Endpoints/PublisherEndpoint.cpp ../include/UbiForm/Endpoints/PublisherEndpoint.h
 		../UbiForm/Endpoints/RequestEndpoint.cpp ../include/UbiForm/Endpoints/RequestEndpoint.h
-		../UbiForm/Endpoints/ReplyEndpoint.cpp ../include/UbiForm/Endpoints/ReplyEndpoint.h)
+		../UbiForm/Endpoints/ReplyEndpoint.cpp ../include/UbiForm/Endpoints/ReplyEndpoint.h ../UbiForm/Endpoints/Endpoint.cpp ../UbiForm/Endpoints/Endpoint.h)
 
 set(reconfigEndpoints ../include/UbiForm/ReconfigurationEndpoints/BackgroundListener.h ../UbiForm/ReconfigEndpoints/BackgroundListener.cpp
 		../UbiForm/ReconfigEndpoints/BackgroundRequester.cpp ../include/UbiForm/ReconfigurationEndpoints/BackgroundRequester.h)

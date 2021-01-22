@@ -25,7 +25,7 @@ public:
 
 
     void invalidateEndpoint() override {
-        DataReceiverEndpoint::endpointState = EndpointState::Invalid;
+        endpointState = EndpointState::Invalid;
     }
 
     ~SubscriberEndpoint();

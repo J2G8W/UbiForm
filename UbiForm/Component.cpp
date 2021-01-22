@@ -240,7 +240,7 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
         if(getSenderEndpointsByType(endpointType)->empty()){
             createNewEndpoint(endpointType,socketId);
         } else {
-            EndpointState senderState = getSenderEndpointsByType(endpointType)->at(0)->getSenderState();
+            EndpointState senderState = getSenderEndpointsByType(endpointType)->at(0)->getEndpointState();
             switch (senderState) {
                 case Closed:
                     getSenderEndpointsByType(endpointType)->at(0)->openEndpoint();
@@ -264,7 +264,7 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
                 "Couldn't make endpoint of type " + endpointType);
     }
 
-    if(e->getSenderState() != EndpointState::Listening) {
+    if(e->getEndpointState() != EndpointState::Listening) {
         int rv = 1;
         std::string url;
         while (rv != 0) {

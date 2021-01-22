@@ -13,18 +13,15 @@
 PairEndpoint::~PairEndpoint() {
     // We have to check if we ever initialised the receiverSocket before trying to close it
     if (senderSocket != nullptr) {
-        if (!(DataReceiverEndpoint::endpointState == EndpointState::Closed ||
-             DataReceiverEndpoint::endpointState == EndpointState::Invalid) &&
-            !(DataSenderEndpoint::endpointState == EndpointState::Closed ||
-             DataSenderEndpoint::endpointState == EndpointState::Invalid)) {
+        if (!(endpointState == EndpointState::Closed ||
+             endpointState == EndpointState::Invalid)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
             } else {
                 std::cout << "Pair socket " << DataSenderEndpoint::endpointIdentifier << " closed" << std::endl;
             }
-            DataSenderEndpoint::endpointState = EndpointState::Invalid;
-            DataReceiverEndpoint::endpointState = EndpointState::Invalid;
+            endpointState = EndpointState::Invalid;
         }
     }
     if(receiverThreadNeedsClosing){
@@ -39,9 +36,7 @@ PairEndpoint::~PairEndpoint() {
 
 void PairEndpoint::closeEndpoint() {
     DataSenderEndpoint::closeEndpoint();
-    if (DataReceiverEndpoint::endpointState != EndpointState::Invalid) {
-        DataReceiverEndpoint::endpointState = EndpointState::Closed;
-    }
+
     if(receiverThreadNeedsClosing){
         receiverStreamingThread.join();
         receiverThreadNeedsClosing = false;
@@ -53,14 +48,12 @@ void PairEndpoint::closeEndpoint() {
 }
 
 void PairEndpoint::openEndpoint() {
-    if (DataReceiverEndpoint::endpointState == EndpointState::Closed &&
-        DataSenderEndpoint::endpointState == EndpointState::Closed) {
+    if (endpointState == EndpointState::Closed) {
         int rv;
         if ((rv = nng_pair0_open(senderSocket)) != 0) {
             throw NngError(rv, "Making pair connection");
         } else {
-            DataSenderEndpoint::endpointState = EndpointState::Open;
-            DataReceiverEndpoint::endpointState = EndpointState::Open;
+            endpointState = EndpointState::Open;
         }
         // Use the same socket for sending and receiving
         receiverSocket = senderSocket;
@@ -76,15 +69,11 @@ void PairEndpoint::listenForConnection(const char *base, int port) {
 
 int PairEndpoint::listenForConnectionWithRV(const char *base, int port) {
     int rv = DataSenderEndpoint::listenForConnectionWithRV(base, port);
-    if (rv == 0) {
-        DataReceiverEndpoint::endpointState = EndpointState::Listening;
-    }
     return rv;
 }
 
 void PairEndpoint::dialConnection(const char *url) {
     DataReceiverEndpoint::dialConnection(url);
-    DataSenderEndpoint::endpointState = EndpointState::Dialed;
 }
 
 
@@ -142,7 +131,7 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
                                   bool holdWhenStreamEmpty) {
     char bytesToEncode[blockSize];
     int numBytes;
-    while(endpoint->DataSenderEndpoint::endpointState == EndpointState::Dialed || endpoint->DataSenderEndpoint::endpointState == EndpointState::Listening) {
+    while(endpoint->endpointState == EndpointState::Dialed || endpoint->endpointState == EndpointState::Listening) {
         stream->read(bytesToEncode, blockSize);
         numBytes = stream->gcount();
 

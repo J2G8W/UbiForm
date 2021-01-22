@@ -21,7 +21,7 @@ public:
     void openEndpoint() override;
 
     void invalidateEndpoint() override {
-        DataSenderEndpoint::endpointState = EndpointState::Invalid;
+        endpointState = EndpointState::Invalid;
     }
 
     ~PublisherEndpoint();
