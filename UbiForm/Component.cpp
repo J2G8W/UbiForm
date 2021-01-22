@@ -105,32 +105,21 @@ void Component::createNewEndpoint(const std::string &endpointType, const std::st
 
     switch (socketType) {
         case Pair: {
-            auto pe = std::make_shared<PairEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc,extraData);
-            receiverEndpoint = pe;
-            senderEndpoint = pe;
-            endpoint = pe;
+            endpoint = std::make_shared<PairEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc,extraData);
             break;
         }
         case Publisher:
-            senderEndpoint = std::make_shared<PublisherEndpoint>(sendSchema, endpointType, endpointId, startupFunc, extraData);
-            endpoint = senderEndpoint;
+            endpoint = std::make_shared<PublisherEndpoint>(sendSchema, endpointType, endpointId, startupFunc, extraData);
             break;
         case Subscriber:
-            receiverEndpoint = std::make_shared<SubscriberEndpoint>(recvSchema, endpointType, endpointId, startupFunc, extraData);
-            endpoint = receiverEndpoint;
+            endpoint = std::make_shared<SubscriberEndpoint>(recvSchema, endpointType, endpointId, startupFunc, extraData);
             break;
         case Reply: {
-            auto pe = std::make_shared<ReplyEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc, extraData);
-            receiverEndpoint = pe;
-            senderEndpoint = pe;
-            endpoint = pe;
+            endpoint = std::make_shared<ReplyEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc, extraData);
             break;
         }
         case Request: {
-            auto pe = std::make_shared<RequestEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc, extraData);
-            receiverEndpoint = pe;
-            senderEndpoint = pe;
-            endpoint = pe;
+            endpoint = std::make_shared<RequestEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc, extraData);
             break;
         }
     }
@@ -144,22 +133,23 @@ void Component::createNewEndpoint(const std::string &endpointType, const std::st
 }
 
 
-// GET OUR ENDPOINTS BY ID
+
 std::shared_ptr<DataReceiverEndpoint> Component::getReceiverEndpointById(const std::string &id) {
+    return castToDataReceiverEndpoint(getEndpointById(id));
+}
+
+std::shared_ptr<DataSenderEndpoint> Component::getSenderEndpointById(const std::string &id) {
+    return castToDataSenderEndpoint(getEndpointById(id));
+}
+
+std::shared_ptr<Endpoint> Component::getEndpointById(const std::string &id) {
     try {
-        return castToDataReceiverEndpoint(endpointsById.at(id));
+        return endpointsById.at(id);
     } catch (std::out_of_range &e) {
         throw;
     }
 }
 
-std::shared_ptr<DataSenderEndpoint> Component::getSenderEndpointById(const std::string &id) {
-    try {
-        return castToDataSenderEndpoint(endpointsById.at(id));
-    } catch (std::out_of_range &e) {
-        throw;
-    }
-}
 
 std::shared_ptr<std::vector<std::shared_ptr<Endpoint> > >
 Component::getEndpointsByType(const std::string& endpointType){
@@ -422,24 +412,6 @@ Component::registerStartupFunction(const std::string &endpointType, endpointStar
     }
 }
 
-
-
-std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<DataReceiverEndpoint> e) {
-    if(componentManifest.getSocketType(e->getEndpointType()) == PAIR && e->getEndpointSocketType() == SocketType::Pair){
-        return std::static_pointer_cast<PairEndpoint>(e);
-    }else{
-        throw AccessError("Endpoint not a pair");
-    }
-}
-
-std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<DataSenderEndpoint> e) {
-    if(componentManifest.getSocketType(e->getEndpointType()) == PAIR && e->getEndpointSocketType() == SocketType::Pair){
-        return std::static_pointer_cast<PairEndpoint>(e);
-    }else{
-        throw AccessError("Endpoint not a pair");
-    }
-}
-
 PairEndpoint *Component::castToPair(Endpoint *e) {
     if(componentManifest.getSocketType(e->getEndpointType()) == PAIR && e->getEndpointSocketType() == SocketType::Pair){
         return dynamic_cast<PairEndpoint*>(e);
@@ -448,21 +420,37 @@ PairEndpoint *Component::castToPair(Endpoint *e) {
     }
 }
 
-SubscriberEndpoint *Component::castToSubscriber(Endpoint *e) {
-    if(componentManifest.getSocketType(e->getEndpointType()) == SUBSCRIBER && e->getEndpointSocketType() == SocketType::Subscriber){
-        return dynamic_cast<SubscriberEndpoint*>(e);
-    }else{
-        throw AccessError("Endpoint not a subscriber");
+std::shared_ptr<DataReceiverEndpoint> Component::castToDataReceiverEndpoint(std::shared_ptr<Endpoint> e) {
+    std::string type = componentManifest.getSocketType(e->getEndpointType());
+    SocketType socketType = e->getEndpointSocketType();
+    if(type != convertFromSocketType(socketType)){throw AccessError("Manifest doesn't align with endpoint type");}
+    switch(socketType){
+        case Pair:
+        case Subscriber:
+        case Reply:
+        case Request:
+            return std::dynamic_pointer_cast<DataReceiverEndpoint>(e);
+        case Publisher:
+        default:
+            throw AccessError("Not a valid data receiver");
     }
 }
 
-std::shared_ptr<DataReceiverEndpoint> Component::castToDataReceiverEndpoint(std::shared_ptr<Endpoint> e) {
-    // TODO - add safety
-    return std::dynamic_pointer_cast<DataReceiverEndpoint>(e);
-}
-
 std::shared_ptr<DataSenderEndpoint> Component::castToDataSenderEndpoint(std::shared_ptr<Endpoint> e) {
-    return std::dynamic_pointer_cast<DataSenderEndpoint>(e);
+    std::string type = componentManifest.getSocketType(e->getEndpointType());
+    SocketType socketType = e->getEndpointSocketType();
+    if(type != convertFromSocketType(socketType)){throw AccessError("Manifest doesn't align with endpoint type");}
+    switch(socketType){
+        case Pair:
+        case Publisher:
+
+        case Reply:
+        case Request:
+            return std::dynamic_pointer_cast<DataSenderEndpoint>(e);
+        case Subscriber:
+        default:
+            throw AccessError("Not a valid data receiver");
+    }
 }
 
 std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<Endpoint> e) {
@@ -473,29 +461,36 @@ std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<Endpoint> e)
     }
 }
 
-std::shared_ptr<SubscriberEndpoint> Component::castToSubscriber(std::shared_ptr<Endpoint> e) {
-    if(componentManifest.getSocketType(e->getEndpointType()) == SUBSCRIBER && e->getEndpointSocketType() == SocketType::Subscriber){
-        return std::dynamic_pointer_cast<SubscriberEndpoint>(e);
-    }else{
-        throw AccessError("Endpoint not a pair");
+DataReceiverEndpoint *Component::castToDataReceiverEndpoint(Endpoint *e) {
+    std::string type = componentManifest.getSocketType(e->getEndpointType());
+    SocketType socketType = e->getEndpointSocketType();
+    if(type != convertFromSocketType(socketType)){throw AccessError("Manifest doesn't align with endpoint type");}
+    switch(socketType){
+        case Pair:
+        case Subscriber:
+        case Reply:
+        case Request:
+            return dynamic_cast<DataReceiverEndpoint*>(e);
+        case Publisher:
+        default:
+            throw AccessError("Not a valid data receiver");
     }
 }
 
-PublisherEndpoint *Component::castToPublisher(Endpoint *e) {
-    if(componentManifest.getSocketType(e->getEndpointType()) == PUBLISHER && e->getEndpointSocketType() == SocketType::Publisher){
-        return dynamic_cast<PublisherEndpoint*>(e);
-    }else{
-        throw AccessError("Endpoint not a subscriber");
+DataSenderEndpoint *Component::castToDataSenderEndpoint(Endpoint *e) {
+    std::string type = componentManifest.getSocketType(e->getEndpointType());
+    SocketType socketType = e->getEndpointSocketType();
+    if(type != convertFromSocketType(socketType)){throw AccessError("Manifest doesn't align with endpoint type");}
+    switch(socketType){
+        case Pair:
+        case Publisher:
+
+        case Reply:
+        case Request:
+            return dynamic_cast<DataSenderEndpoint*>(e);
+        case Subscriber:
+        default:
+            throw AccessError("Not a valid data receiver");
     }
 }
-
-std::shared_ptr<PublisherEndpoint> Component::castToPublisher(std::shared_ptr<Endpoint> e) {
-    if(componentManifest.getSocketType(e->getEndpointType()) == PUBLISHER && e->getEndpointSocketType() == SocketType::Publisher){
-        return std::dynamic_pointer_cast<PublisherEndpoint>(e);
-    }else{
-        throw AccessError("Endpoint not a pair");
-    }
-}
-
-
 

@@ -51,7 +51,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
     // Test simple Async Message
     senderComponent.castToDataSenderEndpoint(senderEndpoints->at(0))->asyncSendMessage(original);
 
-    auto subEndpoint = receiverComponent.castToSubscriber(receiverEndpoints->at(0));
+    auto subEndpoint = receiverComponent.castToDataReceiverEndpoint(receiverEndpoints->at(0));
     auto receiveOriginal = subEndpoint->receiveMessage();
 
     ASSERT_EQ(original.getString("msg"), receiveOriginal->getString("msg"));

@@ -137,6 +137,8 @@ public:
     std::shared_ptr<DataReceiverEndpoint> getReceiverEndpointById(const std::string &id);
 
     std::shared_ptr<DataSenderEndpoint> getSenderEndpointById(const std::string &id);
+
+    std::shared_ptr<Endpoint> getEndpointById(const std::string& id);
     ///@}
 
 
@@ -245,18 +247,15 @@ public:
 
     void registerStartupFunction(const std::string &endpointType, endpointStartupFunction startupFunction, void *startupData);
 
-    std::shared_ptr<PairEndpoint> castToPair(std::shared_ptr<DataReceiverEndpoint> e);
-    std::shared_ptr<PairEndpoint> castToPair(std::shared_ptr<DataSenderEndpoint> e);
 
     PairEndpoint* castToPair(Endpoint *e);
     std::shared_ptr<PairEndpoint> castToPair(std::shared_ptr<Endpoint> e);
-    SubscriberEndpoint* castToSubscriber(Endpoint *e);
-    std::shared_ptr<SubscriberEndpoint> castToSubscriber(std::shared_ptr<Endpoint> e);
-    PublisherEndpoint* castToPublisher(Endpoint *e);
-    std::shared_ptr<PublisherEndpoint> castToPublisher(std::shared_ptr<Endpoint> e);
 
     std::shared_ptr<DataReceiverEndpoint> castToDataReceiverEndpoint(std::shared_ptr<Endpoint>);
+    DataReceiverEndpoint* castToDataReceiverEndpoint(Endpoint*);
+
     std::shared_ptr<DataSenderEndpoint> castToDataSenderEndpoint(std::shared_ptr<Endpoint>);
+    DataSenderEndpoint* castToDataSenderEndpoint(Endpoint*);
 };
 
 

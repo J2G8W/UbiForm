@@ -23,7 +23,6 @@ struct ExtraData{
 void simplePairFunc(Endpoint* e, void* extraData){
     auto* ex = static_cast<ExtraData*>(extraData);
     ASSERT_NO_THROW(ex->component->castToPair(e));
-    ASSERT_THROW(ex->component->castToSubscriber(e),AccessError);
     ex->reached++;
 }
 TEST_F(EndpointCreation, RegisterFunction){
