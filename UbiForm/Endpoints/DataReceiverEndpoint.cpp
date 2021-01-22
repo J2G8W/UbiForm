@@ -109,4 +109,5 @@ void DataReceiverEndpoint::closeEndpoint() {
         }
         endpointState = EndpointState::Closed;
     }
+    endConnectionThread();
 }

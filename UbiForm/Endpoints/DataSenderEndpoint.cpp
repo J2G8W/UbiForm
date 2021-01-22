@@ -101,5 +101,6 @@ void DataSenderEndpoint::closeEndpoint() {
         }
         endpointState = EndpointState::Closed;
     }
+    endConnectionThread();
 }
 
