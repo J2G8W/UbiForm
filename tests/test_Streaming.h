@@ -2,8 +2,9 @@
 
 
 TEST(StreamingTests, SendMessage){
-    Component sendComponent("ipc:///tmp/comp1");
-    Component recvComponent("ipc:///tmp/comp2");
+    // Use tcp as ipc doesn't gurantee ordering
+    Component sendComponent("tcp://127.0.0.1");
+    Component recvComponent("tcp://127.0.0.2");
     std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
     es->addProperty("bytes",ValueType::String);
 
@@ -29,7 +30,6 @@ TEST(StreamingTests, SendMessage){
     ASSERT_NO_THROW(sendEndpoint = sendComponent.castToPair(uncastSendEndpoint));
 
 
-
     std::fstream fs;
     fs.open("TestFiles/test_image1.JPG", std::fstream::in|std::fstream::binary);
     if(!fs.good()){
@@ -39,7 +39,7 @@ TEST(StreamingTests, SendMessage){
     int fileSize = fs.tellg();
     fs.seekg(0, std::fstream::beg);
 
-    sendEndpoint->sendStream(fs, 10002, false);
+    sendEndpoint->sendStream(fs, 5001, false);
     std::fstream out;
     out.open("receive.jpg",std::fstream::out|std::fstream::binary);
 

@@ -40,7 +40,7 @@ RequestEndpoint::~RequestEndpoint() {
     if (senderSocket != nullptr) {
         if (!(DataReceiverEndpoint::endpointState == EndpointState::Closed ||
               DataReceiverEndpoint::endpointState == EndpointState::Invalid) &&
-            (DataSenderEndpoint::endpointState == EndpointState::Closed ||
+            !(DataSenderEndpoint::endpointState == EndpointState::Closed ||
              DataSenderEndpoint::endpointState == EndpointState::Invalid)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
