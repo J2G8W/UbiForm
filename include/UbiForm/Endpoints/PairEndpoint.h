@@ -8,7 +8,17 @@
 
 class PairEndpoint : public DataReceiverEndpoint, public DataSenderEndpoint {
 private:
+    static void streamReceiveData(PairEndpoint *endpoint, std::ostream *stream);
+    static void streamSendData(PairEndpoint *endpoint, std::istream *stream, std::streamsize blockSize,
+                               bool holdWhenStreamEmpty);
 
+    bool receiverThreadNeedsClosing = false;
+    bool receiverThreadEnded = true;
+    std::thread receiverStreamingThread;
+
+    bool senderThreadNeedsClosing = false;
+    bool senderThreadEnded = true;
+    std::thread senderStreamingThread;
 public:
     PairEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema,
                  const std::string &endpointType, const std::string &endpointIdentifier = "Pair") :
@@ -33,6 +43,13 @@ public:
         DataSenderEndpoint::endpointState = EndpointState::Invalid;
         DataReceiverEndpoint::endpointState = EndpointState::Invalid;
     }
+
+    std::unique_ptr<SocketMessage> receiveStream(std::ostream &outputStream);
+
+    bool getReceiverThreadEnded(){return receiverThreadEnded;}
+
+    void sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty);
+    bool getSenderThreadEnded(){return senderThreadEnded;}
 
 
     ~PairEndpoint();

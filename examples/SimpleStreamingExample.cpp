@@ -13,6 +13,7 @@ void receiveOnCreateFunction(std::shared_ptr<DataReceiverEndpoint> receive,
     std::ofstream f;
 
     auto t1 = std::chrono::high_resolution_clock::now();
+    /*
     if(argc == 3) {
         endpoints->at(0)->receiveStream(std::cout);
     }else{
@@ -35,6 +36,7 @@ void receiveOnCreateFunction(std::shared_ptr<DataReceiverEndpoint> receive,
                   << std::endl;
     }
     f.close();
+     */
 }
 
 int main(int argc, char **argv) {

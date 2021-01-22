@@ -245,6 +245,9 @@ public:
     ~Component();
 
     void registerStartupFunction(const std::string &endpointType, startupFunc startupFunction, void *startupData);
+
+    std::shared_ptr<PairEndpoint> castToPair(std::shared_ptr<DataReceiverEndpoint> e);
+    std::shared_ptr<PairEndpoint> castToPair(std::shared_ptr<DataSenderEndpoint> e);
 };
 
 

@@ -24,8 +24,6 @@ private:
 
     nng_aio *nngAioPointer;
 
-    static void streamData(DataSenderEndpoint *endpoint, std::istream *stream, std::streamsize blockSize,
-                           bool holdWhenStreamEmpty);
 protected:
     std::string endpointIdentifier;
     std::string endpointType;
@@ -38,9 +36,6 @@ protected:
 
     EndpointState endpointState = EndpointState::Closed;
 
-    bool senderThreadNeedsClosing = false;
-    bool senderThreadEnded = true;
-    std::thread senderStreamingThread;
 public:
     explicit DataSenderEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
                                 SocketType socketType, const std::string &endpointType) :
@@ -89,6 +84,8 @@ public:
 
     std::string &getSenderEndpointType() { return endpointType; }
 
+    SocketType getSenderSocketType(){return socketType;}
+
     EndpointState getSenderState(){return endpointState;}
 
     virtual void openEndpoint() = 0;
@@ -97,13 +94,9 @@ public:
 
     virtual void invalidateEndpoint() = 0;
 
-    void sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty);
+
 
     virtual ~DataSenderEndpoint() {
-        if(senderThreadNeedsClosing) {
-            senderStreamingThread.join();
-        }
-
         nng_aio_wait(nngAioPointer);
         nng_aio_free(nngAioPointer);
     }
@@ -114,7 +107,7 @@ public:
      */
     void setSendTimeout(int ms_time);
 
-    bool getSenderThreadEnded(){return senderThreadEnded;}
+
 };
 
 

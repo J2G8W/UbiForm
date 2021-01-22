@@ -477,3 +477,20 @@ Component::registerStartupFunction(const std::string &endpointType, startupFunc 
     }
 }
 
+
+
+std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<DataReceiverEndpoint> e) {
+    if(componentManifest.getSocketType(e->getReceiverEndpointType()) == PAIR && e->getReceiverSocketType() == SocketType::Pair){
+        return std::static_pointer_cast<PairEndpoint>(e);
+    }else{
+        throw AccessError("Endpoint not a pair");
+    }
+}
+
+std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<DataSenderEndpoint> e) {
+    if(componentManifest.getSocketType(e->getSenderEndpointType()) == PAIR && e->getSenderSocketType() == SocketType::Pair){
+        return std::static_pointer_cast<PairEndpoint>(e);
+    }else{
+        throw AccessError("Endpoint not a pair");
+    }
+}

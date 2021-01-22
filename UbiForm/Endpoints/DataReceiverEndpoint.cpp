@@ -16,9 +16,9 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
 
     if ((rv = nng_recv(*receiverSocket, &buffer, &sz, NNG_FLAG_ALLOC)) == 0) {
         std::unique_ptr<SocketMessage> receivedMessage = std::make_unique<SocketMessage>(buffer);
-        if(!receiverThreadEnded){
-            receiverSchema->validate(*receivedMessage);
-        }
+
+        receiverSchema->validate(*receivedMessage);
+
         nng_free(buffer, sz);
         return receivedMessage;
     } else {
@@ -107,29 +107,5 @@ void DataReceiverEndpoint::closeEndpoint() {
     }
 }
 
-std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveStream(std::ostream &outputStream) {
-    receiverThreadNeedsClosing = true;
-    receiverThreadEnded = false;
-    receiverStreamingThread = std::thread(streamData,this, &outputStream);
-    return std::unique_ptr<SocketMessage>();
-}
-
-void DataReceiverEndpoint::streamData(DataReceiverEndpoint* endpoint, std::ostream *stream) {
-    while(true) {
-        std::unique_ptr<SocketMessage> message;
-        try {
-            message = endpoint->receiveMessage();
-        }catch(std::logic_error &e){
-            std::cerr << e.what() << std::endl;
-            break;
-        }
-        if(message->hasMember("end") && message->getBoolean("end")){
-            break;
-        }
-        std::string r  = message->getString("bytes");
-        base64_decode_to_stream(r,*stream);
-    }
-    endpoint->receiverThreadEnded = true;
-}
 
 

@@ -16,7 +16,6 @@
  */
 class DataReceiverEndpoint {
 private:
-    static void streamData(DataReceiverEndpoint* endpoint, std::ostream *stream);
 
     static void asyncCallback(void *data);
 
@@ -57,9 +56,6 @@ protected:
     EndpointState endpointState = EndpointState::Closed;
     std::string dialUrl = "";
 
-    bool receiverThreadNeedsClosing = false;
-    bool receiverThreadEnded = true;
-    std::thread receiverStreamingThread;
 public:
     explicit DataReceiverEndpoint(std::shared_ptr<EndpointSchema> &es, const std::string &endpointIdentifier,
                                   SocketType socketType, const std::string &endpointType) :
@@ -111,6 +107,8 @@ public:
      */
     std::string &getReceiverEndpointType() { return endpointType; }
 
+    SocketType getReceiverSocketType(){return  socketType;}
+
     /**
      * This function closes our socket. If extended it should call the parent then handle states of other things.
      * Note that a closed socket must be re-opened before being use for dialing etc
@@ -129,9 +127,6 @@ public:
     virtual void invalidateEndpoint() = 0;
 
     virtual ~DataReceiverEndpoint() {
-        if(receiverThreadNeedsClosing){
-            receiverStreamingThread.join();
-        }
         if (uniqueEndpointAioPointer != nullptr) {
             nng_aio_wait(uniqueEndpointAioPointer);
             nng_aio_free(uniqueEndpointAioPointer);
@@ -144,9 +139,7 @@ public:
      */
     void setReceiveTimeout(int ms_time);
 
-    std::unique_ptr<SocketMessage> receiveStream(std::ostream &outputStream);
 
-    bool getReceiverThreadEnded(){return receiverThreadEnded;}
 };
 
 

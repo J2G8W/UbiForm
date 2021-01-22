@@ -96,53 +96,5 @@ void DataSenderEndpoint::closeEndpoint() {
         }
         endpointState = EndpointState::Closed;
     }
-    if(senderThreadNeedsClosing){
-        senderStreamingThread.join();
-        senderThreadNeedsClosing = false;
-    }
 }
 
-void DataSenderEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty) {
-    if(blockSize % 3 != 0){throw std::logic_error("Block size must be a multiple of 3");}
-
-    senderThreadEnded = false;
-    senderThreadNeedsClosing = true;
-    this->senderStreamingThread = std::thread(DataSenderEndpoint::streamData, this, &input, blockSize, holdWhenStreamEmpty);
-}
-
-void DataSenderEndpoint::streamData(DataSenderEndpoint *endpoint, std::istream *stream, std::streamsize blockSize,
-                                    bool holdWhenStreamEmpty) {
-    char bytesToEncode[blockSize];
-    int numBytes = 1;
-    while(endpoint->endpointState == EndpointState::Dialed || endpoint->endpointState == EndpointState::Listening) {
-        stream->read(bytesToEncode, blockSize);
-        numBytes = stream->gcount();
-
-        if(numBytes == 0){
-            if(holdWhenStreamEmpty) {
-                nng_msleep(1000);
-                continue;
-            }else{
-                SocketMessage sm;
-                sm.addMember("end",true);
-                try{
-                    endpoint->asyncSendMessage(sm);
-                    break;
-                }catch (std::logic_error&e){
-                    break;
-                }
-            }
-        }
-
-        std::string encodedMsg = base64_encode(reinterpret_cast<const unsigned char *>(bytesToEncode), numBytes);
-
-        SocketMessage sm;
-        sm.addMember("bytes", encodedMsg);
-        try {
-            endpoint->asyncSendMessage(sm);
-        }catch(std::logic_error &e){
-            break;
-        }
-    }
-    endpoint->senderThreadEnded = true;
-}

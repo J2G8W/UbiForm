@@ -1,10 +1,5 @@
 #include "../UbiForm/Utilities/base64.h"
 
-void doStuff(Component* c, std::iostream* fs){
-    auto sendEndpoint = c->getSenderEndpointsByType("streamSender")->at(0);
-    sendEndpoint->sendStream(*fs, 2001, false);
-}
-
 
 TEST(StreamingTests, SendMessage){
     Component sendComponent("ipc:///tmp/comp1");
@@ -12,8 +7,8 @@ TEST(StreamingTests, SendMessage){
     std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
     es->addProperty("bytes",ValueType::String);
 
-    sendComponent.getComponentManifest().addEndpoint(SocketType::Publisher,"streamSender", nullptr, es);
-    recvComponent.getComponentManifest().addEndpoint(SocketType::Subscriber, "streamRecv",es, nullptr);
+    sendComponent.getComponentManifest().addEndpoint(SocketType::Pair,"streamSender", es, es);
+    recvComponent.getComponentManifest().addEndpoint(SocketType::Pair, "streamRecv",es, es);
 
     sendComponent.startBackgroundListen();
     recvComponent.startBackgroundListen();
@@ -23,8 +18,16 @@ TEST(StreamingTests, SendMessage){
     sendComponent.getBackgroundRequester().localListenThenRequestRemoteDial(recvComponentAddress,"streamSender","streamRecv");
 
 
-    auto recvEndpoint = recvComponent.getReceiverEndpointsByType("streamRecv")->at(0);
-    auto sendEndpoint = sendComponent.getSenderEndpointsByType("streamSender")->at(0);
+    std::shared_ptr<DataReceiverEndpoint> uncastRecvEndpoint;
+    std::shared_ptr<DataSenderEndpoint> uncastSendEndpoint;
+    ASSERT_NO_THROW(uncastRecvEndpoint = recvComponent.getReceiverEndpointsByType("streamRecv")->at(0));
+    ASSERT_NO_THROW(uncastSendEndpoint = sendComponent.getSenderEndpointsByType("streamSender")->at(0));
+
+    std::shared_ptr<PairEndpoint> recvEndpoint;
+    ASSERT_NO_THROW(recvEndpoint = recvComponent.castToPair(uncastRecvEndpoint));
+    std::shared_ptr<PairEndpoint> sendEndpoint;
+    ASSERT_NO_THROW(sendEndpoint = sendComponent.castToPair(uncastSendEndpoint));
+
 
 
     std::fstream fs;
