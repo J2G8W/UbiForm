@@ -44,7 +44,7 @@ public:
 
     void endConnectionThread();
 
-    ~Endpoint(){
+    virtual ~Endpoint(){
         endConnectionThread();
     }
 };

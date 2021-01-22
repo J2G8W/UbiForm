@@ -495,3 +495,11 @@ std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<DataSenderEn
         throw AccessError("Endpoint not a pair");
     }
 }
+
+PairEndpoint *Component::castToPair(Endpoint *e) {
+    if(componentManifest.getSocketType(e->getEndpointType()) == PAIR && e->getEndpointSocketType() == SocketType::Pair){
+        return dynamic_cast<PairEndpoint*>(e);
+    }else{
+        throw AccessError("Endpoint not a pair");
+    }
+}

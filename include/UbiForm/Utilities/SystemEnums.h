@@ -3,6 +3,7 @@
 
 
 #include <string>
+#include <memory>
 
 // NOTE THAT these strings are defined in the various schemas in SystemSchemas
 
