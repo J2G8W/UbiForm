@@ -83,6 +83,7 @@ int DataSenderEndpoint::listenForConnectionWithRV(const char *base, int port) {
         }
         this->endpointState = EndpointState::Listening;
         this->listenPort = port;
+        endConnectionThread();
         startConnectionThread();
         return rv;
     } else {

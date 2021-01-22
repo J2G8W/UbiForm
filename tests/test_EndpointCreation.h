@@ -18,13 +18,13 @@ protected:
 
 struct ExtraData{
     Component* component;
-    bool reached = false;
+    int reached = 0;
 };
 void simplePairFunc(Endpoint* e, void* extraData){
     auto* ex = static_cast<ExtraData*>(extraData);
     ASSERT_NO_THROW(ex->component->castToPair(e));
     ASSERT_THROW(ex->component->castToSubscriber(e),AccessError);
-    ex->reached = true;
+    ex->reached++;
 }
 TEST_F(EndpointCreation, RegisterFunction){
     ASSERT_NO_THROW(component.registerStartupFunction("NOT VALID", nullptr, nullptr));
@@ -33,6 +33,32 @@ TEST_F(EndpointCreation, RegisterFunction){
     component.registerStartupFunction("pairExample",simplePairFunc,e);
     component.createEndpointAndListen("pairExample");
     nng_msleep(100);
-    ASSERT_TRUE(e->reached);
+    ASSERT_EQ(e->reached,1);
     delete e;
+}
+
+TEST_F(EndpointCreation, MultipleEndpoints){
+    auto* e = new ExtraData;
+    e->component = &component;
+    component.registerStartupFunction("pairExample",simplePairFunc,e);
+    component.createEndpointAndListen("pairExample");
+    component.createEndpointAndListen("pairExample");
+    component.createEndpointAndListen("pairExample");
+    component.createEndpointAndListen("pairExample");
+    nng_msleep(100);
+    ASSERT_EQ(e->reached,4);
+}
+
+TEST_F(EndpointCreation, ReListen) {
+    auto *e = new ExtraData;
+    e->component = &component;
+    component.registerStartupFunction("pairExample", simplePairFunc, e);
+    component.createEndpointAndListen("pairExample");
+    auto endpoints = component.getSenderEndpointsByType("pairExample");
+    ASSERT_EQ(endpoints->size(),1);
+    endpoints->at(0)->closeEndpoint();
+    endpoints->at(0)->openEndpoint();
+    endpoints->at(0)->listenForConnection(component.getSelfAddress().c_str(),10000);
+    nng_msleep(100);
+    ASSERT_EQ(e->reached, 2);
 }

@@ -91,6 +91,7 @@ void DataReceiverEndpoint::dialConnection(const char *url) {
         }
         this->dialUrl = url;
         this->endpointState = EndpointState::Dialed;
+        endConnectionThread();
         startConnectionThread();
     } else {
         throw SocketOpenError("Can't dial if endpoint not open", socketType, endpointIdentifier);
