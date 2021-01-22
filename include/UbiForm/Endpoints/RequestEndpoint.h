@@ -10,8 +10,9 @@
 class RequestEndpoint : public DataReceiverEndpoint, public DataSenderEndpoint {
 public:
     RequestEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema,
-                    const std::string &endpointType, const std::string &endpointIdentifier = "Request") :
-                    Endpoint(endpointIdentifier, SocketType::Request, endpointType),
+                    const std::string &endpointType, const std::string &endpointIdentifier = "Request",
+                    endpointStartupFunction startupFunction = nullptr, void* extraData = nullptr) :
+                    Endpoint(endpointIdentifier, SocketType::Request, endpointType, startupFunction,extraData),
             DataReceiverEndpoint(receiveSchema),
             DataSenderEndpoint(sendSchema) {
         senderSocket = new nng_socket;

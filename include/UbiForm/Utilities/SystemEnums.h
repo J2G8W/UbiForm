@@ -47,6 +47,10 @@ enum EndpointState {
 
 std::string convertEndpointState(EndpointState es);
 
+class Endpoint;
+typedef void (*endpointStartupFunction)(Endpoint*, void *);
+
+
 // Strings used for Background Requester and Listener
 #define BACKGROUND_CREATE_AND_LISTEN "req_conn"
 #define BACKGROUND_CREATE_AND_DIAL "req_dial"

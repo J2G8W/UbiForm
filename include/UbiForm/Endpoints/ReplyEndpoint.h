@@ -11,8 +11,10 @@
 class ReplyEndpoint : public DataReceiverEndpoint, public DataSenderEndpoint {
 public:
     ReplyEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema,
-                  const std::string &endpointType, const std::string &endpointIdentifier = "Reply") :
-            Endpoint( endpointIdentifier, SocketType::Reply, endpointType),
+                  const std::string &endpointType, const std::string &endpointIdentifier = "Reply",
+                  endpointStartupFunction startupFunction = nullptr, void* extraData = nullptr) :
+            Endpoint( endpointIdentifier, SocketType::Reply, endpointType,
+                      startupFunction,extraData),
             DataReceiverEndpoint(receiveSchema),
             DataSenderEndpoint(sendSchema) {
 

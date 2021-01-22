@@ -26,14 +26,12 @@
 
 
 class Component {
-public:
-    typedef void (*startupFunc)(std::shared_ptr<DataReceiverEndpoint>,std::shared_ptr<DataSenderEndpoint>, void *);
 private:
     SystemSchemas systemSchemas;
 
     ComponentManifest componentManifest;
 
-    std::map<std::string, startupFunc> startupFunctionsMap;
+    std::map<std::string, endpointStartupFunction> startupFunctionsMap;
     std::map<std::string, void*> startupDataMap;
 
     // Note that we use shared pointers so there can be multiple active pointers, but there memory management is handled automatically
@@ -244,10 +242,11 @@ public:
     /// Pretty much everything should stop once component is deleted
     ~Component();
 
-    void registerStartupFunction(const std::string &endpointType, startupFunc startupFunction, void *startupData);
+    void registerStartupFunction(const std::string &endpointType, endpointStartupFunction startupFunction, void *startupData);
 
     std::shared_ptr<PairEndpoint> castToPair(std::shared_ptr<DataReceiverEndpoint> e);
     std::shared_ptr<PairEndpoint> castToPair(std::shared_ptr<DataSenderEndpoint> e);
+
 };
 
 

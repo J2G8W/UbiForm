@@ -21,8 +21,10 @@ private:
     std::thread senderStreamingThread;
 public:
     PairEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema,
-                 const std::string &endpointType, const std::string &endpointIdentifier = "Pair") :
-                 Endpoint(endpointIdentifier, SocketType::Pair, endpointType),
+                 const std::string &endpointType, const std::string &endpointIdentifier = "Pair",
+                 endpointStartupFunction startupFunction = nullptr, void* extraData = nullptr) :
+                 Endpoint(endpointIdentifier, SocketType::Pair, endpointType,
+                          startupFunction,extraData),
             DataReceiverEndpoint(receiveSchema),
             DataSenderEndpoint(sendSchema) {
 

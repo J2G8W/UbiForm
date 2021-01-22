@@ -144,14 +144,6 @@ void Component::createNewEndpoint(const std::string &endpointType, const std::st
         }
     }
 
-    if(startupFunctionsMap.count(endpointType) == 1){
-        Component::startupFunc f = startupFunctionsMap.at(endpointType);
-        if(startupDataMap.count(endpointType) == 1) {
-            f(receiverEndpoint, senderEndpoint,startupDataMap.at(endpointType));
-        }else{
-            f(receiverEndpoint, senderEndpoint, nullptr);
-        }
-    }
 }
 
 
@@ -468,7 +460,7 @@ void Component::closeAndInvalidateAllSockets() {
 }
 
 void
-Component::registerStartupFunction(const std::string &endpointType, startupFunc startupFunction, void *startupData) {
+Component::registerStartupFunction(const std::string &endpointType, endpointStartupFunction startupFunction, void *startupData) {
     if(componentManifest.hasEndpoint(endpointType)) {
         startupFunctionsMap[endpointType] = startupFunction;
         if(startupData != nullptr){
