@@ -5,9 +5,12 @@
 std::unique_ptr<SocketMessage>
 ResourceDiscoveryConnEndpoint::sendRequest(const std::string &url, SocketMessage &request) {
 
-    requestEndpoint.dialConnection(url.c_str());
-    requestEndpoint.sendMessage(request);
-    auto reply = requestEndpoint.receiveMessage();
+    if(resourceDiscoveryEndpoints.count(url) == 0){
+        throw AccessError("No endpoint for " + url + " open yet");
+    }
+    resourceDiscoveryEndpoints.at(url);
+    resourceDiscoveryEndpoints.at(url)->sendMessage(request);
+    auto reply = resourceDiscoveryEndpoints.at(url)->receiveMessage();
     if (reply->getBoolean("error")) {
         if (reply->hasMember("errorMsg")) {
             throw RemoteError("Error with request: " + reply->getString("errorMsg"), url);
@@ -34,11 +37,20 @@ void ResourceDiscoveryConnEndpoint::registerWithHub(const std::string &url) {
 
     systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*request);
     std::unique_ptr<SocketMessage> reply;
+    std::unique_ptr<RequestEndpoint> newEndpoint =
+            std::make_unique<RequestEndpoint>(
+                    systemSchemas.getSystemSchema(SystemSchemaName::generalRDResponse).getInternalSchema(),
+                    systemSchemas.getSystemSchema(SystemSchemaName::generalRDRequest).getInternalSchema(),
+                    "Resource Discovery Connection", "RDC - " + url);
+    resourceDiscoveryEndpoints[url] = std::move(newEndpoint);
     try {
+        resourceDiscoveryEndpoints.at(url)->dialConnection(url.c_str());
+
         reply = sendRequest(url, *request);
         systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
         std::cout << "Registered successfully with: " << url << " id is " << reply->getString("newID") << std::endl;
     } catch (std::logic_error &e) {
+        resourceDiscoveryEndpoints.erase(url);
         throw;
     }
 

@@ -16,9 +16,9 @@ class ResourceDiscoveryConnEndpoint {
 private:
     // Map from url to our id on that rdh
     std::map<std::string, std::string> resourceDiscoveryHubs;
+    std::map<std::string, std::unique_ptr<RequestEndpoint> > resourceDiscoveryEndpoints;
     Component *component;
 
-    RequestEndpoint requestEndpoint;
     SystemSchemas &systemSchemas;
 
     std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage &request);
@@ -29,11 +29,7 @@ private:
     ResourceDiscoveryConnEndpoint &operator=(ResourceDiscoveryConnEndpoint &) = delete;
 
 public:
-    ResourceDiscoveryConnEndpoint(Component *component, SystemSchemas &ss) : component(component), systemSchemas(ss),
-        requestEndpoint(ss.getSystemSchema(SystemSchemaName::generalRDResponse).getInternalSchema(),
-                        ss.getSystemSchema(SystemSchemaName::generalRDRequest).getInternalSchema(),
-                        "ResourceDiscoveryConnection",
-                        "ResourceDiscoveryConnection") {}
+    ResourceDiscoveryConnEndpoint(Component *component, SystemSchemas &ss) : component(component), systemSchemas(ss){}
 
 
     ///@{

@@ -263,9 +263,10 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest4) {
     rdhLocations = baby.getBackgroundRequester().requestLocationsOfRDH(back1);
     ASSERT_EQ(rdhLocations.size(), 0);
 
+    baby.getResourceDiscoveryConnectionEndpoint().registerWithHub(loc2);
     auto compIds = baby.getResourceDiscoveryConnectionEndpoint().getComponentIdsFromHub(loc2);
-    // loc2 Should only have itself register with it
-    ASSERT_EQ(compIds.size(), 1);
+    // loc2 Should only have itself register and baby registered
+    ASSERT_EQ(compIds.size(), 2);
 
 
     // Test remote close RDH

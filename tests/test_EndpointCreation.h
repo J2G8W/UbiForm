@@ -44,7 +44,7 @@ TEST_F(EndpointCreation, MultipleEndpoints){
     component.createEndpointAndListen("pairExample");
     component.createEndpointAndListen("pairExample");
     component.createEndpointAndListen("pairExample");
-    nng_msleep(100);
+    nng_msleep(500);
     ASSERT_EQ(e->reached,4);
     delete e;
 }
