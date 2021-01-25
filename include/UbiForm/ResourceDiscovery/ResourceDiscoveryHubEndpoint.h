@@ -25,6 +25,10 @@ private:
 
     static void rdBackground(ResourceDiscoveryHubEndpoint *);
 
+    // We purposely delete copy and assignment operators such that there isn't stray references to this
+    ResourceDiscoveryHubEndpoint(ResourceDiscoveryHubEndpoint &) = delete;
+    ResourceDiscoveryHubEndpoint &operator=(ResourceDiscoveryHubEndpoint &) = delete;
+
 public:
     explicit ResourceDiscoveryHubEndpoint(SystemSchemas &ss) : rdStore(ss),
     replyEndpoint(ss.getSystemSchema(SystemSchemaName::generalRDRequest).getInternalSchema(),

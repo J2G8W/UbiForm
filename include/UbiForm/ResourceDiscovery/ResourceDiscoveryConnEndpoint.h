@@ -27,7 +27,6 @@ private:
 
     // We purposely delete copy and assignment operators such that there isn't stray references to this
     ResourceDiscoveryConnEndpoint(ResourceDiscoveryConnEndpoint &) = delete;
-
     ResourceDiscoveryConnEndpoint &operator=(ResourceDiscoveryConnEndpoint &) = delete;
 
 public:

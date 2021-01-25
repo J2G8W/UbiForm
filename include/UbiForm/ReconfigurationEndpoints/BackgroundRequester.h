@@ -27,6 +27,10 @@ class BackgroundRequester {
      */
     std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage &request);
 
+    // We purposely delete copy and assignment operators such that there isn't stray references to this
+    BackgroundRequester(BackgroundRequester &) = delete;
+    BackgroundRequester &operator=(BackgroundRequester &) = delete;
+
 public:
     BackgroundRequester(Component *c, SystemSchemas &ss) : component(c), systemSchemas(ss),
     requestEndpoint(ss.getSystemSchema(SystemSchemaName::generalEndpointResponse).getInternalSchema(),
