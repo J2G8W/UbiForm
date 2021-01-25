@@ -21,7 +21,9 @@ private:
 
     SystemSchemas &systemSchemas;
 
-    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage &request);
+    static void handleAsyncReceive(SocketMessage* sm, void* data);
+
+    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage &request, bool waitForResponse);
 
     // We purposely delete copy and assignment operators such that there isn't stray references to this
     ResourceDiscoveryConnEndpoint(ResourceDiscoveryConnEndpoint &) = delete;

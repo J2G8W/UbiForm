@@ -2,23 +2,39 @@
 #include "../../include/UbiForm/Component.h"
 #include <nng/protocol/reqrep0/req.h>
 
+
+void ResourceDiscoveryConnEndpoint::handleAsyncReceive(SocketMessage *sm, void *data) {
+    if(sm->getBoolean("error")){
+        if (sm->hasMember("errorMsg")) {
+            std::cerr << "Remote error with request: " + sm->getString("errorMsg") << std::endl;
+        } else {
+            std::cerr << "Remote error with request, no error message received" << std::endl;
+        }
+    }
+}
+
 std::unique_ptr<SocketMessage>
-ResourceDiscoveryConnEndpoint::sendRequest(const std::string &url, SocketMessage &request) {
+ResourceDiscoveryConnEndpoint::sendRequest(const std::string &url, SocketMessage &request, bool waitForResponse) {
 
     if(resourceDiscoveryEndpoints.count(url) == 0){
         throw AccessError("No endpoint for " + url + " open yet");
     }
     resourceDiscoveryEndpoints.at(url);
     resourceDiscoveryEndpoints.at(url)->sendMessage(request);
-    auto reply = resourceDiscoveryEndpoints.at(url)->receiveMessage();
-    if (reply->getBoolean("error")) {
-        if (reply->hasMember("errorMsg")) {
-            throw RemoteError("Error with request: " + reply->getString("errorMsg"), url);
-        } else {
-            throw RemoteError("Error with request, no error message", url);
+    if(waitForResponse) {
+        auto reply = resourceDiscoveryEndpoints.at(url)->receiveMessage();
+        if (reply->getBoolean("error")) {
+            if (reply->hasMember("errorMsg")) {
+                throw RemoteError("Error with request: " + reply->getString("errorMsg"), url);
+            } else {
+                throw RemoteError("Error with request, no error message", url);
+            }
         }
+        return reply;
+    }else{
+        resourceDiscoveryEndpoints.at(url)->asyncReceiveMessage(handleAsyncReceive, nullptr);
+        return nullptr;
     }
-    return reply;
 }
 
 std::unique_ptr<SocketMessage> ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
@@ -46,7 +62,7 @@ void ResourceDiscoveryConnEndpoint::registerWithHub(const std::string &url) {
     try {
         resourceDiscoveryEndpoints.at(url)->dialConnection(url.c_str());
 
-        reply = sendRequest(url, *request);
+        reply = sendRequest(url, *request, true);
         systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
         std::cout << "Registered successfully with: " << url << " id is " << reply->getString("newID") << std::endl;
     } catch (std::logic_error &e) {
@@ -65,7 +81,7 @@ std::vector<std::string> ResourceDiscoveryConnEndpoint::getComponentIdsFromHub(c
     std::unique_ptr<SocketMessage> reply;
 
     try {
-        reply = sendRequest(url, request);
+        reply = sendRequest(url, request, true);
         systemSchemas.getSystemSchema(SystemSchemaName::componentIdsResponse).validate(*reply);
     } catch (std::logic_error &e) {
         std::cerr << "Error getting component ids from " << url << "\n\t" << e.what() << std::endl;
@@ -87,7 +103,7 @@ ResourceDiscoveryConnEndpoint::getComponentById(const std::string &url, const st
 
     std::unique_ptr<SocketMessage> reply;
     try {
-        reply = sendRequest(url, request);
+        reply = sendRequest(url, request, true);
         systemSchemas.getSystemSchema(SystemSchemaName::byIdResponse).validate(*reply);
     } catch (std::logic_error &e) {
         throw;
@@ -141,7 +157,7 @@ ResourceDiscoveryConnEndpoint::getComponentsBySchema(const std::string &endpoint
 
         std::unique_ptr<SocketMessage> reply;
         try {
-            reply = sendRequest(rdh.first, *request);
+            reply = sendRequest(rdh.first, *request, true);
             systemSchemas.getSystemSchema(SystemSchemaName::bySchemaResponse).validate(*reply);
         } catch (std::logic_error &e) {
             std::cerr << "Error getting component from " << rdh.first << "\n\t" << e.what() << std::endl;
@@ -202,7 +218,7 @@ void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
         request->addMember("id", locationIdPair.second);
         systemSchemas.getSystemSchema(SystemSchemaName::updateRequest).validate(*request);
         try {
-            auto reply = sendRequest(locationIdPair.first, *request);
+            sendRequest(locationIdPair.first, *request, false);
 
         } catch (std::logic_error &e) {
             std::cerr << "Problem connecting to " << locationIdPair.first << "\n\t" << e.what() << std::endl;
@@ -265,7 +281,7 @@ ResourceDiscoveryConnEndpoint::getComponentsByProperties(std::map<std::string, s
     for (const auto &rdh : resourceDiscoveryHubs) {
         std::unique_ptr<SocketMessage> reply;
         try {
-            reply = sendRequest(rdh.first, request);
+            reply = sendRequest(rdh.first, request, true);
         } catch (std::logic_error &e) {
             std::cerr << "Error getting component from " << rdh.first << "\n\t" << e.what() << std::endl;
             continue;
@@ -294,7 +310,7 @@ void ResourceDiscoveryConnEndpoint::deRegisterFromHub(const std::string &rdhUrl)
     }
 
     try {
-        auto reply = sendRequest(rdhUrl, request);
+        sendRequest(rdhUrl, request, false);
         std::cout << "De-registered from " << rdhUrl << std::endl;
     } catch (std::logic_error &e) {
         std::cerr << "Error with de-register from " << rdhUrl << "\n" << e.what() << std::endl;
@@ -312,7 +328,6 @@ void ResourceDiscoveryConnEndpoint::deRegisterFromAllHubs() {
     }
 }
 
-// TODO - think about making this a background thead process
 void ResourceDiscoveryConnEndpoint::addListenerPortForAllHubs(const std::string &endpointType, int port) {
     SocketMessage request;
     request.addMember("request",RESOURCE_DISCOVERY_NOTIFY_SOCKET_LISTEN);
@@ -322,7 +337,7 @@ void ResourceDiscoveryConnEndpoint::addListenerPortForAllHubs(const std::string 
     for (auto &locationIdPair : resourceDiscoveryHubs) {
         request.addMember("id", locationIdPair.second);
         try {
-            auto reply = sendRequest(locationIdPair.first, request);
+            sendRequest(locationIdPair.first, request, false);
 
         } catch (std::logic_error &e) {
             std::cerr << "Problem connecting to " << locationIdPair.first << "\n\t" << e.what() << std::endl;
