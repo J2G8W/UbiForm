@@ -317,6 +317,7 @@ void ResourceDiscoveryConnEndpoint::deRegisterFromHub(const std::string &rdhUrl)
     }
     // Either way we don't want to contact that hub again
     resourceDiscoveryHubs.erase(rdhUrl);
+    resourceDiscoveryEndpoints.erase(rdhUrl);
 }
 
 void ResourceDiscoveryConnEndpoint::deRegisterFromAllHubs() {

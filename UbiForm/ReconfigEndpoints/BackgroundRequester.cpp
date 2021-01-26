@@ -198,6 +198,7 @@ std::unique_ptr<ComponentManifest> BackgroundRequester::requestComponentManifest
         std::unique_ptr<ComponentManifest> returnManifest =
                 std::make_unique<ComponentManifest>(reply->getMoveObject("manifest").get(),
                                                     component->getSystemSchemas());
+        return returnManifest;
     }catch(std::logic_error &e){
         throw ValidationError("Returned Component Manifest was not valid\nReply: " + reply->stringify());
     }

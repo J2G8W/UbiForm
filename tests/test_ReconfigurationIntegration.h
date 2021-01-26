@@ -357,4 +357,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest6) {
     ASSERT_THROW(pubEndpoint->sendMessage(sm), SocketOpenError);
     ASSERT_THROW(pubEndpoint->asyncSendMessage(sm), SocketOpenError);
     ASSERT_THROW(pubEndpoint->openEndpoint(), SocketOpenError);
+
+    auto manifest = component2.getBackgroundRequester().requestComponentManifest(component1Address);
+    ASSERT_TRUE(manifest->hasEndpoint("SUB"));
 }
