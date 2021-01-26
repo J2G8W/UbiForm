@@ -69,6 +69,8 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                     reply = backgroundListener->handleCloseRDH(*request);
                 } else if (requestType == BACKGROUND_REQUEST_ENDPOINT_INFO) {
                     reply = backgroundListener->handleEndpointInfoRequest(*request);
+                } else if (requestType == BACKGROUND_GET_COMPONENT_MANIFEST) {
+                    reply = backgroundListener->handleManifestRequest(*request);
                 } else {
                     throw ValidationError("requestType had value: " + requestType);
                 }
