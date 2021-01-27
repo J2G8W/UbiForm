@@ -7,10 +7,16 @@
 #define SENDER "SENDER"
 #define RECEIVER_AIO "AIO"
 
+
+struct SimpleData{
+    Component * component;
+    Endpoint* endpoint;
+};
 void simpleCallback(SocketMessage *sm, void *data) {
-    auto endpoint = static_cast<DataReceiverEndpoint *>(data);
+    auto extraData = static_cast<SimpleData *>(data);
     std::cout << sm->getInteger("temp") << std::endl;
-    endpoint->asyncReceiveMessage(simpleCallback, endpoint);
+    auto endpoint = extraData->component->castToDataReceiverEndpoint(extraData->endpoint);
+    endpoint->asyncReceiveMessage(simpleCallback, extraData);
 }
 
 
@@ -49,8 +55,11 @@ int main(int argc, char **argv) {
                     "tcp://127.0.0.1", 8000, "pairExample",
                     "pairExample");
             auto endpoints = receiver.getEndpointsByType("pairExample");
-            for (const auto &e: *endpoints) {
-                receiver.castToDataReceiverEndpoint(e)->asyncReceiveMessage(simpleCallback, e.get());
+            for (const auto& e: *endpoints) {
+                auto* sd = new SimpleData;
+                sd->component = &receiver;
+                sd->endpoint = e.get();
+                receiver.castToDataReceiverEndpoint(e)->asyncReceiveMessage(simpleCallback, sd);
             }
             while (true) {
                 nng_msleep(1000);
