@@ -16,6 +16,7 @@ std::string convertValueType(ValueType vt) {
         case Null:
             return "null";
     }
+    throw std::logic_error("Not a Valid value type");
 }
 
 std::string convertFromSocketType(SocketType st) {
@@ -31,6 +32,7 @@ std::string convertFromSocketType(SocketType st) {
         case Request:
             return REQUEST;
     }
+    return "Not Valid Socket Type";
 }
 
 SocketType convertToSocketType(const std::string &st) {
@@ -62,4 +64,5 @@ std::string convertEndpointState(EndpointState es) {
         case Listening:
             return "Listening";
     }
+    return "Not Valid endpoint state";
 }

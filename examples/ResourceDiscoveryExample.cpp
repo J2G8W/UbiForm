@@ -13,16 +13,24 @@
 #define PUBLISHER_CONNECTION "PUBLISHER"
 
 
-void subscriberHandleInfo(SocketMessage *sm, void *extraInfo) {
-    auto *endpoint = static_cast<DataReceiverEndpoint *>(extraInfo);
-    std::string date = sm->getString("date");
-    if (sm->getBoolean("reverse")) {
-        std::cout << date << std::endl;
-    } else {
-        std::reverse(date.begin(), date.end());
-        std::cout << date << std::endl;
+
+void subscriberStartupFunction(Endpoint* endpoint, void *extraInfo) {
+    auto *component = static_cast<Component*>(extraInfo);
+    auto * subscriber = component->castToDataReceiverEndpoint(endpoint);
+    while (true){
+        try{
+            auto sm = subscriber->receiveMessage();
+            std::string date = sm->getString("date");
+            if (sm->getBoolean("reverse")) {
+                std::cout << date << std::endl;
+            } else {
+                std::reverse(date.begin(), date.end());
+                std::cout << date << std::endl;
+            }
+        }catch (std::logic_error& e){
+            break;
+        }
     }
-    endpoint->asyncReceiveMessage(subscriberHandleInfo, endpoint);
 }
 
 int main(int argc, char **argv) {
@@ -148,16 +156,23 @@ int main(int argc, char **argv) {
                 for (const auto &i: ids) { std::cout << i << ' '; }
                 std::cout << std::endl;
 
+                component->registerStartupFunction("subscriberExample",subscriberStartupFunction,component);
+
                 component->getResourceDiscoveryConnectionEndpoint().createEndpointBySchema("subscriberExample");
 
                 std::unique_ptr<SocketMessage> s;
                 auto subscriberEndpoints = component->getEndpointsByType("subscriberExample");
 
-                for (const auto &endpoint : *subscriberEndpoints) {
-                    component->castToDataReceiverEndpoint(endpoint)->asyncReceiveMessage(subscriberHandleInfo, endpoint.get());
-                }
+                int counter = 1;
+
                 while (true) {
+                    if(counter % 4 == 0){
+                        std::cout << "Refreshing endpoints" << std::endl;
+                        component->closeAndInvalidateSocketsOfType("subscriberExample");
+                        component->getResourceDiscoveryConnectionEndpoint().createEndpointBySchema("subscriberExample");
+                    }
                     nng_msleep(3000);
+                    counter++;
                 }
             }
         }
