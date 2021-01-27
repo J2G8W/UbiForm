@@ -1,4 +1,5 @@
 #include "../include/UbiForm/ComponentManifest.h"
+#include "rapidjson/prettywriter.h"
 
 
 // Constructors
@@ -14,6 +15,17 @@ ComponentManifest::ComponentManifest(SocketMessage *sm, SystemSchemas &ss) : sys
     setManifest(sm);
 }
 
+std::string ComponentManifest::prettyStringify(){
+    rapidjson::StringBuffer buffer;
+
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+    JSON_document.Accept(writer);
+
+    // We copy the string from the buffer to our return string so that it is not squashed when we return
+    std::string jsonReturnString(buffer.GetString());
+
+    return jsonReturnString;
+}
 
 void ComponentManifest::setManifest(FILE *jsonFP) {
     // Arbitrary size of read buffer - only changes efficiency of the inputStream constructor

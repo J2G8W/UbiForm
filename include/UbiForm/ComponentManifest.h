@@ -142,6 +142,8 @@ public:
      */
     std::string stringify() { return stringifyValue(JSON_document); };
 
+    std::string prettyStringify();
+
 
     /**
      * @param typeOfEndpoint - specify typeOfEndpoint as described in Manifest
