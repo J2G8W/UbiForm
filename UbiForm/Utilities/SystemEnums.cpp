@@ -62,4 +62,5 @@ std::string convertEndpointState(EndpointState es) {
         case Listening:
             return "Listening";
     }
+    return "Not Valid endpoint state";
 }
