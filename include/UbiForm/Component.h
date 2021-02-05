@@ -203,7 +203,7 @@ public:
      */
     int getResourceDiscoveryHubPort();
 
-    std::vector<std::string> getResourceDiscoveryHubConnections();
+    std::vector<std::shared_ptr<ComponentRepresentation>> getResourceDiscoveryHubConnections();
 
 
     /// @return A reference to our Resource Discovery Connection Endpoint, from which we make RDH requests

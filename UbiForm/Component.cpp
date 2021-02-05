@@ -494,7 +494,7 @@ DataSenderEndpoint *Component::castToDataSenderEndpoint(Endpoint *e) {
     }
 }
 
-std::vector<std::string> Component::getResourceDiscoveryHubConnections() {
+std::vector<std::shared_ptr<ComponentRepresentation>> Component::getResourceDiscoveryHubConnections() {
     if (resourceDiscoveryHubEndpoint != nullptr){
         return resourceDiscoveryHubEndpoint->getConnections();
     }else{

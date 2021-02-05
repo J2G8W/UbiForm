@@ -141,13 +141,10 @@ ResourceDiscoveryStore::ResourceDiscoveryStore(SystemSchemas &ss) : systemSchema
     generator.seed(randomSeed);
 }
 
-std::vector<std::string> ResourceDiscoveryStore::getConnections() {
-    std::vector<std::string> connections;
+std::vector<std::shared_ptr<ComponentRepresentation>> ResourceDiscoveryStore::getConnections() {
+    std::vector<std::shared_ptr<ComponentRepresentation>> connections;
     for(const auto& pair : componentById){
-        for(const auto& url :pair.second->getAllUrls()) {
-            std::string uri = url + ":" + std::to_string(pair.second->getPort());
-            connections.emplace_back(uri);
-        }
+        connections.emplace_back(pair.second);
     }
     return connections;
 }

@@ -30,7 +30,7 @@ public:
 
     std::unique_ptr<SocketMessage> generateRDResponse(SocketMessage *sm);
 
-    std::vector<std::string> getConnections();
+    std::vector<std::shared_ptr<ComponentRepresentation>> getConnections();
 
     explicit ResourceDiscoveryStore(SystemSchemas &ss);
 };

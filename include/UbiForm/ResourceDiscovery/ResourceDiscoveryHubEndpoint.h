@@ -50,7 +50,7 @@ public:
      */
     int getBackgroundPort() { return backgroundPort; }
 
-    std::vector<std::string> getConnections(){ return rdStore.getConnections();}
+    std::vector<std::shared_ptr<ComponentRepresentation>> getConnections(){ return rdStore.getConnections();}
 
     ~ResourceDiscoveryHubEndpoint();
 
