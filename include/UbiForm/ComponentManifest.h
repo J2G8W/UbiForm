@@ -26,6 +26,9 @@ protected:
     std::map<std::string, std::shared_ptr<EndpointSchema> > receiverSchemas;
     std::map<std::string, std::shared_ptr<EndpointSchema> > senderSchemas;
 
+    endpointAdditionCallBack additionCallBack = nullptr;
+    void * userData = nullptr;
+
     SystemSchemas &systemSchemas;
 
     void checkParse();
@@ -224,6 +227,15 @@ public:
      * @return
      */
     bool hasEndpoint(const std::string &endpointType);
+
+    /**
+     * Register a callback on the ComponentManifest for when we add or change an endpoint on the manifest.
+     * This is designed such that when an endpoint is changed remotely we can respond
+     * @param callBack The function to be called on the endpoint addition, the std::string is the "typeOfEndpoint" added
+     * and the void* is the data which was provided by the user (note we don't do copying, so pointer must remaind valid)
+     * @param providedData The data we want to pass to our callback
+     */
+    void registerEndpointAdditionCallback(endpointAdditionCallBack callBack, void* providedData);
 };
 
 

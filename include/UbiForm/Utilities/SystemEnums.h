@@ -54,6 +54,8 @@ class Endpoint;
 /// has been started and a pointer to some arbitrary data structure which the developer can specify
 typedef void (*endpointStartupFunction)(Endpoint*, void *);
 
+typedef void (*endpointAdditionCallBack)(std::string, void*);
+
 
 // Strings used for Background Requester and Listener
 #define BACKGROUND_CREATE_AND_LISTEN "req_conn"

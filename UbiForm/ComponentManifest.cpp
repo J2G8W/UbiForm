@@ -190,6 +190,11 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
                 JSON_document.GetAllocator());
         senderSchemas[typeOfEndpoint] = endpointSchema;
     }
+
+
+    if (additionCallBack != nullptr){
+        additionCallBack(typeOfEndpoint, userData);
+    }
 }
 
 void ComponentManifest::setProperty(const std::string &propertyName, const std::string &value) {
@@ -287,3 +292,8 @@ void ComponentManifest::removeListenPort(const std::string &endpointType) {
 
 ComponentManifest::~ComponentManifest() = default;
 
+
+void ComponentManifest::registerEndpointAdditionCallback(endpointAdditionCallBack callBack, void* providedData){
+    additionCallBack = callBack;
+    userData = providedData;
+}
