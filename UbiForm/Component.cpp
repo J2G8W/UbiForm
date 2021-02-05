@@ -494,3 +494,11 @@ DataSenderEndpoint *Component::castToDataSenderEndpoint(Endpoint *e) {
     }
 }
 
+std::vector<std::string> Component::getResourceDiscoveryHubConnections() {
+    if (resourceDiscoveryHubEndpoint != nullptr){
+        return resourceDiscoveryHubEndpoint->getConnections();
+    }else{
+        throw std::logic_error("No Resource Discovery Hub exists");
+    }
+}
+

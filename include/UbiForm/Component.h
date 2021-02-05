@@ -203,6 +203,8 @@ public:
      */
     int getResourceDiscoveryHubPort();
 
+    std::vector<std::string> getResourceDiscoveryHubConnections();
+
 
     /// @return A reference to our Resource Discovery Connection Endpoint, from which we make RDH requests
     ResourceDiscoveryConnEndpoint &getResourceDiscoveryConnectionEndpoint() { return resourceDiscoveryConnEndpoint; }

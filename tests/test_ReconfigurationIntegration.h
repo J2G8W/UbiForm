@@ -100,6 +100,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
 
     ASSERT_EQ(receiverComponent.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(), 1);
     ASSERT_EQ(senderComponent.getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs().size(), 1);
+    ASSERT_EQ(RDH.getResourceDiscoveryHubConnections().size(), 3);
 
     // Test getComponentByID in Resource Discovery
     std::string receiverComponentId = receiverComponent.getResourceDiscoveryConnectionEndpoint().getId(

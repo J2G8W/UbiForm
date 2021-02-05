@@ -140,3 +140,14 @@ ResourceDiscoveryStore::ResourceDiscoveryStore(SystemSchemas &ss) : systemSchema
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
 }
+
+std::vector<std::string> ResourceDiscoveryStore::getConnections() {
+    std::vector<std::string> connections;
+    for(const auto& pair : componentById){
+        for(const auto& url :pair.second->getAllUrls()) {
+            std::string uri = url + ":" + std::to_string(pair.second->getPort());
+            connections.emplace_back(uri);
+        }
+    }
+    return connections;
+}
