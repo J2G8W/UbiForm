@@ -5,6 +5,8 @@
 #include <nng/supplemental/util/platform.h>
 #include <fstream>
 #include <SFML/Audio.hpp>
+#include <SFML/System.hpp>
+#include <SFML/System/FileInputStream.hpp>
 
 
 #define RECEIVER "RECEIVER"
@@ -47,35 +49,34 @@ int main(int argc, char **argv) {
             }
             musicFileStream.close();
              */
-            nng_msleep(1000);
             musicFileStream.flush();
             std::cout << "INITIATING PLAY" << std::endl;
             sf::Music musicObject;
-            if(!musicObject.openFromFile("temp.wav")){
+            sf::FileInputStream stream;
+            if (!stream.open("temp.wav")){
                 throw std::logic_error("Error with file");
             }
-            //musicObject.setLoop(true);
+            if(!musicObject.openFromStream(stream)){
+                throw std::logic_error("Error with stream");
+            }
             musicObject.play();
             std::cout << "PLAYING" << std::endl;
-
-            sf::Music backupObject;
-            bool backup = false;
+            auto recentPos = musicObject.getPlayingOffset();
             while(true){
-                if(musicObject.getStatus() == musicObject.Stopped ){
-                    musicFileStream.flush();
-
-                    musicObject.openFromFile("temp.wav");
-                    /*
-                    backupObject.openFromFile("temp.wav");
-                    backupObject.setPlayingOffset(musicObject.getPlayingOffset());
-                    musicObject.stop();
-                    backupObject.play();
-                    backup = true;
-                    std::cout << "STOPPED" << std::endl;
-                     */
+                if (musicObject.getStatus() == musicObject.Stopped){
+                    if (stream.tell() == stream.getSize()){
+                        break;
+                    }
+                    musicObject.play();
+                    musicObject.setPlayingOffset(recentPos);
+                    std::cout << "RESET" << std::endl;
+                }else {
+                    recentPos = musicObject.getPlayingOffset();
                 }
-                nng_msleep(100);
+                nng_msleep(10);
             }
+            std::cout << "End of music reached" << std::endl;
+            musicFileStream.close();
 
         } else if (strcmp(argv[1], SENDER) == 0) {
             Component sender;

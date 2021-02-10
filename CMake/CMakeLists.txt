@@ -131,5 +131,5 @@ endif(BUILD_EXAMPLES)
 
 if(BUILD_SOUND_EXAMPLES)
 	add_executable(music_stream ../examples/MusicPlayerExample.cpp)
-	target_link_libraries(music_stream UbiForm sfml-audio)
+	target_link_libraries(music_stream UbiForm sfml-audio sfml-system)
 endif(BUILD_SOUND_EXAMPLES)
