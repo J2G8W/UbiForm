@@ -31,30 +31,50 @@ int main(int argc, char **argv) {
                 throw std::logic_error("Oops couldn't create connection");
             }
 
-            std::fstream music;
-            music.open("temp.wav",std::fstream::binary | std::fstream::out);
+            std::fstream musicFileStream;
+            musicFileStream.open("temp.wav", std::fstream::binary | std::fstream::out);
+            musicFileStream.flush();
 
             std::shared_ptr<PairEndpoint> pair = receiver.castToPair(endpoints->at(0));
 
 
-            auto extraInfo = pair->receiveStream(music);
+            auto extraInfo = pair->receiveStream(musicFileStream);
             std::cout << "Extra info: " << extraInfo->getString("extraInfo") << std::endl;
 
+            /*
             while (!pair->getReceiverThreadEnded()) {
                 nng_msleep(1000);
             }
-            music.close();
-            sf::SoundBuffer buffer;
-            if(!buffer.loadFromFile("temp.wav")){
+            musicFileStream.close();
+             */
+            nng_msleep(1000);
+            musicFileStream.flush();
+            std::cout << "INITIATING PLAY" << std::endl;
+            sf::Music musicObject;
+            if(!musicObject.openFromFile("temp.wav")){
                 throw std::logic_error("Error with file");
             }
-            sf::Sound sound;
-            sound.setBuffer(buffer);
-            sound.play();
+            //musicObject.setLoop(true);
+            musicObject.play();
+            std::cout << "PLAYING" << std::endl;
 
-
+            sf::Music backupObject;
+            bool backup = false;
             while(true){
-                nng_msleep(1000);
+                if(musicObject.getStatus() == musicObject.Stopped ){
+                    musicFileStream.flush();
+
+                    musicObject.openFromFile("temp.wav");
+                    /*
+                    backupObject.openFromFile("temp.wav");
+                    backupObject.setPlayingOffset(musicObject.getPlayingOffset());
+                    musicObject.stop();
+                    backupObject.play();
+                    backup = true;
+                    std::cout << "STOPPED" << std::endl;
+                     */
+                }
+                nng_msleep(100);
             }
 
         } else if (strcmp(argv[1], SENDER) == 0) {
