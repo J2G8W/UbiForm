@@ -78,10 +78,13 @@ int main(int argc, char **argv) {
                 }
                 receiver.closeAndInvalidateSocketById(pair->getEndpointId());
             }
+            std::ofstream results;
+            results.open("results.txt",std::fstream::out | std::fstream::app);
             for(auto &t : ts){
                 t.duration = t.endTime - t.startTime;
-                std::cout << "Time taken: " << t.duration.count() << "ns\tSize: " << t.fileSize << std::endl;
+                results << t.duration.count() << "," << t.fileSize << "\n";
             }
+            results.close();
         } else if (strcmp(argv[1], SENDER) == 0) {
             Component sender;
 
