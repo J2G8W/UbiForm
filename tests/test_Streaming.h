@@ -2,7 +2,7 @@
 
 void sendStream(PairEndpoint* sendEndpoint, std::fstream* inputFile){
     SocketMessage emptyMsg;
-    sendEndpoint->sendStream(*inputFile, 5001, false, emptyMsg);
+    sendEndpoint->sendStream(*inputFile, 5001, false, emptyMsg, nullptr, nullptr);
 }
 
 TEST(StreamingTests, SendMessage){
@@ -47,7 +47,7 @@ TEST(StreamingTests, SendMessage){
     std::fstream out;
     out.open("receive.jpg",std::fstream::out|std::fstream::binary);
 
-    recvEndpoint->receiveStream(out);
+    recvEndpoint->receiveStream(out, nullptr, nullptr);
     while(!recvEndpoint->getReceiverThreadEnded()) {
         nng_msleep(100);
     }

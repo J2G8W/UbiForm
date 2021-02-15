@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
             std::shared_ptr<PairEndpoint> pair = receiver.castToPair(endpoints->at(0));
 
 
-            auto extraInfo = pair->receiveStream(musicFileStream);
+            auto extraInfo = pair->receiveStream(musicFileStream, nullptr, nullptr);
             std::cout << "Extra info: " << extraInfo->getString("extraInfo") << std::endl;
 
             /*
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
                 std::cerr << "Unable to open file " << argv[2] << std::endl;
                 exit(1);
             }
-            pair->sendStream(file, 10002, false, initalMsg);
+            pair->sendStream(file, 10002, false, initalMsg, nullptr, nullptr);
 
             while (!pair->getSenderThreadEnded()) {
                 nng_msleep(1000);

@@ -77,7 +77,8 @@ void PairEndpoint::dialConnection(const char *url) {
 }
 
 
-std::unique_ptr<SocketMessage> PairEndpoint::receiveStream(std::ostream &outputStream) {
+std::unique_ptr<SocketMessage>
+PairEndpoint::receiveStream(std::ostream &outputStream, endOfStreamCallback endCallback, void *userData) {
     std::unique_ptr<SocketMessage> initialMsg;
 
     // Throws things
@@ -88,13 +89,15 @@ std::unique_ptr<SocketMessage> PairEndpoint::receiveStream(std::ostream &outputS
 
     receiverThreadNeedsClosing = true;
     receiverThreadEnded = false;
-    receiverStreamingThread = std::thread(streamReceiveData, this, &outputStream);
+    receiverStreamingThread = std::thread(streamReceiveData, this, &outputStream, endCallback, userData);
 
 
     return initialMsg;
 }
 
-void PairEndpoint::streamReceiveData(PairEndpoint *endpoint, std::ostream *stream) {
+void
+PairEndpoint::streamReceiveData(PairEndpoint *endpoint, std::ostream *stream, endOfStreamCallback endCallback,
+                                void *userData) {
     while(true) {
         std::unique_ptr<SocketMessage> message;
         try {
@@ -109,11 +112,15 @@ void PairEndpoint::streamReceiveData(PairEndpoint *endpoint, std::ostream *strea
         std::string r  = message->getString("bytes");
         base64_decode_to_stream(r,*stream);
     }
+    if(endCallback != nullptr){
+        endCallback(endpoint, userData);
+    }
     endpoint->receiverThreadEnded = true;
 }
 
 void PairEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty,
-                              SocketMessage &initialMessage) {
+                              SocketMessage &initialMessage,
+                              endOfStreamCallback endCallback, void *userData) {
     if(blockSize % 3 != 0){throw std::logic_error("Block size must be a multiple of 3");}
 
     sendMessage(initialMessage);
@@ -124,11 +131,12 @@ void PairEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bo
 
     senderThreadEnded = false;
     senderThreadNeedsClosing = true;
-    this->senderStreamingThread = std::thread(streamSendData, this, &input, blockSize, holdWhenStreamEmpty);
+    this->senderStreamingThread = std::thread(streamSendData, this, &input, blockSize,holdWhenStreamEmpty, endCallback, userData);
 }
 
 void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, std::streamsize blockSize,
-                                  bool holdWhenStreamEmpty) {
+                                  bool holdWhenStreamEmpty,
+                                  endOfStreamCallback endCallback, void *userData) {
     char bytesToEncode[blockSize];
     int numBytes;
     while(endpoint->endpointState == EndpointState::Dialed || endpoint->endpointState == EndpointState::Listening) {
@@ -161,6 +169,8 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
             break;
         }
     }
+    if(endCallback != nullptr) {
+        endCallback(endpoint, userData);
+    }
     endpoint->senderThreadEnded = true;
-    std::cout << "Streaming ended" << std::endl;
 }

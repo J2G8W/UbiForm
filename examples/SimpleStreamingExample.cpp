@@ -33,11 +33,11 @@ int main(int argc, char **argv) {
             auto t1 = std::chrono::high_resolution_clock::now();
             std::shared_ptr<PairEndpoint> pair = receiver.castToPair(endpoints->at(0));
             if(argc == 3) {
-                auto extraInfo = pair->receiveStream(std::cout);
+                auto extraInfo = pair->receiveStream(std::cout, nullptr, nullptr);
                 std::cout << "Extra info: " << extraInfo->getString("extraInfo") << std::endl;
             }else{
                 f.open(argv[3], std::fstream::binary | std::fstream::out);
-                auto extraInfo = pair->receiveStream(f);
+                auto extraInfo = pair->receiveStream(f, nullptr, nullptr);
                 std::cout << "Extra info: " << extraInfo->getString("extraInfo") << std::endl;
             }
             while (!pair->getReceiverThreadEnded()) {
@@ -79,14 +79,14 @@ int main(int argc, char **argv) {
             SocketMessage initalMsg;
             initalMsg.addMember("extraInfo","Stream incoming");
             if(argc == 2) {
-                pair->sendStream(std::cin, 3, true, initalMsg);
+                pair->sendStream(std::cin, 3, true, initalMsg, nullptr, nullptr);
             }else{
                 file.open(argv[2], std::fstream::binary | std::fstream::in);
                 if(!file.good()){
                     std::cerr << "Unable to open file " << argv[2] << std::endl;
                     exit(1);
                 }
-                pair->sendStream(file, 10002, false, initalMsg);
+                pair->sendStream(file, 10002, false, initalMsg, nullptr, nullptr);
             }
             while (!pair->getSenderThreadEnded()) {
                 nng_msleep(1000);

@@ -8,9 +8,11 @@
 
 class PairEndpoint : public DataReceiverEndpoint, public DataSenderEndpoint {
 private:
-    static void streamReceiveData(PairEndpoint *endpoint, std::ostream *stream);
-    static void streamSendData(PairEndpoint *endpoint, std::istream *stream, std::streamsize blockSize,
-                               bool holdWhenStreamEmpty);
+    static void streamReceiveData(PairEndpoint *endpoint, std::ostream *stream, endOfStreamCallback endCallback,
+                                  void *userData);
+    static void
+    streamSendData(PairEndpoint *endpoint, std::istream *stream, std::streamsize blockSize, bool holdWhenStreamEmpty,
+                   endOfStreamCallback endCallback, void *userData);
 
     bool receiverThreadNeedsClosing = false;
     bool receiverThreadEnded = true;
@@ -43,12 +45,14 @@ public:
     void openEndpoint() override;
 
 
-    std::unique_ptr<SocketMessage> receiveStream(std::ostream &outputStream);
+    std::unique_ptr<SocketMessage>
+    receiveStream(std::ostream &outputStream, endOfStreamCallback endCallback, void *userData);
 
     bool getReceiverThreadEnded(){return receiverThreadEnded;}
 
-    void sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty,
-                    SocketMessage &initialMessage);
+    void
+    sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty, SocketMessage &initialMessage,
+               endOfStreamCallback endCallback, void *userData);
     bool getSenderThreadEnded(){return senderThreadEnded;}
 
 
