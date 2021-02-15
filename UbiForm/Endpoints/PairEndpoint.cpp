@@ -129,7 +129,6 @@ void PairEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bo
         throw std::logic_error("Unable to start sending stream");
     }
 
-    std::cout << "SENDING" << std::endl;
     senderThreadEnded = false;
     senderThreadNeedsClosing = true;
     this->senderStreamingThread = std::thread(streamSendData, this, &input, blockSize,holdWhenStreamEmpty, endCallback, userData);
