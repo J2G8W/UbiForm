@@ -1,6 +1,8 @@
 #ifndef UBIFORM_SYSTEMENUMS_H
 #define UBIFORM_SYSTEMENUMS_H
 
+#define VIEW_STD_OUTPUT true
+
 
 #include <string>
 #include <memory>

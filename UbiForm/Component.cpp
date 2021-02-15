@@ -19,7 +19,7 @@ Component::Component(const std::string &baseAddress) : systemSchemas(),
                                                        componentManifest(systemSchemas) {
     long randomSeed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(randomSeed);
-    std::cout << "Component made, self address is " << baseAddress << std::endl;
+    if(VIEW_STD_OUTPUT) std::cout << "Component made, self address is " << baseAddress << std::endl;
     if (baseAddress.rfind("tcp", 0) == 0) {
         componentConnectionType = ConnectionType::LocalTCP;
         availableAddresses.push_back(baseAddress);
@@ -46,14 +46,14 @@ Component::Component() : systemSchemas(),
     if (availableAddresses.empty()) {
         throw std::logic_error("Could not find any networks to act on");
     } else {
-        std::cout << "Available IP addresses: " << std::endl;
+        if(VIEW_STD_OUTPUT) std::cout << "Available IP addresses: " << std::endl;
         for (const auto &address : availableAddresses) {
-            std::cout << "\t" << address << std::endl;
+            if(VIEW_STD_OUTPUT) std::cout << "\t" << address << std::endl;
         }
     }
     selfAddress = "tcp://127.0.0.1";
     componentConnectionType = ConnectionType::TCP;
-    std::cout << "Component made, self address is " << selfAddress << std::endl;
+    if(VIEW_STD_OUTPUT) std::cout << "Component made, self address is " << selfAddress << std::endl;
 }
 
 
@@ -255,10 +255,10 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
         } catch (AccessError &e) {
             //IGNORED AS THIS JUST MEANS WE HAVE A PAIR
         }
-        std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":"
-                  << lowestPort;
-        std::cout << "\n\tLocal ID of socket: " << socketId <<  "\n\tSocket Type: " ;
-        std::cout << componentManifest.getSocketType(endpointType) << std::endl;
+        if(VIEW_STD_OUTPUT) std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":"
+                                      << lowestPort;
+        if(VIEW_STD_OUTPUT) std::cout << "\n\tLocal ID of socket: " << socketId << "\n\tSocket Type: " ;
+        if(VIEW_STD_OUTPUT) std::cout << componentManifest.getSocketType(endpointType) << std::endl;
         return lowestPort++;
     }else{
         return e->getListenPort();
@@ -278,9 +278,9 @@ void Component::createEndpointAndDial(const std::string &localEndpointType, cons
     this->lowestPort++;
     try {
         e->dialConnection(dialUrl.c_str());
-        std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << dialUrl;
-        std::cout << "\n\tLocal ID of socket: " << socketId << "\n\tSocket Type: " ;
-        std::cout << componentManifest.getSocketType(localEndpointType) << std::endl;
+        if(VIEW_STD_OUTPUT) std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << dialUrl;
+        if(VIEW_STD_OUTPUT) std::cout << "\n\tLocal ID of socket: " << socketId << "\n\tSocket Type: " ;
+        if(VIEW_STD_OUTPUT) std::cout << componentManifest.getSocketType(localEndpointType) << std::endl;
     } catch (NngError &e) {
         closeAndInvalidateSocketById(socketId);
         throw;
@@ -298,7 +298,7 @@ void Component::startResourceDiscoveryHub(int port) {
             listenAddress = selfAddress;
         }
         resourceDiscoveryHubEndpoint->startResourceDiscover(listenAddress, port);
-        std::cout << "Started Resource Discovery Hub at - " << listenAddress << ":" << port << std::endl;
+        if(VIEW_STD_OUTPUT) std::cout << "Started Resource Discovery Hub at - " << listenAddress << ":" << port << std::endl;
         resourceDiscoveryConnEndpoint.registerWithHub(selfAddress + ":" + std::to_string(port));
     }
 }
@@ -328,7 +328,7 @@ void Component::closeResourceDiscoveryHub() {
     if (resourceDiscoveryHubEndpoint != nullptr) {
         delete resourceDiscoveryHubEndpoint;
         resourceDiscoveryHubEndpoint = nullptr;
-        std::cout << "Resource Discovery Hub ended" << std::endl;
+        if(VIEW_STD_OUTPUT) std::cout << "Resource Discovery Hub ended" << std::endl;
     }
 }
 

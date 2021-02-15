@@ -22,7 +22,7 @@ ReplyEndpoint::~ReplyEndpoint() {
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
             } else {
-                std::cout << "Reply socket " << endpointIdentifier << " closed" << std::endl;
+                if(VIEW_STD_OUTPUT) std::cout << "Reply socket " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
 

@@ -6,7 +6,7 @@
 
 void BackgroundListener::startBackgroundListen(const std::string &baseAddress, int port) {
     replyEndpoint.listenForConnection(baseAddress.c_str(), port);
-    std::cout << "Started background listener on " << baseAddress << ":" << port << std::endl;
+    if(VIEW_STD_OUTPUT) std::cout << "Started background listener on " << baseAddress << ":" << port << std::endl;
     backgroundPort = port;
     this->backgroundThread = std::thread(backgroundListen, this);
 }
@@ -177,7 +177,7 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(S
     component->getComponentManifest().addEndpoint(static_cast<SocketType>(request.getInteger("socketType")),
                                                   request.getString("endpointType"), esReceiveSchema, esSendSchema);
 
-    std::cout << "Endpoint of type: " << request.getString("endpointType") << " changed" << std::endl;
+    if(VIEW_STD_OUTPUT) std::cout << "Endpoint of type: " << request.getString("endpointType") << " changed" << std::endl;
     component->getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
 
     auto reply = std::make_unique<SocketMessage>();

@@ -19,7 +19,7 @@ PairEndpoint::~PairEndpoint() {
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This socket had already been closed" << std::endl;
             } else {
-                std::cout << "Pair socket " << endpointIdentifier << " closed" << std::endl;
+                if(VIEW_STD_OUTPUT) std::cout << "Pair socket " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }
@@ -129,6 +129,7 @@ void PairEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bo
         throw std::logic_error("Unable to start sending stream");
     }
 
+    std::cout << "SENDING" << std::endl;
     senderThreadEnded = false;
     senderThreadNeedsClosing = true;
     this->senderStreamingThread = std::thread(streamSendData, this, &input, blockSize,holdWhenStreamEmpty, endCallback, userData);

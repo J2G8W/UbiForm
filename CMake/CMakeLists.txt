@@ -11,6 +11,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 option(BUILD_TESTS "Build test programs" OFF)
 option(BUILD_EXAMPLES "Build examples programs" OFF)
 option(BUILD_SOUND_EXAMPLES "Build sound based examples" OFF)
+option(BUILD_EVALUATION "Build evaluation programs" OFF)
 
 # Setup nng library
 include_directories(nng-master/include)
@@ -133,3 +134,8 @@ if(BUILD_SOUND_EXAMPLES)
 	add_executable(music_stream ../examples/MusicPlayerExample.cpp)
 	target_link_libraries(music_stream UbiForm sfml-audio sfml-system)
 endif(BUILD_SOUND_EXAMPLES)
+
+if(BUILD_EVALUATION)
+	add_executable(stream_speed_test ../evaluation/streamingSpeed.cpp)
+	target_link_libraries(stream_speed_test UbiForm)
+endif(BUILD_EVALUATION)
