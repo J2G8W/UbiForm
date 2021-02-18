@@ -1,7 +1,7 @@
 #ifndef UBIFORM_SYSTEMENUMS_H
 #define UBIFORM_SYSTEMENUMS_H
 
-#define VIEW_STD_OUTPUT true
+#define VIEW_STD_OUTPUT false
 
 
 #include <string>
