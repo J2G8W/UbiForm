@@ -138,4 +138,7 @@ endif(BUILD_SOUND_EXAMPLES)
 if(BUILD_EVALUATION)
 	add_executable(stream_speed_test ../evaluation/streamingSpeed.cpp)
 	target_link_libraries(stream_speed_test UbiForm)
+
+	add_executable(pub_sub_speed_test ../evaluation/pubSubSpeed.cpp)
+	target_link_libraries(pub_sub_speed_test UbiForm)
 endif(BUILD_EVALUATION)
