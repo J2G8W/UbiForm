@@ -3,6 +3,7 @@
 
 #include <iomanip>
 #include <nng/supplemental/util/platform.h>
+#include <fstream>
 
 #define SUBSCRIBER_COMPONENT "SUBSCRIBER"
 #define PUBLISHER_COMPONENT "PUBLISHER"
@@ -21,9 +22,11 @@ struct subscriberStartupData{
 void subscriberStartup(Endpoint* e, void*d){
     auto* userData = static_cast<subscriberStartupData*>(d);
     DataReceiverEndpoint* subscriber = userData->component->castToDataReceiverEndpoint(e);
-    userData->startTime = std::chrono::high_resolution_clock::now().time_since_epoch();
+
     auto msg = subscriber->receiveMessage();
     int localCounter = msg->getInteger("counter") + 1;
+    int initial = localCounter;
+    userData->startTime = std::chrono::high_resolution_clock::now().time_since_epoch();
     for ( ; localCounter <MESSAGE_NUM; localCounter++){
         try {
             msg = subscriber->receiveMessage();
@@ -35,7 +38,7 @@ void subscriberStartup(Endpoint* e, void*d){
             break;
         }
     }
-    userData->messagesReceived = localCounter - userData->messagesLost;
+    userData->messagesReceived = localCounter - userData->messagesLost - initial;
     userData->endTime = std::chrono::high_resolution_clock::now().time_since_epoch();
     userData->done = true;
 }
@@ -49,6 +52,7 @@ struct publisherStartupData{
     int messagesSent;
 };
 void publisherStartup(Endpoint * e, void * d){
+    std::this_thread::sleep_for(std::chrono::seconds(10));
     auto* userData = static_cast<publisherStartupData*>(d);
     DataSenderEndpoint* publisher = userData->component->castToDataSenderEndpoint(e);
     SocketMessage sm;
@@ -63,7 +67,7 @@ void publisherStartup(Endpoint * e, void * d){
         }catch (std::logic_error &e) {
             break;
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
     userData->messagesSent = i;
     userData->endTime = std::chrono::high_resolution_clock::now().time_since_epoch();
@@ -93,7 +97,11 @@ int main(int argc, char **argv) {
                 nng_msleep(500);
             }
             userData->duration = userData->endTime - userData->startTime;
-            std::cout << userData->duration.count() << "," << userData->messagesReceived << "," << userData->messagesLost<< "\n";
+
+            std::ofstream results;
+            results.open("results.txt",std::fstream::out | std::fstream::app);
+            results << userData->duration.count() << "," << userData->messagesReceived << "," << userData->messagesLost<< "\n";
+            results.close()
         }
         else if (strcmp(argv[1], PUBLISHER_COMPONENT) == 0) {
             Component component;
