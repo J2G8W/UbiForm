@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
             std::ofstream results;
             results.open("results.txt",std::fstream::out | std::fstream::app);
             results << userData->duration.count() << "," << userData->messagesReceived << "," << userData->messagesLost<< "\n";
-            results.close()
+            results.close();
         }
         else if (strcmp(argv[1], PUBLISHER_COMPONENT) == 0) {
             Component component;
