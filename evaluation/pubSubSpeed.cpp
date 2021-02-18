@@ -6,7 +6,7 @@
 
 #define SUBSCRIBER_COMPONENT "SUBSCRIBER"
 #define PUBLISHER_COMPONENT "PUBLISHER"
-#define MESSAGE_NUM 1000
+#define MESSAGE_NUM 10000
 
 struct subscriberStartupData{
     Component* component;
@@ -63,7 +63,7 @@ void publisherStartup(Endpoint * e, void * d){
         }catch (std::logic_error &e) {
             break;
         }
-        //nng_msleep(1000 / MESSAGE_NUM);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
     }
     userData->messagesSent = i;
     userData->endTime = std::chrono::high_resolution_clock::now().time_since_epoch();
