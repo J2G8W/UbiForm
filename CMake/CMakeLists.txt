@@ -141,4 +141,5 @@ if(BUILD_EVALUATION)
 
 	add_executable(pub_sub_speed_test ../evaluation/pubSubSpeed.cpp)
 	target_link_libraries(pub_sub_speed_test UbiForm)
+	file(COPY ../evaluation/runPubSubEval.sh DESTINATION .)
 endif(BUILD_EVALUATION)

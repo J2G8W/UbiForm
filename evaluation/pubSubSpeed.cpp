@@ -67,7 +67,7 @@ void publisherStartup(Endpoint * e, void * d){
         }catch (std::logic_error &e) {
             break;
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(1));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
     }
     userData->messagesSent = i;
     userData->endTime = std::chrono::high_resolution_clock::now().time_since_epoch();
