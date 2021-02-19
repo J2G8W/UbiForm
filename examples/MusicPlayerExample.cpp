@@ -126,6 +126,18 @@ int main(int argc, char **argv) {
                 receiver.getBackgroundRequester().requestRemoteListenThenDial(
                         option, 8000, "receiver",
                         "sender");
+            } else if (userInput == "list_options"){
+                std::map<std::string, std::string> emptyMap;
+                auto values = receiver.getResourceDiscoveryConnectionEndpoint().getComponentsBySchema("receiver",emptyMap);
+                int i=1;
+                for(auto& val: values){
+                    std::cout << "Option " << i << std::endl;
+                    for(auto & url : val->getArray<std::string>("urls")){
+                        std::cout << "\t" << url << std::endl;
+                    }
+                    std::cout << "\tPort: " << val->getInteger("port");
+                    std::cout << "\tEndpoint Type: " << val->getString("endpointType");
+                }
             }
         }
         std::cout << "End of music reached" << std::endl;
