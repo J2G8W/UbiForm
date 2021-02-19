@@ -138,6 +138,8 @@ public:
      * @param port - The new port
      */
     void addListenerPortForAllHubs(const std::string& endpointType, int port);
+
+    void checkLivenessOfHubs();
 };
 
 
