@@ -19,7 +19,6 @@ ResourceDiscoveryConnEndpoint::sendRequest(const std::string &url, SocketMessage
     if(resourceDiscoveryEndpoints.count(url) == 0){
         throw AccessError("No endpoint for " + url + " open yet");
     }
-    resourceDiscoveryEndpoints.at(url);
     resourceDiscoveryEndpoints.at(url)->sendMessage(request);
     if(waitForResponse) {
         auto reply = resourceDiscoveryEndpoints.at(url)->receiveMessage();
@@ -350,5 +349,23 @@ void ResourceDiscoveryConnEndpoint::addListenerPortForAllHubs(const std::string 
             std::cerr << "Problem connecting to " << locationIdPair.first << "\n\t" << e.what() << std::endl;
         }
 
+    }
+}
+
+void ResourceDiscoveryConnEndpoint::checkLivenessOfHubs() {
+    auto it = resourceDiscoveryHubs.begin();
+    while(it != resourceDiscoveryHubs.end()){
+        try{
+            getComponentIdsFromHub(it->first);
+        } catch (AccessError &e) {
+            // Ignored - endpoint no longer valid
+        } catch (RemoteError &e) {
+            // Ignored - hub is valid, but had an issue with
+        } catch (std::logic_error &e){
+            it = resourceDiscoveryHubs.erase(it);
+            resourceDiscoveryEndpoints.erase(it->first);
+            continue;
+        }
+        it++;
     }
 }
