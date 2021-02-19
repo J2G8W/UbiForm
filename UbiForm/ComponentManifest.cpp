@@ -147,7 +147,8 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
                           rapidjson::Value(convertFromSocketType(socketType), JSON_document.GetAllocator()),
                           JSON_document.GetAllocator());
 
-    if (socketType == SocketType::Pair || socketType == SocketType::Subscriber) {
+    if (socketType == SocketType::Pair || socketType == SocketType::Subscriber
+            || socketType == SocketType::Request || socketType == SocketType::Reply) {
         if (receiveSchema == nullptr) {
             throw std::logic_error("No receive Schema given");
         }
@@ -158,7 +159,8 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
 
     }
 
-    if (socketType == SocketType::Pair || socketType == SocketType::Publisher) {
+    if (socketType == SocketType::Pair || socketType == SocketType::Publisher
+            || socketType == SocketType::Request || socketType == SocketType::Reply) {
         if (sendSchema == nullptr) {
             throw std::logic_error("No send Schema given");
         }
@@ -178,13 +180,15 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
                       JSON_document.GetAllocator());
 
 
-    if (socketType == SocketType::Pair || socketType == SocketType::Subscriber) {
+    if (socketType == SocketType::Pair || socketType == SocketType::Subscriber
+                                          || socketType == SocketType::Request || socketType == SocketType::Reply) {
         std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(
                 &(schemas[typeOfEndpoint].GetObject()["receive"]),
                 JSON_document.GetAllocator());
         receiverSchemas[typeOfEndpoint] = endpointSchema;
     }
-    if (socketType == SocketType::Pair || socketType == SocketType::Publisher) {
+    if (socketType == SocketType::Pair || socketType == SocketType::Publisher ||
+        socketType == SocketType::Request || socketType == SocketType::Reply) {
         std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(
                 &(schemas[typeOfEndpoint].GetObject()["send"]),
                 JSON_document.GetAllocator());
