@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
                 receiver.closeAndInvalidateSocketById(pair->getEndpointId());
             }
             std::ofstream results;
-            results.open("results.txt",std::fstream::out | std::fstream::app);
+            results.open("streaming_UbiForm_results.csv",std::fstream::out | std::fstream::app);
             for(auto &t : ts){
                 t.duration = t.endTime - t.startTime;
                 results << t.duration.count() << "," << t.fileSize << "," << t.blockSize << "\n";

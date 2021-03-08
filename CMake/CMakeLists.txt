@@ -137,8 +137,14 @@ endif(BUILD_SOUND_EXAMPLES)
 
 if(BUILD_EVALUATION)
 	file(COPY ../evaluation/EvaluationFiles DESTINATION .)
-	add_executable(stream_speed_test ../evaluation/streamingSpeed.cpp)
-	target_link_libraries(stream_speed_test UbiForm)
+	add_executable(UbiForm_stream_speed_test ../evaluation/streamingSpeedEvaluation/streamingSpeedUbiForm.cpp)
+	target_link_libraries(UbiForm_stream_speed_test UbiForm)
+
+	add_executable(nng_message_speed_test ../evaluation/streamingSpeedEvaluation/messageSpeedNNG.cpp)
+	target_link_libraries(nng_message_speed_test nng)
+
+	add_executable(nng_stream_speed_test ../evaluation/streamingSpeedEvaluation/streamingSpeedNNG.cpp)
+	target_link_libraries(nng_stream_speed_test nng)
 
 	add_executable(pub_sub_speed_test ../evaluation/pubSubSpeed.cpp)
 	target_link_libraries(pub_sub_speed_test UbiForm)
