@@ -49,6 +49,7 @@ void DataSenderEndpoint::asyncCleanup(void *data) {
     auto *asyncInput = static_cast<DataSenderEndpoint *>(data);
 
     if (nng_aio_result(asyncInput->nngAioPointer) != 0) {
+        std::cout << "H" << std::endl;
         // Failed message send, we do cleanup
         asyncInput->numSendFails++;
         nng_msg *msg = nng_aio_get_msg(asyncInput->nngAioPointer);

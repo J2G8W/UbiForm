@@ -344,34 +344,54 @@ void ResourceDiscoveryConnEndpoint::searchForResourceDiscoveryHubs() {
         if (found) { break; }
 
         std::string subnet = address.substr(0, address.rfind('.'));
-        std::vector<std::thread> threads;
-        // TODO - Memory leak of booleans
-        std::vector<bool*> alive;
+        std::vector<std::unique_ptr<RequestEndpoint>> testEndpoints;
 
-        for (int i = 128; i <= 192; i++) {
-            std::string dialAddress =
-                    subnet + "." + std::to_string(i) + ":" + std::to_string(DEFAULT_RESOURCE_DISCOVERY_PORT);
-            bool* t = new bool(false);
-            alive.push_back(t);
-            threads.emplace_back(asyncCheckHubLive,dialAddress, alive.at(i), this);
+        for (int i = 0; i <= 255; i++) {
+            auto newEndpoint = std::make_unique<RequestEndpoint>(systemSchemas.getSystemSchema(SystemSchemaName::generalRDResponse).getInternalSchema(),
+                                                                 systemSchemas.getSystemSchema(SystemSchemaName::generalRDRequest).getInternalSchema(),
+                                                                 "Resource Discovery Connection", "Test RDC");
+            try {
+                std::string dialAddress =
+                        subnet + "." + std::to_string(i) + ":" + std::to_string(DEFAULT_RESOURCE_DISCOVERY_PORT);
+                newEndpoint->dialConnection(dialAddress.c_str());
+            } catch (std::logic_error &e){
+                continue;
+            }
+            testEndpoints.push_back(std::move(newEndpoint));
         }
 
         // Assumption here is that we will find the thing pretty quickly
         nng_msleep(1000);
-        for (int i = 0; i<= 255; i++){
-            threads.at(i).detach();
-            if(*(alive.at(i))) {
-                std::string dialAddress =
-                        subnet + "." + std::to_string(i) + ":" + std::to_string(DEFAULT_RESOURCE_DISCOVERY_PORT);
-                try {
-                    registerWithHub(dialAddress);
-                    found = true;
-                    std::cout << "Found Resource Discovery Hub: " << dialAddress << std::endl;
-                } catch (std::logic_error &e) {
-                    continue;
-                }
-            }
 
+        std::vector<int> validAddresses;
+        SocketMessage sm;
+        sm.addMember("request",RESOURCE_DISCOVERY_REQUEST_ALIVE);
+        for (int i = 0; i<= 255; i++){
+            try{
+                std::cout << testEndpoints.at(i)->dialOption()  << " " << i << std::endl;
+
+                std::cout << "Sending " << i << std::endl;
+                testEndpoints.at(i)->asyncSendMessage(sm);
+                testEndpoints.at(i)->setReceiveTimeout(300);
+                std::cout << "Receiving " << i << std::endl;
+
+                //testEndpoints.at(i)->asyncReceiveMessage(nullptr, nullptr);
+                validAddresses.push_back(i);
+            } catch (std::logic_error &e) {
+                continue;
+            }
+        }
+
+        for (int i : validAddresses){
+            std::string dialAddress =
+                    subnet + "." + std::to_string(i) + ":" + std::to_string(DEFAULT_RESOURCE_DISCOVERY_PORT);
+            try{
+                registerWithHub(dialAddress);
+                std::cout << "Found " << dialAddress;
+                found = true;
+            } catch (std::logic_error &e) {
+                continue;
+            }
         }
     }
     std::cout << "End" << std::endl;
@@ -381,21 +401,6 @@ void ResourceDiscoveryConnEndpoint::searchForResourceDiscoveryHubs() {
 }
 
 void ResourceDiscoveryConnEndpoint::asyncCheckHubLive(const std::string &url, bool *returnVal,ResourceDiscoveryConnEndpoint* rdc) {
-    RequestEndpoint newEndpoint (
-            rdc->systemSchemas.getSystemSchema(SystemSchemaName::generalRDResponse).getInternalSchema(),
-            rdc->systemSchemas.getSystemSchema(SystemSchemaName::generalRDRequest).getInternalSchema(),
-            "Resource Discovery Connection", "Test RDC - " + url);
-    try{
-        std::cout << url << std::endl;
-        newEndpoint.dialConnection(url.c_str());
-        SocketMessage sm;
-        sm.addMember("request",RESOURCE_DISCOVERY_REQUEST_ALIVE);
-        newEndpoint.sendMessage(sm);
-        newEndpoint.setReceiveTimeout(300);
-        newEndpoint.receiveMessage();
-        *returnVal = true;
-    } catch (NngError &e) {
-        *returnVal = false;
-    }
+
 }
 

@@ -24,7 +24,7 @@ void RequestEndpoint::dialConnection(const char *url) {
             openEndpoint();
         }
 
-        if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
+        if ((rv = nng_dial(*senderSocket, url, &dialer, NNG_FLAG_NONBLOCK )) != 0) {
             throw NngError(rv, "Dialing " + std::string(url) + " for a request connection");
         }
         this->dialUrl = url;

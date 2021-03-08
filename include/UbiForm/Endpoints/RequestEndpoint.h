@@ -8,6 +8,7 @@
 #include "DataSenderEndpoint.h"
 
 class RequestEndpoint : public DataReceiverEndpoint, public DataSenderEndpoint {
+    nng_dialer dialer;
 public:
     RequestEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema,
                     const std::string &endpointType, const std::string &endpointIdentifier = "Request",
@@ -31,6 +32,9 @@ public:
 
     void openEndpoint() override;
 
+    int dialOption(){
+        return nng_dialer_id(dialer);
+    }
 
     ~RequestEndpoint() override;
 };
