@@ -2,6 +2,7 @@
 
 #include "../include/UbiForm/Component.h"
 #include <nng/supplemental/util/platform.h>
+#include <fstream>
 
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
@@ -17,9 +18,11 @@ struct ReceiverData{
 };
 void receiverCreationCallback(Endpoint* e, void* data){
     auto userData = static_cast<ReceiverData *>(data);
+    // Initial time
     userData->timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
 
     auto message = userData->component.castToPair(e)->receiveMessage();
+    // Time to receive the message
     userData->timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
     userData->end = true;
 }
@@ -64,9 +67,14 @@ int main(int argc, char **argv) {
             while (!data->end) {
                 nng_msleep(100);
             }
-            for (auto x : timings){
-                std::cout << x.count() << std::endl;
+
+            std::ofstream results;
+            results.open("section_speeds_receiver_results.txt",std::fstream::out | std::fstream::app);
+            for(auto x : timings){
+                std::cout << x.count() << ",";
             }
+            results << std::endl;
+            results.close();
         } else if (strcmp(argv[1], SENDER) == 0 && argc >=3) {
             std::vector<std::chrono::duration<int64_t, std::nano>> timings;
             timings.reserve(5);
@@ -87,12 +95,15 @@ int main(int argc, char **argv) {
             sender.getBackgroundRequester().localListenThenRequestRemoteDial(
                     argv[2], "pairEvaluation","pairEvaluation");
 
+            nng_msleep(1000);
 
-            nng_msleep(3000);
+            std::ofstream results;
+            results.open("section_speeds_sender_results.txt",std::fstream::out | std::fstream::app);
             for(auto x : timings){
-                std::cout << x.count() << std::endl;
+                std::cout << x.count() << ",";
             }
-
+            results << std::endl;
+            results.close();
 
         } else {
             std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << "|" << SENDER << "\n";
