@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "../include/UbiForm/Component.h"
+#include "../../include/UbiForm/Component.h"
 #include <nng/supplemental/util/platform.h>
 #include <fstream>
 
