@@ -98,6 +98,8 @@ typedef void (*endpointAdditionCallBack)(std::string, void*);
 #define RESOURCE_DISCOVERY_REQUEST_BY_PROPERTIES "requestProperties"
 #define RESOURCE_DISCOVERY_REQUEST_COMPONENTS "requestComponents"
 
+#define RESOURCE_DISCOVERY_REQUEST_ALIVE "alive"
+
 
 
 

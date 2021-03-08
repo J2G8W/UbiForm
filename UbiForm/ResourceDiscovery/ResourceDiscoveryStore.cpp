@@ -130,6 +130,8 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
     } else if (request == RESOURCE_DISCOVERY_NOTIFY_SOCKET_LISTEN){
         componentById.at(sm->getString("id"))->addListenPort(
                 sm->getString("endpointType"),sm->getInteger("port"));
+    } else if (request == RESOURCE_DISCOVERY_REQUEST_ALIVE){
+        returnMsg->addMember("live",true);
     } else {
         throw std::logic_error("Error with request: "+ request +"\nDid not match expected");
     }
