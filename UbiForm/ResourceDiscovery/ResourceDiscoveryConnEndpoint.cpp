@@ -348,7 +348,7 @@ void ResourceDiscoveryConnEndpoint::searchForResourceDiscoveryHubs() {
         // TODO - Memory leak of booleans
         std::vector<bool*> alive;
 
-        for (int i = 0; i <= 255; i++) {
+        for (int i = 128; i <= 192; i++) {
             std::string dialAddress =
                     subnet + "." + std::to_string(i) + ":" + std::to_string(DEFAULT_RESOURCE_DISCOVERY_PORT);
             bool* t = new bool(false);
