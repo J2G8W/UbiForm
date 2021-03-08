@@ -7,7 +7,8 @@
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
 
-#define USE_RDH false
+#define USE_RDH true
+#define USE_ASYNC_SEND false
 
 
 struct ReceiverData{
@@ -44,7 +45,12 @@ void senderCreationCallback(Endpoint* e, void* data){
     sm.addMoveObject("objectProperty", std::move(subObject));
     userData->timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
 
-    userData->component.castToPair(e)->sendMessage(sm);
+    if (USE_ASYNC_SEND){
+        userData->component.castToPair(e)->asyncSendMessage(sm);
+    } else{
+        userData->component.castToPair(e)->sendMessage(sm);
+    }
+
     userData->timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
 }
 
@@ -59,6 +65,10 @@ int main(int argc, char **argv) {
             fclose(pFile);
 
             receiver.startBackgroundListen();
+
+            if (argc >= 3){
+                receiver.getResourceDiscoveryConnectionEndpoint().registerWithHub(argv[2]);
+            }
 
             std::vector<std::chrono::duration<int64_t, std::nano>> timings;
             auto* data = new ReceiverData(receiver, timings);
@@ -89,11 +99,29 @@ int main(int argc, char **argv) {
             auto* data = new SenderData(sender, timings);
             sender.registerStartupFunction("pairEvaluation",senderCreationCallback, data);
 
+            sender.startBackgroundListen();
+
             // Time after starting component
             timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
-            sender.startBackgroundListen();
+            std::string dialAddress = argv[2];
+            if (USE_RDH){
+                sender.getResourceDiscoveryConnectionEndpoint().registerWithHub(argv[2]);
+                timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
+                std::map<std::string, std::string> empty;
+                auto receivers = sender.getResourceDiscoveryConnectionEndpoint().getComponentsBySchema("pairEvaluation", empty);
+                timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
+                if(receivers.empty()){throw std::logic_error("No receivers returned");}
+                dialAddress = receivers.at(0)->getArray<std::string>("urls").at(0);
+                dialAddress += ":" + std::to_string(receivers.at(0)->getInteger("port"));
+            }else{
+                timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
+                timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
+            }
+
             sender.getBackgroundRequester().localListenThenRequestRemoteDial(
-                    argv[2], "pairEvaluation","pairEvaluation");
+                   dialAddress , "pairEvaluation","pairEvaluation");
+
+
 
             nng_msleep(1000);
 
