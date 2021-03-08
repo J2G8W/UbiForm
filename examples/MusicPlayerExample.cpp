@@ -13,8 +13,8 @@
 
 struct PairStartupInfo{
     Component* component;
-    sf::Music musicObject;
     sf::FileInputStream stream;
+    sf::Music musicObject;
     bool progEnd = false;
     bool musicPlaying = false;
     PairStartupInfo() : musicObject(), stream(){}
@@ -50,10 +50,10 @@ void onStreamingEndpointCreation(Endpoint* e, void* u){
 
 
     if (!userData->stream.open(tempFileName)){
-        throw std::logic_error("Error with file");
+        return;
     }
     if(!userData->musicObject.openFromStream(userData->stream)){
-        throw std::logic_error("Error with stream");
+        return;
     }
     userData->musicObject.play();
     userData->musicPlaying = true;
@@ -71,6 +71,7 @@ void maintainMusicPlaying(PairStartupInfo* psi){
             if (psi->musicObject.getStatus() == psi->musicObject.Stopped) {
                 if (psi->stream.tell() == psi->stream.getSize()) {
                     psi->musicPlaying = false;
+                    //psi->musicObject.stop();
                     continue;
                 }
                 psi->musicObject.play();
@@ -99,6 +100,7 @@ int main(int argc, char **argv) {
 
 
         std::thread maintainMusic(maintainMusicPlaying, pairStartupInfo);
+        std::vector<std::unique_ptr<SocketMessage>> values;
         while(true) {
             std::string userInput;
             std::cin >> userInput;
@@ -120,15 +122,33 @@ int main(int argc, char **argv) {
                     }
                 }
             } else if (userInput.rfind("connect", 0) == 0) {
-                std::cout << "Dial address: ";
-                std::string option;
+                std::cout << "Option choice ";
+                int option;
                 std::cin >> option;
-                receiver.getBackgroundRequester().requestRemoteListenThenDial(
-                        option, 8000, "receiver",
-                        "sender");
+                if (values.size() < option){
+                    std::cerr << "Not a valid option" << std::endl;
+                    continue;
+                }
+                option -= 1;
+                bool found = false;
+                for(auto & url : values.at(option)->getArray<std::string>("urls")){
+                    try {
+                        receiver.getBackgroundRequester().requestRemoteListenThenDial(
+                                url, values.at(option)->getInteger("port"),
+                                "receiver",
+                                values.at(option)->getString("endpointType"));
+                        found = true;
+                        break;
+                    } catch (std::logic_error &e) {
+                        std::cout << e.what() << std::endl;
+                    }
+                }
+                if(!found){
+                    std::cerr << "Error connecting to music" << std::endl;
+                }
             } else if (userInput == "list_options"){
                 std::map<std::string, std::string> emptyMap;
-                auto values = receiver.getResourceDiscoveryConnectionEndpoint().getComponentsBySchema("receiver",emptyMap);
+                values = receiver.getResourceDiscoveryConnectionEndpoint().getComponentsBySchema("receiver", emptyMap);
                 int i=1;
                 for(auto& val: values){
                     std::cout << "Option " << i << std::endl;
@@ -136,11 +156,16 @@ int main(int argc, char **argv) {
                         std::cout << "\t" << url << std::endl;
                     }
                     std::cout << "\tPort: " << val->getInteger("port");
-                    std::cout << "\tEndpoint Type: " << val->getString("endpointType");
+                    std::cout << "\tEndpoint Type: " << val->getString("endpointType") <<std::endl;
                 }
+            } else if (userInput == "stop"){
+                pairStartupInfo->musicObject.stop();
+                pairStartupInfo->musicPlaying = false;
+            } else{
+                std::cout << "Not a valid input" << std::endl;
             }
         }
-        std::cout << "End of music reached" << std::endl;
+        std::cout << "Exiting" << std::endl;
         maintainMusic.join();
         delete pairStartupInfo;
     } else {
