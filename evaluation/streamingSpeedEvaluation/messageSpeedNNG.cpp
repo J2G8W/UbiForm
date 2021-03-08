@@ -40,14 +40,14 @@ int main(int argc, char **argv){
             nng_err(rv, "Dialing " + std::string(argv[2]) + " for a pair connection");
         }
 
-        for(auto t : timings){
+        for(auto& t : timings){
             t.startTime = std::chrono::high_resolution_clock::now().time_since_epoch();
             size_t bytesReceived = 0;
             while(true) {
                 char *buffer = nullptr;
                 size_t sz;
-                if ((rv = nng_recv(*recv_socket, &buffer, &sz, NNG_FLAG_ALLOC)) == 0) {
-                    if (sz == 0){
+                if (nng_recv(*recv_socket, &buffer, &sz, NNG_FLAG_ALLOC) == 0) {
+                    if (sz == 4 && std::string(buffer) == "end"){
                         break;
                     }
                     bytesReceived += sz;
@@ -56,7 +56,7 @@ int main(int argc, char **argv){
             }
             t.endTime = std::chrono::high_resolution_clock::now().time_since_epoch();
             t.bytesReceived = bytesReceived;
-            nng_msleep(100);
+            nng_msleep(500);
         }
 
 
@@ -79,19 +79,21 @@ int main(int argc, char **argv){
             nng_err(rv, "Dialing for a pair connection");
         }
 
+        std::ifstream infile(argv[2], std::fstream::binary | std::fstream::in);
         for(int i = 0; i < NUM_TESTS; i++) {
-            std::ifstream infile(argv[2], std::fstream::binary | std::fstream::in);
 
-            size_t msg_size = MESSAGE_SIZE;
-            char *buffer = static_cast<char *>(calloc(msg_size, sizeof(char)));
+            char *buffer = static_cast<char *>(calloc(MESSAGE_SIZE, sizeof(char)));
 
             while (!infile.eof()) {
-                infile.read(buffer, msg_size);
+                infile.read(buffer, MESSAGE_SIZE);
                 if ((rv = nng_send(*sender_socket, (void *) buffer, infile.gcount(), 0)) != 0) {
                     nng_err(rv, "nng_send");
                 }
             }
-            nng_send(*sender_socket, buffer, 0,0);
+            const char* endMsg = "end";
+            nng_send(*sender_socket, (void*)endMsg, 4,0);
+            infile.clear();
+            infile.seekg(0, std::ifstream::beg);
         }
 
         nng_msleep(1000);
