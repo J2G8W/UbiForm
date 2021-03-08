@@ -56,6 +56,7 @@ int main(int argc, char **argv){
             }
             t.endTime = std::chrono::high_resolution_clock::now().time_since_epoch();
             t.bytesReceived = bytesReceived;
+            nng_msleep(100);
         }
 
 
