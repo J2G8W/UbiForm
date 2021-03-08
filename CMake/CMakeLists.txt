@@ -136,10 +136,14 @@ if(BUILD_SOUND_EXAMPLES)
 endif(BUILD_SOUND_EXAMPLES)
 
 if(BUILD_EVALUATION)
+	file(COPY ../evaluation/EvaluationFiles DESTINATION .)
 	add_executable(stream_speed_test ../evaluation/streamingSpeed.cpp)
 	target_link_libraries(stream_speed_test UbiForm)
 
 	add_executable(pub_sub_speed_test ../evaluation/pubSubSpeed.cpp)
 	target_link_libraries(pub_sub_speed_test UbiForm)
 	file(COPY ../evaluation/runPubSubEval.sh DESTINATION .)
+
+	add_executable(section_speed_test ../evaluation/sectionSpeeds.cpp)
+	target_link_libraries(section_speed_test UbiForm)
 endif(BUILD_EVALUATION)
