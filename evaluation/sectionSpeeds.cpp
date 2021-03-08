@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
             std::ofstream results;
             results.open("section_speeds_receiver_results.txt",std::fstream::out | std::fstream::app);
             for(auto x : timings){
-                std::cout << x.count() << ",";
+                results << x.count() << ",";
             }
             results << std::endl;
             results.close();
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
             std::ofstream results;
             results.open("section_speeds_sender_results.txt",std::fstream::out | std::fstream::app);
             for(auto x : timings){
-                std::cout << x.count() << ",";
+                results << x.count() << ",";
             }
             results << std::endl;
             results.close();
