@@ -113,6 +113,7 @@ int main(int argc, char **argv) {
                 if(receivers.empty()){throw std::logic_error("No receivers returned");}
                 dialAddress = receivers.at(0)->getArray<std::string>("urls").at(0);
                 dialAddress += ":" + std::to_string(receivers.at(0)->getInteger("port"));
+
             }else{
                 timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
                 timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
