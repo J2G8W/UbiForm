@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
         component.getBackgroundRequester().requestChangeEndpoint(brokerAddress+":8000", SocketType::Reply,
                                                                  "dataBroker", sendSchema.get(), receiveSchema.get());
 
-        nng_msleep(5000);
+        nng_msleep(2000);
 
         component.getBackgroundRequester().requestRemoteListenThenDial(brokerAddress,8000, "dataPublisher","dataBroker");
 

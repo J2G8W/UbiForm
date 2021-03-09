@@ -152,9 +152,9 @@ if(BUILD_EVALUATION)
 
 	add_executable(brokered_speed_test_broker ../evaluation/brokeredPubSubEvaluation/Broker.cpp)
 	target_link_libraries(brokered_speed_test_broker UbiForm)
-
 	add_executable(brokered_speed_test_pubsub ../evaluation/brokeredPubSubEvaluation/PublisherSubscriber.cpp)
 	target_link_libraries(brokered_speed_test_pubsub UbiForm)
+	file(COPY ../evaluation/brokeredPubSubEvaluation/run_brokered_pub_sub.sh DESTINATION .)
 
 	add_executable(section_speed_test ../evaluation/sectionSpeeds.cpp)
 	target_link_libraries(section_speed_test UbiForm)
