@@ -158,16 +158,17 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
                 }
             }
         }
-
-        std::string encodedMsg = base64_encode(reinterpret_cast<const unsigned char *>(bytesToEncode), numBytes);
+        size_t out_len = 0;
+        auto encodedMsg = base64_encode(reinterpret_cast<const unsigned char *>(bytesToEncode), numBytes, &out_len);
 
         SocketMessage sm;
-        sm.addMember("bytes", encodedMsg);
+        sm.addMember("bytes", (const char*) encodedMsg);
         try {
             endpoint->asyncSendMessage(sm);
         }catch(std::logic_error &e){
             break;
         }
+        free(encodedMsg);
     }
     if(endCallback != nullptr) {
         endCallback(endpoint, userData);
