@@ -151,7 +151,7 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
                 SocketMessage sm;
                 sm.addMember("end",true);
                 try{
-                    endpoint->asyncSendMessage(sm);
+                    endpoint->rawSendMessage(sm);
                     break;
                 }catch (std::logic_error&e){
                     break;
@@ -164,7 +164,7 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
         SocketMessage sm;
         sm.addMember("bytes", (const char*) encodedMsg);
         try {
-            endpoint->asyncSendMessage(sm);
+            endpoint->rawSendMessage(sm);
         }catch(std::logic_error &e){
             break;
         }
