@@ -161,10 +161,15 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
         size_t out_len = 0;
         auto encodedMsg = base64_encode(reinterpret_cast<const unsigned char *>(bytesToEncode), numBytes, &out_len);
 
-        SocketMessage sm;
-        sm.addMember("bytes", (const char*) encodedMsg);
         try {
-            endpoint->rawSendMessage(sm);
+            if (!(endpoint->endpointState == EndpointState::Listening || endpoint->endpointState == EndpointState::Dialed)) {
+                throw SocketOpenError("Could not send message, in state: " + convertEndpointState(endpoint->endpointState),
+                                      endpoint->socketType, endpoint->endpointIdentifier);
+            }
+            int rv;
+            if ((rv = nng_send(*(endpoint->senderSocket), (void *) encodedMsg, out_len, 0)) != 0) {
+                throw NngError(rv, "nng_send");
+            }
         }catch(std::logic_error &e){
             break;
         }
