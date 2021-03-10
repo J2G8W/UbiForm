@@ -167,7 +167,7 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
                                       endpoint->socketType, endpoint->endpointIdentifier);
             }
             int rv;
-            if ((rv = nng_send(*(endpoint->senderSocket), (void *) encodedMsg, out_len, 0)) != 0) {
+            if ((rv = nng_send(*(endpoint->senderSocket), (void *) encodedMsg, out_len + 1, 0)) != 0) {
                 throw NngError(rv, "nng_send");
             }
         }catch(std::logic_error &e){
