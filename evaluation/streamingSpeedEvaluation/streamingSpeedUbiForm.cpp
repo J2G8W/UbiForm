@@ -28,7 +28,7 @@ struct startupData{
     Component * component;
     std::string fileName;
     bool streamDone = false;
-    int blockSize = 10002;
+    int blockSize;
 };
 void endOfSenderStream(PairEndpoint* pe, void* userData){
     auto* t = static_cast<startupData*>(userData);
@@ -115,6 +115,8 @@ int main(int argc, char **argv) {
                     std::cerr << e.what() << std::endl;
                     exit(-1);
                 }
+            } else{
+                s->blockSize = 100002;
             }
             sender.registerStartupFunction("sender",senderConnectStream,s);
 
@@ -127,6 +129,7 @@ int main(int argc, char **argv) {
                 s->streamDone = false;
                 sender.closeAndInvalidateSocketsOfType("sender");
             }
+
         } else {
             std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << " SENDER_ADDRESS\n";
             std::cerr << argv[0] << " " << SENDER << " fileLocation " <<  " [blockSize]" << std::endl;
