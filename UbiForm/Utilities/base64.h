@@ -44,6 +44,7 @@ static inline bool is_base64(unsigned char c) {
 
 unsigned char* base64_encode(const unsigned char *src, size_t len,
                              size_t *out_len);
-std::vector<unsigned char>base64_decode_to_vector(std::string const& encoded_string);
-void base64_decode_to_stream(std::string const& encoded_string, std::ostream &stream);
+
+
+void base64_decode_to_stream(const void* data, const size_t len, std::ostream &stream);
 #endif //UBIFORM_BASE64_H

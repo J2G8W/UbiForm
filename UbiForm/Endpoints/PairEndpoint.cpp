@@ -110,7 +110,7 @@ PairEndpoint::streamReceiveData(PairEndpoint *endpoint, std::ostream *stream, en
             break;
         }
         std::string r  = message->getString("bytes");
-        base64_decode_to_stream(r,*stream);
+        base64_decode_to_stream(r.c_str(),r.length(),*stream);
     }
     if(endCallback != nullptr){
         endCallback(endpoint, userData);
