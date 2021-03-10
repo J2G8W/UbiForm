@@ -68,8 +68,7 @@ int main(int argc, char **argv) {
 
             timingData ts[5];
             for(auto &t:ts){
-                NullBuffer* null_buffer = new NullBuffer;
-                t.outputStream = new std::ostream (null_buffer);
+                t.outputStream = new std::ostringstream;
             }
 
             for(auto & t : ts) {
