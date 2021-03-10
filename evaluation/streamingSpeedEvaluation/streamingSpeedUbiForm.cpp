@@ -88,6 +88,7 @@ int main(int argc, char **argv) {
                     nng_msleep(100);
                 }
                 receiver.closeAndInvalidateSocketById(pair->getEndpointId());
+                nng_msleep(500);
             }
             std::ofstream results;
             results.open("streaming_UbiForm_results.csv",std::fstream::out | std::fstream::app);
@@ -116,7 +117,7 @@ int main(int argc, char **argv) {
                     exit(-1);
                 }
             } else{
-                s->blockSize = 100002;
+                s->blockSize = 50001;
             }
             sender.registerStartupFunction("sender",senderConnectStream,s);
 
