@@ -28,7 +28,7 @@ struct TimingData{
 };
 
 int main(int argc, char **argv){
-    if (strcmp(argv[1], RECEIVER) == 0) {
+    if (strcmp(argv[1], RECEIVER) == 0 && argc >=3) {
         std::vector<TimingData> timings(NUM_TESTS);
         int rv;
         nng_socket* recv_socket = new nng_socket;
@@ -69,7 +69,7 @@ int main(int argc, char **argv){
         }
         results.close();
 
-    } else if (strcmp(argv[1], SENDER) == 0) {
+    } else if (strcmp(argv[1], SENDER) == 0 && argc >= 3) {
         int rv;
         nng_socket* sender_socket = new nng_socket;
         if ((rv = nng_pair0_open(sender_socket)) != 0) {
@@ -98,7 +98,7 @@ int main(int argc, char **argv){
 
         nng_msleep(1000);
     } else {
-        std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << "SENDER_ADDRESS\n";
-        std::cerr << argv[0] << " " << SENDER << " [fileLocation]" << std::endl;
+        std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << " SENDER_ADDRESS\n";
+        std::cerr << argv[0] << " " << SENDER << " fileLocation" << std::endl;
     }
 }

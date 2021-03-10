@@ -129,10 +129,10 @@ int main(int argc, char **argv) {
             }
         } else {
             std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << " SENDER_ADDRESS\n";
-            std::cerr << argv[0] << " " << SENDER << " fileLocation" <<  "[blockSize]" << std::endl;
+            std::cerr << argv[0] << " " << SENDER << " fileLocation " <<  " [blockSize]" << std::endl;
         }
     } else {
-        std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << "SENDER_ADDRESS\n";
-        std::cerr << argv[0] << " " << SENDER << " [fileLocation]" << std::endl;
+        std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << " SENDER_ADDRESS\n";
+        std::cerr << argv[0] << " " << SENDER << " fileLocation " <<  " [blockSize]" << std::endl;
     }
 }
