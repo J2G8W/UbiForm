@@ -7,13 +7,19 @@
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
 
+// https://stackoverflow.com/questions/11826554/standard-no-op-output-stream
+class NullBuffer : public std::streambuf{
+public:
+    int overflow(int c) { return c; }
+};
+
 struct timingData{
     std::chrono::duration<int64_t, std::nano> startTime;
     std::chrono::duration<int64_t, std::nano> endTime;
     std::chrono::duration<int64_t, std::nano> duration;
     long fileSize;
     int blockSize;
-    std::ostringstream* outputStream;
+    std::ostream* outputStream;
 };
 
 void endOfReceiveStream(PairEndpoint* pe, void* userData){
@@ -50,7 +56,6 @@ void senderConnectStream(Endpoint* e, void* userData){
 }
 
 
-
 int main(int argc, char **argv) {
     if (argc >= 3) {
         if (strcmp(argv[1], RECEIVER) == 0) {
@@ -62,8 +67,10 @@ int main(int argc, char **argv) {
             receiver.getComponentManifest().addEndpoint(SocketType::Pair,"receiver",receiveEndpoint,empty);
 
             timingData ts[5];
+
             for(auto &t:ts){
-                t.outputStream = new std::ostringstream ;
+                auto* null_buffer = new NullBuffer;
+                t.outputStream = new std::ostream(null_buffer) ;
             }
 
             for(auto & t : ts) {
