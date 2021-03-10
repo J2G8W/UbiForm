@@ -14,7 +14,7 @@ struct timingData{
     std::chrono::duration<int64_t, std::nano> duration;
     long fileSize;
     int blockSize;
-    std::ostringstream* outputStream;
+    std::ostream* outputStream;
 };
 
 void endOfReceiveStream(PairEndpoint* pe, void* userData){
@@ -50,6 +50,11 @@ void senderConnectStream(Endpoint* e, void* userData){
     pair->sendStream(t->fileStream, t->blockSize, false, sm, endOfSenderStream, t);
 }
 
+class NullBuffer : public std::streambuf {
+public:
+    int overflow(int c) { return c; }
+};
+
 
 int main(int argc, char **argv) {
     if (argc >= 3) {
@@ -63,7 +68,8 @@ int main(int argc, char **argv) {
 
             timingData ts[5];
             for(auto &t:ts){
-                t.outputStream = new std::ostringstream ;
+                NullBuffer* null_buffer = new NullBuffer;
+                t.outputStream = new std::ostream (null_buffer);
             }
 
             for(auto & t : ts) {
