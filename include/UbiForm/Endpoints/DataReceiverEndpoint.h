@@ -28,13 +28,13 @@ private:
      * the void*.
      */
     struct AsyncData {
-        void (*callback)(SocketMessage *, void *);
+        receiveMessageCallBack callback;
 
         std::shared_ptr<EndpointSchema> endpointSchema;
         DataReceiverEndpoint *owningEndpoint;
         void *furtherUserData;
 
-        AsyncData(void (*cb)(SocketMessage *, void *), std::shared_ptr<EndpointSchema> endpointSchema,
+        AsyncData(receiveMessageCallBack cb, std::shared_ptr<EndpointSchema> endpointSchema,
                   void *furtherUserData, DataReceiverEndpoint *dataReceiverEndpoint) :
                 callback(cb), endpointSchema(endpointSchema) {
 
@@ -83,12 +83,12 @@ public:
      * We receive a message asynchronously, accepting a function which does work a SocketMessage. The function handles
      * the memory management of the SocketMessage. Additionally we are able to pass in arbitrary data as additionalData
      * which is then accessible as the second attribute in the called function
-     * @param callb - The function which is called when a SocketMessage is received - DON'T BE A BLOCKING FUNCTION or we
+     * @param callback - The function which is called when a SocketMessage is received - DON'T BE A BLOCKING FUNCTION or we
      * can get deadlock scenarios
-     * @param additionalData - Extra data which you want to be available in the call back
+     * @param furtherUserData - Extra data which you want to be available in the call back
      * @throws SocketOpenError - When the socket is not open
      */
-    void asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *additionalData);
+    void asyncReceiveMessage(receiveMessageCallBack callback, void *furtherUserData);
 
     /**
      * Get the URL we are currently dialled onto

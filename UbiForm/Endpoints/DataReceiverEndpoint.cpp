@@ -30,12 +30,12 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::rawReceiveMessage() {
 
 
 // This is the public interface for asynchronously receiving messages
-void DataReceiverEndpoint::asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *furtherUserData) {
+void DataReceiverEndpoint::asyncReceiveMessage(receiveMessageCallBack callback, void *furtherUserData) {
     if (!(endpointState == EndpointState::Dialed || endpointState == EndpointState::Listening)) {
         throw SocketOpenError("Could not async-receive message, socket is closed, in state: " + convertEndpointState(endpointState),
                               socketType, endpointIdentifier);
     }
-    auto *asyncData = new AsyncData(callb, this->receiverSchema, furtherUserData, this);
+    auto *asyncData = new AsyncData(callback, this->receiverSchema, furtherUserData, this);
     nng_aio_alloc(&(uniqueEndpointAioPointer), asyncCallback, asyncData);
     nng_recv_aio(*receiverSocket, uniqueEndpointAioPointer);
     // Purposely don't delete memory of asyncData as this will be used in the callback
