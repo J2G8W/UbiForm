@@ -63,11 +63,11 @@ void PairEndpoint::openEndpoint() {
     }
 }
 
-void PairEndpoint::listenForConnection(const char *base, int port) {
+void PairEndpoint::listenForConnection(const std::string &base, int port) {
     DataSenderEndpoint::listenForConnection(base, port);
 }
 
-int PairEndpoint::listenForConnectionWithRV(const char *base, int port) {
+int PairEndpoint::listenForConnectionWithRV(const std::string &base, int port) {
     int rv = DataSenderEndpoint::listenForConnectionWithRV(base, port);
     return rv;
 }

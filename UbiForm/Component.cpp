@@ -239,7 +239,7 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
             } else {
                 url = selfAddress;
             }
-            rv = e->listenForConnectionWithRV(url.c_str(), lowestPort);
+            rv = e->listenForConnectionWithRV(url, lowestPort);
             if (rv == NNG_EADDRINUSE) {
                 lowestPort = generateRandomPort();
             } else if (rv != 0) {

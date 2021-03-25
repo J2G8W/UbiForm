@@ -47,7 +47,7 @@ public:
      * @param port - The port to listen on
      * @throws NngError - when we are unable to listen on that address for whatever reason
      */
-    virtual void listenForConnection(const char *base, int port);
+    virtual void listenForConnection(const std::string &base, int port);
 
     /**
      * Listen for a connection but don't throw any errors and instead return a return variable to do things with. Should
@@ -56,7 +56,7 @@ public:
      * @param port - The port to listen on
      * @return A return variable representing how the listening has gone
      */
-    virtual int listenForConnectionWithRV(const char *base, int port);
+    virtual int listenForConnectionWithRV(const std::string &base, int port);
 
     /**
      * Blocking send on our Socket

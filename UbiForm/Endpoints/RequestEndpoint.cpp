@@ -2,12 +2,12 @@
 #include <nng/supplemental/util/platform.h>
 #include "../../include/UbiForm/Endpoints/RequestEndpoint.h"
 
-void RequestEndpoint::listenForConnection(const char *base, int port) {
+void RequestEndpoint::listenForConnection(const std::string &base, int port) {
     throw SocketOpenError("Request socket trying to listen for connection",
                           socketType, endpointIdentifier);
 }
 
-int RequestEndpoint::listenForConnectionWithRV(const char *base, int port) {
+int RequestEndpoint::listenForConnectionWithRV(const std::string &base, int port) {
     throw SocketOpenError("Request socket trying to listen for connection",
                           socketType, endpointIdentifier);
 }

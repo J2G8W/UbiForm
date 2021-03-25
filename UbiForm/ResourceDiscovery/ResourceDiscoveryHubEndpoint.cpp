@@ -5,7 +5,7 @@
 #include <nng/protocol/reqrep0/rep.h>
 
 void ResourceDiscoveryHubEndpoint::startResourceDiscover(const std::string &baseAddress, int port) {
-    replyEndpoint.listenForConnection(baseAddress.c_str(), port);
+    replyEndpoint.listenForConnection(baseAddress, port);
     backgroundPort = port;
     this->rdThread = std::thread(rdBackground, this);
 }

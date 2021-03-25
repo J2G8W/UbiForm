@@ -67,17 +67,17 @@ void DataSenderEndpoint::setSendTimeout(int ms_time) {
     }
 }
 
-void DataSenderEndpoint::listenForConnection(const char *base, int port) {
+void DataSenderEndpoint::listenForConnection(const std::string &base, int port) {
     int rv = listenForConnectionWithRV(base, port);
     if (rv != 0) {
         throw NngError(rv, "Listening on " + std::string(base));
     }
 }
 
-int DataSenderEndpoint::listenForConnectionWithRV(const char *base, int port) {
+int DataSenderEndpoint::listenForConnectionWithRV(const std::string &base, int port) {
     if (endpointState == EndpointState::Open) {
         int rv;
-        std::string addr = std::string(base) + ":" + std::to_string(port);
+        std::string addr = base + ":" + std::to_string(port);
         if ((rv = nng_listen(*senderSocket, addr.c_str(), nullptr, 0)) != 0) {
             return rv;
         }

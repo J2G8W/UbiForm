@@ -5,7 +5,7 @@
 #include "../../include/UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
 void BackgroundListener::startBackgroundListen(const std::string &baseAddress, int port) {
-    replyEndpoint.listenForConnection(baseAddress.c_str(), port);
+    replyEndpoint.listenForConnection(baseAddress, port);
     std::cout << "Started background listener on " << baseAddress << ":" << port << std::endl;
     backgroundPort = port;
     this->backgroundThread = std::thread(backgroundListen, this);

@@ -20,9 +20,9 @@ public:
     }
 
     // SHOULD NOT LISTEN FOR CONNECTION
-    void listenForConnection(const char *base, int port) override;
+    void listenForConnection(const std::string &base, int port) override;
 
-    int listenForConnectionWithRV(const char *base, int port) override;
+    int listenForConnectionWithRV(const std::string &base, int port) override;
 
 
     void dialConnection(const std::string &url) override;

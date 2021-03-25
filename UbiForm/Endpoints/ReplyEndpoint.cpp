@@ -50,11 +50,11 @@ void ReplyEndpoint::openEndpoint() {
     }
 }
 
-void ReplyEndpoint::listenForConnection(const char *base, int port) {
+void ReplyEndpoint::listenForConnection(const std::string &base, int port) {
     DataSenderEndpoint::listenForConnection(base, port);
 }
 
-int ReplyEndpoint::listenForConnectionWithRV(const char *base, int port) {
+int ReplyEndpoint::listenForConnectionWithRV(const std::string &base, int port) {
     int rv = DataSenderEndpoint::listenForConnectionWithRV(base, port);
     return rv;
 }
