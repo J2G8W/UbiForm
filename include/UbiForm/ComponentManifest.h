@@ -27,7 +27,10 @@ protected:
     std::map<std::string, std::shared_ptr<EndpointSchema> > senderSchemas;
 
     endpointAdditionCallBack additionCallBack = nullptr;
-    void * userData = nullptr;
+    void * additionUserData = nullptr;
+
+    manifestChangeCallBack changeCallBack = nullptr;
+    void* changeUserData = nullptr;
 
     SystemSchemas &systemSchemas;
 
@@ -236,6 +239,9 @@ public:
      * @param providedData The data we want to pass to our callback
      */
     void registerEndpointAdditionCallback(endpointAdditionCallBack callBack, void* providedData);
+
+
+    void registerManifestChangeCallback(manifestChangeCallBack callBack, void* userData);
 };
 
 

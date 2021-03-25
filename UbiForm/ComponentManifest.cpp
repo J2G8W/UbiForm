@@ -35,6 +35,7 @@ void ComponentManifest::setManifest(FILE *jsonFP) {
 
     checkParse();
     fillSchemaMaps();
+    changeCallBack(this, changeUserData);
 }
 
 void ComponentManifest::setManifest(const char *jsonString) {
@@ -43,6 +44,7 @@ void ComponentManifest::setManifest(const char *jsonString) {
 
     checkParse();
     fillSchemaMaps();
+    changeCallBack(this, changeUserData);
 }
 
 void ComponentManifest::setManifest(EndpointMessage *sm) {
@@ -50,6 +52,7 @@ void ComponentManifest::setManifest(EndpointMessage *sm) {
 
     checkParse();
     fillSchemaMaps();
+    changeCallBack(this, changeUserData);
 }
 
 
@@ -201,7 +204,7 @@ void ComponentManifest::addEndpoint(ConnectionParadigm connectionParadigm, const
 
 
     if (additionCallBack != nullptr){
-        additionCallBack(typeOfEndpoint, userData);
+        additionCallBack(typeOfEndpoint, additionUserData);
     }
 }
 
@@ -303,5 +306,10 @@ ComponentManifest::~ComponentManifest() = default;
 
 void ComponentManifest::registerEndpointAdditionCallback(endpointAdditionCallBack callBack, void* providedData){
     additionCallBack = callBack;
-    userData = providedData;
+    additionUserData = providedData;
+}
+
+void ComponentManifest::registerManifestChangeCallback(manifestChangeCallBack callBack, void* userData){
+    changeCallBack = callBack;
+    changeUserData = userData;
 }
