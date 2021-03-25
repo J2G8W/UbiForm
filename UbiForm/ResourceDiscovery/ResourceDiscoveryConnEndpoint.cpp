@@ -59,7 +59,7 @@ void ResourceDiscoveryConnEndpoint::registerWithHub(const std::string &url) {
                     "Resource Discovery Connection", "RDC - " + url);
     resourceDiscoveryEndpoints[url] = std::move(newEndpoint);
     try {
-        resourceDiscoveryEndpoints.at(url)->dialConnection(url.c_str());
+        resourceDiscoveryEndpoints.at(url)->dialConnection(url);
 
         reply = sendRequest(url, *request, true);
         systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);

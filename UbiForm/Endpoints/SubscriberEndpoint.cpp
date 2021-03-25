@@ -4,7 +4,7 @@
 #include <nng/supplemental/util/platform.h>
 
 
-void SubscriberEndpoint::dialConnection(const char *url) {
+void SubscriberEndpoint::dialConnection(const std::string &url) {
     DataReceiverEndpoint::dialConnection(url);
 
     int rv;

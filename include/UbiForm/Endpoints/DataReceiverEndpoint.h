@@ -67,7 +67,7 @@ public:
     * @param url
      * @throws NngError when we are unable to dial the url properly
     */
-    virtual void dialConnection(const char *url);
+    virtual void dialConnection(const std::string &url);
 
     /**
      * Blocking receive of a message

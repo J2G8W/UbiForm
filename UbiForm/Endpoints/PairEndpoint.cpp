@@ -72,7 +72,7 @@ int PairEndpoint::listenForConnectionWithRV(const char *base, int port) {
     return rv;
 }
 
-void PairEndpoint::dialConnection(const char *url) {
+void PairEndpoint::dialConnection(const std::string &url) {
     DataReceiverEndpoint::dialConnection(url);
 }
 

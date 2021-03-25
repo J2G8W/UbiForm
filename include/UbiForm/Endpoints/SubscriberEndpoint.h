@@ -22,7 +22,7 @@ public:
         openEndpoint();
     }
 
-    void dialConnection(const char *url) override;
+    void dialConnection(const std::string &url) override;
 
     void openEndpoint() override;
 

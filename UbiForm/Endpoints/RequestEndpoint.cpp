@@ -12,7 +12,7 @@ int RequestEndpoint::listenForConnectionWithRV(const char *base, int port) {
                           socketType, endpointIdentifier);
 }
 
-void RequestEndpoint::dialConnection(const char *url) {
+void RequestEndpoint::dialConnection(const std::string &url) {
     int rv;
     if (dialUrl != std::string(url)) {
         // Before dialling a new location we close the old socket (means same endpoint can be reused)
@@ -24,7 +24,7 @@ void RequestEndpoint::dialConnection(const char *url) {
             openEndpoint();
         }
 
-        if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
+        if ((rv = nng_dial(*senderSocket, url.c_str(), nullptr, 0)) != 0) {
             throw NngError(rv, "Dialing " + std::string(url) + " for a request connection");
         }
         this->dialUrl = url;

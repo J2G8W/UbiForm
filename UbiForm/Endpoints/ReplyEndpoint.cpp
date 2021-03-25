@@ -3,7 +3,7 @@
 #include "../../include/UbiForm/Endpoints/ReplyEndpoint.h"
 
 
-void ReplyEndpoint::dialConnection(const char *url) {
+void ReplyEndpoint::dialConnection(const std::string &url) {
     throw SocketOpenError("Reply endpoint is trying to dial a connection!", socketType,
                           endpointIdentifier);
 }

@@ -27,7 +27,7 @@ public:
     int listenForConnectionWithRV(const char *base, int port) override;
 
     // SHOULD NOT DIAL FOR CONNECTION
-    void dialConnection(const char *url) override;
+    void dialConnection(const std::string &url) override;
 
     void closeEndpoint() override;
 

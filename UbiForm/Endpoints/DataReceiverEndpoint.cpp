@@ -83,10 +83,10 @@ void DataReceiverEndpoint::setReceiveTimeout(int ms_time) {
     }
 }
 
-void DataReceiverEndpoint::dialConnection(const char *url) {
+void DataReceiverEndpoint::dialConnection(const std::string &url) {
     if (endpointState == EndpointState::Open) {
         int rv;
-        if ((rv = nng_dial(*receiverSocket, url, nullptr, 0)) != 0) {
+        if ((rv = nng_dial(*receiverSocket, url.c_str(), nullptr, 0)) != 0) {
             throw NngError(rv, "Dialing " + std::string(url) + " for a pair connection");
         }
         this->dialUrl = url;
