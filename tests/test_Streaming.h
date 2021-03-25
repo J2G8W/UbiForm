@@ -1,7 +1,7 @@
 #include "../UbiForm/Utilities/base64.h"
 
 void sendStream(PairEndpoint* sendEndpoint, std::fstream* inputFile){
-    SocketMessage emptyMsg;
+    EndpointMessage emptyMsg;
     sendEndpoint->sendStream(*inputFile, 5001, false, emptyMsg, nullptr, nullptr);
 }
 

@@ -15,7 +15,7 @@ protected:
         try {
             std::ifstream in(location);
             std::string contents((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-            socketMessage = new SocketMessage(contents.c_str());
+            socketMessage = new EndpointMessage(contents.c_str());
         } catch (const std::ifstream::failure &e) {
             std::cerr << "ERROR OPENING FILE: " << location << std::endl;
             throw;
@@ -29,7 +29,7 @@ protected:
 
 
     ComponentRepresentation *componentRepresentation;
-    SocketMessage *socketMessage;
+    EndpointMessage *socketMessage;
     SystemSchemas ss;
 };
 

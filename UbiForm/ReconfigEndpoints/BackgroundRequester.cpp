@@ -5,7 +5,7 @@
 #include "../../include/UbiForm/ReconfigurationEndpoints/BackgroundListener.h"
 #include "../../include/UbiForm/Component.h"
 
-std::unique_ptr<SocketMessage> BackgroundRequester::sendRequest(const std::string &url, SocketMessage &request) {
+std::unique_ptr<EndpointMessage> BackgroundRequester::sendRequest(const std::string &url, EndpointMessage &request) {
     requestEndpoint.dialConnection(url);
     requestEndpoint.setSendTimeout(500);
     requestEndpoint.setReceiveTimeout(500);
@@ -31,7 +31,7 @@ void BackgroundRequester::requestRemoteListenThenDial(const std::string &locatio
 
 int
 BackgroundRequester::requestToCreateAndListen(const std::string &componentAddress, const std::string &endpointType) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("endpointType", endpointType);
     sm.addMember("requestType", BACKGROUND_CREATE_AND_LISTEN);
 
@@ -55,7 +55,7 @@ void BackgroundRequester::localListenThenRequestRemoteDial(const std::string &co
 
 void BackgroundRequester::requestToCreateAndDial(const std::string &componentUrl, const std::string &endpointType,
                                                  const std::vector<std::string> &remoteUrls) {
-    SocketMessage sm;
+    EndpointMessage sm;
 
     sm.addMember("endpointType", endpointType);
     sm.addMember("requestType", BACKGROUND_CREATE_AND_DIAL);
@@ -66,14 +66,14 @@ void BackgroundRequester::requestToCreateAndDial(const std::string &componentUrl
 
 
 void BackgroundRequester::requestAddRDH(const std::string &componentUrl, const std::string &rdhUrl) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_ADD_RDH);
     sm.addMember("url", rdhUrl);
 
     sendRequest(componentUrl, sm);
 }
 void BackgroundRequester::requestRemoveRDH(const std::string &componentUrl, const std::string &rdhUrl) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_REMOVE_RDH);
     sm.addMember("url",rdhUrl);
     sendRequest(componentUrl, sm);
@@ -83,7 +83,7 @@ void BackgroundRequester::request3rdPartyRemoteListenThenDial(const std::string 
                                                               const std::string &requesterEndpointType,
                                                               const std::string &remoteEndpointType,
                                                               const std::string &remoteAddress, int remotePort) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_3RD_PARTY_REMOTE_LISTEN_THEN_DIAL);
     sm.addMember("reqEndpointType", requesterEndpointType);
     sm.addMember("remoteEndpointType", remoteEndpointType);
@@ -97,7 +97,7 @@ void BackgroundRequester::request3rdPartyListenThenRemoteDial(const std::string 
                                                               const std::string &listenEndpointType,
                                                               const std::string &dialEndpointType,
                                                               const std::string &dialerAddress) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_3RD_PARTY_LOCAL_LISTEN_THEN_REMOTE_DIAL);
     sm.addMember("listenEndpointType", listenEndpointType);
     sm.addMember("dialEndpointType", dialEndpointType);
@@ -109,7 +109,7 @@ void BackgroundRequester::request3rdPartyListenThenRemoteDial(const std::string 
 void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddress, SocketType socketType,
                                                 const std::string &endpointType, EndpointSchema *receiverSchema,
                                                 EndpointSchema *sendSchema) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_CHANGE_ENDPOINT_SCHEMA);
     sm.addMember("endpointType", endpointType);
     if (receiverSchema == nullptr) { sm.setNull("receiveSchema"); }
@@ -129,7 +129,7 @@ void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddr
 }
 
 int BackgroundRequester::requestCreateRDH(const std::string &componentUrl) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_CREATE_RDH);
 
     auto reply = sendRequest(componentUrl, sm);
@@ -142,7 +142,7 @@ int BackgroundRequester::requestCreateRDH(const std::string &componentUrl) {
 
 // Return empty if error reply
 std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::string &componentUrl) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_GET_LOCATIONS_OF_RDH);
 
     auto reply = sendRequest(componentUrl, sm);
@@ -157,7 +157,7 @@ std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::s
 }
 
 void BackgroundRequester::requestCloseSocketOfType(const std::string &componentUrl, const std::string &endpointType) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_CLOSE_SOCKETS);
     sm.addMember("endpointType", endpointType);
 
@@ -167,7 +167,7 @@ void BackgroundRequester::requestCloseSocketOfType(const std::string &componentU
 
 void
 BackgroundRequester::requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_CHANGE_MANIFEST);
     auto compRep = newManifest.getSocketMessageCopy();
     sm.addMoveObject("newManifest", std::move(compRep));
@@ -176,23 +176,23 @@ BackgroundRequester::requestUpdateComponentManifest(const std::string &component
 }
 
 void BackgroundRequester::requestCloseRDH(const std::string &componentUrl) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_CLOSE_RDH);
 
     sendRequest(componentUrl, sm);
 
 }
 
-std::vector<std::unique_ptr<SocketMessage>> BackgroundRequester::requestEndpointInfo(const std::string &componentUrl) {
-    SocketMessage sm;
+std::vector<std::unique_ptr<EndpointMessage>> BackgroundRequester::requestEndpointInfo(const std::string &componentUrl) {
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_REQUEST_ENDPOINT_INFO);
     auto reply = sendRequest(componentUrl, sm);
 
-    return reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
+    return reply->getArray<std::unique_ptr<EndpointMessage>>("endpoints");
 }
 
 std::unique_ptr<ComponentManifest> BackgroundRequester::requestComponentManifest(const std::string& componentUrl){
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_GET_COMPONENT_MANIFEST);
     auto reply = sendRequest(componentUrl,sm);
 
@@ -207,7 +207,7 @@ std::unique_ptr<ComponentManifest> BackgroundRequester::requestComponentManifest
 }
 
 void BackgroundRequester::requestCloseSocketOfId(const std::string &componentUrl, const std::string &endpointId) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_CLOSE_ENDPOINT_BY_ID);
     sm.addMember("endpointId", endpointId);
 

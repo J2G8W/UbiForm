@@ -11,7 +11,7 @@ ComponentManifest::ComponentManifest(const char *jsonString, SystemSchemas &ss) 
     setManifest(jsonString);
 }
 
-ComponentManifest::ComponentManifest(SocketMessage *sm, SystemSchemas &ss) : systemSchemas(ss) {
+ComponentManifest::ComponentManifest(EndpointMessage *sm, SystemSchemas &ss) : systemSchemas(ss) {
     setManifest(sm);
 }
 
@@ -45,7 +45,7 @@ void ComponentManifest::setManifest(const char *jsonString) {
     fillSchemaMaps();
 }
 
-void ComponentManifest::setManifest(SocketMessage *sm) {
+void ComponentManifest::setManifest(EndpointMessage *sm) {
     JSON_document.CopyFrom(sm->JSON_document, JSON_document.GetAllocator());
 
     checkParse();
@@ -91,7 +91,7 @@ void ComponentManifest::setName(const std::string &name) {
     setProperty("name", name);
 }
 
-std::unique_ptr<SocketMessage>
+std::unique_ptr<EndpointMessage>
 ComponentManifest::getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema) {
     if (receiveSchema) {
         try {

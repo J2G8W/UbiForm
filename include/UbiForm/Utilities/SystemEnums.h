@@ -51,7 +51,7 @@ std::string convertEndpointState(EndpointState es);
 
 class Endpoint;
 class PairEndpoint;
-class SocketMessage;
+class EndpointMessage;
 /// This represents the type of functions which can be called on Endpoint startup. We give a pointer to the endpoint which
 /// has been started and a pointer to some arbitrary data structure which the developer can specify
 typedef void (*endpointStartupFunction)(Endpoint*, void *);
@@ -60,7 +60,7 @@ typedef void (*endOfStreamCallback)(PairEndpoint*, void*);
 
 typedef void (*endpointAdditionCallBack)(std::string, void*);
 
-typedef void (*receiveMessageCallBack)(SocketMessage *, void *);
+typedef void (*receiveMessageCallBack)(EndpointMessage *, void *);
 
 
 // Strings used for Background Requester and Listener

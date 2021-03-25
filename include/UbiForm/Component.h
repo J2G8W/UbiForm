@@ -11,7 +11,7 @@
 #include <thread>
 
 #include "ComponentManifest.h"
-#include "SocketMessage.h"
+#include "EndpointMessage.h"
 #include "Endpoints/PairEndpoint.h"
 #include "Endpoints/PublisherEndpoint.h"
 #include "Endpoints/SubscriberEndpoint.h"
@@ -100,7 +100,7 @@ public:
 
     void specifyManifest(const char *jsonString);
 
-    void specifyManifest(SocketMessage *sm);
+    void specifyManifest(EndpointMessage *sm);
     ///@}
 
 

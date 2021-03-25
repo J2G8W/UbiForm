@@ -69,7 +69,7 @@ void Component::specifyManifest(const char *jsonString) {
     resourceDiscoveryConnEndpoint.updateManifestWithHubs();
 }
 
-void Component::specifyManifest(SocketMessage *sm) {
+void Component::specifyManifest(EndpointMessage *sm) {
     closeAndInvalidateAllSockets();
     componentManifest.setManifest(sm);
     resourceDiscoveryConnEndpoint.updateManifestWithHubs();

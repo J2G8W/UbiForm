@@ -59,13 +59,13 @@ public:
     /**
      * @brief This is a copy constructor not a move
      *
-     * @param sm - SocketMessage pointer to form manifest from, key for network interactions
+     * @param sm - EndpointMessage pointer to form manifest from, key for network interactions
      * @param es - reference to some SystemSchemas object for validation of manifest
      *
      * @throws ParsingError - when input is malformed
      * @throws ValidationError - when input does not conform to SystemsSchemas
      */
-    ComponentManifest(SocketMessage *sm, SystemSchemas &ss);
+    ComponentManifest(EndpointMessage *sm, SystemSchemas &ss);
 
     /// Create an empty Manifest which can be filled with functions
     explicit ComponentManifest(SystemSchemas &ss) : ComponentManifest(R"({"name":"","schemas":{}})", ss) {};
@@ -76,7 +76,7 @@ public:
 
     void setManifest(const char *jsonString);
 
-    void setManifest(SocketMessage *sm);
+    void setManifest(EndpointMessage *sm);
     ///@}
 
     /**
@@ -151,9 +151,9 @@ public:
     /**
      * @param typeOfEndpoint - specify typeOfEndpoint as described in Manifest
      * @param receiveSchema - whether we want receive or send schema for that type
-     * @return SocketMessage pointer which needs memory handling, used for sending our schema on the network
+     * @return EndpointMessage pointer which needs memory handling, used for sending our schema on the network
      */
-    std::unique_ptr<SocketMessage> getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema);
+    std::unique_ptr<EndpointMessage> getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema);
 
 
     /**
@@ -169,12 +169,12 @@ public:
 
 
     /**
-     * We get a copy of the manifest but as a SocketMessage, such that it can be sent on the wire
+     * We get a copy of the manifest but as a EndpointMessage, such that it can be sent on the wire
      * @return - std::unique_ptr used such that we get automatic memory handling and move's work better
      */
-    std::unique_ptr<SocketMessage> getSocketMessageCopy() {
+    std::unique_ptr<EndpointMessage> getSocketMessageCopy() {
         // Gets around private constructor
-        return std::unique_ptr<SocketMessage>(new SocketMessage(this->JSON_document, true));
+        return std::unique_ptr<EndpointMessage>(new EndpointMessage(this->JSON_document, true));
     }
 
     /**

@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
                 }
 
 
-                SocketMessage s;
+                EndpointMessage s;
                 int counter = 1;
                 auto publisherEndpoints = component->getEndpointsByType("publisherExample");
                 while (true) {
@@ -149,7 +149,7 @@ int main(int argc, char **argv) {
 
                 component->getResourceDiscoveryConnectionEndpoint().registerWithHub(locationOfRDH);
 
-                std::unique_ptr<SocketMessage> s;
+                std::unique_ptr<EndpointMessage> s;
                 auto subscriberEndpoints = component->getEndpointsByType("subscriberExample");
 
                 std::map<std::string, int> counters;

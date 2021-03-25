@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
             component.getBackgroundRequester().requestRemoteListenThenDial(
                     "tcp://127.0.0.1", 8000, "subscriberExample",
                     "publisherExample");
-            std::unique_ptr<SocketMessage> s;
+            std::unique_ptr<EndpointMessage> s;
 
             auto subscriberEndpoints = component.getEndpointsByType("subscriberExample");
             while (true) {
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 
             component.startBackgroundListen(8000);
 
-            SocketMessage s;
+            EndpointMessage s;
             bool valid = true;
             auto publisherEndpoints = component.getEndpointsByType("publisherExample");
             while (true) {

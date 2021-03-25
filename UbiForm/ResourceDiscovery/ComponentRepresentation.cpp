@@ -1,6 +1,6 @@
 #include "../../include/UbiForm/ResourceDiscovery/ComponentRepresentation.h"
 
-bool ComponentRepresentation::isEqual(const std::string &endpointId, bool recv, SocketMessage &sm) {
+bool ComponentRepresentation::isEqual(const std::string &endpointId, bool recv, EndpointMessage &sm) {
     const auto &schemas = JSON_document["schemas"].GetObject();
     if (schemas.HasMember(endpointId) && schemas[endpointId].IsObject()) {
         if (recv && schemas[endpointId].GetObject().HasMember("receive") &&
@@ -15,7 +15,7 @@ bool ComponentRepresentation::isEqual(const std::string &endpointId, bool recv, 
     return false;
 }
 
-std::vector<std::string> ComponentRepresentation::findEquals(bool recv, SocketMessage &sm) {
+std::vector<std::string> ComponentRepresentation::findEquals(bool recv, EndpointMessage &sm) {
     std::vector<std::string> returnIds;
 
     for (auto &v : JSON_document["schemas"].GetObject()) {

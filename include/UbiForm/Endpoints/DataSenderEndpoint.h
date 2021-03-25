@@ -5,7 +5,7 @@
 
 #include <nng/nng.h>
 #include <thread>
-#include "../SocketMessage.h"
+#include "../EndpointMessage.h"
 
 #include "../SchemaRepresentation/EndpointSchema.h"
 #include "Endpoint.h"
@@ -32,7 +32,7 @@ protected:
     int listenPort = -1;
 
 
-    void rawSendMessage(SocketMessage& sm);
+    void rawSendMessage(EndpointMessage& sm);
 
 public:
     explicit DataSenderEndpoint(std::shared_ptr<EndpointSchema> &es) :nngAioPointer(){
@@ -64,14 +64,14 @@ public:
      * @throws NngError - When there is underlying socket issues
      * @throws SocketOpenError - When the socket has already been closed
      */
-    void sendMessage(SocketMessage &s);
+    void sendMessage(EndpointMessage &s);
 
     /**
      * Non blocking send on our socket
      * @param s - Message to send
      * @throws NngError - When we run out of space or something. Won't error on a send error (just throws it away)
      */
-    void asyncSendMessage(SocketMessage &s);
+    void asyncSendMessage(EndpointMessage &s);
 
     int getListenPort() { return listenPort; }
 

@@ -50,7 +50,7 @@ set(utilityFiles ../UbiForm/Utilities/UtilityFunctions.h ../UbiForm/Utilities/Ut
 
 set(componentFiles ../include/UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp
 		../include/UbiForm/Component.h ../UbiForm/Component.cpp
-		../include/UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp)
+        ../include/UbiForm/EndpointMessage.h ../UbiForm/EndpointMessage.cpp)
 
 
 # Create library

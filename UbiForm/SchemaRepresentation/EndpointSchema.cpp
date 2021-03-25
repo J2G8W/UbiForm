@@ -2,7 +2,7 @@
 
 
 // Validate a socket message against the manifest
-void EndpointSchema::validate(const SocketMessage &messageToValidate) {
+void EndpointSchema::validate(const EndpointMessage &messageToValidate) {
 
     validate(messageToValidate.JSON_document);
 }
@@ -30,8 +30,8 @@ void EndpointSchema::completeUpdate(rapidjson::Value &doc) {
     changeSchema();
 }
 
-std::unique_ptr<SocketMessage> EndpointSchema::getSchemaObject() {
-    auto returnObject = std::unique_ptr<SocketMessage>(new SocketMessage(*JSON_rep, true));
+std::unique_ptr<EndpointMessage> EndpointSchema::getSchemaObject() {
+    auto returnObject = std::unique_ptr<EndpointMessage>(new EndpointMessage(*JSON_rep, true));
     return returnObject;
 }
 

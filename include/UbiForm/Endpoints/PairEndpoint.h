@@ -45,13 +45,13 @@ public:
     void openEndpoint() override;
 
 
-    std::unique_ptr<SocketMessage>
+    std::unique_ptr<EndpointMessage>
     receiveStream(std::ostream &outputStream, endOfStreamCallback endCallback, void *userData);
 
     bool getReceiverThreadEnded(){return receiverThreadEnded;}
 
     void
-    sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty, SocketMessage &initialMessage,
+    sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty, EndpointMessage &initialMessage,
                endOfStreamCallback endCallback, void *userData);
     bool getSenderThreadEnded(){return senderThreadEnded;}
 

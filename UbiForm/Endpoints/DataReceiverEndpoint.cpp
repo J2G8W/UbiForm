@@ -3,12 +3,12 @@
 
 // Receive a message, validate it against the socketManifest and return a pointer to the object.
 // Use smart pointers to avoid complex memory management
-std::unique_ptr<SocketMessage> DataReceiverEndpoint::receiveMessage() {
+std::unique_ptr<EndpointMessage> DataReceiverEndpoint::receiveMessage() {
     auto msg = rawReceiveMessage();
     receiverSchema->validate(*msg);
     return msg;
 }
-std::unique_ptr<SocketMessage> DataReceiverEndpoint::rawReceiveMessage() {
+std::unique_ptr<EndpointMessage> DataReceiverEndpoint::rawReceiveMessage() {
     if (!(endpointState == EndpointState::Dialed || endpointState == EndpointState::Listening)) {
         throw SocketOpenError("Could not receive message, in state: " + convertEndpointState(endpointState) ,
                               socketType, endpointIdentifier);
@@ -19,7 +19,7 @@ std::unique_ptr<SocketMessage> DataReceiverEndpoint::rawReceiveMessage() {
     size_t sz;
 
     if ((rv = nng_recv(*receiverSocket, &buffer, &sz, NNG_FLAG_ALLOC)) == 0) {
-        std::unique_ptr<SocketMessage> receivedMessage = std::make_unique<SocketMessage>(buffer);
+        std::unique_ptr<EndpointMessage> receivedMessage = std::make_unique<EndpointMessage>(buffer);
 
         nng_free(buffer, sz);
         return receivedMessage;
@@ -52,10 +52,10 @@ void DataReceiverEndpoint::asyncCallback(void *data) {
         return;
     }
 
-    // Extract the message from our AioPointer and create a SocketMessage for easy handling
+    // Extract the message from our AioPointer and create a EndpointMessage for easy handling
     nng_msg *msgPointer = nng_aio_get_msg(asyncInput->owningEndpoint->uniqueEndpointAioPointer);
     char *receivedJSON = static_cast<char *>(nng_msg_body(msgPointer));
-    std::unique_ptr<SocketMessage> receivedMessage = std::make_unique<SocketMessage>(receivedJSON);
+    std::unique_ptr<EndpointMessage> receivedMessage = std::make_unique<EndpointMessage>(receivedJSON);
 
 
     nng_msg_free(msgPointer);

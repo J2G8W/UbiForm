@@ -6,7 +6,7 @@
 #include <rapidjson/filereadstream.h>
 #include <rapidjson/writer.h>
 
-#include "../SocketMessage.h"
+#include "../EndpointMessage.h"
 #include "../Utilities/SystemEnums.h"
 
 /**
@@ -43,11 +43,11 @@ public:
     }
 
     /**
-     * Create EndpointSchema which shares memory with the SocketMessage that was input. Don't delete SocketMEssage before
+     * Create EndpointSchema which shares memory with the EndpointMessage that was input. Don't delete SocketMEssage before
      * copying this schema
      * @param sm - Parent message (don't delete before deletion of this object)
      */
-    explicit EndpointSchema(SocketMessage &sm) {
+    explicit EndpointSchema(EndpointMessage &sm) {
         JSON_rep = &sm.JSON_document;
         allocator = &(sm.JSON_document.GetAllocator());
         schema = new rapidjson::SchemaDocument(*JSON_rep);
@@ -78,9 +78,9 @@ public:
 
     /**
      *
-     * @return A copy of the schema represented as a SocketMessage
+     * @return A copy of the schema represented as a EndpointMessage
      */
-    std::unique_ptr<SocketMessage> getSchemaObject();
+    std::unique_ptr<EndpointMessage> getSchemaObject();
 
     ///@{
     /**
@@ -88,7 +88,7 @@ public:
      * @param messageToValidate
      * @throws ValidationError when our message does not validate
      */
-    void validate(const SocketMessage &messageToValidate);
+    void validate(const EndpointMessage &messageToValidate);
 
     /**
      * We validate a given input against our schema

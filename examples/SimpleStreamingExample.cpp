@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
             auto pair = sender.castToPair(endpointVector->at(0));
             std::ifstream file;
 
-            SocketMessage initalMsg;
+            EndpointMessage initalMsg;
             initalMsg.addMember("extraInfo","Stream incoming");
             if(argc == 2) {
                 pair->sendStream(std::cin, 3, true, initalMsg, nullptr, nullptr);

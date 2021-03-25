@@ -77,13 +77,13 @@ void PairEndpoint::dialConnection(const std::string &url) {
 }
 
 
-std::unique_ptr<SocketMessage>
+std::unique_ptr<EndpointMessage>
 PairEndpoint::receiveStream(std::ostream &outputStream, endOfStreamCallback endCallback, void *userData) {
-    std::unique_ptr<SocketMessage> initialMsg;
+    std::unique_ptr<EndpointMessage> initialMsg;
 
     // Throws things
     initialMsg = receiveMessage();
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("ready",true);
     rawSendMessage(sm);
 
@@ -99,7 +99,7 @@ void
 PairEndpoint::streamReceiveData(PairEndpoint *endpoint, std::ostream *stream, endOfStreamCallback endCallback,
                                 void *userData) {
     while(true) {
-        std::unique_ptr<SocketMessage> message;
+        std::unique_ptr<EndpointMessage> message;
         try {
             message = endpoint->rawReceiveMessage();
         }catch(std::logic_error &e){
@@ -119,7 +119,7 @@ PairEndpoint::streamReceiveData(PairEndpoint *endpoint, std::ostream *stream, en
 }
 
 void PairEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty,
-                              SocketMessage &initialMessage,
+                              EndpointMessage &initialMessage,
                               endOfStreamCallback endCallback, void *userData) {
     if(blockSize % 3 != 0){throw std::logic_error("Block size must be a multiple of 3");}
 
@@ -148,7 +148,7 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
                 nng_msleep(1000);
                 continue;
             }else{
-                SocketMessage sm;
+                EndpointMessage sm;
                 sm.addMember("end",true);
                 try{
                     endpoint->asyncSendMessage(sm);
@@ -161,7 +161,7 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
 
         std::string encodedMsg = base64_encode(reinterpret_cast<const unsigned char *>(bytesToEncode), numBytes);
 
-        SocketMessage sm;
+        EndpointMessage sm;
         sm.addMember("bytes", encodedMsg);
         try {
             endpoint->asyncSendMessage(sm);

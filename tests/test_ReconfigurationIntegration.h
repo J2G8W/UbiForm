@@ -38,7 +38,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
                                                                                  "ipc:///tmp/comp2",
                                                                                  senderComponent.getBackgroundPort());
 
-    SocketMessage original;
+    EndpointMessage original;
     original.addMember("msg", "HELLO WORLD");
 
     nng_msleep(300);
@@ -157,7 +157,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
     ASSERT_EQ(publisherEndpoints->size(), 1);
 
     // Test simple message send
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("value", 42);
     senderComponent.castToDataSenderEndpoint(publisherEndpoints->at(0))->asyncSendMessage(sm);
 
@@ -354,7 +354,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest6) {
     auto pubEndpoint = component2.castToDataSenderEndpoint(component2.getEndpointsByType("PUB")->at(0));
     component2.specifyManifest(R"({"name":"TEST1","schemas":{}})");
     ASSERT_THROW(pubEndpoint->listenForConnection("ipc:///tmp/component2", 2000), SocketOpenError);
-    SocketMessage sm;
+    EndpointMessage sm;
     ASSERT_THROW(pubEndpoint->sendMessage(sm), SocketOpenError);
     ASSERT_THROW(pubEndpoint->asyncSendMessage(sm), SocketOpenError);
     ASSERT_THROW(pubEndpoint->openEndpoint(), SocketOpenError);

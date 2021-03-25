@@ -42,7 +42,7 @@ public:
 };
 
 /**
- * Represents an error when we try to access a member of SocketMessage that isn't valid.
+ * Represents an error when we try to access a member of EndpointMessage that isn't valid.
  * Text of the error should come directly from rapidjson error generation
  */
 class AccessError : public std::logic_error {

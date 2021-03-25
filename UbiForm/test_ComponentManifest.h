@@ -47,7 +47,7 @@ TEST_F(ComponentManifestBasics, MalformedManifest) {
 
 TEST_F(ComponentManifestBasics, CreationFromSocketMessage) {
     const char *jsonString = R"({"name":"TEST1","schemas":{}})";
-    auto *sm = new SocketMessage(jsonString);
+    auto *sm = new EndpointMessage(jsonString);
 
     ComponentManifest testManifest(sm, systemSchemas);
     EXPECT_EQ(testManifest.stringify(), std::string(jsonString));
@@ -108,7 +108,7 @@ TEST_F(ManifestExample, ReceiverSchemasTest) {
 
     std::shared_ptr<EndpointSchema> endpointSchema = componentManifest->getReceiverSchema("pairExample");
 
-    SocketMessage socketMessage;
+    EndpointMessage socketMessage;
     socketMessage.addMember("temp", 50);
     socketMessage.addMember("msg", std::string("HELLO"));
 
@@ -123,7 +123,7 @@ TEST_F(ManifestExample, SenderSchemasTest) {
 
     std::shared_ptr<EndpointSchema> endpointSchema = componentManifest->getSenderSchema("pairExample");
 
-    SocketMessage socketMessage;
+    EndpointMessage socketMessage;
     socketMessage.addMember("temp", 50);
     socketMessage.addMember("msg", std::string("HELLO"));
 
@@ -141,15 +141,15 @@ TEST_F(ManifestExample, AddPairSchema) {
     receiveSchema->addRequired("TEST");
     componentManifest->addEndpoint(SocketType::Pair, "pairExample", receiveSchema, sendSchema);
 
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("TEST", 42);
     ASSERT_NO_THROW(componentManifest->getReceiverSchema("pairExample")->validate(sm));
 
-    SocketMessage sm2;
+    EndpointMessage sm2;
     sm.addMember("TEST", "HELLO");
     ASSERT_THROW(componentManifest->getReceiverSchema("pairExample")->validate(sm), ValidationError);
 
-    std::unique_ptr<SocketMessage> schemaRep = componentManifest->getSchemaObject("pairExample", true);
+    std::unique_ptr<EndpointMessage> schemaRep = componentManifest->getSchemaObject("pairExample", true);
     auto requiredArray = schemaRep->getArray<std::string>("required");
 
     ASSERT_EQ(requiredArray.size(), 1);
@@ -162,6 +162,6 @@ TEST_F(ManifestExample, AddSubscriberSchema) {
     receiveSchema->addRequired("TEST");
     componentManifest->addEndpoint(SocketType::Subscriber, "subExample", receiveSchema, nullptr);
 
-    SocketMessage sm;
+    EndpointMessage sm;
     ASSERT_THROW(componentManifest->getReceiverSchema("subExample")->validate(sm), ValidationError);
 }

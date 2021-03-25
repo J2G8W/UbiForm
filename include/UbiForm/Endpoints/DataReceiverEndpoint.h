@@ -6,7 +6,7 @@
 #include <utility>
 #include <nng/nng.h>
 #include <thread>
-#include "../SocketMessage.h"
+#include "../EndpointMessage.h"
 #include "../SchemaRepresentation/EndpointSchema.h"
 #include "Endpoint.h"
 
@@ -55,7 +55,7 @@ protected:
 
     std::string dialUrl = "";
 
-    std::unique_ptr<SocketMessage> rawReceiveMessage();
+    std::unique_ptr<EndpointMessage> rawReceiveMessage();
 
 public:
     explicit DataReceiverEndpoint(std::shared_ptr<EndpointSchema> &es) {
@@ -76,14 +76,14 @@ public:
      * @throws ValidationError when the message we receive does not conform to our schema
      * @throws SocketOpenError when our socket has been closed
      */
-    std::unique_ptr<SocketMessage> receiveMessage();
+    std::unique_ptr<EndpointMessage> receiveMessage();
 
 
     /**
-     * We receive a message asynchronously, accepting a function which does work a SocketMessage. The function handles
-     * the memory management of the SocketMessage. Additionally we are able to pass in arbitrary data as additionalData
+     * We receive a message asynchronously, accepting a function which does work a EndpointMessage. The function handles
+     * the memory management of the EndpointMessage. Additionally we are able to pass in arbitrary data as additionalData
      * which is then accessible as the second attribute in the called function
-     * @param callback - The function which is called when a SocketMessage is received - DON'T BE A BLOCKING FUNCTION or we
+     * @param callback - The function which is called when a EndpointMessage is received - DON'T BE A BLOCKING FUNCTION or we
      * can get deadlock scenarios
      * @param furtherUserData - Extra data which you want to be available in the call back
      * @throws SocketOpenError - When the socket is not open

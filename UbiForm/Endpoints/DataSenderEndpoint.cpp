@@ -2,13 +2,13 @@
 #include "../Utilities/base64.h"
 #include <nng/supplemental/util/platform.h>
 
-// Send the SocketMessage object on our socket after checking that our message is valid against our manifest
-void DataSenderEndpoint::sendMessage(SocketMessage &s) {
+// Send the EndpointMessage object on our socket after checking that our message is valid against our manifest
+void DataSenderEndpoint::sendMessage(EndpointMessage &s) {
     senderSchema->validate(s);
     rawSendMessage(s);
 }
 
-void DataSenderEndpoint::rawSendMessage(SocketMessage &s) {
+void DataSenderEndpoint::rawSendMessage(EndpointMessage &s) {
     if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed)) {
         throw SocketOpenError("Could not send message, in state: " + convertEndpointState(endpointState),
                               socketType, endpointIdentifier);
@@ -23,7 +23,7 @@ void DataSenderEndpoint::rawSendMessage(SocketMessage &s) {
     }
 }
 
-void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
+void DataSenderEndpoint::asyncSendMessage(EndpointMessage &s) {
     if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed )) {
         throw SocketOpenError("Could not async-send message, socket is in state: " + convertEndpointState(endpointState),
                               socketType, endpointIdentifier);

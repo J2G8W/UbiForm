@@ -21,9 +21,9 @@ private:
 
     SystemSchemas &systemSchemas;
 
-    static void handleAsyncReceive(SocketMessage* sm, void* data);
+    static void handleAsyncReceive(EndpointMessage* sm, void* data);
 
-    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage &request, bool waitForResponse);
+    std::unique_ptr<EndpointMessage> sendRequest(const std::string &url, EndpointMessage &request, bool waitForResponse);
 
     // We purposely delete copy and assignment operators such that there isn't stray references to this
     ResourceDiscoveryConnEndpoint(ResourceDiscoveryConnEndpoint &) = delete;
@@ -38,8 +38,8 @@ public:
      * @name RequestGenerators
      * @return The generated request
      */
-    std::unique_ptr<SocketMessage> generateRegisterRequest();
-    std::unique_ptr<SocketMessage> generateFindBySchemaRequest(const std::string &endpointType,
+    std::unique_ptr<EndpointMessage> generateRegisterRequest();
+    std::unique_ptr<EndpointMessage> generateFindBySchemaRequest(const std::string &endpointType,
                                                                std::map<std::string, std::string> &otherValues);
     ///@}
     /**
@@ -73,7 +73,7 @@ public:
      * @param endpointType - Reference to the endpointType in our componentManifest
      * @return Vector of SocketMessages (which handle memory themselves) which follow Schema "SystemsSchemas/resource_discovery_by_schema_response"
      */
-    std::vector<std::unique_ptr<SocketMessage>>
+    std::vector<std::unique_ptr<EndpointMessage>>
     getComponentsBySchema(const std::string &endpointType, std::map<std::string, std::string> &otherValues);
 
     std::map<std::string, std::unique_ptr<ComponentRepresentation>>
