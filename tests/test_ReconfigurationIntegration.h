@@ -19,14 +19,14 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
 
     // Test Request change endpoint
     senderComponent.getBackgroundRequester().requestChangeEndpoint(receiverCompAddress,
-                                                                   SocketType::Subscriber,
+                                                                   ConnectionParadigm::Subscriber,
                                                                    "generatedSubscriber",
                                                                    newEs.get(),
                                                                    nullptr);
     ASSERT_NO_THROW(receiverComponent.getComponentManifest().getReceiverSchema("generatedSubscriber"));
 
     // Test local change endpoint
-    senderComponent.getComponentManifest().addEndpoint(SocketType::Publisher, "generatedPublisher",
+    senderComponent.getComponentManifest().addEndpoint(ConnectionParadigm::Publisher, "generatedPublisher",
                                                        nullptr, newEs);
     ASSERT_NO_THROW(senderComponent.getComponentManifest().getSenderSchema("generatedPublisher"));
 
@@ -115,7 +115,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
     auto newEndpointSchema = std::make_shared<EndpointSchema>();
     newEndpointSchema->addProperty("value", ValueType::Number);
     newEndpointSchema->addRequired("value");
-    receiverComponent.getComponentManifest().addEndpoint(SocketType::Subscriber, "genSubscriber",
+    receiverComponent.getComponentManifest().addEndpoint(ConnectionParadigm::Subscriber, "genSubscriber",
                                                          newEndpointSchema, nullptr);
     receiverComponent.getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
 
@@ -127,7 +127,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
 
     // Test that changing endpoint does remote updateManifestWithHubs
     receiverComponent.getBackgroundRequester().requestChangeEndpoint(senderFullAddress,
-                                                                     SocketType::Publisher,
+                                                                     ConnectionParadigm::Publisher,
                                                                      "genPublisher",
                                                                      nullptr, newEndpointSchema.get());
     // Takes time for the background senderComponent to register with RDH
@@ -327,8 +327,8 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest6) {
     std::shared_ptr<EndpointSchema> schema = std::make_shared<EndpointSchema>();
     schema->addProperty("TEST", ValueType::Number);
 
-    component1.getComponentManifest().addEndpoint(SocketType::Subscriber, "SUB", schema, nullptr);
-    component2.getComponentManifest().addEndpoint(SocketType::Publisher, "PUB", nullptr, schema);
+    component1.getComponentManifest().addEndpoint(ConnectionParadigm::Subscriber, "SUB", schema, nullptr);
+    component2.getComponentManifest().addEndpoint(ConnectionParadigm::Publisher, "PUB", nullptr, schema);
 
     component1.startBackgroundListen();
     component2.startBackgroundListen();

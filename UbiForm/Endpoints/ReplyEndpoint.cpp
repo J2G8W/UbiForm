@@ -4,7 +4,7 @@
 
 
 void ReplyEndpoint::dialConnection(const std::string &url) {
-    throw SocketOpenError("Reply endpoint is trying to dial a connection!", socketType,
+    throw SocketOpenError("Reply endpoint is trying to dial a connection!", connectionParadigm,
                           endpointIdentifier);
 }
 
@@ -45,7 +45,7 @@ void ReplyEndpoint::openEndpoint() {
         // By default we have an infinite timeout
         setReceiveTimeout(-1);
     } else {
-        throw SocketOpenError("Can't open endpoint", socketType,
+        throw SocketOpenError("Can't open endpoint", connectionParadigm,
                               endpointIdentifier);
     }
 }

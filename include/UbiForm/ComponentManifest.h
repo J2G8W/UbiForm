@@ -138,7 +138,7 @@ public:
      * @return string of what type the socket is (e.g. pair)
      * @throws std::out_of_range - when typeOfEndpoint does not exist
      */
-    std::string getSocketType(const std::string &endpointType);
+    std::string getConnectionParadigm(const std::string &endpointType);
 
     /**
      * @return string representation of the component manifest
@@ -158,13 +158,13 @@ public:
 
     /**
      * Note that this copies from the schemas given to it, it doesn't use the same schemas
-     * @param socketType - specify the socketType of the new endpoint
+     * @param connectionParadigm - specify the connectionParadigm of the new endpoint
      * @param typeOfEndpoint - specify the name of the endpoint (will replace previous endpoints of same name
-     * @param receiveSchema - either a pointer to the schema for the endpoint or nullptr if relevant socketType doesn't need receiveSchema
-     * @param sendSchema - either a pointer to the schema for the endpoint of nullptr if relevant socketType doens't need sendSchema
-     * @throws std::logic_error - when there aren't enough schemas given for the socketType
+     * @param receiveSchema - either a pointer to the schema for the endpoint or nullptr if relevant connectionParadigm doesn't need receiveSchema
+     * @param sendSchema - either a pointer to the schema for the endpoint of nullptr if relevant connectionParadigm doens't need sendSchema
+     * @throws std::logic_error - when there aren't enough schemas given for the connectionParadigm
      */
-    void addEndpoint(SocketType socketType, const std::string &typeOfEndpoint,
+    void addEndpoint(ConnectionParadigm connectionParadigm, const std::string &typeOfEndpoint,
                      std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema);
 
 

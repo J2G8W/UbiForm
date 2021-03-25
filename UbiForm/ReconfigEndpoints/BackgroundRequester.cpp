@@ -106,7 +106,7 @@ void BackgroundRequester::request3rdPartyListenThenRemoteDial(const std::string 
     sendRequest(listenAddress, sm);
 }
 
-void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddress, SocketType socketType,
+void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddress, ConnectionParadigm connectionParadigm,
                                                 const std::string &endpointType, EndpointSchema *receiverSchema,
                                                 EndpointSchema *sendSchema) {
     EndpointMessage sm;
@@ -122,7 +122,7 @@ void BackgroundRequester::requestChangeEndpoint(const std::string &componentAddr
         auto schemaObj = sendSchema->getSchemaObject();
         sm.addMoveObject("sendSchema", std::move(schemaObj));
     }
-    sm.addMember("socketType", socketType);
+    sm.addMember("connectionParadigm", connectionParadigm);
 
 
     sendRequest(componentAddress, sm);

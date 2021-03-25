@@ -4,12 +4,12 @@
 
 void RequestEndpoint::listenForConnection(const std::string &base, int port) {
     throw SocketOpenError("Request socket trying to listen for connection",
-                          socketType, endpointIdentifier);
+                          connectionParadigm, endpointIdentifier);
 }
 
 int RequestEndpoint::listenForConnectionWithRV(const std::string &base, int port) {
     throw SocketOpenError("Request socket trying to listen for connection",
-                          socketType, endpointIdentifier);
+                          connectionParadigm, endpointIdentifier);
 }
 
 void RequestEndpoint::dialConnection(const std::string &url) {
@@ -69,7 +69,7 @@ void RequestEndpoint::openEndpoint() {
             setReceiveTimeout(500);
         }
     } else {
-        throw SocketOpenError("Can't open endpoint", socketType,
+        throw SocketOpenError("Can't open endpoint", connectionParadigm,
                               endpointIdentifier);
     }
 }

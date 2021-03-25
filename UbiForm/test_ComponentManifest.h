@@ -36,7 +36,7 @@ TEST_F(ComponentManifestBasics, EmptyBase) {
 }
 
 TEST_F(ComponentManifestBasics, MalformedSchema) {
-    const char *jsonString = R"({"name":"TEST1","schemas":{"TEST":{"socketType":"NOTHING"}}})";
+    const char *jsonString = R"({"name":"TEST1","schemas":{"TEST":{"connectionParadigm":"NOTHING"}}})";
     ASSERT_THROW(new ComponentManifest(jsonString, systemSchemas), ValidationError);
 }
 
@@ -139,7 +139,7 @@ TEST_F(ManifestExample, AddPairSchema) {
     std::shared_ptr<EndpointSchema> receiveSchema = std::make_shared<EndpointSchema>();
     receiveSchema->addProperty("TEST", ValueType::Number);
     receiveSchema->addRequired("TEST");
-    componentManifest->addEndpoint(SocketType::Pair, "pairExample", receiveSchema, sendSchema);
+    componentManifest->addEndpoint(ConnectionParadigm::Pair, "pairExample", receiveSchema, sendSchema);
 
     EndpointMessage sm;
     sm.addMember("TEST", 42);
@@ -160,7 +160,7 @@ TEST_F(ManifestExample, AddSubscriberSchema) {
     std::shared_ptr<EndpointSchema> receiveSchema = std::make_shared<EndpointSchema>();
     receiveSchema->addProperty("TEST", ValueType::Number);
     receiveSchema->addRequired("TEST");
-    componentManifest->addEndpoint(SocketType::Subscriber, "subExample", receiveSchema, nullptr);
+    componentManifest->addEndpoint(ConnectionParadigm::Subscriber, "subExample", receiveSchema, nullptr);
 
     EndpointMessage sm;
     ASSERT_THROW(componentManifest->getReceiverSchema("subExample")->validate(sm), ValidationError);

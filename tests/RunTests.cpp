@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "../UbiForm/test_ComponentManifest.h"
-#include "../UbiForm/test_SocketMessage.h"
+#include "../UbiForm/test_EndpointMessage.h"
 #include "../UbiForm/test_Component.h"
 #include "../UbiForm/SchemaRepresentation/test_EndpointSchema.h"
 #include "../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h"

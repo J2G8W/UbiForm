@@ -104,7 +104,8 @@ std::unique_ptr<EndpointMessage> BackgroundListener::handleCreateAndListen(Endpo
     try {
         systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(request);
 
-        auto socketType = component->getComponentManifest().getSocketType(request.getString("endpointType"));
+        auto connectionParadigm = component->getComponentManifest().getConnectionParadigm(
+                request.getString("endpointType"));
         int port = component->createEndpointAndListen(request.getString("endpointType"));
 
         auto reply = std::make_unique<EndpointMessage>();
@@ -174,7 +175,7 @@ std::unique_ptr<EndpointMessage> BackgroundListener::handleChangeEndpointRequest
         esReceiveSchema = std::make_shared<EndpointSchema>(*receiveSchema);
     }
 
-    component->getComponentManifest().addEndpoint(static_cast<SocketType>(request.getInteger("socketType")),
+    component->getComponentManifest().addEndpoint(static_cast<ConnectionParadigm>(request.getInteger("connectionParadigm")),
                                                   request.getString("endpointType"), esReceiveSchema, esSendSchema);
 
     std::cout << "Endpoint of type: " << request.getString("endpointType") << " changed" << std::endl;
@@ -249,7 +250,8 @@ std::unique_ptr<EndpointMessage> BackgroundListener::handleCloseRDH(EndpointMess
 }
 
 std::unique_ptr<EndpointMessage> BackgroundListener::handleCreateAndDial(EndpointMessage &sm) {
-    std::string socketType = component->getComponentManifest().getSocketType(sm.getString("endpointType"));
+    std::string connectionParadigm = component->getComponentManifest().getConnectionParadigm(
+            sm.getString("endpointType"));
     bool success = false;
     for (const auto &url: sm.getArray<std::string>("dialUrls")) {
         try {
@@ -279,7 +281,7 @@ std::unique_ptr<EndpointMessage> BackgroundListener::handleEndpointInfoRequest(E
             std::unique_ptr<EndpointMessage> mini = std::make_unique<EndpointMessage>();
             mini->addMember("id", endpoint->getEndpointId());
             mini->addMember("endpointType", type);
-            mini->addMember("socketType", component->getComponentManifest().getSocketType(type));
+            mini->addMember("connectionParadigm", component->getComponentManifest().getConnectionParadigm(type));
             try {
                 if (endpoint->getEndpointState() == EndpointState::Listening) {
                     mini->addMember("listenPort", component->castToDataSenderEndpoint(endpoint)->getListenPort());

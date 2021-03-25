@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
             recv->addProperty("extraInfo",ValueType::String);
             recv->addRequired("extraInfo");
             std::shared_ptr<EndpointSchema> empty = std::make_shared<EndpointSchema>();
-            receiver.getComponentManifest().addEndpoint(SocketType::Pair,"receiver",recv,empty);
+            receiver.getComponentManifest().addEndpoint(ConnectionParadigm::Pair, "receiver", recv, empty);
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
             send->addProperty("extraInfo",ValueType::String);
             send->addRequired("extraInfo");
             std::shared_ptr<EndpointSchema> empty = std::make_shared<EndpointSchema>();
-            sender.getComponentManifest().addEndpoint(SocketType::Pair,"sender",empty,send);
+            sender.getComponentManifest().addEndpoint(ConnectionParadigm::Pair, "sender", empty, send);
 
             std::cout << "MANIFEST SPECIFIED" << "\n";
 

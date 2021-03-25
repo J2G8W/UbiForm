@@ -114,7 +114,7 @@ public:
 
 
     /**
-     * Creates an endpoint of socketType which refers to the endpointType in the componentManifest. It then listens for
+     * Creates an endpoint of connectionParadigm which refers to the endpointType in the componentManifest. It then listens for
      * incoming connections.
      * @param endpointType - Specifies what type of connection is created (refers to componentManifest)
      * @return The port number which the endpoint is listening on
@@ -274,7 +274,7 @@ public:
     /**
      * @name Casting operations
      * We give the ability for an endpoint to be DYNAMICALLY casted to the given type. We check that there shouldn't be an
-     * error on casting by looking at our manifest and endpoint SocketType
+     * error on casting by looking at our manifest and endpoint ConnectionParadigm
      * @throws AccessError if the endpoint is the wrong type
      */
     ///{

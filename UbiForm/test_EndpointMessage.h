@@ -4,23 +4,23 @@
 
 #include "../include/UbiForm/EndpointMessage.h"
 
-TEST(SocketMessage, Stringify) {
+TEST(EndpointMessageTest, Stringify) {
     std::string jsonString = R"({"temperature":42,"value":"HELLO WORLD!"})";
-    EndpointMessage socketMessage(jsonString.c_str());
-    EXPECT_EQ(jsonString, socketMessage.stringify());
+    EndpointMessage endpointMessage(jsonString.c_str());
+    EXPECT_EQ(jsonString, endpointMessage.stringify());
 
 }
 
-TEST(SocketMessage, AddMember) {
-    EndpointMessage socketMessage;
-    socketMessage.addMember("A", 42);
-    socketMessage.addMember("B", true);
-    socketMessage.addMember("C", std::string{"HELLO"});
+TEST(EndpointMessageTest, AddMember) {
+    EndpointMessage endpointMessage;
+    endpointMessage.addMember("A", 42);
+    endpointMessage.addMember("B", true);
+    endpointMessage.addMember("C", std::string{"HELLO"});
 
-    EXPECT_EQ(socketMessage.stringify(), R"({"A":42,"B":true,"C":"HELLO"})");
+    EXPECT_EQ(endpointMessage.stringify(), R"({"A":42,"B":true,"C":"HELLO"})");
 }
 
-TEST(SocketMessage, RecursiveObject) {
+TEST(EndpointMessageTest, RecursiveObject) {
     // Our recursive Object
     auto *miniInput = new EndpointMessage;
     miniInput->addMember("B", 100);
@@ -44,7 +44,7 @@ TEST(SocketMessage, RecursiveObject) {
 
 }
 
-TEST(SocketMessage, AddMoveObject) {
+TEST(EndpointMessageTest, AddMoveObject) {
     EndpointMessage sm;
     auto subSM = std::make_unique<EndpointMessage>();
     subSM->addMember("HELLO", 50);
@@ -54,19 +54,19 @@ TEST(SocketMessage, AddMoveObject) {
     ASSERT_EQ(sm.stringify(), R"({"sub":{"HELLO":50}})");
 }
 
-TEST(SocketMessage, GetMoveObject) {
+TEST(EndpointMessageTest, GetMoveObject) {
     EndpointMessage sm;
     auto subSM = std::make_unique<EndpointMessage>();
     subSM->addMember("HELLO", 50);
     sm.addMoveObject("sub", std::move(subSM));
     ASSERT_EQ(sm.stringify(), R"({"sub":{"HELLO":50}})");
 
-    auto retSocketMessage = sm.getMoveObject("sub");
-    ASSERT_EQ(retSocketMessage->getInteger("HELLO"), 50);
+    auto retEndpointMessageTest = sm.getMoveObject("sub");
+    ASSERT_EQ(retEndpointMessageTest->getInteger("HELLO"), 50);
     ASSERT_TRUE(sm.isNull("sub"));
 }
 
-TEST(SocketMessage, GetMoveArrayOfObjects) {
+TEST(EndpointMessageTest, GetMoveArrayOfObjects) {
     EndpointMessage sm;
     auto subSm = new EndpointMessage;
     subSm->addMember("HELLO", 50);
@@ -75,66 +75,66 @@ TEST(SocketMessage, GetMoveArrayOfObjects) {
 
     ASSERT_EQ(sm.stringify(), R"({"sub":[{"HELLO":50}]})");
 
-    auto retSocketMessages = sm.getMoveArrayOfObjects("sub");
-    ASSERT_EQ(retSocketMessages.size(), 1);
-    ASSERT_EQ(retSocketMessages.at(0)->getInteger("HELLO"), 50);
+    auto retEndpointMessageTests = sm.getMoveArrayOfObjects("sub");
+    ASSERT_EQ(retEndpointMessageTests.size(), 1);
+    ASSERT_EQ(retEndpointMessageTests.at(0)->getInteger("HELLO"), 50);
     delete subSm;
 }
 
-TEST(SocketMessage, OverwriteInteger) {
-    EndpointMessage socketMessage;
-    socketMessage.addMember("A", 42);
-    EXPECT_EQ(socketMessage.getInteger("A"), 42);
+TEST(EndpointMessageTest, OverwriteInteger) {
+    EndpointMessage endpointMessage;
+    endpointMessage.addMember("A", 42);
+    EXPECT_EQ(endpointMessage.getInteger("A"), 42);
 
-    socketMessage.addMember("A", 7);
-    EXPECT_EQ(socketMessage.stringify(), R"({"A":7})");
-    EXPECT_EQ(socketMessage.getInteger("A"), 7);
+    endpointMessage.addMember("A", 7);
+    EXPECT_EQ(endpointMessage.stringify(), R"({"A":7})");
+    EXPECT_EQ(endpointMessage.getInteger("A"), 7);
 }
 
-TEST(SocketMessage, OverwriteString) {
-    EndpointMessage socketMessage;
-    socketMessage.addMember("A", std::string("HELLO"));
-    EXPECT_EQ(socketMessage.getString("A"), "HELLO");
+TEST(EndpointMessageTest, OverwriteString) {
+    EndpointMessage endpointMessage;
+    endpointMessage.addMember("A", std::string("HELLO"));
+    EXPECT_EQ(endpointMessage.getString("A"), "HELLO");
 
-    socketMessage.addMember("A", std::string("WORLD!"));
-    EXPECT_EQ(socketMessage.stringify(), R"({"A":"WORLD!"})");
-    EXPECT_EQ(socketMessage.getString("A"), "WORLD!");
+    endpointMessage.addMember("A", std::string("WORLD!"));
+    EXPECT_EQ(endpointMessage.stringify(), R"({"A":"WORLD!"})");
+    EXPECT_EQ(endpointMessage.getString("A"), "WORLD!");
 }
 
-TEST(SocketMessage, BadStringInput) {
+TEST(EndpointMessageTest, BadStringInput) {
     EXPECT_ANY_THROW(new EndpointMessage(R"({"HELLO":42)"));
 }
 
 
-TEST(SocketMessage, IntegerArray) {
-    EndpointMessage socketMessage;
+TEST(EndpointMessageTest, IntegerArray) {
+    EndpointMessage endpointMessage;
     std::vector<int> intArray{1, 2, 3, 4};
-    socketMessage.addMember("A", intArray);
+    endpointMessage.addMember("A", intArray);
 
-    EXPECT_EQ(socketMessage.stringify(), R"({"A":[1,2,3,4]})");
-    EXPECT_EQ(socketMessage.getArray<int>("A"), intArray);
+    EXPECT_EQ(endpointMessage.stringify(), R"({"A":[1,2,3,4]})");
+    EXPECT_EQ(endpointMessage.getArray<int>("A"), intArray);
 
 }
 
-TEST(SocketMessage, BooleanArray) {
+TEST(EndpointMessageTest, BooleanArray) {
 
-    EndpointMessage socketMessage;
+    EndpointMessage endpointMessage;
     std::vector<bool> boolArray{true, false, true};
-    socketMessage.addMember("B", boolArray);
-    EXPECT_EQ(socketMessage.stringify(), R"({"B":[true,false,true]})");
-    EXPECT_EQ(socketMessage.getArray<bool>("B"), boolArray);
+    endpointMessage.addMember("B", boolArray);
+    EXPECT_EQ(endpointMessage.stringify(), R"({"B":[true,false,true]})");
+    EXPECT_EQ(endpointMessage.getArray<bool>("B"), boolArray);
 }
 
 
-TEST(SocketMessage, StringArray) {
-    EndpointMessage socketMessage;
+TEST(EndpointMessageTest, StringArray) {
+    EndpointMessage endpointMessage;
     std::vector<std::string> stringArray{"Hello", "its", "me", "I've", "been"};
-    socketMessage.addMember("B", stringArray);
-    EXPECT_EQ(socketMessage.stringify(), R"({"B":["Hello","its","me","I've","been"]})");
-    EXPECT_EQ(socketMessage.getArray<std::string>("B"), stringArray);
+    endpointMessage.addMember("B", stringArray);
+    EXPECT_EQ(endpointMessage.stringify(), R"({"B":["Hello","its","me","I've","been"]})");
+    EXPECT_EQ(endpointMessage.getArray<std::string>("B"), stringArray);
 }
 
-TEST(SocketMessage, ObjectArray) {
+TEST(EndpointMessageTest, ObjectArray) {
     // Our main object to hold things
     EndpointMessage main;
     // Our array to be of objects
@@ -158,7 +158,7 @@ TEST(SocketMessage, ObjectArray) {
     EXPECT_EQ(returnObjectArray.at(0)->getInteger("B"), 0);
 }
 
-TEST(SocketMessage, AddMoveArrayOfObjects) {
+TEST(EndpointMessageTest, AddMoveArrayOfObjects) {
     EndpointMessage main;
     // Our array to be of objects
     std::vector<std::unique_ptr<EndpointMessage>> inputObjectArray;

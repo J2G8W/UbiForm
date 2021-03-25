@@ -58,7 +58,7 @@ void PairEndpoint::openEndpoint() {
         // Use the same socket for sending and receiving
         receiverSocket = senderSocket;
     } else {
-        throw SocketOpenError("Can't open endpoint", socketType,
+        throw SocketOpenError("Can't open endpoint", connectionParadigm,
                               endpointIdentifier);
     }
 }

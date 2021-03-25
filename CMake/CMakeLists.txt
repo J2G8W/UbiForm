@@ -94,7 +94,7 @@ if (BUILD_TESTS)
 		include_directories("${gtest_SOURCE_DIR}/include")
 	endif()
 
-    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h
+    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_EndpointMessage.h
             ../UbiForm/SchemaRepresentation/test_EndpointSchema.h ../UbiForm/test_Component.h
             ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h
 			../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h ../UbiForm/SystemSchemas/test_SystemSchemas.h

@@ -11,8 +11,8 @@ TEST(StreamingTests, SendMessage){
     Component recvComponent("tcp://127.0.0.2");
     std::shared_ptr<EndpointSchema> empty = std::make_shared<EndpointSchema>();
 
-    sendComponent.getComponentManifest().addEndpoint(SocketType::Pair, "streamSender", empty, empty);
-    recvComponent.getComponentManifest().addEndpoint(SocketType::Pair, "streamRecv", empty, empty);
+    sendComponent.getComponentManifest().addEndpoint(ConnectionParadigm::Pair, "streamSender", empty, empty);
+    recvComponent.getComponentManifest().addEndpoint(ConnectionParadigm::Pair, "streamRecv", empty, empty);
 
     sendComponent.startBackgroundListen();
     recvComponent.startBackgroundListen();

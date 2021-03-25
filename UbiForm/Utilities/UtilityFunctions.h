@@ -61,9 +61,9 @@ public:
 
 class SocketOpenError : public std::logic_error {
 public:
-    SocketOpenError(const std::string &error, SocketType socketType, const std::string &endpointId)
+    SocketOpenError(const std::string &error, ConnectionParadigm connectionParadigm, const std::string &endpointId)
             : std::logic_error(
-            "Socket type: " + convertFromSocketType(socketType) + "\nEndpoint ID: " + endpointId + "\nError: " +
+            "Socket type: " + convertFromConnectionParadigm(connectionParadigm) + "\nEndpoint ID: " + endpointId + "\nError: " +
             error) {}
 };
 

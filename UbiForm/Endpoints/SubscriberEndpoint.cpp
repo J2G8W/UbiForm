@@ -43,7 +43,7 @@ void SubscriberEndpoint::openEndpoint() {
             endpointState = EndpointState::Open;
         }
     } else {
-        throw SocketOpenError("Can't open endpoint", socketType,
+        throw SocketOpenError("Can't open endpoint", connectionParadigm,
                               endpointIdentifier);
     }
 }

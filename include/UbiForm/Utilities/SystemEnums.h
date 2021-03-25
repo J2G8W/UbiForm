@@ -14,13 +14,13 @@
 #define REQUEST "request"
 
 /// Describes the different sockets we can have
-enum SocketType {
+enum ConnectionParadigm {
     Pair, Publisher, Subscriber, Reply, Request
 };
 
-std::string convertFromSocketType(SocketType st);
+std::string convertFromConnectionParadigm(ConnectionParadigm st);
 
-SocketType convertToSocketType(const std::string &st);
+ConnectionParadigm convertToConnectionParadigm(const std::string &st);
 
 /// Describes the different types in our endpoint schemas/socket messages
 enum ValueType {

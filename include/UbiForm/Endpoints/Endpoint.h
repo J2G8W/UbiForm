@@ -11,7 +11,7 @@ protected:
 
     std::string endpointIdentifier;
     std::string endpointType;
-    SocketType socketType;
+    ConnectionParadigm connectionParadigm;
 
 
     std::thread connectionThread;
@@ -21,10 +21,10 @@ protected:
 
 public:
     Endpoint(const std::string &endpointIdentifier,
-             SocketType socketType, const std::string &endpointType,
+             ConnectionParadigm cp, const std::string &endpointType,
              endpointStartupFunction startupFunction = nullptr, void* extraData = nullptr) :
-    endpointIdentifier(endpointIdentifier), socketType(socketType), endpointType(endpointType),
-    startupFunction(startupFunction), extraData(extraData) {}
+            endpointIdentifier(endpointIdentifier), connectionParadigm(cp), endpointType(endpointType),
+            startupFunction(startupFunction), extraData(extraData) {}
 
 
     EndpointState getEndpointState(){return endpointState;}
@@ -38,7 +38,7 @@ public:
      */
     std::string &getEndpointType() { return endpointType; }
 
-    SocketType getEndpointSocketType(){return  socketType;}
+    ConnectionParadigm getConnectionParadigm(){return  connectionParadigm;}
 
     void startConnectionThread();
 

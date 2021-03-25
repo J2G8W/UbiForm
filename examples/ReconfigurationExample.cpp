@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
                             for (const auto &url:compRep->getAllUrls()) {
                                 std::string dialUrl = url + ":" + std::to_string(compRep->getPort());
                                 component->getBackgroundRequester().requestChangeEndpoint(dialUrl,
-                                                                                          SocketType::Subscriber,
+                                                                                          ConnectionParadigm::Subscriber,
                                                                                           "subscriberExample",
                                                                                           publisherRep->getSenderSchema(
                                                                                                   "publisherExample").get(),

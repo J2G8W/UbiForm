@@ -70,7 +70,7 @@ public:
 
     void requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest);
 
-    void requestChangeEndpoint(const std::string &componentAddress, SocketType socketType,
+    void requestChangeEndpoint(const std::string &componentAddress, ConnectionParadigm connectionParadigm,
                                const std::string &endpointType, EndpointSchema *receiverSchema,
                                EndpointSchema *sendSchema);
 

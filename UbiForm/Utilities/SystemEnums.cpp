@@ -19,7 +19,7 @@ std::string convertValueType(ValueType vt) {
     throw std::logic_error("Not a Valid value type");
 }
 
-std::string convertFromSocketType(SocketType st) {
+std::string convertFromConnectionParadigm(ConnectionParadigm st) {
     switch (st) {
         case Pair:
             return PAIR;
@@ -35,17 +35,17 @@ std::string convertFromSocketType(SocketType st) {
     return "Not Valid Socket Type";
 }
 
-SocketType convertToSocketType(const std::string &st) {
+ConnectionParadigm convertToConnectionParadigm(const std::string &st) {
     if (st == PAIR) {
-        return SocketType::Pair;
+        return ConnectionParadigm::Pair;
     } else if (st == PUBLISHER) {
-        return SocketType::Publisher;
+        return ConnectionParadigm::Publisher;
     } else if (st == SUBSCRIBER) {
-        return SocketType::Subscriber;
+        return ConnectionParadigm::Subscriber;
     } else if (st == REPLY) {
-        return SocketType::Reply;
+        return ConnectionParadigm::Reply;
     } else if (st == REQUEST) {
-        return SocketType::Request;
+        return ConnectionParadigm::Request;
     } else {
         throw std::logic_error("No socket type corresponds to " + st);
     }

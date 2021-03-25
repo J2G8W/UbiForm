@@ -77,16 +77,17 @@ void Component::specifyManifest(EndpointMessage *sm) {
 
 
 void Component::createNewEndpoint(const std::string &endpointType, const std::string &endpointId) {
-    SocketType socketType = convertToSocketType(componentManifest.getSocketType(endpointType));
+    ConnectionParadigm connectionParadigm = convertToConnectionParadigm(
+            componentManifest.getConnectionParadigm(endpointType));
 
     std::shared_ptr<EndpointSchema> recvSchema;
     std::shared_ptr<EndpointSchema> sendSchema;
-    if (socketType == SocketType::Pair || socketType == SocketType::Subscriber || socketType == SocketType::Request ||
-        socketType == SocketType::Reply) {
+    if (connectionParadigm == ConnectionParadigm::Pair || connectionParadigm == ConnectionParadigm::Subscriber || connectionParadigm == ConnectionParadigm::Request ||
+        connectionParadigm == ConnectionParadigm::Reply) {
         recvSchema = componentManifest.getReceiverSchema(endpointType);
     }
-    if (socketType == SocketType::Pair || socketType == SocketType::Publisher || socketType == SocketType::Request ||
-        socketType == SocketType::Reply) {
+    if (connectionParadigm == ConnectionParadigm::Pair || connectionParadigm == ConnectionParadigm::Publisher || connectionParadigm == ConnectionParadigm::Request ||
+        connectionParadigm == ConnectionParadigm::Reply) {
         sendSchema = componentManifest.getSenderSchema(endpointType);
     }
 
@@ -103,7 +104,7 @@ void Component::createNewEndpoint(const std::string &endpointType, const std::st
         }
     }
 
-    switch (socketType) {
+    switch (connectionParadigm) {
         case Pair: {
             endpoint = std::make_shared<PairEndpoint>(recvSchema, sendSchema, endpointType, endpointId, startupFunc,extraData);
             break;
@@ -202,7 +203,8 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
     std::string socketId = generateNewSocketId();
     std::shared_ptr<DataSenderEndpoint> e;
     // If we already have a publisher or reply endpoint already then we don't want to make a new one
-    if(componentManifest.getSocketType(endpointType) == PUBLISHER || componentManifest.getSocketType(endpointType) == REPLY){
+    if(componentManifest.getConnectionParadigm(endpointType) == PUBLISHER ||
+            componentManifest.getConnectionParadigm(endpointType) == REPLY){
         if(getEndpointsByType(endpointType)->empty()){
             createNewEndpoint(endpointType,socketId);
         } else {
@@ -258,7 +260,7 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
         std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":"
                   << lowestPort;
         std::cout << "\n\tLocal ID of socket: " << socketId <<  "\n\tSocket Type: " ;
-        std::cout << componentManifest.getSocketType(endpointType) << std::endl;
+        std::cout << componentManifest.getConnectionParadigm(endpointType) << std::endl;
         return lowestPort++;
     }else{
         return e->getListenPort();
@@ -280,7 +282,7 @@ void Component::createEndpointAndDial(const std::string &localEndpointType, cons
         e->dialConnection(dialUrl);
         std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << dialUrl;
         std::cout << "\n\tLocal ID of socket: " << socketId << "\n\tSocket Type: " ;
-        std::cout << componentManifest.getSocketType(localEndpointType) << std::endl;
+        std::cout << componentManifest.getConnectionParadigm(localEndpointType) << std::endl;
     } catch (NngError &e) {
         closeAndInvalidateSocketById(socketId);
         throw;
@@ -413,7 +415,8 @@ Component::registerStartupFunction(const std::string &endpointType, endpointStar
 }
 
 PairEndpoint *Component::castToPair(Endpoint *e) {
-    if(componentManifest.getSocketType(e->getEndpointType()) == PAIR && e->getEndpointSocketType() == SocketType::Pair){
+    if(componentManifest.getConnectionParadigm(e->getEndpointType()) == PAIR &&
+            e->getConnectionParadigm() == ConnectionParadigm::Pair){
         return dynamic_cast<PairEndpoint*>(e);
     }else{
         throw AccessError("Endpoint not a pair");
@@ -421,10 +424,10 @@ PairEndpoint *Component::castToPair(Endpoint *e) {
 }
 
 std::shared_ptr<DataReceiverEndpoint> Component::castToDataReceiverEndpoint(std::shared_ptr<Endpoint> e) {
-    std::string type = componentManifest.getSocketType(e->getEndpointType());
-    SocketType socketType = e->getEndpointSocketType();
-    if(type != convertFromSocketType(socketType)){throw AccessError("Manifest doesn't align with endpoint type");}
-    switch(socketType){
+    std::string type = componentManifest.getConnectionParadigm(e->getEndpointType());
+    ConnectionParadigm connectionParadigm = e->getConnectionParadigm();
+    if(type != convertFromConnectionParadigm(connectionParadigm)){throw AccessError("Manifest doesn't align with endpoint type");}
+    switch(connectionParadigm){
         case Pair:
         case Subscriber:
         case Reply:
@@ -437,10 +440,10 @@ std::shared_ptr<DataReceiverEndpoint> Component::castToDataReceiverEndpoint(std:
 }
 
 std::shared_ptr<DataSenderEndpoint> Component::castToDataSenderEndpoint(std::shared_ptr<Endpoint> e) {
-    std::string type = componentManifest.getSocketType(e->getEndpointType());
-    SocketType socketType = e->getEndpointSocketType();
-    if(type != convertFromSocketType(socketType)){throw AccessError("Manifest doesn't align with endpoint type");}
-    switch(socketType){
+    std::string type = componentManifest.getConnectionParadigm(e->getEndpointType());
+    ConnectionParadigm connectionParadigm = e->getConnectionParadigm();
+    if(type != convertFromConnectionParadigm(connectionParadigm)){throw AccessError("Manifest doesn't align with endpoint type");}
+    switch(connectionParadigm){
         case Pair:
         case Publisher:
 
@@ -454,7 +457,8 @@ std::shared_ptr<DataSenderEndpoint> Component::castToDataSenderEndpoint(std::sha
 }
 
 std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<Endpoint> e) {
-    if(componentManifest.getSocketType(e->getEndpointType()) == PAIR && e->getEndpointSocketType() == SocketType::Pair){
+    if(componentManifest.getConnectionParadigm(e->getEndpointType()) == PAIR &&
+            e->getConnectionParadigm() == ConnectionParadigm::Pair){
         return std::dynamic_pointer_cast<PairEndpoint>(e);
     }else{
         throw AccessError("Endpoint not a pair");
@@ -462,10 +466,10 @@ std::shared_ptr<PairEndpoint> Component::castToPair(std::shared_ptr<Endpoint> e)
 }
 
 DataReceiverEndpoint *Component::castToDataReceiverEndpoint(Endpoint *e) {
-    std::string type = componentManifest.getSocketType(e->getEndpointType());
-    SocketType socketType = e->getEndpointSocketType();
-    if(type != convertFromSocketType(socketType)){throw AccessError("Manifest doesn't align with endpoint type");}
-    switch(socketType){
+    std::string type = componentManifest.getConnectionParadigm(e->getEndpointType());
+    ConnectionParadigm connectionParadigm = e->getConnectionParadigm();
+    if(type != convertFromConnectionParadigm(connectionParadigm)){throw AccessError("Manifest doesn't align with endpoint type");}
+    switch(connectionParadigm){
         case Pair:
         case Subscriber:
         case Reply:
@@ -478,10 +482,10 @@ DataReceiverEndpoint *Component::castToDataReceiverEndpoint(Endpoint *e) {
 }
 
 DataSenderEndpoint *Component::castToDataSenderEndpoint(Endpoint *e) {
-    std::string type = componentManifest.getSocketType(e->getEndpointType());
-    SocketType socketType = e->getEndpointSocketType();
-    if(type != convertFromSocketType(socketType)){throw AccessError("Manifest doesn't align with endpoint type");}
-    switch(socketType){
+    std::string type = componentManifest.getConnectionParadigm(e->getEndpointType());
+    ConnectionParadigm connectionParadigm = e->getConnectionParadigm();
+    if(type != convertFromConnectionParadigm(connectionParadigm)){throw AccessError("Manifest doesn't align with endpoint type");}
+    switch(connectionParadigm){
         case Pair:
         case Publisher:
 

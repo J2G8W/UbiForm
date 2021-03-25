@@ -25,8 +25,8 @@ public:
     PairEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema,
                  const std::string &endpointType, const std::string &endpointIdentifier = "Pair",
                  endpointStartupFunction startupFunction = nullptr, void* extraData = nullptr) :
-                 Endpoint(endpointIdentifier, SocketType::Pair, endpointType,
-                          startupFunction,extraData),
+                 Endpoint(endpointIdentifier, ConnectionParadigm::Pair, endpointType,
+                          startupFunction, extraData),
             DataReceiverEndpoint(receiveSchema),
             DataSenderEndpoint(sendSchema) {
 

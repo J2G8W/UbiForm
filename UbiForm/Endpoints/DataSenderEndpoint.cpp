@@ -11,7 +11,7 @@ void DataSenderEndpoint::sendMessage(EndpointMessage &s) {
 void DataSenderEndpoint::rawSendMessage(EndpointMessage &s) {
     if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed)) {
         throw SocketOpenError("Could not send message, in state: " + convertEndpointState(endpointState),
-                              socketType, endpointIdentifier);
+                              connectionParadigm, endpointIdentifier);
     }
     int rv;
     std::string messageTextObject = s.stringify();
@@ -26,7 +26,7 @@ void DataSenderEndpoint::rawSendMessage(EndpointMessage &s) {
 void DataSenderEndpoint::asyncSendMessage(EndpointMessage &s) {
     if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed )) {
         throw SocketOpenError("Could not async-send message, socket is in state: " + convertEndpointState(endpointState),
-                              socketType, endpointIdentifier);
+                              connectionParadigm, endpointIdentifier);
     }
     nng_aio_wait(nngAioPointer);
     std::string text = s.stringify();
@@ -63,7 +63,7 @@ void DataSenderEndpoint::setSendTimeout(int ms_time) {
             throw NngError(rv, "Set send timeout");
         }
     } else {
-        throw SocketOpenError("Can't set timeout if endpoint not open", socketType, endpointIdentifier);
+        throw SocketOpenError("Can't set timeout if endpoint not open", connectionParadigm, endpointIdentifier);
     }
 }
 
@@ -87,7 +87,7 @@ int DataSenderEndpoint::listenForConnectionWithRV(const std::string &base, int p
         startConnectionThread();
         return rv;
     } else {
-        throw SocketOpenError("Can't listen if endpoint not open", socketType, endpointIdentifier);
+        throw SocketOpenError("Can't listen if endpoint not open", connectionParadigm, endpointIdentifier);
     }
 }
 
@@ -97,7 +97,7 @@ void DataSenderEndpoint::closeEndpoint() {
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
         } else {
-            std::cout << convertFromSocketType(socketType)<< " socket: " << endpointIdentifier << " closed" << std::endl;
+            std::cout << convertFromConnectionParadigm(connectionParadigm) << " socket: " << endpointIdentifier << " closed" << std::endl;
         }
         endpointState = EndpointState::Closed;
     }

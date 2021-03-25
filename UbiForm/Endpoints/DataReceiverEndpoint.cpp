@@ -11,7 +11,7 @@ std::unique_ptr<EndpointMessage> DataReceiverEndpoint::receiveMessage() {
 std::unique_ptr<EndpointMessage> DataReceiverEndpoint::rawReceiveMessage() {
     if (!(endpointState == EndpointState::Dialed || endpointState == EndpointState::Listening)) {
         throw SocketOpenError("Could not receive message, in state: " + convertEndpointState(endpointState) ,
-                              socketType, endpointIdentifier);
+                              connectionParadigm, endpointIdentifier);
     }
     int rv;
     char *buffer = nullptr;
@@ -33,7 +33,7 @@ std::unique_ptr<EndpointMessage> DataReceiverEndpoint::rawReceiveMessage() {
 void DataReceiverEndpoint::asyncReceiveMessage(receiveMessageCallBack callback, void *furtherUserData) {
     if (!(endpointState == EndpointState::Dialed || endpointState == EndpointState::Listening)) {
         throw SocketOpenError("Could not async-receive message, socket is closed, in state: " + convertEndpointState(endpointState),
-                              socketType, endpointIdentifier);
+                              connectionParadigm, endpointIdentifier);
     }
     auto *asyncData = new AsyncData(callback, this->receiverSchema, furtherUserData, this);
     nng_aio_alloc(&(uniqueEndpointAioPointer), asyncCallback, asyncData);
@@ -79,7 +79,7 @@ void DataReceiverEndpoint::setReceiveTimeout(int ms_time) {
             throw NngError(rv, "Set receive timeout");
         }
     } else {
-        throw SocketOpenError("Can't set timeout if endpoint not open", socketType, endpointIdentifier);
+        throw SocketOpenError("Can't set timeout if endpoint not open", connectionParadigm, endpointIdentifier);
     }
 }
 
@@ -94,7 +94,7 @@ void DataReceiverEndpoint::dialConnection(const std::string &url) {
         endConnectionThread();
         startConnectionThread();
     } else {
-        throw SocketOpenError("Can't dial if endpoint not open", socketType, endpointIdentifier);
+        throw SocketOpenError("Can't dial if endpoint not open", connectionParadigm, endpointIdentifier);
     }
 }
 
@@ -105,7 +105,7 @@ void DataReceiverEndpoint::closeEndpoint() {
         if (nng_close(*receiverSocket) == NNG_ECLOSED) {
             std::cerr << "This socket had already been closed" << std::endl;
         } else {
-            std::cout << convertFromSocketType(socketType)<< " socket: " << endpointIdentifier << " closed" << std::endl;
+            std::cout << convertFromConnectionParadigm(connectionParadigm) << " socket: " << endpointIdentifier << " closed" << std::endl;
         }
         endpointState = EndpointState::Closed;
     }
