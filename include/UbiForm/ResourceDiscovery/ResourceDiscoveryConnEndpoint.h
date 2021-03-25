@@ -112,6 +112,12 @@ public:
     void updateManifestWithHubs();
 
     /**
+     * Deregister a third party component from the given rdhUrl. This should be used largely for when we are unable to
+     * contact a component and so deem that the component should be removed from the RDH
+     */
+    void deRegisterThirdPartyFromHub(const std::string &rdhUrl, const std::string componentId);
+
+    /**
      * Deregister from the hub given. This means we no longer contact the hub
      */
     void deRegisterFromHub(const std::string &rdhUrl);

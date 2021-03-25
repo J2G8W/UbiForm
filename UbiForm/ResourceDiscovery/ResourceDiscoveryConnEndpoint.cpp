@@ -305,6 +305,19 @@ ResourceDiscoveryConnEndpoint::getComponentsByProperties(std::map<std::string, s
     return returnComponents;
 }
 
+void ResourceDiscoveryConnEndpoint::deRegisterThirdPartyFromHub(const std::string &rdhUrl, const std::string componentId){
+    EndpointMessage request;
+    request.addMember("request", RESOURCE_DISCOVERY_DEREGISTER_COMPONENT);
+    request.addMember("id", componentId);
+    try {
+        sendRequest(rdhUrl, request, false);
+        std::cout << "De-registered "  <<  componentId <<" from " << rdhUrl << std::endl;
+    } catch (std::logic_error &e) {
+        std::cerr << "Error with de-register of " << componentId << " from " << rdhUrl << "\n" << e.what() << std::endl;
+    }
+}
+
+
 void ResourceDiscoveryConnEndpoint::deRegisterFromHub(const std::string &rdhUrl) {
     EndpointMessage request;
     request.addMember("request", RESOURCE_DISCOVERY_DEREGISTER_COMPONENT);
