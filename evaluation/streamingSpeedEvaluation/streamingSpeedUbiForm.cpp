@@ -1,11 +1,12 @@
 #include <cstring>
 
-#include "../include/UbiForm/Component.h"
+#include "../../include/UbiForm/Component.h"
 #include <nng/supplemental/util/platform.h>
 #include <fstream>
 
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
+
 
 struct timingData{
     std::chrono::duration<int64_t, std::nano> startTime;
@@ -13,7 +14,7 @@ struct timingData{
     std::chrono::duration<int64_t, std::nano> duration;
     long fileSize;
     int blockSize;
-    std::ostringstream* outputStream;
+    std::ostream* outputStream;
 };
 
 void endOfReceiveStream(PairEndpoint* pe, void* userData){
@@ -28,7 +29,7 @@ struct startupData{
     Component * component;
     std::string fileName;
     bool streamDone = false;
-    int blockSize = 10002;
+    int blockSize;
 };
 void endOfSenderStream(PairEndpoint* pe, void* userData){
     auto* t = static_cast<startupData*>(userData);
@@ -49,6 +50,10 @@ void senderConnectStream(Endpoint* e, void* userData){
     pair->sendStream(t->fileStream, t->blockSize, false, sm, endOfSenderStream, t);
 }
 
+class NullBuffer : public std::streambuf {
+public:
+    int overflow(int c) { return c; }
+};
 
 
 int main(int argc, char **argv) {
@@ -63,7 +68,8 @@ int main(int argc, char **argv) {
 
             timingData ts[5];
             for(auto &t:ts){
-                t.outputStream = new std::ostringstream ;
+                NullBuffer* null_buffer = new NullBuffer;
+                t.outputStream = new std::ostream (null_buffer);
             }
 
             for(auto & t : ts) {
@@ -88,9 +94,10 @@ int main(int argc, char **argv) {
                     nng_msleep(100);
                 }
                 receiver.closeAndInvalidateSocketById(pair->getEndpointId());
+                nng_msleep(500);
             }
             std::ofstream results;
-            results.open("results.txt",std::fstream::out | std::fstream::app);
+            results.open("streaming_UbiForm_results.csv",std::fstream::out | std::fstream::app);
             for(auto &t : ts){
                 t.duration = t.endTime - t.startTime;
                 results << t.duration.count() << "," << t.fileSize << "," << t.blockSize << "\n";
@@ -115,6 +122,8 @@ int main(int argc, char **argv) {
                     std::cerr << e.what() << std::endl;
                     exit(-1);
                 }
+            } else{
+                s->blockSize = 50001;
             }
             sender.registerStartupFunction("sender",senderConnectStream,s);
 
@@ -127,12 +136,13 @@ int main(int argc, char **argv) {
                 s->streamDone = false;
                 sender.closeAndInvalidateSocketsOfType("sender");
             }
+
         } else {
             std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << " SENDER_ADDRESS\n";
-            std::cerr << argv[0] << " " << SENDER << " [fileLocation]" << std::endl;
+            std::cerr << argv[0] << " " << SENDER << " fileLocation " <<  " [blockSize]" << std::endl;
         }
     } else {
-        std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << "SENDER_ADDRESS\n";
-        std::cerr << argv[0] << " " << SENDER << " [fileLocation]" << std::endl;
+        std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << " SENDER_ADDRESS\n";
+        std::cerr << argv[0] << " " << SENDER << " fileLocation " <<  " [blockSize]" << std::endl;
     }
 }

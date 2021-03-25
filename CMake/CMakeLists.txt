@@ -138,10 +138,26 @@ if(BUILD_SOUND_EXAMPLES)
 endif(BUILD_SOUND_EXAMPLES)
 
 if(BUILD_EVALUATION)
-	add_executable(stream_speed_test ../evaluation/streamingSpeed.cpp)
-	target_link_libraries(stream_speed_test UbiForm)
+	file(COPY ../evaluation/EvaluationFiles DESTINATION .)
+	add_executable(UbiForm_stream_speed_test ../evaluation/streamingSpeedEvaluation/streamingSpeedUbiForm.cpp)
+	target_link_libraries(UbiForm_stream_speed_test UbiForm)
+
+	add_executable(nng_message_speed_test ../evaluation/streamingSpeedEvaluation/messageSpeedNNG.cpp)
+	target_link_libraries(nng_message_speed_test nng)
+
+	add_executable(nng_stream_speed_test ../evaluation/streamingSpeedEvaluation/streamingSpeedNNG.cpp)
+	target_link_libraries(nng_stream_speed_test nng)
 
 	add_executable(pub_sub_speed_test ../evaluation/pubSubSpeed.cpp)
 	target_link_libraries(pub_sub_speed_test UbiForm)
 	file(COPY ../evaluation/runPubSubEval.sh DESTINATION .)
+
+	add_executable(brokered_speed_test_broker ../evaluation/brokeredPubSubEvaluation/Broker.cpp)
+	target_link_libraries(brokered_speed_test_broker UbiForm)
+	add_executable(brokered_speed_test_pubsub ../evaluation/brokeredPubSubEvaluation/PublisherSubscriber.cpp)
+	target_link_libraries(brokered_speed_test_pubsub UbiForm)
+	file(COPY ../evaluation/brokeredPubSubEvaluation/run_brokered_pub_sub.sh DESTINATION .)
+
+	add_executable(section_speed_test ../evaluation/sectionSpeeds.cpp)
+	target_link_libraries(section_speed_test UbiForm)
 endif(BUILD_EVALUATION)

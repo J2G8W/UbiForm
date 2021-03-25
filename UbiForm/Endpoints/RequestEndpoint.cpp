@@ -66,7 +66,7 @@ void RequestEndpoint::openEndpoint() {
             // Use the same socket for sending and receiving
             receiverSocket = senderSocket;
             // Set timeout to a reasonably small value
-            setReceiveTimeout(500);
+            setReceiveTimeout(600);
         }
     } else {
         throw EndpointOpenError("Can't open endpoint", connectionParadigm,
