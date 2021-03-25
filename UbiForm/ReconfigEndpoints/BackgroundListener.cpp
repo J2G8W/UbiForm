@@ -282,6 +282,7 @@ std::unique_ptr<EndpointMessage> BackgroundListener::handleEndpointInfoRequest(E
             mini->addMember("id", endpoint->getEndpointId());
             mini->addMember("endpointType", type);
             mini->addMember("connectionParadigm", component->getComponentManifest().getConnectionParadigm(type));
+            mini->addMember("endpointState",convertEndpointState(endpoint->getEndpointState()));
             try {
                 if (endpoint->getEndpointState() == EndpointState::Listening) {
                     mini->addMember("listenPort", component->castToDataSenderEndpoint(endpoint)->getListenPort());
