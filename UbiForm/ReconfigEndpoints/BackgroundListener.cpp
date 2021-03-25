@@ -26,8 +26,8 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                 std::cerr << "Background Listener - " << e.what() << std::endl;
                 break;
             }
-        } catch (SocketOpenError &e) {
-            // If the socket is no longer open then we just end our background process
+        } catch (EndpointOpenError &e) {
+            // If the endpoint is no longer open then we just end our background process
             break;
         } catch (std::logic_error &e) {
             // For validation errors or something similar, we return the error messahe
@@ -61,8 +61,8 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                     reply = backgroundListener->handleChangeManifestRequest(*request);
                 } else if (requestType == BACKGROUND_GET_LOCATIONS_OF_RDH) {
                     reply = backgroundListener->handleRDHLocationsRequest(*request);
-                } else if (requestType == BACKGROUND_CLOSE_SOCKETS) {
-                    reply = backgroundListener->handleCloseSocketsRequest(*request);
+                } else if (requestType == BACKGROUND_CLOSE_ENDPOINTS) {
+                    reply = backgroundListener->handleCloseEndpointsRequest(*request);
                 } else if (requestType == BACKGROUND_CLOSE_ENDPOINT_BY_ID) {
                     reply = backgroundListener->handleCloseEndpointByIdRequest(*request);
                 } else if (requestType == BACKGROUND_CLOSE_RDH) {
@@ -94,7 +94,7 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                 std::cerr << "Background Listener - " << e.what() << std::endl;
                 break;
             }
-        } catch (SocketOpenError &e) {
+        } catch (EndpointOpenError &e) {
             break;
         }
     }
@@ -234,9 +234,9 @@ std::unique_ptr<EndpointMessage> BackgroundListener::handleRDHLocationsRequest(E
     return reply;
 }
 
-std::unique_ptr<EndpointMessage> BackgroundListener::handleCloseSocketsRequest(EndpointMessage &request) {
+std::unique_ptr<EndpointMessage> BackgroundListener::handleCloseEndpointsRequest(EndpointMessage &request) {
     auto reply = std::make_unique<EndpointMessage>();
-    component->closeAndInvalidateSocketsOfType(request.getString("endpointType"));
+    component->closeAndInvalidateEndpointsOfType(request.getString("endpointType"));
     reply->addMember("error", false);
     return reply;
 }
@@ -303,7 +303,7 @@ std::unique_ptr<EndpointMessage> BackgroundListener::handleEndpointInfoRequest(E
 }
 
 std::unique_ptr<EndpointMessage> BackgroundListener::handleCloseEndpointByIdRequest(EndpointMessage &re) {
-    component->closeAndInvalidateSocketById(re.getString("endpointId"));
+    component->closeAndInvalidateEndpointsById(re.getString("endpointId"));
     auto reply = std::make_unique<EndpointMessage>();
     reply->addMember("error", false);
     return reply;
@@ -322,7 +322,7 @@ BackgroundListener::~BackgroundListener() {
 
 std::unique_ptr<EndpointMessage> BackgroundListener::handleManifestRequest(EndpointMessage &request) {
     std::unique_ptr<EndpointMessage> reply = std::make_unique<EndpointMessage>();
-    reply->addMoveObject("manifest", component->getComponentManifest().getSocketMessageCopy());
+    reply->addMoveObject("manifest", component->getComponentManifest().getEndpointMessageCopy());
     reply->addMember("error",false);
     return reply;
 }

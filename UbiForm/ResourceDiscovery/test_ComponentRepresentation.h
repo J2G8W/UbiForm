@@ -15,7 +15,7 @@ protected:
         try {
             std::ifstream in(location);
             std::string contents((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-            socketMessage = new EndpointMessage(contents.c_str());
+            endpointMessage = new EndpointMessage(contents.c_str());
         } catch (const std::ifstream::failure &e) {
             std::cerr << "ERROR OPENING FILE: " << location << std::endl;
             throw;
@@ -24,12 +24,12 @@ protected:
 
     ~SimpleCR() {
         delete componentRepresentation;
-        delete socketMessage;
+        delete endpointMessage;
     }
 
 
     ComponentRepresentation *componentRepresentation;
-    EndpointMessage *socketMessage;
+    EndpointMessage *endpointMessage;
     SystemSchemas ss;
 };
 
@@ -37,33 +37,33 @@ TEST_F(SimpleCR, EqualityOfExact) {
     loadComponentRepresentation("TestManifests/Component1.json");
     loadSocketMessage("TestManifests/Endpoint1.json");
 
-    ASSERT_TRUE(componentRepresentation->isEqual("pairExample", true, *socketMessage));
+    ASSERT_TRUE(componentRepresentation->isEqual("pairExample", true, *endpointMessage));
 }
 
 TEST_F(SimpleCR, EqualityOfFunctionallyExact) {
     loadComponentRepresentation("TestManifests/Component1.json");
     loadSocketMessage("TestManifests/Endpoint2.json");
 
-    ASSERT_TRUE(componentRepresentation->isEqual("pairExample", true, *socketMessage));
+    ASSERT_TRUE(componentRepresentation->isEqual("pairExample", true, *endpointMessage));
 }
 
 TEST_F(SimpleCR, FailureOfDifferentType) {
     loadComponentRepresentation("TestManifests/Component1.json");
     loadSocketMessage("TestManifests/Endpoint3.json");
 
-    ASSERT_FALSE(componentRepresentation->isEqual("pairExample", true, *socketMessage));
+    ASSERT_FALSE(componentRepresentation->isEqual("pairExample", true, *endpointMessage));
 }
 
 TEST_F(SimpleCR, ComplexEquality) {
     loadComponentRepresentation("TestManifests/Component2.json");
     loadSocketMessage("TestManifests/Endpoint4.json");
 
-    ASSERT_TRUE(componentRepresentation->isEqual("publisherExample", false, *socketMessage));
+    ASSERT_TRUE(componentRepresentation->isEqual("publisherExample", false, *endpointMessage));
 }
 
 TEST_F(SimpleCR, ComplexDifferences) {
     loadComponentRepresentation("TestManifests/Component2.json");
     loadSocketMessage("TestManifests/Endpoint5.json");
 
-    ASSERT_FALSE(componentRepresentation->isEqual("publisherExample", false, *socketMessage));
+    ASSERT_FALSE(componentRepresentation->isEqual("publisherExample", false, *endpointMessage));
 }

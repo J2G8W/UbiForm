@@ -2,7 +2,7 @@
 #include "../Utilities/base64.h"
 #include <nng/supplemental/util/platform.h>
 
-// Send the EndpointMessage object on our socket after checking that our message is valid against our manifest
+// Send the EndpointMessage object on our endpoint after checking that our message is valid against our manifest
 void DataSenderEndpoint::sendMessage(EndpointMessage &s) {
     senderSchema->validate(s);
     rawSendMessage(s);
@@ -10,8 +10,8 @@ void DataSenderEndpoint::sendMessage(EndpointMessage &s) {
 
 void DataSenderEndpoint::rawSendMessage(EndpointMessage &s) {
     if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed)) {
-        throw SocketOpenError("Could not send message, in state: " + convertEndpointState(endpointState),
-                              connectionParadigm, endpointIdentifier);
+        throw EndpointOpenError("Could not send message, in state: " + convertEndpointState(endpointState),
+                                connectionParadigm, endpointIdentifier);
     }
     int rv;
     std::string messageTextObject = s.stringify();
@@ -25,8 +25,8 @@ void DataSenderEndpoint::rawSendMessage(EndpointMessage &s) {
 
 void DataSenderEndpoint::asyncSendMessage(EndpointMessage &s) {
     if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed )) {
-        throw SocketOpenError("Could not async-send message, socket is in state: " + convertEndpointState(endpointState),
-                              connectionParadigm, endpointIdentifier);
+        throw EndpointOpenError("Could not async-send message, endpoint is in state: " + convertEndpointState(endpointState),
+                                connectionParadigm, endpointIdentifier);
     }
     nng_aio_wait(nngAioPointer);
     std::string text = s.stringify();
@@ -63,7 +63,7 @@ void DataSenderEndpoint::setSendTimeout(int ms_time) {
             throw NngError(rv, "Set send timeout");
         }
     } else {
-        throw SocketOpenError("Can't set timeout if endpoint not open", connectionParadigm, endpointIdentifier);
+        throw EndpointOpenError("Can't set timeout if endpoint not open", connectionParadigm, endpointIdentifier);
     }
 }
 
@@ -87,7 +87,7 @@ int DataSenderEndpoint::listenForConnectionWithRV(const std::string &base, int p
         startConnectionThread();
         return rv;
     } else {
-        throw SocketOpenError("Can't listen if endpoint not open", connectionParadigm, endpointIdentifier);
+        throw EndpointOpenError("Can't listen if endpoint not open", connectionParadigm, endpointIdentifier);
     }
 }
 
@@ -95,9 +95,9 @@ void DataSenderEndpoint::closeEndpoint() {
     if (!(endpointState == EndpointState::Closed ||
         endpointState == EndpointState::Invalid)) {
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
-            std::cerr << "This socket had already been closed" << std::endl;
+            std::cerr << "This endpoint had already been closed" << std::endl;
         } else {
-            std::cout << convertFromConnectionParadigm(connectionParadigm) << " socket: " << endpointIdentifier << " closed" << std::endl;
+            std::cout << convertFromConnectionParadigm(connectionParadigm) << " endpoint: " << endpointIdentifier << " closed" << std::endl;
         }
         endpointState = EndpointState::Closed;
     }

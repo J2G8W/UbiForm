@@ -74,7 +74,7 @@ public:
      * @return The message that was sent
      * @throws NngError when the underlying connection, fails or timeouts or some other error
      * @throws ValidationError when the message we receive does not conform to our schema
-     * @throws SocketOpenError when our socket has been closed
+     * @throws SocketOpenError when our endpoint has been closed
      */
     std::unique_ptr<EndpointMessage> receiveMessage();
 
@@ -86,7 +86,7 @@ public:
      * @param callback - The function which is called when a EndpointMessage is received - DON'T BE A BLOCKING FUNCTION or we
      * can get deadlock scenarios
      * @param furtherUserData - Extra data which you want to be available in the call back
-     * @throws SocketOpenError - When the socket is not open
+     * @throws SocketOpenError - When the endpoint is not open
      */
     void asyncReceiveMessage(receiveMessageCallBack callback, void *furtherUserData);
 
@@ -99,13 +99,13 @@ public:
 
 
     /**
-     * This function closes our socket. If extended it should call the parent then handle states of other things.
-     * Note that a closed socket must be re-opened before being use for dialing etc
+     * This function closes our endpoint. If extended it should call the parent then handle states of other things.
+     * Note that a closed endpoint must be re-opened before being use for dialing etc
      */
     virtual void closeEndpoint() ;
 
     /**
-     * Open a socket ready for it dial someone
+     * Open a endpoint ready for it dial someone
      */
     virtual void openEndpoint() = 0;
 

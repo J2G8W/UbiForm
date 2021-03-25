@@ -23,7 +23,7 @@ private:
 
 public:
     /**
-     * Basically just makes the ResourceDiscoveryHub response to some socketMessage
+     * Basically just makes the ResourceDiscoveryHub response to some endpointMessage
      * @param sm - Input EndpointMessage
      * @return The reply EndpointMessage (should be memory handled pls)
      */

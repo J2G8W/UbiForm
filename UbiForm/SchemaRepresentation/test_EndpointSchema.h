@@ -19,22 +19,22 @@ protected:
 
 TEST_F(EndpointSchemaSimpleChecks, ErrorValidationOfMessage) {
 
-    EndpointMessage socketMessage;
+    EndpointMessage endpointMessage;
     // Wrong type
-    socketMessage.addMember("temperature", std::string("NOPE"));
+    endpointMessage.addMember("temperature", std::string("NOPE"));
     // Correct type
-    socketMessage.addMember("value", std::string("WORLD"));
+    endpointMessage.addMember("value", std::string("WORLD"));
 
-    ASSERT_THROW(endpointSchema.validate(socketMessage), ValidationError);
+    ASSERT_THROW(endpointSchema.validate(endpointMessage), ValidationError);
 }
 
 TEST_F(EndpointSchemaSimpleChecks, CorrectValidationOfMessage) {
-    EndpointMessage socketMessage;
+    EndpointMessage endpointMessage;
     // Both are correct types
-    socketMessage.addMember("temperature", 42);
-    socketMessage.addMember("value", std::string("WORLD"));
+    endpointMessage.addMember("temperature", 42);
+    endpointMessage.addMember("value", std::string("WORLD"));
 
-    ASSERT_NO_THROW(endpointSchema.validate(socketMessage));
+    ASSERT_NO_THROW(endpointSchema.validate(endpointMessage));
 }
 
 TEST_F(EndpointSchemaSimpleChecks, GetSchema) {

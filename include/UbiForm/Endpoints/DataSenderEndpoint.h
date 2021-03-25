@@ -62,12 +62,12 @@ public:
      * Blocking send on our Socket
      * @param s - Message to send
      * @throws NngError - When there is underlying socket issues
-     * @throws SocketOpenError - When the socket has already been closed
+     * @throws SocketOpenError - When the endpoint has already been closed
      */
     void sendMessage(EndpointMessage &s);
 
     /**
-     * Non blocking send on our socket
+     * Non blocking send on our endpoint
      * @param s - Message to send
      * @throws NngError - When we run out of space or something. Won't error on a send error (just throws it away)
      */

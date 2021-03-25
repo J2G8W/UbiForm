@@ -45,7 +45,7 @@ TEST_F(ComponentManifestBasics, MalformedManifest) {
     ASSERT_ANY_THROW(new ComponentManifest(jsonString, systemSchemas));
 }
 
-TEST_F(ComponentManifestBasics, CreationFromSocketMessage) {
+TEST_F(ComponentManifestBasics, CreationFromEndpointMessage) {
     const char *jsonString = R"({"name":"TEST1","schemas":{}})";
     auto *sm = new EndpointMessage(jsonString);
 
@@ -63,7 +63,7 @@ TEST_F(ComponentManifestBasics, AdditionalInfo) {
 
     ASSERT_THROW(testManifest.getProperty("NOT A PROPERTY"), AccessError);
 
-    ASSERT_NO_THROW(ComponentManifest copiedManifest(testManifest.getSocketMessageCopy().get(), systemSchemas));
+    ASSERT_NO_THROW(ComponentManifest copiedManifest(testManifest.getEndpointMessageCopy().get(), systemSchemas));
 
     ASSERT_TRUE(testManifest.hasProperty("public_key"));
     testManifest.removeProperty("public_key");
@@ -108,14 +108,14 @@ TEST_F(ManifestExample, ReceiverSchemasTest) {
 
     std::shared_ptr<EndpointSchema> endpointSchema = componentManifest->getReceiverSchema("pairExample");
 
-    EndpointMessage socketMessage;
-    socketMessage.addMember("temp", 50);
-    socketMessage.addMember("msg", std::string("HELLO"));
+    EndpointMessage endpointMessage;
+    endpointMessage.addMember("temp", 50);
+    endpointMessage.addMember("msg", std::string("HELLO"));
 
-    ASSERT_NO_THROW(endpointSchema->validate(socketMessage));
+    ASSERT_NO_THROW(endpointSchema->validate(endpointMessage));
 
-    socketMessage.addMember("msg", false);
-    ASSERT_ANY_THROW(endpointSchema->validate(socketMessage));
+    endpointMessage.addMember("msg", false);
+    ASSERT_ANY_THROW(endpointSchema->validate(endpointMessage));
 }
 
 TEST_F(ManifestExample, SenderSchemasTest) {
@@ -123,14 +123,14 @@ TEST_F(ManifestExample, SenderSchemasTest) {
 
     std::shared_ptr<EndpointSchema> endpointSchema = componentManifest->getSenderSchema("pairExample");
 
-    EndpointMessage socketMessage;
-    socketMessage.addMember("temp", 50);
-    socketMessage.addMember("msg", std::string("HELLO"));
+    EndpointMessage endpointMessage;
+    endpointMessage.addMember("temp", 50);
+    endpointMessage.addMember("msg", std::string("HELLO"));
 
-    ASSERT_NO_THROW(endpointSchema->validate(socketMessage));
+    ASSERT_NO_THROW(endpointSchema->validate(endpointMessage));
 
-    socketMessage.addMember("msg", false);
-    ASSERT_ANY_THROW(endpointSchema->validate(socketMessage));
+    endpointMessage.addMember("msg", false);
+    ASSERT_ANY_THROW(endpointSchema->validate(endpointMessage));
 }
 
 

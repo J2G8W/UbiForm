@@ -40,7 +40,7 @@ private:
 
     std::unique_ptr<EndpointMessage> handleRDHLocationsRequest(EndpointMessage &request);
 
-    std::unique_ptr<EndpointMessage> handleCloseSocketsRequest(EndpointMessage &request);
+    std::unique_ptr<EndpointMessage> handleCloseEndpointsRequest(EndpointMessage &request);
 
     std::unique_ptr<EndpointMessage> handleCloseEndpointByIdRequest(EndpointMessage &request);
 

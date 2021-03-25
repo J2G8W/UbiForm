@@ -58,19 +58,19 @@ Component::Component() : systemSchemas(),
 
 
 void Component::specifyManifest(FILE *jsonFP) {
-    closeAndInvalidateAllSockets();
+    closeAndInvalidateAllEndpoints();
     componentManifest.setManifest(jsonFP);
     resourceDiscoveryConnEndpoint.updateManifestWithHubs();
 }
 
 void Component::specifyManifest(const char *jsonString) {
-    closeAndInvalidateAllSockets();
+    closeAndInvalidateAllEndpoints();
     componentManifest.setManifest(jsonString);
     resourceDiscoveryConnEndpoint.updateManifestWithHubs();
 }
 
 void Component::specifyManifest(EndpointMessage *sm) {
-    closeAndInvalidateAllSockets();
+    closeAndInvalidateAllEndpoints();
     componentManifest.setManifest(sm);
     resourceDiscoveryConnEndpoint.updateManifestWithHubs();
 }
@@ -165,7 +165,6 @@ Component::getEndpointsByType(const std::string& endpointType){
 }
 
 
-// THIS IS OUR COMPONENT LISTENING FOR REQUESTS TO MAKE SOCKETS
 void Component::startBackgroundListen() {
     // -1 is the initalise value, and signifies the backgroundListener ain't doing nothing yet
     if (backgroundListener.getBackgroundPort() == -1) {
@@ -200,13 +199,13 @@ void Component::startBackgroundListen(int port) {
 }
 
 int Component::createEndpointAndListen(const std::string &endpointType) {
-    std::string socketId = generateNewSocketId();
+    std::string endpointId = generateNewEndpointId();
     std::shared_ptr<DataSenderEndpoint> e;
     // If we already have a publisher or reply endpoint already then we don't want to make a new one
     if(componentManifest.getConnectionParadigm(endpointType) == PUBLISHER ||
             componentManifest.getConnectionParadigm(endpointType) == REPLY){
         if(getEndpointsByType(endpointType)->empty()){
-            createNewEndpoint(endpointType,socketId);
+            createNewEndpoint(endpointType, endpointId);
         } else {
             EndpointState senderState = getEndpointsByType(endpointType)->at(0)->getEndpointState();
             switch (senderState) {
@@ -215,18 +214,18 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
                     break;
                 case Open:
                 case Listening:
-                    socketId = getEndpointsByType(endpointType)->at(0)->getEndpointId();
+                    endpointId = getEndpointsByType(endpointType)->at(0)->getEndpointId();
                     break;
                 default:
-                    createNewEndpoint(endpointType,socketId);
+                    createNewEndpoint(endpointType, endpointId);
             }
         }
     }else{
-        createNewEndpoint(endpointType, socketId);
+        createNewEndpoint(endpointType, endpointId);
     }
 
     try {
-        e = getSenderEndpointById(socketId);
+        e = getSenderEndpointById(endpointId);
     } catch (std::out_of_range &e) {
         throw std::logic_error(
                 "Couldn't make endpoint of type " + endpointType);
@@ -259,7 +258,7 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
         }
         std::cout << "Created endpoint of type: " << endpointType << "\n\tListening on URL: " << url << ":"
                   << lowestPort;
-        std::cout << "\n\tLocal ID of socket: " << socketId <<  "\n\tSocket Type: " ;
+        std::cout << "\n\tLocal ID of endpoint: " << endpointId << "\n\tConnection Paradigm: " ;
         std::cout << componentManifest.getConnectionParadigm(endpointType) << std::endl;
         return lowestPort++;
     }else{
@@ -269,10 +268,10 @@ int Component::createEndpointAndListen(const std::string &endpointType) {
 
 void Component::createEndpointAndDial(const std::string &localEndpointType, const std::string &dialUrl) {
     std::shared_ptr<DataReceiverEndpoint> e;
-    std::string socketId = generateNewSocketId();
-    createNewEndpoint(localEndpointType, socketId);
+    std::string endpointId = generateNewEndpointId();
+    createNewEndpoint(localEndpointType, endpointId);
     try {
-        e = getReceiverEndpointById(socketId);
+        e = getReceiverEndpointById(endpointId);
     } catch (std::out_of_range &e) {
         throw std::logic_error("Couldn't make endpoint of type " + localEndpointType);
     }
@@ -281,10 +280,10 @@ void Component::createEndpointAndDial(const std::string &localEndpointType, cons
     try {
         e->dialConnection(dialUrl);
         std::cout << "Created endpoint of type: " << localEndpointType << "\n\tDial on URL: " << dialUrl;
-        std::cout << "\n\tLocal ID of socket: " << socketId << "\n\tSocket Type: " ;
+        std::cout << "\n\tLocal ID of endpoint: " << endpointId << "\n\tConnection Paradigm: " ;
         std::cout << componentManifest.getConnectionParadigm(localEndpointType) << std::endl;
     } catch (NngError &e) {
-        closeAndInvalidateSocketById(socketId);
+        closeAndInvalidateEndpointsById(endpointId);
         throw;
     }
 }
@@ -339,7 +338,7 @@ Component::~Component() {
     delete resourceDiscoveryHubEndpoint;
 }
 
-void Component::closeAndInvalidateSocketsOfType(const std::string &endpointType) {
+void Component::closeAndInvalidateEndpointsOfType(const std::string &endpointType) {
     if(endpointsByType.count(endpointType) >0){
         auto vec = endpointsByType.at(endpointType);
         auto it = vec->begin();
@@ -364,14 +363,14 @@ int Component::getResourceDiscoveryHubPort() {
     }
 }
 
-void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
+void Component::closeAndInvalidateEndpointsById(const std::string &endpointId) {
     // We do the same thing for receiver and senders.
     // Endpoints which are both don't matter about being closed twice
 
 
     auto endpoint = endpointsById.find(endpointId);
     if (endpoint != endpointsById.end()) {
-        // Close the socket itself
+        // Close the endpoint itself
         endpoint->second->closeEndpoint();
         endpoint->second->invalidateEndpoint();
 
@@ -398,9 +397,9 @@ void Component::closeAndInvalidateSocketById(const std::string &endpointId) {
     }
 }
 
-void Component::closeAndInvalidateAllSockets() {
+void Component::closeAndInvalidateAllEndpoints() {
     for (const auto &endpointType : componentManifest.getAllEndpointTypes()) {
-        closeAndInvalidateSocketsOfType(endpointType);
+        closeAndInvalidateEndpointsOfType(endpointType);
     }
 }
 

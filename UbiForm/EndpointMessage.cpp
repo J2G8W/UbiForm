@@ -38,10 +38,10 @@ void EndpointMessage::addMember(const std::string &attributeName, bool value) {
     addOrSwap(key, valueContainer);
 }
 
-void EndpointMessage::addMember(const std::string &attributeName, EndpointMessage &socketMessage) {
+void EndpointMessage::addMember(const std::string &attributeName, EndpointMessage &endpointMessage) {
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
     rapidjson::Value v;
-    v.CopyFrom(socketMessage.JSON_document, JSON_document.GetAllocator());
+    v.CopyFrom(endpointMessage.JSON_document, JSON_document.GetAllocator());
     addOrSwap(key, v);
 }
 
@@ -78,12 +78,12 @@ void EndpointMessage::addMember(const std::string &attributeName, const std::vec
     addOrSwap(key, valueArray);
 }
 
-void EndpointMessage::addMoveObject(const std::string &attributeName, std::unique_ptr<EndpointMessage> socketMessage) {
+void EndpointMessage::addMoveObject(const std::string &attributeName, std::unique_ptr<EndpointMessage> endpointMessage) {
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
 
-    addOrSwap(key, socketMessage->JSON_document);
-    // So dependants now has the UNQIUE POINTER to the socket message, meaning only it can free it
-    dependants.push_back(std::move(socketMessage));
+    addOrSwap(key, endpointMessage->JSON_document);
+    // So dependants now has the UNQIUE POINTER to the endpoint message, meaning only it can free it
+    dependants.push_back(std::move(endpointMessage));
 }
 
 void EndpointMessage::addMoveArrayOfObjects(const std::string &attributeName,

@@ -1,7 +1,7 @@
 #include "../../include/UbiForm/Endpoints/DataReceiverEndpoint.h"
 #include "../Utilities/base64.h"
 
-// Receive a message, validate it against the socketManifest and return a pointer to the object.
+// Receive a message, validate it against the endpointManifest and return a pointer to the object.
 // Use smart pointers to avoid complex memory management
 std::unique_ptr<EndpointMessage> DataReceiverEndpoint::receiveMessage() {
     auto msg = rawReceiveMessage();
@@ -10,8 +10,8 @@ std::unique_ptr<EndpointMessage> DataReceiverEndpoint::receiveMessage() {
 }
 std::unique_ptr<EndpointMessage> DataReceiverEndpoint::rawReceiveMessage() {
     if (!(endpointState == EndpointState::Dialed || endpointState == EndpointState::Listening)) {
-        throw SocketOpenError("Could not receive message, in state: " + convertEndpointState(endpointState) ,
-                              connectionParadigm, endpointIdentifier);
+        throw EndpointOpenError("Could not receive message, in state: " + convertEndpointState(endpointState) ,
+                                connectionParadigm, endpointIdentifier);
     }
     int rv;
     char *buffer = nullptr;
@@ -32,8 +32,8 @@ std::unique_ptr<EndpointMessage> DataReceiverEndpoint::rawReceiveMessage() {
 // This is the public interface for asynchronously receiving messages
 void DataReceiverEndpoint::asyncReceiveMessage(receiveMessageCallBack callback, void *furtherUserData) {
     if (!(endpointState == EndpointState::Dialed || endpointState == EndpointState::Listening)) {
-        throw SocketOpenError("Could not async-receive message, socket is closed, in state: " + convertEndpointState(endpointState),
-                              connectionParadigm, endpointIdentifier);
+        throw EndpointOpenError("Could not async-receive message, endpoint is closed, in state: " + convertEndpointState(endpointState),
+                                connectionParadigm, endpointIdentifier);
     }
     auto *asyncData = new AsyncData(callback, this->receiverSchema, furtherUserData, this);
     nng_aio_alloc(&(uniqueEndpointAioPointer), asyncCallback, asyncData);
@@ -79,7 +79,7 @@ void DataReceiverEndpoint::setReceiveTimeout(int ms_time) {
             throw NngError(rv, "Set receive timeout");
         }
     } else {
-        throw SocketOpenError("Can't set timeout if endpoint not open", connectionParadigm, endpointIdentifier);
+        throw EndpointOpenError("Can't set timeout if endpoint not open", connectionParadigm, endpointIdentifier);
     }
 }
 
@@ -94,7 +94,7 @@ void DataReceiverEndpoint::dialConnection(const std::string &url) {
         endConnectionThread();
         startConnectionThread();
     } else {
-        throw SocketOpenError("Can't dial if endpoint not open", connectionParadigm, endpointIdentifier);
+        throw EndpointOpenError("Can't dial if endpoint not open", connectionParadigm, endpointIdentifier);
     }
 }
 
@@ -103,9 +103,9 @@ void DataReceiverEndpoint::closeEndpoint() {
         endpointState == EndpointState::Listening ||
         endpointState == EndpointState::Open) {
         if (nng_close(*receiverSocket) == NNG_ECLOSED) {
-            std::cerr << "This socket had already been closed" << std::endl;
+            std::cerr << "This endpoint had already been closed" << std::endl;
         } else {
-            std::cout << convertFromConnectionParadigm(connectionParadigm) << " socket: " << endpointIdentifier << " closed" << std::endl;
+            std::cout << convertFromConnectionParadigm(connectionParadigm) << " endpoint: " << endpointIdentifier << " closed" << std::endl;
         }
         endpointState = EndpointState::Closed;
     }

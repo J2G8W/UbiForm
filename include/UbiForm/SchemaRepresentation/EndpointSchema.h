@@ -43,7 +43,7 @@ public:
     }
 
     /**
-     * Create EndpointSchema which shares memory with the EndpointMessage that was input. Don't delete SocketMEssage before
+     * Create EndpointSchema which shares memory with the EndpointMessage that was input. Don't delete EndpointMessage before
      * copying this schema
      * @param sm - Parent message (don't delete before deletion of this object)
      */

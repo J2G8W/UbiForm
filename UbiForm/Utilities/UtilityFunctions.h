@@ -59,11 +59,11 @@ public:
     explicit ParsingError(const std::string &error) : std::logic_error(error) {}
 };
 
-class SocketOpenError : public std::logic_error {
+class EndpointOpenError : public std::logic_error {
 public:
-    SocketOpenError(const std::string &error, ConnectionParadigm connectionParadigm, const std::string &endpointId)
+    EndpointOpenError(const std::string &error, ConnectionParadigm connectionParadigm, const std::string &endpointId)
             : std::logic_error(
-            "Socket type: " + convertFromConnectionParadigm(connectionParadigm) + "\nEndpoint ID: " + endpointId + "\nError: " +
+            "Connection: " + convertFromConnectionParadigm(connectionParadigm) + "\nEndpoint ID: " + endpointId + "\nError: " +
             error) {}
 };
 

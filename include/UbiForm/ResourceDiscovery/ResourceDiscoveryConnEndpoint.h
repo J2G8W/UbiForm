@@ -8,10 +8,7 @@
 
 class Component;
 
-/**
- * A class which represents how we contact ResourceDiscoveryHubs. It provides the methods which you'd expect would be useful.
- * It currently makes a new NNG socket every time we want a request, may shift this to use UbiForm wrapper
- */
+
 class ResourceDiscoveryConnEndpoint {
 private:
     // Map from url to our id on that rdh

@@ -53,7 +53,7 @@ private:
 
     std::minstd_rand0 generator;
 
-    std::string generateNewSocketId() {
+    std::string generateNewEndpointId() {
         return std::to_string(generator());
     }
 
@@ -136,7 +136,7 @@ public:
      * @name Get Endpoints by ID
      * @throws std::out_of_range if the id does not appear in our OPEN endpoints
      * @param id - The local id of the endpoint we want
-     * @return A shared_ptr to an endpoint, note that this may be in an "Invalid" state at some, at which point any actions throw SocketOpenError
+     * @return A shared_ptr to an endpoint, note that this may be in an "Invalid" state at some, at which point any actions throw EndpointOpenError
     **/
     std::shared_ptr<DataReceiverEndpoint> getReceiverEndpointById(const std::string &id);
 
@@ -230,23 +230,23 @@ public:
     }
 
     /**
-     * Close the sockets of endpointType. The vector which represents the endpointType is emptied and if users haven't got pointers
+     * Close the endpoints of endpointType. The vector which represents the endpointType is emptied and if users haven't got pointers
      * the endpoints will be deleted. If the users to do have their own pointers, then we set the endpoints to INVALID and they throw exception
      * when asked to do anything
      * @param endpointType
      */
-    void closeAndInvalidateSocketsOfType(const std::string &endpointType);
+    void closeAndInvalidateEndpointsOfType(const std::string &endpointType);
 
     /**
      * Close by id. Makes the given endpoint Invalid, does nothing if the endpointID does not exist
      * @param endpointId
      */
-    void closeAndInvalidateSocketById(const std::string &endpointId);
+    void closeAndInvalidateEndpointsById(const std::string &endpointId);
 
     /**
-     * Close all the used made sockets on our component (apart from pre-defined sockets)
+     * Close all the used made endpoints on our component (apart from pre-defined endpoints)
      */
-    void closeAndInvalidateAllSockets();
+    void closeAndInvalidateAllEndpoints();
 
 
     /**

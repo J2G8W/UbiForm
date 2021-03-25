@@ -13,7 +13,7 @@
 #define REPLY "reply"
 #define REQUEST "request"
 
-/// Describes the different sockets we can have
+/// Describes the different connection paradigms we can have
 enum ConnectionParadigm {
     Pair, Publisher, Subscriber, Reply, Request
 };
@@ -22,7 +22,7 @@ std::string convertFromConnectionParadigm(ConnectionParadigm st);
 
 ConnectionParadigm convertToConnectionParadigm(const std::string &st);
 
-/// Describes the different types in our endpoint schemas/socket messages
+/// Describes the different types in our endpoint schemas/endpoint messages
 enum ValueType {
     Number, String, Boolean, Object, Array, Null
 };
@@ -83,7 +83,7 @@ typedef void (*receiveMessageCallBack)(EndpointMessage *, void *);
 #define BACKGROUND_CHANGE_MANIFEST "change_manifest"
 #define BACKGROUND_GET_COMPONENT_MANIFEST "get_manifest"
 
-#define BACKGROUND_CLOSE_SOCKETS "close_sockets"
+#define BACKGROUND_CLOSE_ENDPOINTS "close_endpoints"
 #define BACKGROUND_CLOSE_ENDPOINT_BY_ID "close_endpoint_id"
 
 
@@ -94,7 +94,7 @@ typedef void (*receiveMessageCallBack)(EndpointMessage *, void *);
 #define RESOURCE_DISCOVERY_ADD_COMPONENT "addition"
 #define RESOURCE_DISCOVERY_DEREGISTER_COMPONENT "deRegister"
 #define RESOURCE_DISCOVERY_UPDATE_MANIFEST "update"
-#define RESOURCE_DISCOVERY_NOTIFY_SOCKET_LISTEN "socketListen"
+#define RESOURCE_DISCOVERY_NOTIFY_ENDPOINT_PORT_LISTEN "endpointPortListen"
 
 #define RESOURCE_DISCOVERY_REQUEST_BY_ID "requestId"
 #define RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA "requestSchema"

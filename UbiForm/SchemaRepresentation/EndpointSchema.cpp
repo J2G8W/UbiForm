@@ -1,7 +1,7 @@
 #include "../../include/UbiForm/SchemaRepresentation/EndpointSchema.h"
 
 
-// Validate a socket message against the manifest
+// Validate a endpoint message against the manifest
 void EndpointSchema::validate(const EndpointMessage &messageToValidate) {
 
     validate(messageToValidate.JSON_document);

@@ -74,11 +74,11 @@ public:
                                const std::string &endpointType, EndpointSchema *receiverSchema,
                                EndpointSchema *sendSchema);
 
-    void requestCloseSocketOfType(const std::string &componentUrl, const std::string &endpointType);
+    void requestCloseEndpointsOfType(const std::string &componentUrl, const std::string &endpointType);
 
     std::vector<std::unique_ptr<EndpointMessage>> requestEndpointInfo(const std::string &componentUrl);
 
-    void requestCloseSocketOfId(const std::string &componentUrl, const std::string &endpointId);
+    void requestCloseEndpointOfId(const std::string &componentUrl, const std::string &endpointId);
 
     std::unique_ptr<ComponentManifest> requestComponentManifest(const std::string &componentUrl);
 };

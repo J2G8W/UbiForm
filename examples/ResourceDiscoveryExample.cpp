@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
                 while (true) {
                     if(counter % 4 == 0){
                         std::cout << "Refreshing endpoints" << std::endl;
-                        component->closeAndInvalidateSocketsOfType("subscriberExample");
+                        component->closeAndInvalidateEndpointsOfType("subscriberExample");
                         component->getResourceDiscoveryConnectionEndpoint().createEndpointBySchema("subscriberExample");
                     }
                     nng_msleep(3000);

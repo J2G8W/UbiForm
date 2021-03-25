@@ -156,9 +156,9 @@ std::vector<std::string> BackgroundRequester::requestLocationsOfRDH(const std::s
 
 }
 
-void BackgroundRequester::requestCloseSocketOfType(const std::string &componentUrl, const std::string &endpointType) {
+void BackgroundRequester::requestCloseEndpointsOfType(const std::string &componentUrl, const std::string &endpointType) {
     EndpointMessage sm;
-    sm.addMember("requestType", BACKGROUND_CLOSE_SOCKETS);
+    sm.addMember("requestType", BACKGROUND_CLOSE_ENDPOINTS);
     sm.addMember("endpointType", endpointType);
 
     sendRequest(componentUrl, sm);
@@ -169,7 +169,7 @@ void
 BackgroundRequester::requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest) {
     EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_CHANGE_MANIFEST);
-    auto compRep = newManifest.getSocketMessageCopy();
+    auto compRep = newManifest.getEndpointMessageCopy();
     sm.addMoveObject("newManifest", std::move(compRep));
 
     sendRequest(componentUrl, sm);
@@ -206,7 +206,7 @@ std::unique_ptr<ComponentManifest> BackgroundRequester::requestComponentManifest
     }
 }
 
-void BackgroundRequester::requestCloseSocketOfId(const std::string &componentUrl, const std::string &endpointId) {
+void BackgroundRequester::requestCloseEndpointOfId(const std::string &componentUrl, const std::string &endpointId) {
     EndpointMessage sm;
     sm.addMember("requestType", BACKGROUND_CLOSE_ENDPOINT_BY_ID);
     sm.addMember("endpointId", endpointId);

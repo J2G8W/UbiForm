@@ -39,7 +39,7 @@ ResourceDiscoveryConnEndpoint::sendRequest(const std::string &url, EndpointMessa
 std::unique_ptr<EndpointMessage> ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
     std::unique_ptr<EndpointMessage> request = std::make_unique<EndpointMessage>();
     request->addMember("request", RESOURCE_DISCOVERY_ADD_COMPONENT);
-    auto sm = component->getComponentManifest().getSocketMessageCopy();
+    auto sm = component->getComponentManifest().getEndpointMessageCopy();
     sm->addMember("urls", component->getAllAddresses());
     sm->addMember("port", component->getBackgroundPort());
 
@@ -211,7 +211,7 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string &en
 }
 
 void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
-    auto newManifest = component->getComponentManifest().getSocketMessageCopy();
+    auto newManifest = component->getComponentManifest().getEndpointMessageCopy();
     newManifest->addMember("urls", component->getAllAddresses());
     newManifest->addMember("port", component->getBackgroundPort());
 
@@ -336,7 +336,7 @@ void ResourceDiscoveryConnEndpoint::deRegisterFromAllHubs() {
 
 void ResourceDiscoveryConnEndpoint::addListenerPortForAllHubs(const std::string &endpointType, int port) {
     EndpointMessage request;
-    request.addMember("request",RESOURCE_DISCOVERY_NOTIFY_SOCKET_LISTEN);
+    request.addMember("request", RESOURCE_DISCOVERY_NOTIFY_ENDPOINT_PORT_LISTEN);
     request.addMember("endpointType",endpointType);
     request.addMember("port",port);
 

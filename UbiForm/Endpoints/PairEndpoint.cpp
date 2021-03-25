@@ -17,9 +17,9 @@ PairEndpoint::~PairEndpoint() {
              endpointState == EndpointState::Invalid)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
-                std::cerr << "This socket had already been closed" << std::endl;
+                std::cerr << "This endpoint had already been closed" << std::endl;
             } else {
-                std::cout << "Pair socket " << endpointIdentifier << " closed" << std::endl;
+                std::cout << "Pair endpoint " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }
@@ -58,8 +58,8 @@ void PairEndpoint::openEndpoint() {
         // Use the same socket for sending and receiving
         receiverSocket = senderSocket;
     } else {
-        throw SocketOpenError("Can't open endpoint", connectionParadigm,
-                              endpointIdentifier);
+        throw EndpointOpenError("Can't open endpoint", connectionParadigm,
+                                endpointIdentifier);
     }
 }
 

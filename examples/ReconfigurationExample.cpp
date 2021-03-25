@@ -77,17 +77,18 @@ int main(int argc, char **argv) {
                     if (counter++ == 3) {
                         for (const auto &url:subscriberRep->getAllUrls()) {
                             std::string dialUrl = url + ":" + std::to_string(subscriberRep->getPort());
-                            component->getBackgroundRequester().requestCloseSocketOfType(dialUrl, "subscriberExample");
+                            component->getBackgroundRequester().requestCloseEndpointsOfType(dialUrl,
+                                                                                            "subscriberExample");
                             break;
                         }
-                        std::cout << "Subscriber socket closed" << std::endl;
+                        std::cout << "Subscriber endpoint closed" << std::endl;
 
                         for (const auto &url:publisherRep->getAllUrls()) {
                             std::string dialUrl = url + ":" + std::to_string(publisherRep->getPort());
-                            component->getBackgroundRequester().requestCloseSocketOfType(dialUrl, "publisherExample");
+                            component->getBackgroundRequester().requestCloseEndpointsOfType(dialUrl, "publisherExample");
                             break;
                         }
-                        std::cout << "Publisher socket closed" << std::endl;
+                        std::cout << "Publisher endpoint closed" << std::endl;
                     }
                 }
                 nng_msleep(1000);

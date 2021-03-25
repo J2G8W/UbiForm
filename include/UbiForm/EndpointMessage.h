@@ -51,14 +51,14 @@ private:
 
 public:
     /**
-     * @brief Create an empty socket message that we can add to
+     * @brief Create an empty endpoint message that we can add to
      */
     EndpointMessage() : JSON_document() {
         JSON_document.SetObject();
     };
 
     /**
-     * @brief Create socket message from string input, largely for use from networks
+     * @brief Create endpoint message from string input, largely for use from networks
      * @param jsonString - string input
      */
     explicit EndpointMessage(const char *jsonString);
@@ -98,7 +98,7 @@ public:
 
     void addMember(const std::string &attributeName, const std::vector<EndpointMessage *> &inputArray);
 
-    void addMember(const std::string &attributeName, EndpointMessage &socketMessage);
+    void addMember(const std::string &attributeName, EndpointMessage &endpointMessage);
 
     void setNull(const std::string &attributeName);
     ///@}
@@ -107,11 +107,11 @@ public:
     ///@{
     ///@name Add Member (move constructors)
     /**
-     * @brief Moves the value from the the input socketMessage into us. Once a message is moved in (std::unique_ptr) we have
+     * @brief Moves the value from the the input endpointMessage into us. Once a message is moved in (std::unique_ptr) we have
      * ownership and deltion of it.
      * @param attributeName - name of attribute
      */
-    void addMoveObject(const std::string &attributeName, std::unique_ptr<EndpointMessage> socketMessage);
+    void addMoveObject(const std::string &attributeName, std::unique_ptr<EndpointMessage> endpointMessage);
 
     void addMoveArrayOfObjects(const std::string &attributeName, std::vector<std::unique_ptr<EndpointMessage>> &inputArray);
     ///@}
@@ -151,7 +151,7 @@ public:
 
 
     /**
-     * @return whether the socketMessage itself is a null value
+     * @return whether the endpointMessage itself is a null value
      */
     bool isNull() {
         return JSON_document.IsNull();

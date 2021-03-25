@@ -119,7 +119,7 @@ std::unique_ptr<EndpointMessage> ResourceDiscoveryStore::generateRDResponse(Endp
                 }
             }
             if (validComponent) {
-                returnMsg->addMoveObject(componentRep.first, componentRep.second->getSocketMessageCopy());
+                returnMsg->addMoveObject(componentRep.first, componentRep.second->getEndpointMessageCopy());
             }
         }
     } else if (request == RESOURCE_DISCOVERY_DEREGISTER_COMPONENT) {
@@ -127,7 +127,7 @@ std::unique_ptr<EndpointMessage> ResourceDiscoveryStore::generateRDResponse(Endp
         if (componentById.count(id) == 1) {
             componentById.erase(id);
         }
-    } else if (request == RESOURCE_DISCOVERY_NOTIFY_SOCKET_LISTEN){
+    } else if (request == RESOURCE_DISCOVERY_NOTIFY_ENDPOINT_PORT_LISTEN){
         componentById.at(sm->getString("id"))->addListenPort(
                 sm->getString("endpointType"),sm->getInteger("port"));
     } else {

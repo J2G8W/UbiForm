@@ -22,9 +22,9 @@ SubscriberEndpoint::~SubscriberEndpoint() {
             endpointState == EndpointState::Invalid)) {
             nng_msleep(300);
             if (nng_close(*receiverSocket) == NNG_ECLOSED) {
-                std::cerr << "This socket had already been closed" << std::endl;
+                std::cerr << "This endpoint had already been closed" << std::endl;
             } else {
-                std::cout << "Subscriber socket " << endpointIdentifier << " closed" << std::endl;
+                std::cout << "Subscriber endpoint " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }
@@ -38,12 +38,12 @@ void SubscriberEndpoint::openEndpoint() {
     if (endpointState == EndpointState::Closed) {
         int rv;
         if ((rv = nng_sub0_open(receiverSocket)) != 0) {
-            throw NngError(rv, "Opening subscriber socket");
+            throw NngError(rv, "Opening subscriber endpoint");
         } else {
             endpointState = EndpointState::Open;
         }
     } else {
-        throw SocketOpenError("Can't open endpoint", connectionParadigm,
-                              endpointIdentifier);
+        throw EndpointOpenError("Can't open endpoint", connectionParadigm,
+                                endpointIdentifier);
     }
 }

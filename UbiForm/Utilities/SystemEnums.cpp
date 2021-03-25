@@ -32,7 +32,7 @@ std::string convertFromConnectionParadigm(ConnectionParadigm st) {
         case Request:
             return REQUEST;
     }
-    return "Not Valid Socket Type";
+    return "Not Valid Connection Paradigm";
 }
 
 ConnectionParadigm convertToConnectionParadigm(const std::string &st) {
@@ -47,7 +47,7 @@ ConnectionParadigm convertToConnectionParadigm(const std::string &st) {
     } else if (st == REQUEST) {
         return ConnectionParadigm::Request;
     } else {
-        throw std::logic_error("No socket type corresponds to " + st);
+        throw std::logic_error("No endpoint type corresponds to " + st);
     }
 }
 

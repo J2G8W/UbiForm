@@ -21,7 +21,7 @@ protected:
         EndpointMessage sm;
         sm.addMember("request", RESOURCE_DISCOVERY_ADD_COMPONENT);
 
-        auto manifest = exampleManifest->getSocketMessageCopy();
+        auto manifest = exampleManifest->getEndpointMessageCopy();
         sm.addMoveObject("manifest", std::move(manifest));
 
         std::unique_ptr<EndpointMessage> returnMsg = resourceDiscoveryStore.generateRDResponse(&sm);
@@ -33,8 +33,8 @@ protected:
         try {
             std::ifstream in(location);
             std::string contents((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-            auto socketMessage = std::make_unique<EndpointMessage>(contents.c_str());
-            return socketMessage;
+            auto endpointMessage = std::make_unique<EndpointMessage>(contents.c_str());
+            return endpointMessage;
         } catch (const std::ifstream::failure &e) {
             std::cerr << "ERROR OPENING FILE: " << location << std::endl;
             throw;
@@ -52,7 +52,7 @@ TEST_F(SimpleRDS, AdditionOfComponent) {
     EndpointMessage sm;
     sm.addMember("request", RESOURCE_DISCOVERY_ADD_COMPONENT);
 
-    std::unique_ptr<EndpointMessage> manifest = exampleManifest->getSocketMessageCopy();
+    std::unique_ptr<EndpointMessage> manifest = exampleManifest->getEndpointMessageCopy();
     sm.addMoveObject("manifest", std::move(manifest));
 
 

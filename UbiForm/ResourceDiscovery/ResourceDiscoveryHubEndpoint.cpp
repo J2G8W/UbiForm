@@ -24,7 +24,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint *rd
                 std::cerr << "Resource Discovery Hub - " << e.what() << std::endl;
                 break;
             }
-        } catch (SocketOpenError &e) {
+        } catch (EndpointOpenError &e) {
             std::cerr << e.what() << std::endl;
             break;
         } catch (std::logic_error &e) {
@@ -64,7 +64,7 @@ void ResourceDiscoveryHubEndpoint::rdBackground(ResourceDiscoveryHubEndpoint *rd
                 std::cerr << "Resource Discovery Hub - " << e.what() << std::endl;
                 break;
             }
-        } catch (SocketOpenError &e) {
+        } catch (EndpointOpenError &e) {
             break;
         }
     }

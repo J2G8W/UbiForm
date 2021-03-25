@@ -29,7 +29,7 @@ public:
 
     EndpointState getEndpointState(){return endpointState;}
     /**
-     * @return The identifier of the socket in the component
+     * @return The identifier of the endpoint in the component
      */
     std::string &getEndpointId() { return endpointIdentifier; }
 

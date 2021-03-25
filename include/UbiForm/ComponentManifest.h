@@ -135,7 +135,7 @@ public:
 
     /**
      * @param typeOfEndpoint - specify typeOfEndpoint as described in Manifest
-     * @return string of what type the socket is (e.g. pair)
+     * @return string of connection paradigm of endpoint (e.g. pair)
      * @throws std::out_of_range - when typeOfEndpoint does not exist
      */
     std::string getConnectionParadigm(const std::string &endpointType);
@@ -172,7 +172,7 @@ public:
      * We get a copy of the manifest but as a EndpointMessage, such that it can be sent on the wire
      * @return - std::unique_ptr used such that we get automatic memory handling and move's work better
      */
-    std::unique_ptr<EndpointMessage> getSocketMessageCopy() {
+    std::unique_ptr<EndpointMessage> getEndpointMessageCopy() {
         // Gets around private constructor
         return std::unique_ptr<EndpointMessage>(new EndpointMessage(this->JSON_document, true));
     }
