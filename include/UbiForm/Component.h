@@ -10,6 +10,7 @@
 #include <map>
 #include <thread>
 
+#include "Utilities/ExceptionClasses.h"
 #include "ComponentManifest.h"
 #include "EndpointMessage.h"
 #include "Endpoints/PairEndpoint.h"
@@ -20,6 +21,7 @@
 #include "ReconfigurationEndpoints/BackgroundListener.h"
 #include "ReconfigurationEndpoints/BackgroundRequester.h"
 #include "ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
+
 
 #define DEFAULT_BACKGROUND_LISTEN_PORT 8000
 #define DEFAULT_RESOURCE_DISCOVERY_PORT 7999

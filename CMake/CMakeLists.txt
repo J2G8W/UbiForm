@@ -46,7 +46,9 @@ set(schemaFiles ../include/UbiForm/SchemaRepresentation/EndpointSchema.h ../UbiF
 
 set(utilityFiles ../UbiForm/Utilities/UtilityFunctions.h ../UbiForm/Utilities/UtilityFunctions.cpp
 		../include/UbiForm/Utilities/SystemEnums.h ../UbiForm/Utilities/SystemEnums.cpp
-		../UbiForm/Utilities/GetIPAddress.cpp ../UbiForm/Utilities/GetIPAddress.h ../UbiForm/Utilities/base64.h ../UbiForm/Utilities/base64.cpp)
+		../UbiForm/Utilities/GetIPAddress.cpp ../UbiForm/Utilities/GetIPAddress.h
+		../UbiForm/Utilities/base64.h ../UbiForm/Utilities/base64.cpp
+		../include/UbiForm/Utilities/ExceptionClasses.h ../UbiForm/Utilities/ExceptionClasses.cpp)
 
 set(componentFiles ../include/UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp
 		../include/UbiForm/Component.h ../UbiForm/Component.cpp
