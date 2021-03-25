@@ -25,7 +25,7 @@ class BackgroundRequester {
      * @throws RemoteError when the remote address has an error in our request
      * @throws ValidationError when our request/response doesn't have the right setup
      */
-    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage &request);
+    std::unique_ptr<EndpointMessage> sendRequest(const std::string &url, EndpointMessage &request);
 
     // We purposely delete copy and assignment operators such that there isn't stray references to this
     BackgroundRequester(BackgroundRequester &) = delete;
@@ -70,15 +70,15 @@ public:
 
     void requestUpdateComponentManifest(const std::string &componentUrl, ComponentManifest &newManifest);
 
-    void requestChangeEndpoint(const std::string &componentAddress, SocketType socketType,
+    void requestChangeEndpoint(const std::string &componentAddress, ConnectionParadigm connectionParadigm,
                                const std::string &endpointType, EndpointSchema *receiverSchema,
                                EndpointSchema *sendSchema);
 
-    void requestCloseSocketOfType(const std::string &componentUrl, const std::string &endpointType);
+    void requestCloseEndpointsOfType(const std::string &componentUrl, const std::string &endpointType);
 
-    std::vector<std::unique_ptr<SocketMessage>> requestEndpointInfo(const std::string &componentUrl);
+    std::vector<std::unique_ptr<EndpointMessage>> requestEndpointInfo(const std::string &componentUrl);
 
-    void requestCloseSocketOfId(const std::string &componentUrl, const std::string &endpointId);
+    void requestCloseEndpointOfId(const std::string &componentUrl, const std::string &endpointId);
 
     std::unique_ptr<ComponentManifest> requestComponentManifest(const std::string &componentUrl);
 };

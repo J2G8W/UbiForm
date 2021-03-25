@@ -17,9 +17,9 @@ PairEndpoint::~PairEndpoint() {
              endpointState == EndpointState::Invalid)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
-                std::cerr << "This socket had already been closed" << std::endl;
+                std::cerr << "This endpoint had already been closed" << std::endl;
             } else {
-                if(VIEW_STD_OUTPUT) std::cout << "Pair socket " << endpointIdentifier << " closed" << std::endl;
+                if(VIEW_STD_OUTPUT) std::cout << "Pair endpoint " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }
@@ -58,32 +58,32 @@ void PairEndpoint::openEndpoint() {
         // Use the same socket for sending and receiving
         receiverSocket = senderSocket;
     } else {
-        throw SocketOpenError("Can't open endpoint", socketType,
-                              endpointIdentifier);
+        throw EndpointOpenError("Can't open endpoint", connectionParadigm,
+                                endpointIdentifier);
     }
 }
 
-void PairEndpoint::listenForConnection(const char *base, int port) {
+void PairEndpoint::listenForConnection(const std::string &base, int port) {
     DataSenderEndpoint::listenForConnection(base, port);
 }
 
-int PairEndpoint::listenForConnectionWithRV(const char *base, int port) {
+int PairEndpoint::listenForConnectionWithRV(const std::string &base, int port) {
     int rv = DataSenderEndpoint::listenForConnectionWithRV(base, port);
     return rv;
 }
 
-void PairEndpoint::dialConnection(const char *url) {
+void PairEndpoint::dialConnection(const std::string &url) {
     DataReceiverEndpoint::dialConnection(url);
 }
 
 
-std::unique_ptr<SocketMessage>
+std::unique_ptr<EndpointMessage>
 PairEndpoint::receiveStream(std::ostream &outputStream, endOfStreamCallback endCallback, void *userData) {
-    std::unique_ptr<SocketMessage> initialMsg;
+    std::unique_ptr<EndpointMessage> initialMsg;
 
     // Throws things
     initialMsg = receiveMessage();
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("ready",true);
     rawSendMessage(sm);
 
@@ -99,7 +99,7 @@ void
 PairEndpoint::streamReceiveData(PairEndpoint *endpoint, std::ostream *stream, endOfStreamCallback endCallback,
                                 void *userData) {
     while(true) {
-        std::unique_ptr<SocketMessage> message;
+        std::unique_ptr<EndpointMessage> message;
         try {
             message = endpoint->rawReceiveMessage();
         }catch(std::logic_error &e){
@@ -119,7 +119,7 @@ PairEndpoint::streamReceiveData(PairEndpoint *endpoint, std::ostream *stream, en
 }
 
 void PairEndpoint::sendStream(std::istream &input, std::streamsize blockSize, bool holdWhenStreamEmpty,
-                              SocketMessage &initialMessage,
+                              EndpointMessage &initialMessage,
                               endOfStreamCallback endCallback, void *userData) {
     if(blockSize % 3 != 0){throw std::logic_error("Block size must be a multiple of 3");}
 
@@ -148,7 +148,7 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
                 nng_msleep(1000);
                 continue;
             }else{
-                SocketMessage sm;
+                EndpointMessage sm;
                 sm.addMember("end",true);
                 try{
                     endpoint->asyncSendMessage(sm);
@@ -161,7 +161,7 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
 
         std::string encodedMsg = base64_encode(reinterpret_cast<const unsigned char *>(bytesToEncode), numBytes);
 
-        SocketMessage sm;
+        EndpointMessage sm;
         sm.addMember("bytes", encodedMsg);
         try {
             endpoint->asyncSendMessage(sm);

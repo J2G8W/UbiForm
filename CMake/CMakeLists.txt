@@ -47,11 +47,13 @@ set(schemaFiles ../include/UbiForm/SchemaRepresentation/EndpointSchema.h ../UbiF
 
 set(utilityFiles ../UbiForm/Utilities/UtilityFunctions.h ../UbiForm/Utilities/UtilityFunctions.cpp
 		../include/UbiForm/Utilities/SystemEnums.h ../UbiForm/Utilities/SystemEnums.cpp
-		../UbiForm/Utilities/GetIPAddress.cpp ../UbiForm/Utilities/GetIPAddress.h ../UbiForm/Utilities/base64.h ../UbiForm/Utilities/base64.cpp)
+		../UbiForm/Utilities/GetIPAddress.cpp ../UbiForm/Utilities/GetIPAddress.h
+		../UbiForm/Utilities/base64.h ../UbiForm/Utilities/base64.cpp
+		../include/UbiForm/Utilities/ExceptionClasses.h ../UbiForm/Utilities/ExceptionClasses.cpp)
 
 set(componentFiles ../include/UbiForm/ComponentManifest.h ../UbiForm/ComponentManifest.cpp
 		../include/UbiForm/Component.h ../UbiForm/Component.cpp
-		../include/UbiForm/SocketMessage.h ../UbiForm/SocketMessage.cpp)
+        ../include/UbiForm/EndpointMessage.h ../UbiForm/EndpointMessage.cpp)
 
 
 # Create library
@@ -95,7 +97,7 @@ if (BUILD_TESTS)
 		include_directories("${gtest_SOURCE_DIR}/include")
 	endif()
 
-    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_SocketMessage.h
+    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_EndpointMessage.h
             ../UbiForm/SchemaRepresentation/test_EndpointSchema.h ../UbiForm/test_Component.h
             ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h
 			../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h ../UbiForm/SystemSchemas/test_SystemSchemas.h

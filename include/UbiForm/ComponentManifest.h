@@ -27,7 +27,10 @@ protected:
     std::map<std::string, std::shared_ptr<EndpointSchema> > senderSchemas;
 
     endpointAdditionCallBack additionCallBack = nullptr;
-    void * userData = nullptr;
+    void * additionUserData = nullptr;
+
+    manifestChangeCallBack changeCallBack = nullptr;
+    void* changeUserData = nullptr;
 
     SystemSchemas &systemSchemas;
 
@@ -59,13 +62,13 @@ public:
     /**
      * @brief This is a copy constructor not a move
      *
-     * @param sm - SocketMessage pointer to form manifest from, key for network interactions
+     * @param sm - EndpointMessage pointer to form manifest from, key for network interactions
      * @param es - reference to some SystemSchemas object for validation of manifest
      *
      * @throws ParsingError - when input is malformed
      * @throws ValidationError - when input does not conform to SystemsSchemas
      */
-    ComponentManifest(SocketMessage *sm, SystemSchemas &ss);
+    ComponentManifest(EndpointMessage *sm, SystemSchemas &ss);
 
     /// Create an empty Manifest which can be filled with functions
     explicit ComponentManifest(SystemSchemas &ss) : ComponentManifest(R"({"name":"","schemas":{}})", ss) {};
@@ -76,7 +79,7 @@ public:
 
     void setManifest(const char *jsonString);
 
-    void setManifest(SocketMessage *sm);
+    void setManifest(EndpointMessage *sm);
     ///@}
 
     /**
@@ -135,10 +138,10 @@ public:
 
     /**
      * @param typeOfEndpoint - specify typeOfEndpoint as described in Manifest
-     * @return string of what type the socket is (e.g. pair)
+     * @return string of connection paradigm of endpoint (e.g. pair)
      * @throws std::out_of_range - when typeOfEndpoint does not exist
      */
-    std::string getSocketType(const std::string &endpointType);
+    std::string getConnectionParadigm(const std::string &endpointType);
 
     /**
      * @return string representation of the component manifest
@@ -151,30 +154,30 @@ public:
     /**
      * @param typeOfEndpoint - specify typeOfEndpoint as described in Manifest
      * @param receiveSchema - whether we want receive or send schema for that type
-     * @return SocketMessage pointer which needs memory handling, used for sending our schema on the network
+     * @return EndpointMessage pointer which needs memory handling, used for sending our schema on the network
      */
-    std::unique_ptr<SocketMessage> getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema);
+    std::unique_ptr<EndpointMessage> getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema);
 
 
     /**
      * Note that this copies from the schemas given to it, it doesn't use the same schemas
-     * @param socketType - specify the socketType of the new endpoint
+     * @param connectionParadigm - specify the connectionParadigm of the new endpoint
      * @param typeOfEndpoint - specify the name of the endpoint (will replace previous endpoints of same name
-     * @param receiveSchema - either a pointer to the schema for the endpoint or nullptr if relevant socketType doesn't need receiveSchema
-     * @param sendSchema - either a pointer to the schema for the endpoint of nullptr if relevant socketType doens't need sendSchema
-     * @throws std::logic_error - when there aren't enough schemas given for the socketType
+     * @param receiveSchema - either a pointer to the schema for the endpoint or nullptr if relevant connectionParadigm doesn't need receiveSchema
+     * @param sendSchema - either a pointer to the schema for the endpoint of nullptr if relevant connectionParadigm doens't need sendSchema
+     * @throws std::logic_error - when there aren't enough schemas given for the connectionParadigm
      */
-    void addEndpoint(SocketType socketType, const std::string &typeOfEndpoint,
+    void addEndpoint(ConnectionParadigm connectionParadigm, const std::string &typeOfEndpoint,
                      std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema);
 
 
     /**
-     * We get a copy of the manifest but as a SocketMessage, such that it can be sent on the wire
+     * We get a copy of the manifest but as a EndpointMessage, such that it can be sent on the wire
      * @return - std::unique_ptr used such that we get automatic memory handling and move's work better
      */
-    std::unique_ptr<SocketMessage> getSocketMessageCopy() {
+    std::unique_ptr<EndpointMessage> getEndpointMessageCopy() {
         // Gets around private constructor
-        return std::unique_ptr<SocketMessage>(new SocketMessage(this->JSON_document, true));
+        return std::unique_ptr<EndpointMessage>(new EndpointMessage(this->JSON_document, true));
     }
 
     /**
@@ -236,6 +239,9 @@ public:
      * @param providedData The data we want to pass to our callback
      */
     void registerEndpointAdditionCallback(endpointAdditionCallBack callBack, void* providedData);
+
+
+    void registerManifestChangeCallback(manifestChangeCallBack callBack, void* userData);
 };
 
 

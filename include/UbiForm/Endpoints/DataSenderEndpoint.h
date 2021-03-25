@@ -5,7 +5,7 @@
 
 #include <nng/nng.h>
 #include <thread>
-#include "../SocketMessage.h"
+#include "../EndpointMessage.h"
 
 #include "../SchemaRepresentation/EndpointSchema.h"
 #include "Endpoint.h"
@@ -32,7 +32,7 @@ protected:
     int listenPort = -1;
 
 
-    void rawSendMessage(SocketMessage& sm);
+    void rawSendMessage(EndpointMessage& sm);
 
 public:
     explicit DataSenderEndpoint(std::shared_ptr<EndpointSchema> &es) :nngAioPointer(){
@@ -47,7 +47,7 @@ public:
      * @param port - The port to listen on
      * @throws NngError - when we are unable to listen on that address for whatever reason
      */
-    virtual void listenForConnection(const char *base, int port);
+    virtual void listenForConnection(const std::string &base, int port);
 
     /**
      * Listen for a connection but don't throw any errors and instead return a return variable to do things with. Should
@@ -56,22 +56,22 @@ public:
      * @param port - The port to listen on
      * @return A return variable representing how the listening has gone
      */
-    virtual int listenForConnectionWithRV(const char *base, int port);
+    virtual int listenForConnectionWithRV(const std::string &base, int port);
 
     /**
      * Blocking send on our Socket
      * @param s - Message to send
      * @throws NngError - When there is underlying socket issues
-     * @throws SocketOpenError - When the socket has already been closed
+     * @throws SocketOpenError - When the endpoint has already been closed
      */
-    void sendMessage(SocketMessage &s);
+    void sendMessage(EndpointMessage &s);
 
     /**
-     * Non blocking send on our socket
+     * Non blocking send on our endpoint
      * @param s - Message to send
      * @throws NngError - When we run out of space or something. Won't error on a send error (just throws it away)
      */
-    void asyncSendMessage(SocketMessage &s);
+    void asyncSendMessage(EndpointMessage &s);
 
     int getListenPort() { return listenPort; }
 

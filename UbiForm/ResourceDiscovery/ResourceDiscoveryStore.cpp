@@ -2,7 +2,7 @@
 #include <chrono>
 #include "../../include/UbiForm/ResourceDiscovery/ResourceDiscoveryStore.h"
 
-std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(SocketMessage *sm) {
+std::unique_ptr<EndpointMessage> ResourceDiscoveryStore::generateRDResponse(EndpointMessage *sm) {
     std::string request;
     try {
         request = sm->getString("request");
@@ -13,7 +13,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
     //std::cout << "Resource Discovery Request - " << request << std::endl;
 
     // Use a unique_ptr so when exceptions thrown it auto deletes
-    std::unique_ptr<SocketMessage> returnMsg = std::make_unique<SocketMessage>();
+    std::unique_ptr<EndpointMessage> returnMsg = std::make_unique<EndpointMessage>();
     if (request == RESOURCE_DISCOVERY_ADD_COMPONENT) {
 
         systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*sm);
@@ -37,7 +37,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
         std::string id = sm->getString("id");
         if (componentById.count(id) > 0) {
             std::string component = componentById.at(id)->stringify();
-            auto componentObject = std::make_unique<SocketMessage>(component.c_str());
+            auto componentObject = std::make_unique<EndpointMessage>(component.c_str());
             returnMsg->addMoveObject("component", std::move(componentObject));
         } else {
             returnMsg->setNull("component");
@@ -49,7 +49,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
 
         auto schemaRequest = sm->getMoveObject("schema");
         bool receiveData = sm->getBoolean("dataReceiverEndpoint");
-        std::vector<SocketMessage *> returnEndpoints;
+        std::vector<EndpointMessage *> returnEndpoints;
 
         auto specialProperties = sm->getMoveObject("specialProperties");
         std::map<std::string, std::string> propertiesMap;
@@ -70,7 +70,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
 
             std::vector<std::string> endpointIds = componentRep.second->findEquals(receiveData, *schemaRequest);
             for (const auto &id: endpointIds) {
-                auto *endpoint = new SocketMessage;
+                auto *endpoint = new EndpointMessage;
                 endpoint->addMember("componentId", componentRep.first);
                 endpoint->addMember("urls", componentRep.second->getAllUrls());
                 endpoint->addMember("port", componentRep.second->getPort());
@@ -119,7 +119,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
                 }
             }
             if (validComponent) {
-                returnMsg->addMoveObject(componentRep.first, componentRep.second->getSocketMessageCopy());
+                returnMsg->addMoveObject(componentRep.first, componentRep.second->getEndpointMessageCopy());
             }
         }
     } else if (request == RESOURCE_DISCOVERY_DEREGISTER_COMPONENT) {
@@ -127,7 +127,7 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryStore::generateRDResponse(Socket
         if (componentById.count(id) == 1) {
             componentById.erase(id);
         }
-    } else if (request == RESOURCE_DISCOVERY_NOTIFY_SOCKET_LISTEN){
+    } else if (request == RESOURCE_DISCOVERY_NOTIFY_ENDPOINT_PORT_LISTEN){
         componentById.at(sm->getString("id"))->addListenPort(
                 sm->getString("endpointType"),sm->getInteger("port"));
     } else {

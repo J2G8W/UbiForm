@@ -13,8 +13,8 @@ public:
     ReplyEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema,
                   const std::string &endpointType, const std::string &endpointIdentifier = "Reply",
                   endpointStartupFunction startupFunction = nullptr, void* extraData = nullptr) :
-            Endpoint( endpointIdentifier, SocketType::Reply, endpointType,
-                      startupFunction,extraData),
+            Endpoint(endpointIdentifier, ConnectionParadigm::Reply, endpointType,
+                     startupFunction, extraData),
             DataReceiverEndpoint(receiveSchema),
             DataSenderEndpoint(sendSchema) {
 
@@ -22,12 +22,12 @@ public:
         openEndpoint();
     }
 
-    void listenForConnection(const char *base, int port) override;
+    void listenForConnection(const std::string &base, int port) override;
 
-    int listenForConnectionWithRV(const char *base, int port) override;
+    int listenForConnectionWithRV(const std::string &base, int port) override;
 
     // SHOULD NOT DIAL FOR CONNECTION
-    void dialConnection(const char *url) override;
+    void dialConnection(const std::string &url) override;
 
     void closeEndpoint() override;
 

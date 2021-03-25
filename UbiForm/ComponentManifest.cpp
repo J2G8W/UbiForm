@@ -11,7 +11,7 @@ ComponentManifest::ComponentManifest(const char *jsonString, SystemSchemas &ss) 
     setManifest(jsonString);
 }
 
-ComponentManifest::ComponentManifest(SocketMessage *sm, SystemSchemas &ss) : systemSchemas(ss) {
+ComponentManifest::ComponentManifest(EndpointMessage *sm, SystemSchemas &ss) : systemSchemas(ss) {
     setManifest(sm);
 }
 
@@ -35,6 +35,7 @@ void ComponentManifest::setManifest(FILE *jsonFP) {
 
     checkParse();
     fillSchemaMaps();
+    changeCallBack(this, changeUserData);
 }
 
 void ComponentManifest::setManifest(const char *jsonString) {
@@ -43,13 +44,15 @@ void ComponentManifest::setManifest(const char *jsonString) {
 
     checkParse();
     fillSchemaMaps();
+    changeCallBack(this, changeUserData);
 }
 
-void ComponentManifest::setManifest(SocketMessage *sm) {
+void ComponentManifest::setManifest(EndpointMessage *sm) {
     JSON_document.CopyFrom(sm->JSON_document, JSON_document.GetAllocator());
 
     checkParse();
     fillSchemaMaps();
+    changeCallBack(this, changeUserData);
 }
 
 
@@ -79,6 +82,10 @@ void ComponentManifest::fillSchemaMaps() {
                                                                                               JSON_document.GetAllocator());
             receiverSchemas[std::string(m.name.GetString())] = endpointSchema;
         }
+
+        if(!m.value.HasMember("connectionParadigm")){
+            throw ParsingError("No connection paradigm for " + std::string(m.name.GetString()));
+        }
     }
 }
 
@@ -91,7 +98,7 @@ void ComponentManifest::setName(const std::string &name) {
     setProperty("name", name);
 }
 
-std::unique_ptr<SocketMessage>
+std::unique_ptr<EndpointMessage>
 ComponentManifest::getSchemaObject(const std::string &typeOfEndpoint, bool receiveSchema) {
     if (receiveSchema) {
         try {
@@ -126,28 +133,29 @@ std::shared_ptr<EndpointSchema> ComponentManifest::getSenderSchema(const std::st
     }
 }
 
-std::string ComponentManifest::getSocketType(const std::string &endpointType) {
+std::string ComponentManifest::getConnectionParadigm(const std::string &endpointType) {
     const auto &schemas = JSON_document["schemas"].GetObject();
     if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())) {
         throw AccessError("No endpoint of type: " + endpointType + " in manifest");
     }
 
-    // Note we know that socketType exists due to the schemas
-    std::string socketType = schemas[endpointType].GetObject()["socketType"].GetString();
-    return socketType;
+    // Note we know that connectionParadigm exists due to the schemas
+    std::string connectionParadigm = schemas[endpointType].GetObject()["connectionParadigm"].GetString();
+    return connectionParadigm;
 }
 
-void ComponentManifest::addEndpoint(SocketType socketType, const std::string &typeOfEndpoint,
+void ComponentManifest::addEndpoint(ConnectionParadigm connectionParadigm, const std::string &typeOfEndpoint,
                                     std::shared_ptr<EndpointSchema> receiveSchema,
                                     std::shared_ptr<EndpointSchema> sendSchema) {
     auto schemas = JSON_document["schemas"].GetObject();
 
     rapidjson::Value newEndpoint(rapidjson::kObjectType);
-    newEndpoint.AddMember(rapidjson::Value("socketType", JSON_document.GetAllocator()),
-                          rapidjson::Value(convertFromSocketType(socketType), JSON_document.GetAllocator()),
+    newEndpoint.AddMember(rapidjson::Value("connectionParadigm", JSON_document.GetAllocator()),
+                          rapidjson::Value(convertFromConnectionParadigm(connectionParadigm), JSON_document.GetAllocator()),
                           JSON_document.GetAllocator());
 
-    if (socketType == SocketType::Pair || socketType == SocketType::Subscriber) {
+    if (connectionParadigm == ConnectionParadigm::Pair || connectionParadigm == ConnectionParadigm::Subscriber
+        || connectionParadigm == ConnectionParadigm::Request || connectionParadigm == ConnectionParadigm::Reply) {
         if (receiveSchema == nullptr) {
             throw std::logic_error("No receive Schema given");
         }
@@ -158,7 +166,8 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
 
     }
 
-    if (socketType == SocketType::Pair || socketType == SocketType::Publisher) {
+    if (connectionParadigm == ConnectionParadigm::Pair || connectionParadigm == ConnectionParadigm::Publisher
+        || connectionParadigm == ConnectionParadigm::Request || connectionParadigm == ConnectionParadigm::Reply) {
         if (sendSchema == nullptr) {
             throw std::logic_error("No send Schema given");
         }
@@ -178,13 +187,15 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
                       JSON_document.GetAllocator());
 
 
-    if (socketType == SocketType::Pair || socketType == SocketType::Subscriber) {
+    if (connectionParadigm == ConnectionParadigm::Pair || connectionParadigm == ConnectionParadigm::Subscriber
+        || connectionParadigm == ConnectionParadigm::Request || connectionParadigm == ConnectionParadigm::Reply) {
         std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(
                 &(schemas[typeOfEndpoint].GetObject()["receive"]),
                 JSON_document.GetAllocator());
         receiverSchemas[typeOfEndpoint] = endpointSchema;
     }
-    if (socketType == SocketType::Pair || socketType == SocketType::Publisher) {
+    if (connectionParadigm == ConnectionParadigm::Pair || connectionParadigm == ConnectionParadigm::Publisher ||
+        connectionParadigm == ConnectionParadigm::Request || connectionParadigm == ConnectionParadigm::Reply) {
         std::shared_ptr<EndpointSchema> endpointSchema = std::make_shared<EndpointSchema>(
                 &(schemas[typeOfEndpoint].GetObject()["send"]),
                 JSON_document.GetAllocator());
@@ -193,7 +204,7 @@ void ComponentManifest::addEndpoint(SocketType socketType, const std::string &ty
 
 
     if (additionCallBack != nullptr){
-        additionCallBack(typeOfEndpoint, userData);
+        additionCallBack(typeOfEndpoint, additionUserData);
     }
 }
 
@@ -248,8 +259,8 @@ void ComponentManifest::addListenPort(const std::string &endpointType, int port)
     if (!(schemas.HasMember(endpointType) && schemas[endpointType].IsObject())) {
         throw AccessError("No endpoint of type: " + endpointType + " in manifest");
     }
-    std::string socketType = std::string(schemas[endpointType].GetObject()["socketType"].GetString());
-    if (!(socketType == PUBLISHER || socketType == REPLY)) {
+    std::string connectionParadigm = std::string(schemas[endpointType].GetObject()["connectionParadigm"].GetString());
+    if (!(connectionParadigm == PUBLISHER || connectionParadigm == REPLY)) {
         throw AccessError(endpointType + " is not valid to add listener port");
     }
     if (schemas[endpointType].HasMember("listenPort")) {
@@ -295,5 +306,10 @@ ComponentManifest::~ComponentManifest() = default;
 
 void ComponentManifest::registerEndpointAdditionCallback(endpointAdditionCallBack callBack, void* providedData){
     additionCallBack = callBack;
-    userData = providedData;
+    additionUserData = providedData;
+}
+
+void ComponentManifest::registerManifestChangeCallback(manifestChangeCallBack callBack, void* userData){
+    changeCallBack = callBack;
+    changeUserData = userData;
 }

@@ -1,11 +1,11 @@
 #include <memory>
-#include "../include/UbiForm/SocketMessage.h"
+#include "../include/UbiForm/EndpointMessage.h"
 
 // Note that dependants is handled automatically by unique_ptr
-SocketMessage::~SocketMessage() = default;
+EndpointMessage::~EndpointMessage() = default;
 
 
-SocketMessage::SocketMessage(const char *jsonString) {
+EndpointMessage::EndpointMessage(const char *jsonString) {
     rapidjson::StringStream stream(jsonString);
     JSON_document.ParseStream(stream);
     if (JSON_document.HasParseError()) {
@@ -16,43 +16,43 @@ SocketMessage::SocketMessage(const char *jsonString) {
     }
 }
 
-void SocketMessage::addMember(const std::string &attributeName, const std::string &value) {
+void EndpointMessage::addMember(const std::string &attributeName, const std::string &value) {
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
     rapidjson::Value valueContainer(value, JSON_document.GetAllocator());
     addOrSwap(key, valueContainer);
 }
 
-void SocketMessage::addMember(const std::string &attributeName, const char *value) {
+void EndpointMessage::addMember(const std::string &attributeName, const char *value) {
     addMember(attributeName, std::string(value));
 }
 
-void SocketMessage::addMember(const std::string &attributeName, int value) {
+void EndpointMessage::addMember(const std::string &attributeName, int value) {
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
     rapidjson::Value valueContainer(value);
     addOrSwap(key, valueContainer);
 }
 
-void SocketMessage::addMember(const std::string &attributeName, bool value) {
+void EndpointMessage::addMember(const std::string &attributeName, bool value) {
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
     rapidjson::Value valueContainer(value);
     addOrSwap(key, valueContainer);
 }
 
-void SocketMessage::addMember(const std::string &attributeName, SocketMessage &socketMessage) {
+void EndpointMessage::addMember(const std::string &attributeName, EndpointMessage &endpointMessage) {
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
     rapidjson::Value v;
-    v.CopyFrom(socketMessage.JSON_document, JSON_document.GetAllocator());
+    v.CopyFrom(endpointMessage.JSON_document, JSON_document.GetAllocator());
     addOrSwap(key, v);
 }
 
-void SocketMessage::setNull(const std::string &attributeName) {
+void EndpointMessage::setNull(const std::string &attributeName) {
     rapidjson::Value v;
     v.SetNull();
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
     addOrSwap(key, v);
 }
 
-void SocketMessage::addMember(const std::string &attributeName, const std::vector<SocketMessage *> &inputArray) {
+void EndpointMessage::addMember(const std::string &attributeName, const std::vector<EndpointMessage *> &inputArray) {
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
 
     rapidjson::Value valueArray(rapidjson::kArrayType);
@@ -66,7 +66,7 @@ void SocketMessage::addMember(const std::string &attributeName, const std::vecto
     addOrSwap(key, valueArray);
 }
 
-void SocketMessage::addMember(const std::string &attributeName, const std::vector<std::string> &inputArray) {
+void EndpointMessage::addMember(const std::string &attributeName, const std::vector<std::string> &inputArray) {
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
 
     rapidjson::Value valueArray(rapidjson::kArrayType);
@@ -78,16 +78,16 @@ void SocketMessage::addMember(const std::string &attributeName, const std::vecto
     addOrSwap(key, valueArray);
 }
 
-void SocketMessage::addMoveObject(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage) {
+void EndpointMessage::addMoveObject(const std::string &attributeName, std::unique_ptr<EndpointMessage> endpointMessage) {
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
 
-    addOrSwap(key, socketMessage->JSON_document);
-    // So dependants now has the UNQIUE POINTER to the socket message, meaning only it can free it
-    dependants.push_back(std::move(socketMessage));
+    addOrSwap(key, endpointMessage->JSON_document);
+    // So dependants now has the UNQIUE POINTER to the endpoint message, meaning only it can free it
+    dependants.push_back(std::move(endpointMessage));
 }
 
-void SocketMessage::addMoveArrayOfObjects(const std::string &attributeName,
-                                          std::vector<std::unique_ptr<SocketMessage>> &inputArray) {
+void EndpointMessage::addMoveArrayOfObjects(const std::string &attributeName,
+                                          std::vector<std::unique_ptr<EndpointMessage>> &inputArray) {
     rapidjson::Value key(attributeName, JSON_document.GetAllocator());
     rapidjson::Value valueArray(rapidjson::kArrayType);
     valueArray.Reserve(inputArray.size(), JSON_document.GetAllocator());
@@ -100,7 +100,7 @@ void SocketMessage::addMoveArrayOfObjects(const std::string &attributeName,
 }
 
 
-int SocketMessage::getInteger(const std::string &attributeName) {
+int EndpointMessage::getInteger(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
         if (JSON_document[attributeName].IsInt()) {
             return JSON_document[attributeName].GetInt();
@@ -113,7 +113,7 @@ int SocketMessage::getInteger(const std::string &attributeName) {
     }
 }
 
-bool SocketMessage::getBoolean(const std::string &attributeName) {
+bool EndpointMessage::getBoolean(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
         if (JSON_document[attributeName].IsBool()) {
             return JSON_document[attributeName].GetBool();
@@ -125,7 +125,7 @@ bool SocketMessage::getBoolean(const std::string &attributeName) {
     }
 }
 
-std::string SocketMessage::getString(const std::string &attributeName) {
+std::string EndpointMessage::getString(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
         if (JSON_document[attributeName].IsString()) {
             return JSON_document[attributeName].GetString();
@@ -137,10 +137,10 @@ std::string SocketMessage::getString(const std::string &attributeName) {
     }
 }
 
-std::unique_ptr<SocketMessage> SocketMessage::getCopyObject(const std::string &attributeName) {
+std::unique_ptr<EndpointMessage> EndpointMessage::getCopyObject(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
         if (JSON_document[attributeName].IsObject()) {
-            return std::unique_ptr<SocketMessage>(new SocketMessage(JSON_document[attributeName], true));
+            return std::unique_ptr<EndpointMessage>(new EndpointMessage(JSON_document[attributeName], true));
         } else {
             throw AccessError("Attribute " + attributeName + " exists but not type object");
         }
@@ -151,7 +151,7 @@ std::unique_ptr<SocketMessage> SocketMessage::getCopyObject(const std::string &a
 
 ///@private
 template<>
-std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) {
+std::vector<int> EndpointMessage::getArray<int>(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
         if (JSON_document[attributeName].IsArray()) {
             auto memberArray = JSON_document[attributeName].GetArray();
@@ -172,7 +172,7 @@ std::vector<int> SocketMessage::getArray<int>(const std::string &attributeName) 
 
 
 template<>
-std::vector<bool> SocketMessage::getArray<bool>(const std::string &attributeName) {
+std::vector<bool> EndpointMessage::getArray<bool>(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
         if (JSON_document[attributeName].IsArray()) {
             auto memberArray = JSON_document[attributeName].GetArray();
@@ -192,7 +192,7 @@ std::vector<bool> SocketMessage::getArray<bool>(const std::string &attributeName
 }
 
 template<>
-std::vector<std::string> SocketMessage::getArray<std::string>(const std::string &attributeName) {
+std::vector<std::string> EndpointMessage::getArray<std::string>(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
         if (JSON_document[attributeName].IsArray()) {
             auto memberArray = JSON_document[attributeName].GetArray();
@@ -212,16 +212,16 @@ std::vector<std::string> SocketMessage::getArray<std::string>(const std::string 
 }
 
 template<>
-std::vector<std::unique_ptr<SocketMessage>>
-SocketMessage::getArray<std::unique_ptr<SocketMessage>>(const std::string &attributeName) {
+std::vector<std::unique_ptr<EndpointMessage>>
+EndpointMessage::getArray<std::unique_ptr<EndpointMessage>>(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
         if (JSON_document[attributeName].IsArray()) {
             auto memberArray = JSON_document[attributeName].GetArray();
-            std::vector<std::unique_ptr<SocketMessage>> returnVector;
+            std::vector<std::unique_ptr<EndpointMessage>> returnVector;
             returnVector.reserve(memberArray.Size());
             for (auto &v: memberArray) {
                 if (!v.IsObject()) { throw AccessError("Array contains a non-object value"); }
-                returnVector.push_back(std::unique_ptr<SocketMessage>(new SocketMessage(v, true)));
+                returnVector.push_back(std::unique_ptr<EndpointMessage>(new EndpointMessage(v, true)));
             }
             return returnVector;
         } else {
@@ -233,10 +233,10 @@ SocketMessage::getArray<std::unique_ptr<SocketMessage>>(const std::string &attri
 }
 
 
-std::unique_ptr<SocketMessage> SocketMessage::getMoveObject(const std::string &attributeName) {
+std::unique_ptr<EndpointMessage> EndpointMessage::getMoveObject(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
         if (JSON_document[attributeName].IsObject()) {
-            return std::unique_ptr<SocketMessage>(new SocketMessage(JSON_document[attributeName], false));
+            return std::unique_ptr<EndpointMessage>(new EndpointMessage(JSON_document[attributeName], false));
         } else {
             throw AccessError("Attribute " + attributeName + " exists but not type object");
         }
@@ -245,15 +245,15 @@ std::unique_ptr<SocketMessage> SocketMessage::getMoveObject(const std::string &a
     }
 }
 
-std::vector<std::unique_ptr<SocketMessage> > SocketMessage::getMoveArrayOfObjects(const std::string &attributeName) {
+std::vector<std::unique_ptr<EndpointMessage> > EndpointMessage::getMoveArrayOfObjects(const std::string &attributeName) {
     if (JSON_document.HasMember(attributeName)) {
         if (JSON_document[attributeName].IsArray()) {
             auto memberArray = JSON_document[attributeName].GetArray();
-            std::vector<std::unique_ptr<SocketMessage>> returnVector;
+            std::vector<std::unique_ptr<EndpointMessage>> returnVector;
             returnVector.reserve(memberArray.Size());
             for (auto &v: memberArray) {
                 if (!v.IsObject()) { throw AccessError("Array contains a non-object value"); }
-                returnVector.push_back(std::unique_ptr<SocketMessage>(new SocketMessage(v, false)));
+                returnVector.push_back(std::unique_ptr<EndpointMessage>(new EndpointMessage(v, false)));
             }
             return returnVector;
         } else {
@@ -264,7 +264,7 @@ std::vector<std::unique_ptr<SocketMessage> > SocketMessage::getMoveArrayOfObject
     }
 }
 
-std::vector<std::string> SocketMessage::getKeys() {
+std::vector<std::string> EndpointMessage::getKeys() {
     std::vector<std::string> keyArray;
     keyArray.reserve(JSON_document.MemberCount());
     for (auto &attribute : JSON_document.GetObject()) {
@@ -273,6 +273,6 @@ std::vector<std::string> SocketMessage::getKeys() {
     return keyArray;
 }
 
-bool SocketMessage::isNull(const std::string &attributeName) {
+bool EndpointMessage::isNull(const std::string &attributeName) {
     return JSON_document.HasMember(attributeName) && JSON_document[attributeName].IsNull();
 }

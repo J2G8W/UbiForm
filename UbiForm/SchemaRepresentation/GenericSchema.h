@@ -1,7 +1,7 @@
 #ifndef UBIFORM_GENERICSCHEMA_H
 #define UBIFORM_GENERICSCHEMA_H
 
-#include "../../include/UbiForm/SocketMessage.h"
+#include "../../include/UbiForm/EndpointMessage.h"
 #include "../../include/UbiForm/SchemaRepresentation/EndpointSchema.h"
 
 /**
@@ -33,7 +33,7 @@ public:
         es = std::make_shared<EndpointSchema>();
     }
 
-    void validate(const SocketMessage &messageToValidate) {
+    void validate(const EndpointMessage &messageToValidate) {
         es->validate(messageToValidate);
     }
 

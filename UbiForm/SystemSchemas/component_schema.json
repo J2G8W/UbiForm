@@ -12,12 +12,14 @@
         "[A-Za-z0-9_]*": {
           "type": "object",
           "properties": {
-            "socketType": {
+            "connectionParadigm": {
               "type": "string",
               "enum": [
                 "pair",
                 "publisher",
-                "subscriber"
+                "subscriber",
+                "reply",
+                "request"
               ]
             },
             "listenPort": {
@@ -31,7 +33,7 @@
             }
           },
           "required": [
-            "socketType"
+            "connectionParadigm"
           ]
         }
       }

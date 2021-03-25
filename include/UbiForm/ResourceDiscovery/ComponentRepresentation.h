@@ -17,7 +17,7 @@ public:
         fillSelf();
     }
 
-    explicit ComponentRepresentation(SocketMessage *sm, SystemSchemas &ss) : ComponentManifest(sm, ss) {
+    explicit ComponentRepresentation(EndpointMessage *sm, SystemSchemas &ss) : ComponentManifest(sm, ss) {
         fillSelf();
     }
 
@@ -33,22 +33,22 @@ public:
     int getPort() { return port; }
 
     /**
-     * Compare the equality of two schemas, one from our ComponentRepresentation and one from the SocketMessage given. Will return false
+     * Compare the equality of two schemas, one from our ComponentRepresentation and one from the EndpointMessage given. Will return false
      * if can't find the given endpoint in our ComponentRepresentation
      * @param endpointId - The ID of the endpoint we want to look at for our ComponentRepresentation
      * @param recv - Whether we want the receive or send schema of the given endpoint
-     * @param sm - SocketMessage object we are comparing to
+     * @param sm - EndpointMessage object we are comparing to
      * @return Boolean whether the two things were equal (as defined by Julian's rules)
      */
-    bool isEqual(const std::string &endpointId, bool recv, SocketMessage &sm);
+    bool isEqual(const std::string &endpointId, bool recv, EndpointMessage &sm);
 
     /**
-     * Find all the equal endpoints in the ComponentRepresentation to the given SocketMessage
+     * Find all the equal endpoints in the ComponentRepresentation to the given EndpointMessage
      * @param recv - Whether we are considering the receive or send schemas
-     * @param sm - SocketMessage we are comparing to
-     * @return An array of the endpointTypes which are equal to the SocketMessage given
+     * @param sm - EndpointMessage we are comparing to
+     * @return An array of the endpointTypes which are equal to the EndpointMessage given
      */
-    std::vector<std::string> findEquals(bool recv, SocketMessage &sm);
+    std::vector<std::string> findEquals(bool recv, EndpointMessage &sm);
 
 
 };
