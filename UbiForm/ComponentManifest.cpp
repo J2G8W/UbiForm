@@ -35,7 +35,9 @@ void ComponentManifest::setManifest(FILE *jsonFP) {
 
     checkParse();
     fillSchemaMaps();
-    changeCallBack(this, changeUserData);
+    if (changeCallBack != nullptr) {
+        changeCallBack(this, changeUserData);
+    }
 }
 
 void ComponentManifest::setManifest(const char *jsonString) {
@@ -44,7 +46,9 @@ void ComponentManifest::setManifest(const char *jsonString) {
 
     checkParse();
     fillSchemaMaps();
-    changeCallBack(this, changeUserData);
+    if (changeCallBack != nullptr) {
+        changeCallBack(this, changeUserData);
+    }
 }
 
 void ComponentManifest::setManifest(EndpointMessage *sm) {
@@ -52,7 +56,9 @@ void ComponentManifest::setManifest(EndpointMessage *sm) {
 
     checkParse();
     fillSchemaMaps();
-    changeCallBack(this, changeUserData);
+    if (changeCallBack != nullptr) {
+        changeCallBack(this, changeUserData);
+    }
 }
 
 
