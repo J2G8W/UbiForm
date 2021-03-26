@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
         recv->addProperty("extraInfo",ValueType::String);
         recv->addRequired("extraInfo");
         std::shared_ptr<EndpointSchema> empty = std::make_shared<EndpointSchema>();
-        receiver.getComponentManifest().addEndpoint(SocketType::Pair,"receiver",recv,empty);
+        receiver.getComponentManifest().addEndpoint(ConnectionParadigm::Pair,"receiver",recv,empty);
 
         auto* pairStartupInfo = new PairStartupInfo;
         pairStartupInfo->component = &receiver;
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 
 
         std::thread maintainMusic(maintainMusicPlaying, pairStartupInfo);
-        std::vector<std::unique_ptr<SocketMessage>> values;
+        std::vector<std::unique_ptr<EndpointMessage>> values;
         while(true) {
             std::string userInput;
             std::cin >> userInput;
