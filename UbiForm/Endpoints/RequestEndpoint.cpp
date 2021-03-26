@@ -38,7 +38,7 @@ RequestEndpoint::~RequestEndpoint() {
     // We have to check if we ever initialised the receiverSocket before trying to close it
     if (senderSocket != nullptr) {
         if (!(endpointState == EndpointState::Closed ||
-              endpointState == EndpointState::Invalid || endpointState == EndpointState::Open)) {
+              endpointState == EndpointState::Invalid)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This endpoint had already been closed" << std::endl;

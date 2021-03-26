@@ -130,8 +130,6 @@ std::unique_ptr<EndpointMessage> ResourceDiscoveryStore::generateRDResponse(Endp
     } else if (request == RESOURCE_DISCOVERY_NOTIFY_ENDPOINT_PORT_LISTEN){
         componentById.at(sm->getString("id"))->addListenPort(
                 sm->getString("endpointType"),sm->getInteger("port"));
-    } else if (request == RESOURCE_DISCOVERY_REQUEST_ALIVE){
-        returnMsg->addMember("live",true);
     } else {
         throw std::logic_error("Error with request: "+ request +"\nDid not match expected");
     }

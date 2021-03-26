@@ -1,7 +1,6 @@
 #include "../../include/UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 #include "../../include/UbiForm/Component.h"
 #include <nng/protocol/reqrep0/req.h>
-#include <nng/supplemental/util/platform.h>
 
 
 void ResourceDiscoveryConnEndpoint::handleAsyncReceive(EndpointMessage *sm, void *data) {
@@ -233,6 +232,44 @@ void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
     }
 }
 
+void ResourceDiscoveryConnEndpoint::searchForResourceDiscoveryHubs() {
+    auto addresses = component->getAllAddresses();
+    bool found = false;
+    if (component->getComponentConnectionType() == ConnectionType::IPC) {
+        std::cerr << "Can't search for RDH's with IPC" << std::endl;
+        return;
+    }
+    for (const auto &address: addresses) {
+        if (found) { break; }
+
+        std::string subnet = address.substr(0, address.rfind('.'));
+        for (int i = 0; i <= 255; i++) {
+            if (found) { break; }
+            std::string dialAddress =
+                    subnet + "." + std::to_string(i) + ":" + std::to_string(DEFAULT_BACKGROUND_LISTEN_PORT);
+            try {
+                std::vector<std::string> RDHs =
+                        component->getBackgroundRequester().requestLocationsOfRDH(dialAddress);
+                if (RDHs.empty()) { continue; }
+                for (const std::string &url : RDHs) {
+                    try {
+                        registerWithHub(url);
+                        found = true;
+                        std::cout << "Found Resource Discovery Hub: " << url << std::endl;
+                        break;
+                    } catch (std::logic_error &e) {
+                        continue;
+                    }
+                }
+            } catch (std::logic_error &e) {
+                continue;
+            }
+        }
+    }
+    if(!found){
+        throw std::logic_error("Unable to find any Resource Discovery Hub");
+    }
+}
 
 std::map<std::string, std::unique_ptr<ComponentRepresentation>>
 ResourceDiscoveryConnEndpoint::getComponentsByProperties(std::map<std::string, std::string> &properties) {
@@ -345,70 +382,3 @@ void ResourceDiscoveryConnEndpoint::checkLivenessOfHubs() {
         it++;
     }
 }
-
-void ResourceDiscoveryConnEndpoint::searchForResourceDiscoveryHubs() {
-    auto addresses = component->getAllAddresses();
-    bool found = false;
-    if (component->getComponentConnectionType() == ConnectionType::IPC) {
-        std::cerr << "Can't search for RDH's with IPC" << std::endl;
-        return;
-    }
-    for (const auto &address: addresses) {
-        if (found) { break; }
-
-        std::string subnet = address.substr(0, address.rfind('.'));
-        std::vector<std::thread> threads;
-        // TODO - Memory leak of booleans
-        std::vector<bool*> alive;
-
-        for (int i = 128; i <= 192; i++) {
-            std::string dialAddress =
-                    subnet + "." + std::to_string(i) + ":" + std::to_string(DEFAULT_RESOURCE_DISCOVERY_PORT);
-            bool* t = new bool(false);
-            alive.push_back(t);
-            threads.emplace_back(asyncCheckHubLive,dialAddress, alive.at(i), this);
-        }
-
-        // Assumption here is that we will find the thing pretty quickly
-        nng_msleep(1000);
-        for (int i = 0; i<= 255; i++){
-            threads.at(i).detach();
-            if(*(alive.at(i))) {
-                std::string dialAddress =
-                        subnet + "." + std::to_string(i) + ":" + std::to_string(DEFAULT_RESOURCE_DISCOVERY_PORT);
-                try {
-                    registerWithHub(dialAddress);
-                    found = true;
-                    std::cout << "Found Resource Discovery Hub: " << dialAddress << std::endl;
-                } catch (std::logic_error &e) {
-                    continue;
-                }
-            }
-
-        }
-    }
-    std::cout << "End" << std::endl;
-    if(!found){
-        throw std::logic_error("Unable to find any Resource Discovery Hub");
-    }
-}
-
-void ResourceDiscoveryConnEndpoint::asyncCheckHubLive(const std::string &url, bool *returnVal,ResourceDiscoveryConnEndpoint* rdc) {
-    RequestEndpoint newEndpoint (
-            rdc->systemSchemas.getSystemSchema(SystemSchemaName::generalRDResponse).getInternalSchema(),
-            rdc->systemSchemas.getSystemSchema(SystemSchemaName::generalRDRequest).getInternalSchema(),
-            "Resource Discovery Connection", "Test RDC - " + url);
-    try{
-        std::cout << url << std::endl;
-        newEndpoint.dialConnection(url.c_str());
-        SocketMessage sm;
-        sm.addMember("request",RESOURCE_DISCOVERY_REQUEST_ALIVE);
-        newEndpoint.sendMessage(sm);
-        newEndpoint.setReceiveTimeout(300);
-        newEndpoint.receiveMessage();
-        *returnVal = true;
-    } catch (NngError &e) {
-        *returnVal = false;
-    }
-}
-

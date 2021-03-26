@@ -143,8 +143,6 @@ public:
     void addListenerPortForAllHubs(const std::string& endpointType, int port);
 
     void checkLivenessOfHubs();
-
-    static void asyncCheckHubLive(const std::string &url, bool *returnVal, ResourceDiscoveryConnEndpoint* rdc);
 };
 
 
