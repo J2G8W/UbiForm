@@ -4,7 +4,7 @@
 
 #include <map>
 #include <random>
-#include "../SocketMessage.h"
+#include "../EndpointMessage.h"
 #include "ComponentRepresentation.h"
 #include "../../../UbiForm/SystemSchemas/SystemSchemas.h"
 
@@ -23,12 +23,12 @@ private:
 
 public:
     /**
-     * Basically just makes the ResourceDiscoveryHub response to some socketMessage
-     * @param sm - Input SocketMessage
-     * @return The reply SocketMessage (should be memory handled pls)
+     * Basically just makes the ResourceDiscoveryHub response to some endpointMessage
+     * @param sm - Input EndpointMessage
+     * @return The reply EndpointMessage (should be memory handled pls)
      */
 
-    std::unique_ptr<SocketMessage> generateRDResponse(SocketMessage *sm);
+    std::unique_ptr<EndpointMessage> generateRDResponse(EndpointMessage *sm);
 
     std::vector<std::shared_ptr<ComponentRepresentation>> getConnections();
 

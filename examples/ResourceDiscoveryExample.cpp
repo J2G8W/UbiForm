@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
             std::cout << "Resource discovery started" << std::endl;
 
 
-            SocketMessage s;
+            EndpointMessage s;
             bool valid = true;
             auto publisherEndpoints = component->getEndpointsByType("publisherExample");
             while (true) {
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
                 }
 
 
-                SocketMessage s;
+                EndpointMessage s;
                 bool valid = true;
                 auto publisherEndpoints = component->getEndpointsByType("publisherExample");
                 while (true) {
@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
 
                 component->getResourceDiscoveryConnectionEndpoint().createEndpointBySchema("subscriberExample");
 
-                std::unique_ptr<SocketMessage> s;
+                std::unique_ptr<EndpointMessage> s;
                 auto subscriberEndpoints = component->getEndpointsByType("subscriberExample");
 
                 int counter = 1;
@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
                 while (true) {
                     if(counter % 4 == 0){
                         std::cout << "Refreshing endpoints" << std::endl;
-                        component->closeAndInvalidateSocketsOfType("subscriberExample");
+                        component->closeAndInvalidateEndpointsOfType("subscriberExample");
                         component->getResourceDiscoveryConnectionEndpoint().createEndpointBySchema("subscriberExample");
                     }
                     nng_msleep(3000);

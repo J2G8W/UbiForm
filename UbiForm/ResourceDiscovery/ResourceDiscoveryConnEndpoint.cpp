@@ -4,7 +4,7 @@
 #include <nng/supplemental/util/platform.h>
 
 
-void ResourceDiscoveryConnEndpoint::handleAsyncReceive(SocketMessage *sm, void *data) {
+void ResourceDiscoveryConnEndpoint::handleAsyncReceive(EndpointMessage *sm, void *data) {
     if(sm->getBoolean("error")){
         if (sm->hasMember("errorMsg")) {
             std::cerr << "Remote error with request: " + sm->getString("errorMsg") << std::endl;
@@ -14,8 +14,8 @@ void ResourceDiscoveryConnEndpoint::handleAsyncReceive(SocketMessage *sm, void *
     }
 }
 
-std::unique_ptr<SocketMessage>
-ResourceDiscoveryConnEndpoint::sendRequest(const std::string &url, SocketMessage &request, bool waitForResponse) {
+std::unique_ptr<EndpointMessage>
+ResourceDiscoveryConnEndpoint::sendRequest(const std::string &url, EndpointMessage &request, bool waitForResponse) {
 
     if(resourceDiscoveryEndpoints.count(url) == 0){
         throw AccessError("No endpoint for " + url + " open yet");
@@ -37,10 +37,10 @@ ResourceDiscoveryConnEndpoint::sendRequest(const std::string &url, SocketMessage
     }
 }
 
-std::unique_ptr<SocketMessage> ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
-    std::unique_ptr<SocketMessage> request = std::make_unique<SocketMessage>();
+std::unique_ptr<EndpointMessage> ResourceDiscoveryConnEndpoint::generateRegisterRequest() {
+    std::unique_ptr<EndpointMessage> request = std::make_unique<EndpointMessage>();
     request->addMember("request", RESOURCE_DISCOVERY_ADD_COMPONENT);
-    auto sm = component->getComponentManifest().getSocketMessageCopy();
+    auto sm = component->getComponentManifest().getEndpointMessageCopy();
     sm->addMember("urls", component->getAllAddresses());
     sm->addMember("port", component->getBackgroundPort());
 
@@ -49,10 +49,10 @@ std::unique_ptr<SocketMessage> ResourceDiscoveryConnEndpoint::generateRegisterRe
 }
 
 void ResourceDiscoveryConnEndpoint::registerWithHub(const std::string &url) {
-    std::unique_ptr<SocketMessage> request = generateRegisterRequest();
+    std::unique_ptr<EndpointMessage> request = generateRegisterRequest();
 
     systemSchemas.getSystemSchema(SystemSchemaName::additionRequest).validate(*request);
-    std::unique_ptr<SocketMessage> reply;
+    std::unique_ptr<EndpointMessage> reply;
     std::unique_ptr<RequestEndpoint> newEndpoint =
             std::make_unique<RequestEndpoint>(
                     systemSchemas.getSystemSchema(SystemSchemaName::generalRDResponse).getInternalSchema(),
@@ -60,7 +60,7 @@ void ResourceDiscoveryConnEndpoint::registerWithHub(const std::string &url) {
                     "Resource Discovery Connection", "RDC - " + url);
     resourceDiscoveryEndpoints[url] = std::move(newEndpoint);
     try {
-        resourceDiscoveryEndpoints.at(url)->dialConnection(url.c_str());
+        resourceDiscoveryEndpoints.at(url)->dialConnection(url);
 
         reply = sendRequest(url, *request, true);
         systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
@@ -74,11 +74,11 @@ void ResourceDiscoveryConnEndpoint::registerWithHub(const std::string &url) {
 }
 
 std::vector<std::string> ResourceDiscoveryConnEndpoint::getComponentIdsFromHub(const std::string &url) {
-    SocketMessage request;
+    EndpointMessage request;
     request.addMember("request", RESOURCE_DISCOVERY_REQUEST_COMPONENTS);
 
     systemSchemas.getSystemSchema(SystemSchemaName::componentIdsRequest).validate(request);
-    std::unique_ptr<SocketMessage> reply;
+    std::unique_ptr<EndpointMessage> reply;
 
     try {
         reply = sendRequest(url, request, true);
@@ -94,14 +94,14 @@ std::vector<std::string> ResourceDiscoveryConnEndpoint::getComponentIdsFromHub(c
 
 std::unique_ptr<ComponentRepresentation>
 ResourceDiscoveryConnEndpoint::getComponentById(const std::string &url, const std::string &id) {
-    SocketMessage request;
+    EndpointMessage request;
     request.addMember("request", RESOURCE_DISCOVERY_REQUEST_BY_ID);
     request.addMember("id", id);
 
     systemSchemas.getSystemSchema(SystemSchemaName::byIdRequest).validate(request);
 
 
-    std::unique_ptr<SocketMessage> reply;
+    std::unique_ptr<EndpointMessage> reply;
     try {
         reply = sendRequest(url, request, true);
         systemSchemas.getSystemSchema(SystemSchemaName::byIdResponse).validate(*reply);
@@ -121,10 +121,10 @@ ResourceDiscoveryConnEndpoint::getComponentById(const std::string &url, const st
     }
 }
 
-std::unique_ptr<SocketMessage>
+std::unique_ptr<EndpointMessage>
 ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const std::string &endpointType,
                                                            std::map<std::string, std::string> &otherValues) {
-    std::unique_ptr<SocketMessage> request = std::make_unique<SocketMessage>();
+    std::unique_ptr<EndpointMessage> request = std::make_unique<EndpointMessage>();
     request->addMember("request", RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA);
 
     // We want the schema we get back to be a data SENDER
@@ -135,7 +135,7 @@ ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const std::string &en
 
     request->addMoveObject("schema", std::move(schema));
 
-    auto specialProperties = std::make_unique<SocketMessage>();
+    auto specialProperties = std::make_unique<EndpointMessage>();
     for (auto &keyValuePair : otherValues) {
         specialProperties->addMember(keyValuePair.first, keyValuePair.second);
     }
@@ -144,10 +144,10 @@ ResourceDiscoveryConnEndpoint::generateFindBySchemaRequest(const std::string &en
     return request;
 }
 
-std::vector<std::unique_ptr<SocketMessage>>
+std::vector<std::unique_ptr<EndpointMessage>>
 ResourceDiscoveryConnEndpoint::getComponentsBySchema(const std::string &endpointType,
                                                      std::map<std::string, std::string> &otherValues) {
-    std::vector<std::unique_ptr<SocketMessage>> returnEndpoints;
+    std::vector<std::unique_ptr<EndpointMessage>> returnEndpoints;
 
     auto request = std::move(generateFindBySchemaRequest(endpointType, otherValues));
 
@@ -155,7 +155,7 @@ ResourceDiscoveryConnEndpoint::getComponentsBySchema(const std::string &endpoint
 
     for (const auto &rdh : resourceDiscoveryHubs) {
 
-        std::unique_ptr<SocketMessage> reply;
+        std::unique_ptr<EndpointMessage> reply;
         try {
             reply = sendRequest(rdh.first, *request, true);
             systemSchemas.getSystemSchema(SystemSchemaName::bySchemaResponse).validate(*reply);
@@ -164,7 +164,7 @@ ResourceDiscoveryConnEndpoint::getComponentsBySchema(const std::string &endpoint
             continue;
         }
 
-        auto replyEndpoints = reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
+        auto replyEndpoints = reply->getArray<std::unique_ptr<EndpointMessage>>("endpoints");
 
         returnEndpoints.insert(
                 returnEndpoints.end(),
@@ -178,7 +178,7 @@ ResourceDiscoveryConnEndpoint::getComponentsBySchema(const std::string &endpoint
 
 void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string &endpointType) {
     std::map<std::string, std::string> empty;
-    std::vector<std::unique_ptr<SocketMessage>> validLocations = getComponentsBySchema(endpointType, empty);
+    std::vector<std::unique_ptr<EndpointMessage>> validLocations = getComponentsBySchema(endpointType, empty);
 
     for (const auto &location: validLocations) {
         bool connection = false;
@@ -212,11 +212,11 @@ void ResourceDiscoveryConnEndpoint::createEndpointBySchema(const std::string &en
 }
 
 void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
-    auto newManifest = component->getComponentManifest().getSocketMessageCopy();
+    auto newManifest = component->getComponentManifest().getEndpointMessageCopy();
     newManifest->addMember("urls", component->getAllAddresses());
     newManifest->addMember("port", component->getBackgroundPort());
 
-    auto request = std::make_unique<SocketMessage>();
+    auto request = std::make_unique<EndpointMessage>();
     request->addMember("request", RESOURCE_DISCOVERY_UPDATE_MANIFEST);
     request->addMoveObject("newManifest", std::move(newManifest));
 
@@ -236,18 +236,18 @@ void ResourceDiscoveryConnEndpoint::updateManifestWithHubs() {
 
 std::map<std::string, std::unique_ptr<ComponentRepresentation>>
 ResourceDiscoveryConnEndpoint::getComponentsByProperties(std::map<std::string, std::string> &properties) {
-    auto specialProperties = std::make_unique<SocketMessage>();
+    auto specialProperties = std::make_unique<EndpointMessage>();
     for (auto &keyValuePair : properties) {
         specialProperties->addMember(keyValuePair.first, keyValuePair.second);
     }
-    SocketMessage request;
+    EndpointMessage request;
     request.addMember("request", RESOURCE_DISCOVERY_REQUEST_BY_PROPERTIES);
     request.addMoveObject("specialProperties", std::move(specialProperties));
 
     std::map<std::string, std::unique_ptr<ComponentRepresentation>> returnComponents;
 
     for (const auto &rdh : resourceDiscoveryHubs) {
-        std::unique_ptr<SocketMessage> reply;
+        std::unique_ptr<EndpointMessage> reply;
         try {
             reply = sendRequest(rdh.first, request, true);
         } catch (std::logic_error &e) {
@@ -268,8 +268,21 @@ ResourceDiscoveryConnEndpoint::getComponentsByProperties(std::map<std::string, s
     return returnComponents;
 }
 
+void ResourceDiscoveryConnEndpoint::deRegisterThirdPartyFromHub(const std::string &rdhUrl, const std::string componentId){
+    EndpointMessage request;
+    request.addMember("request", RESOURCE_DISCOVERY_DEREGISTER_COMPONENT);
+    request.addMember("id", componentId);
+    try {
+        sendRequest(rdhUrl, request, false);
+        std::cout << "De-registered "  <<  componentId <<" from " << rdhUrl << std::endl;
+    } catch (std::logic_error &e) {
+        std::cerr << "Error with de-register of " << componentId << " from " << rdhUrl << "\n" << e.what() << std::endl;
+    }
+}
+
+
 void ResourceDiscoveryConnEndpoint::deRegisterFromHub(const std::string &rdhUrl) {
-    SocketMessage request;
+    EndpointMessage request;
     request.addMember("request", RESOURCE_DISCOVERY_DEREGISTER_COMPONENT);
     try {
         request.addMember("id", resourceDiscoveryHubs.at(rdhUrl));
@@ -298,8 +311,8 @@ void ResourceDiscoveryConnEndpoint::deRegisterFromAllHubs() {
 }
 
 void ResourceDiscoveryConnEndpoint::addListenerPortForAllHubs(const std::string &endpointType, int port) {
-    SocketMessage request;
-    request.addMember("request",RESOURCE_DISCOVERY_NOTIFY_SOCKET_LISTEN);
+    EndpointMessage request;
+    request.addMember("request", RESOURCE_DISCOVERY_NOTIFY_ENDPOINT_PORT_LISTEN);
     request.addMember("endpointType",endpointType);
     request.addMember("port",port);
 

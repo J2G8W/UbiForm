@@ -1,5 +1,5 @@
-#ifndef UBIFORM_SOCKETMESSAGE_H
-#define UBIFORM_SOCKETMESSAGE_H
+#ifndef UBIFORM_ENDPOINTMESSAGE_H
+#define UBIFORM_ENDPOINTMESSAGE_H
 
 #include <iostream>
 #include <sstream>
@@ -17,7 +17,7 @@
  * This class is used to represent all message around the system. It is an abstraction of a JSON object and can be turned
  * into a string for when we are sending. Note this class only work with RAPIDJSON_HAS_STDSTRING turned on
  */
-class SocketMessage {
+class EndpointMessage {
     friend class EndpointSchema;
 
     friend class ComponentRepresentation;
@@ -26,7 +26,7 @@ class SocketMessage {
 
 private:
     rapidjson::Document JSON_document;
-    std::vector<std::unique_ptr<SocketMessage>> dependants;
+    std::vector<std::unique_ptr<EndpointMessage>> dependants;
 
     // Takes in a key, value pair (of special type) and either replace the member, or add it
     void addOrSwap(rapidjson::Value &key, rapidjson::Value &valueContainer) {
@@ -39,7 +39,7 @@ private:
 
 
     // COPY CONSTRUCTOR - needed for sensible memory allocation!
-    SocketMessage(rapidjson::Value &inputObject, bool copyConstruct = true) {
+    EndpointMessage(rapidjson::Value &inputObject, bool copyConstruct = true) {
         if (copyConstruct) {
             JSON_document.SetObject();
             JSON_document.CopyFrom(inputObject, JSON_document.GetAllocator());
@@ -51,25 +51,25 @@ private:
 
 public:
     /**
-     * @brief Create an empty socket message that we can add to
+     * @brief Create an empty endpoint message that we can add to
      */
-    SocketMessage() : JSON_document() {
+    EndpointMessage() : JSON_document() {
         JSON_document.SetObject();
     };
 
     /**
-     * @brief Create socket message from string input, largely for use from networks
+     * @brief Create endpoint message from string input, largely for use from networks
      * @param jsonString - string input
      */
-    explicit SocketMessage(const char *jsonString);
+    explicit EndpointMessage(const char *jsonString);
 
-    /// Returns a string of the SocketMessage for debugging and sending on wire
+    /// Returns a string of the EndpointMessage for debugging and sending on wire
     std::string stringify() { return stringifyValue(JSON_document); };
 
     ///@{
     /**
      * @name Add Member (Copy constructors)
-     * These methods add or change attributes in the SocketMessage, we don't allow repeated attribute names (it overwrites)
+     * These methods add or change attributes in the EndpointMessage, we don't allow repeated attribute names (it overwrites)
      * and all the methods exist to COPY in
      */
     void addMember(const std::string &attributeName, const std::string &value);
@@ -96,9 +96,9 @@ public:
 
     void addMember(const std::string &attributeName, const std::vector<std::string> &inputArray);
 
-    void addMember(const std::string &attributeName, const std::vector<SocketMessage *> &inputArray);
+    void addMember(const std::string &attributeName, const std::vector<EndpointMessage *> &inputArray);
 
-    void addMember(const std::string &attributeName, SocketMessage &socketMessage);
+    void addMember(const std::string &attributeName, EndpointMessage &endpointMessage);
 
     void setNull(const std::string &attributeName);
     ///@}
@@ -107,20 +107,20 @@ public:
     ///@{
     ///@name Add Member (move constructors)
     /**
-     * @brief Moves the value from the the input socketMessage into us. Once a message is moved in (std::unique_ptr) we have
+     * @brief Moves the value from the the input endpointMessage into us. Once a message is moved in (std::unique_ptr) we have
      * ownership and deltion of it.
      * @param attributeName - name of attribute
      */
-    void addMoveObject(const std::string &attributeName, std::unique_ptr<SocketMessage> socketMessage);
+    void addMoveObject(const std::string &attributeName, std::unique_ptr<EndpointMessage> endpointMessage);
 
-    void addMoveArrayOfObjects(const std::string &attributeName, std::vector<std::unique_ptr<SocketMessage>> &inputArray);
+    void addMoveArrayOfObjects(const std::string &attributeName, std::vector<std::unique_ptr<EndpointMessage>> &inputArray);
     ///@}
 
     ///@{
     /**
-     * @name Getters from the SocketMessage (Copy Constructor)
+     * @name Getters from the EndpointMessage (Copy Constructor)
      * @param attributeName - The attribute we want
-     * @throws AccessError - The desired attribute is not in the SocketMessage or is the wrong type
+     * @throws AccessError - The desired attribute is not in the EndpointMessage or is the wrong type
      */
     int getInteger(const std::string &attributeName);
 
@@ -128,7 +128,7 @@ public:
 
     std::string getString(const std::string &attributeName);
 
-    std::unique_ptr<SocketMessage> getCopyObject(const std::string &attributeName);
+    std::unique_ptr<EndpointMessage> getCopyObject(const std::string &attributeName);
 
     bool isNull(const std::string &attributeName);
 
@@ -137,21 +137,21 @@ public:
     ///@}
 
     ///@{
-    ///@name - Getters from SocketMessage (move rather than copy)
+    ///@name - Getters from EndpointMessage (move rather than copy)
     /**
      * Move  from within the current object. NOTE that the parent must live as long as the new child due to memory handling
      * issues with rapidjson. If this is a problem use copy versions which are less efficient but hasn't got memory issues
      * @param attributeName - Attribute to get
-     * @throws AccessError - The desired attribute is not in the SocketMessage or is the wrong type
+     * @throws AccessError - The desired attribute is not in the EndpointMessage or is the wrong type
      */
-    std::unique_ptr<SocketMessage> getMoveObject(const std::string &attributeName);
+    std::unique_ptr<EndpointMessage> getMoveObject(const std::string &attributeName);
 
-    std::vector<std::unique_ptr<SocketMessage> > getMoveArrayOfObjects(const std::string &attributeName);
+    std::vector<std::unique_ptr<EndpointMessage> > getMoveArrayOfObjects(const std::string &attributeName);
     ///@}
 
 
     /**
-     * @return whether the socketMessage itself is a null value
+     * @return whether the endpointMessage itself is a null value
      */
     bool isNull() {
         return JSON_document.IsNull();
@@ -159,22 +159,22 @@ public:
 
     /**
      * @brief Get all the properties names that are associated with the messages
-     * @return Vector of the property name of the SocketMessage
+     * @return Vector of the property name of the EndpointMessage
      */
     std::vector<std::string> getKeys();
 
     /**
-     * @breif Check if SocketMessage has property
+     * @breif Check if EndpointMessage has property
      * @param attributeName - Attribute name to search on
-     * @return Whether the SocketMessage has an attribute of the given name
+     * @return Whether the EndpointMessage has an attribute of the given name
      */
     bool hasMember(const std::string &attributeName) {
         return JSON_document.HasMember(attributeName);
     }
 
 
-    ~SocketMessage();
+    ~EndpointMessage();
 };
 
 
-#endif //UBIFORM_SOCKETMESSAGE_H
+#endif //UBIFORM_ENDPOINTMESSAGE_H

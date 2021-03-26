@@ -2,16 +2,16 @@
 #include "../Utilities/base64.h"
 #include <nng/supplemental/util/platform.h>
 
-// Send the SocketMessage object on our socket after checking that our message is valid against our manifest
-void DataSenderEndpoint::sendMessage(SocketMessage &s) {
+// Send the EndpointMessage object on our endpoint after checking that our message is valid against our manifest
+void DataSenderEndpoint::sendMessage(EndpointMessage &s) {
     senderSchema->validate(s);
     rawSendMessage(s);
 }
 
-void DataSenderEndpoint::rawSendMessage(SocketMessage &s) {
+void DataSenderEndpoint::rawSendMessage(EndpointMessage &s) {
     if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed)) {
-        throw SocketOpenError("Could not send message, in state: " + convertEndpointState(endpointState),
-                              socketType, endpointIdentifier);
+        throw EndpointOpenError("Could not send message, in state: " + convertEndpointState(endpointState),
+                                connectionParadigm, endpointIdentifier);
     }
     int rv;
     std::string messageTextObject = s.stringify();
@@ -23,10 +23,10 @@ void DataSenderEndpoint::rawSendMessage(SocketMessage &s) {
     }
 }
 
-void DataSenderEndpoint::asyncSendMessage(SocketMessage &s) {
+void DataSenderEndpoint::asyncSendMessage(EndpointMessage &s) {
     if (!(endpointState == EndpointState::Listening || endpointState == EndpointState::Dialed )) {
-        throw SocketOpenError("Could not async-send message, socket is in state: " + convertEndpointState(endpointState),
-                              socketType, endpointIdentifier);
+        throw EndpointOpenError("Could not async-send message, endpoint is in state: " + convertEndpointState(endpointState),
+                                connectionParadigm, endpointIdentifier);
     }
     nng_aio_wait(nngAioPointer);
     std::string text = s.stringify();
@@ -63,21 +63,21 @@ void DataSenderEndpoint::setSendTimeout(int ms_time) {
             throw NngError(rv, "Set send timeout");
         }
     } else {
-        throw SocketOpenError("Can't set timeout if endpoint not open", socketType, endpointIdentifier);
+        throw EndpointOpenError("Can't set timeout if endpoint not open", connectionParadigm, endpointIdentifier);
     }
 }
 
-void DataSenderEndpoint::listenForConnection(const char *base, int port) {
+void DataSenderEndpoint::listenForConnection(const std::string &base, int port) {
     int rv = listenForConnectionWithRV(base, port);
     if (rv != 0) {
         throw NngError(rv, "Listening on " + std::string(base));
     }
 }
 
-int DataSenderEndpoint::listenForConnectionWithRV(const char *base, int port) {
+int DataSenderEndpoint::listenForConnectionWithRV(const std::string &base, int port) {
     if (endpointState == EndpointState::Open) {
         int rv;
-        std::string addr = std::string(base) + ":" + std::to_string(port);
+        std::string addr = base + ":" + std::to_string(port);
         if ((rv = nng_listen(*senderSocket, addr.c_str(), nullptr, 0)) != 0) {
             return rv;
         }
@@ -87,7 +87,7 @@ int DataSenderEndpoint::listenForConnectionWithRV(const char *base, int port) {
         startConnectionThread();
         return rv;
     } else {
-        throw SocketOpenError("Can't listen if endpoint not open", socketType, endpointIdentifier);
+        throw EndpointOpenError("Can't listen if endpoint not open", connectionParadigm, endpointIdentifier);
     }
 }
 
@@ -95,9 +95,9 @@ void DataSenderEndpoint::closeEndpoint() {
     if (!(endpointState == EndpointState::Closed ||
         endpointState == EndpointState::Invalid)) {
         if (nng_close(*senderSocket) == NNG_ECLOSED) {
-            std::cerr << "This socket had already been closed" << std::endl;
+            std::cerr << "This endpoint had already been closed" << std::endl;
         } else {
-            std::cout << convertFromSocketType(socketType)<< " socket: " << endpointIdentifier << " closed" << std::endl;
+            std::cout << convertFromConnectionParadigm(connectionParadigm) << " endpoint: " << endpointIdentifier << " closed" << std::endl;
         }
         endpointState = EndpointState::Closed;
     }

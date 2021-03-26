@@ -2,17 +2,17 @@
 #include <nng/supplemental/util/platform.h>
 #include "../../include/UbiForm/Endpoints/RequestEndpoint.h"
 
-void RequestEndpoint::listenForConnection(const char *base, int port) {
-    throw SocketOpenError("Request socket trying to listen for connection",
-                          socketType, endpointIdentifier);
+void RequestEndpoint::listenForConnection(const std::string &base, int port) {
+    throw EndpointOpenError("Request endpoint trying to listen for connection",
+                            connectionParadigm, endpointIdentifier);
 }
 
-int RequestEndpoint::listenForConnectionWithRV(const char *base, int port) {
-    throw SocketOpenError("Request socket trying to listen for connection",
-                          socketType, endpointIdentifier);
+int RequestEndpoint::listenForConnectionWithRV(const std::string &base, int port) {
+    throw EndpointOpenError("Request endpoint trying to listen for connection",
+                            connectionParadigm, endpointIdentifier);
 }
 
-void RequestEndpoint::dialConnection(const char *url) {
+void RequestEndpoint::dialConnection(const std::string &url) {
     int rv;
     if (dialUrl != std::string(url)) {
         // Before dialling a new location we close the old socket (means same endpoint can be reused)
@@ -24,7 +24,7 @@ void RequestEndpoint::dialConnection(const char *url) {
             openEndpoint();
         }
 
-        if ((rv = nng_dial(*senderSocket, url, nullptr, 0)) != 0) {
+        if ((rv = nng_dial(*senderSocket, url.c_str(), nullptr, 0)) != 0) {
             throw NngError(rv, "Dialing " + std::string(url) + " for a request connection");
         }
         this->dialUrl = url;
@@ -41,9 +41,9 @@ RequestEndpoint::~RequestEndpoint() {
               endpointState == EndpointState::Invalid || endpointState == EndpointState::Open)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
-                std::cerr << "This socket had already been closed" << std::endl;
+                std::cerr << "This endpoint had already been closed" << std::endl;
             } else {
-                std::cout << "Request socket " << endpointIdentifier << " closed" << std::endl;
+                std::cout << "Request endpoint " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }
@@ -60,7 +60,7 @@ void RequestEndpoint::openEndpoint() {
     int rv;
     if (endpointState == EndpointState::Closed) {
         if ((rv = nng_req0_open(senderSocket)) != 0) {
-            throw NngError(rv, "Open RD connection request socket");
+            throw NngError(rv, "Open RD connection request endpoint");
         } else {
             endpointState = EndpointState::Open;
             // Use the same socket for sending and receiving
@@ -69,7 +69,7 @@ void RequestEndpoint::openEndpoint() {
             setReceiveTimeout(500);
         }
     } else {
-        throw SocketOpenError("Can't open endpoint", socketType,
-                              endpointIdentifier);
+        throw EndpointOpenError("Can't open endpoint", connectionParadigm,
+                                endpointIdentifier);
     }
 }

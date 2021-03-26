@@ -12,7 +12,7 @@ public:
     RequestEndpoint(std::shared_ptr<EndpointSchema> receiveSchema, std::shared_ptr<EndpointSchema> sendSchema,
                     const std::string &endpointType, const std::string &endpointIdentifier = "Request",
                     endpointStartupFunction startupFunction = nullptr, void* extraData = nullptr) :
-                    Endpoint(endpointIdentifier, SocketType::Request, endpointType, startupFunction,extraData),
+                    Endpoint(endpointIdentifier, ConnectionParadigm::Request, endpointType, startupFunction, extraData),
             DataReceiverEndpoint(receiveSchema),
             DataSenderEndpoint(sendSchema) {
         senderSocket = new nng_socket;
@@ -20,12 +20,12 @@ public:
     }
 
     // SHOULD NOT LISTEN FOR CONNECTION
-    void listenForConnection(const char *base, int port) override;
+    void listenForConnection(const std::string &base, int port) override;
 
-    int listenForConnectionWithRV(const char *base, int port) override;
+    int listenForConnectionWithRV(const std::string &base, int port) override;
 
 
-    void dialConnection(const char *url) override;
+    void dialConnection(const std::string &url) override;
 
     void closeEndpoint() override;
 

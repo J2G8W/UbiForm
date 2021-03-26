@@ -8,10 +8,7 @@
 
 class Component;
 
-/**
- * A class which represents how we contact ResourceDiscoveryHubs. It provides the methods which you'd expect would be useful.
- * It currently makes a new NNG socket every time we want a request, may shift this to use UbiForm wrapper
- */
+
 class ResourceDiscoveryConnEndpoint {
 private:
     // Map from url to our id on that rdh
@@ -21,9 +18,9 @@ private:
 
     SystemSchemas &systemSchemas;
 
-    static void handleAsyncReceive(SocketMessage* sm, void* data);
+    static void handleAsyncReceive(EndpointMessage* sm, void* data);
 
-    std::unique_ptr<SocketMessage> sendRequest(const std::string &url, SocketMessage &request, bool waitForResponse);
+    std::unique_ptr<EndpointMessage> sendRequest(const std::string &url, EndpointMessage &request, bool waitForResponse);
 
     // We purposely delete copy and assignment operators such that there isn't stray references to this
     ResourceDiscoveryConnEndpoint(ResourceDiscoveryConnEndpoint &) = delete;
@@ -38,8 +35,8 @@ public:
      * @name RequestGenerators
      * @return The generated request
      */
-    std::unique_ptr<SocketMessage> generateRegisterRequest();
-    std::unique_ptr<SocketMessage> generateFindBySchemaRequest(const std::string &endpointType,
+    std::unique_ptr<EndpointMessage> generateRegisterRequest();
+    std::unique_ptr<EndpointMessage> generateFindBySchemaRequest(const std::string &endpointType,
                                                                std::map<std::string, std::string> &otherValues);
     ///@}
     /**
@@ -73,7 +70,7 @@ public:
      * @param endpointType - Reference to the endpointType in our componentManifest
      * @return Vector of SocketMessages (which handle memory themselves) which follow Schema "SystemsSchemas/resource_discovery_by_schema_response"
      */
-    std::vector<std::unique_ptr<SocketMessage>>
+    std::vector<std::unique_ptr<EndpointMessage>>
     getComponentsBySchema(const std::string &endpointType, std::map<std::string, std::string> &otherValues);
 
     std::map<std::string, std::unique_ptr<ComponentRepresentation>>
@@ -113,6 +110,12 @@ public:
      * Update our manifest with each RDH we are registered with
      */
     void updateManifestWithHubs();
+
+    /**
+     * Deregister a third party component from the given rdhUrl. This should be used largely for when we are unable to
+     * contact a component and so deem that the component should be removed from the RDH
+     */
+    void deRegisterThirdPartyFromHub(const std::string &rdhUrl, const std::string componentId);
 
     /**
      * Deregister from the hub given. This means we no longer contact the hub

@@ -19,14 +19,14 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
 
     // Test Request change endpoint
     senderComponent.getBackgroundRequester().requestChangeEndpoint(receiverCompAddress,
-                                                                   SocketType::Subscriber,
+                                                                   ConnectionParadigm::Subscriber,
                                                                    "generatedSubscriber",
                                                                    newEs.get(),
                                                                    nullptr);
     ASSERT_NO_THROW(receiverComponent.getComponentManifest().getReceiverSchema("generatedSubscriber"));
 
     // Test local change endpoint
-    senderComponent.getComponentManifest().addEndpoint(SocketType::Publisher, "generatedPublisher",
+    senderComponent.getComponentManifest().addEndpoint(ConnectionParadigm::Publisher, "generatedPublisher",
                                                        nullptr, newEs);
     ASSERT_NO_THROW(senderComponent.getComponentManifest().getSenderSchema("generatedPublisher"));
 
@@ -38,7 +38,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
                                                                                  "ipc:///tmp/comp2",
                                                                                  senderComponent.getBackgroundPort());
 
-    SocketMessage original;
+    EndpointMessage original;
     original.addMember("msg", "HELLO WORLD");
 
     nng_msleep(300);
@@ -58,13 +58,13 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest1) {
 
     // Test RequestCloseSocketOfType
 
-    senderComponent.getBackgroundRequester().requestCloseSocketOfType(receiverCompAddress, "generatedSubscriber");
+    senderComponent.getBackgroundRequester().requestCloseEndpointsOfType(receiverCompAddress, "generatedSubscriber");
     ASSERT_EQ(receiverEndpoints->size(), 0);
-    ASSERT_THROW(subEndpoint->receiveMessage(), SocketOpenError);
+    ASSERT_THROW(subEndpoint->receiveMessage(), EndpointOpenError);
 
-    // Test local close socket
+    // Test local close endpoint
     std::string senderEndpointID = senderEndpoints->at(0)->getEndpointId();
-    senderComponent.closeAndInvalidateSocketById(senderEndpointID);
+    senderComponent.closeAndInvalidateEndpointsById(senderEndpointID);
     ASSERT_EQ(senderEndpoints->size(), 0);
     ASSERT_THROW(senderComponent.getSenderEndpointById(senderEndpointID), std::out_of_range);
 }
@@ -115,7 +115,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
     auto newEndpointSchema = std::make_shared<EndpointSchema>();
     newEndpointSchema->addProperty("value", ValueType::Number);
     newEndpointSchema->addRequired("value");
-    receiverComponent.getComponentManifest().addEndpoint(SocketType::Subscriber, "genSubscriber",
+    receiverComponent.getComponentManifest().addEndpoint(ConnectionParadigm::Subscriber, "genSubscriber",
                                                          newEndpointSchema, nullptr);
     receiverComponent.getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
 
@@ -127,7 +127,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
 
     // Test that changing endpoint does remote updateManifestWithHubs
     receiverComponent.getBackgroundRequester().requestChangeEndpoint(senderFullAddress,
-                                                                     SocketType::Publisher,
+                                                                     ConnectionParadigm::Publisher,
                                                                      "genPublisher",
                                                                      nullptr, newEndpointSchema.get());
     // Takes time for the background senderComponent to register with RDH
@@ -157,7 +157,7 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest2) {
     ASSERT_EQ(publisherEndpoints->size(), 1);
 
     // Test simple message send
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("value", 42);
     senderComponent.castToDataSenderEndpoint(publisherEndpoints->at(0))->asyncSendMessage(sm);
 
@@ -327,8 +327,8 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest6) {
     std::shared_ptr<EndpointSchema> schema = std::make_shared<EndpointSchema>();
     schema->addProperty("TEST", ValueType::Number);
 
-    component1.getComponentManifest().addEndpoint(SocketType::Subscriber, "SUB", schema, nullptr);
-    component2.getComponentManifest().addEndpoint(SocketType::Publisher, "PUB", nullptr, schema);
+    component1.getComponentManifest().addEndpoint(ConnectionParadigm::Subscriber, "SUB", schema, nullptr);
+    component2.getComponentManifest().addEndpoint(ConnectionParadigm::Publisher, "PUB", nullptr, schema);
 
     component1.startBackgroundListen();
     component2.startBackgroundListen();
@@ -343,21 +343,21 @@ TEST(ReconfigurationIntegrationTest, IntegrationTest6) {
     ASSERT_EQ(component2.getEndpointsByType("PUB")->size(), 1);
     ASSERT_EQ(component1.getEndpointsByType("SUB")->size(), 1);
 
-    // Test requestCloseSocketOfId
+    // Test requestCloseEndpointOfId
     auto endpointInfo = component2.getBackgroundRequester().requestEndpointInfo(component1Address);
     ASSERT_GT(endpointInfo.size(), 0);
 
-    component2.getBackgroundRequester().requestCloseSocketOfId(component1Address, endpointInfo.at(0)->getString("id"));
+    component2.getBackgroundRequester().requestCloseEndpointOfId(component1Address, endpointInfo.at(0)->getString("id"));
     ASSERT_EQ(component1.getEndpointsByType("SUB")->size(), 0);
 
-    // Test changing Manifest with hanging pointer to socket
+    // Test changing Manifest with hanging pointer to endpoint
     auto pubEndpoint = component2.castToDataSenderEndpoint(component2.getEndpointsByType("PUB")->at(0));
     component2.specifyManifest(R"({"name":"TEST1","schemas":{}})");
-    ASSERT_THROW(pubEndpoint->listenForConnection("ipc:///tmp/component2", 2000), SocketOpenError);
-    SocketMessage sm;
-    ASSERT_THROW(pubEndpoint->sendMessage(sm), SocketOpenError);
-    ASSERT_THROW(pubEndpoint->asyncSendMessage(sm), SocketOpenError);
-    ASSERT_THROW(pubEndpoint->openEndpoint(), SocketOpenError);
+    ASSERT_THROW(pubEndpoint->listenForConnection("ipc:///tmp/component2", 2000), EndpointOpenError);
+    EndpointMessage sm;
+    ASSERT_THROW(pubEndpoint->sendMessage(sm), EndpointOpenError);
+    ASSERT_THROW(pubEndpoint->asyncSendMessage(sm), EndpointOpenError);
+    ASSERT_THROW(pubEndpoint->openEndpoint(), EndpointOpenError);
 
     auto manifest = component2.getBackgroundRequester().requestComponentManifest(component1Address);
     ASSERT_TRUE(manifest->hasEndpoint("SUB"));

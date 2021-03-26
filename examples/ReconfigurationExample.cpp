@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
                             for (const auto &url:compRep->getAllUrls()) {
                                 std::string dialUrl = url + ":" + std::to_string(compRep->getPort());
                                 component->getBackgroundRequester().requestChangeEndpoint(dialUrl,
-                                                                                          SocketType::Subscriber,
+                                                                                          ConnectionParadigm::Subscriber,
                                                                                           "subscriberExample",
                                                                                           publisherRep->getSenderSchema(
                                                                                                   "publisherExample").get(),
@@ -77,17 +77,18 @@ int main(int argc, char **argv) {
                     if (counter++ == 3) {
                         for (const auto &url:subscriberRep->getAllUrls()) {
                             std::string dialUrl = url + ":" + std::to_string(subscriberRep->getPort());
-                            component->getBackgroundRequester().requestCloseSocketOfType(dialUrl, "subscriberExample");
+                            component->getBackgroundRequester().requestCloseEndpointsOfType(dialUrl,
+                                                                                            "subscriberExample");
                             break;
                         }
-                        std::cout << "Subscriber socket closed" << std::endl;
+                        std::cout << "Subscriber endpoint closed" << std::endl;
 
                         for (const auto &url:publisherRep->getAllUrls()) {
                             std::string dialUrl = url + ":" + std::to_string(publisherRep->getPort());
-                            component->getBackgroundRequester().requestCloseSocketOfType(dialUrl, "publisherExample");
+                            component->getBackgroundRequester().requestCloseEndpointsOfType(dialUrl, "publisherExample");
                             break;
                         }
-                        std::cout << "Publisher socket closed" << std::endl;
+                        std::cout << "Publisher endpoint closed" << std::endl;
                     }
                 }
                 nng_msleep(1000);
@@ -122,7 +123,7 @@ int main(int argc, char **argv) {
                 }
 
 
-                SocketMessage s;
+                EndpointMessage s;
                 int counter = 1;
                 auto publisherEndpoints = component->getEndpointsByType("publisherExample");
                 while (true) {
@@ -149,7 +150,7 @@ int main(int argc, char **argv) {
 
                 component->getResourceDiscoveryConnectionEndpoint().registerWithHub(locationOfRDH);
 
-                std::unique_ptr<SocketMessage> s;
+                std::unique_ptr<EndpointMessage> s;
                 auto subscriberEndpoints = component->getEndpointsByType("subscriberExample");
 
                 std::map<std::string, int> counters;

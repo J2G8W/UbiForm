@@ -2,7 +2,7 @@
   "name": "Publisher",
   "schemas": {
     "publisherExample": {
-      "socketType": "publisher",
+      "connectionParadigm": "publisher",
       "send": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",

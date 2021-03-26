@@ -6,7 +6,7 @@
 #include <utility>
 #include <nng/nng.h>
 #include <thread>
-#include "../SocketMessage.h"
+#include "../EndpointMessage.h"
 #include "../SchemaRepresentation/EndpointSchema.h"
 #include "Endpoint.h"
 
@@ -28,13 +28,13 @@ private:
      * the void*.
      */
     struct AsyncData {
-        void (*callback)(SocketMessage *, void *);
+        receiveMessageCallBack callback;
 
         std::shared_ptr<EndpointSchema> endpointSchema;
         DataReceiverEndpoint *owningEndpoint;
         void *furtherUserData;
 
-        AsyncData(void (*cb)(SocketMessage *, void *), std::shared_ptr<EndpointSchema> endpointSchema,
+        AsyncData(receiveMessageCallBack cb, std::shared_ptr<EndpointSchema> endpointSchema,
                   void *furtherUserData, DataReceiverEndpoint *dataReceiverEndpoint) :
                 callback(cb), endpointSchema(endpointSchema) {
 
@@ -55,7 +55,7 @@ protected:
 
     std::string dialUrl = "";
 
-    std::unique_ptr<SocketMessage> rawReceiveMessage();
+    std::unique_ptr<EndpointMessage> rawReceiveMessage();
 
 public:
     explicit DataReceiverEndpoint(std::shared_ptr<EndpointSchema> &es) {
@@ -67,28 +67,28 @@ public:
     * @param url
      * @throws NngError when we are unable to dial the url properly
     */
-    virtual void dialConnection(const char *url);
+    virtual void dialConnection(const std::string &url);
 
     /**
      * Blocking receive of a message
      * @return The message that was sent
      * @throws NngError when the underlying connection, fails or timeouts or some other error
      * @throws ValidationError when the message we receive does not conform to our schema
-     * @throws SocketOpenError when our socket has been closed
+     * @throws SocketOpenError when our endpoint has been closed
      */
-    std::unique_ptr<SocketMessage> receiveMessage();
+    std::unique_ptr<EndpointMessage> receiveMessage();
 
 
     /**
-     * We receive a message asynchronously, accepting a function which does work a SocketMessage. The function handles
-     * the memory management of the SocketMessage. Additionally we are able to pass in arbitrary data as additionalData
+     * We receive a message asynchronously, accepting a function which does work a EndpointMessage. The function handles
+     * the memory management of the EndpointMessage. Additionally we are able to pass in arbitrary data as additionalData
      * which is then accessible as the second attribute in the called function
-     * @param callb - The function which is called when a SocketMessage is received - DON'T BE A BLOCKING FUNCTION or we
+     * @param callback - The function which is called when a EndpointMessage is received - DON'T BE A BLOCKING FUNCTION or we
      * can get deadlock scenarios
-     * @param additionalData - Extra data which you want to be available in the call back
-     * @throws SocketOpenError - When the socket is not open
+     * @param furtherUserData - Extra data which you want to be available in the call back
+     * @throws SocketOpenError - When the endpoint is not open
      */
-    void asyncReceiveMessage(void (*callb)(SocketMessage *, void *), void *additionalData);
+    void asyncReceiveMessage(receiveMessageCallBack callback, void *furtherUserData);
 
     /**
      * Get the URL we are currently dialled onto
@@ -99,13 +99,13 @@ public:
 
 
     /**
-     * This function closes our socket. If extended it should call the parent then handle states of other things.
-     * Note that a closed socket must be re-opened before being use for dialing etc
+     * This function closes our endpoint. If extended it should call the parent then handle states of other things.
+     * Note that a closed endpoint must be re-opened before being use for dialing etc
      */
     virtual void closeEndpoint() ;
 
     /**
-     * Open a socket ready for it dial someone
+     * Open a endpoint ready for it dial someone
      */
     virtual void openEndpoint() = 0;
 
