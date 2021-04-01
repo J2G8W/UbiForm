@@ -105,7 +105,7 @@ struct BrokerEndpointAdditionData{
 void brokerEndpointAddition(std::string endpointType, void* data){
     auto* userData = static_cast<BrokerEndpointAdditionData*>(data);
     if(userData->component->getComponentManifest().hasEndpoint(endpointType) &&
-        userData->component->getComponentManifest().getConnectionParadigm(endpointType) == convertFromSocketType(ConnectionParadigm::Reply)){
+        userData->component->getComponentManifest().getConnectionParadigm(endpointType) == convertFromConnectionParadigm(ConnectionParadigm::Reply)){
         auto inputSchema = userData->component->getComponentManifest().getReceiverSchema(endpointType);
         userData->component->getComponentManifest().addEndpoint(ConnectionParadigm::Publisher,endpointType + "_publisher",
                                                                 nullptr,inputSchema);
