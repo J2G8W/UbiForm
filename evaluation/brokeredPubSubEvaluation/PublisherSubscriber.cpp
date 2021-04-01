@@ -15,6 +15,7 @@ struct subscriberStartupData{
     std::chrono::duration<int64_t, std::nano> startTime;
     std::chrono::duration<int64_t, std::nano> endTime;
     std::chrono::duration<int64_t, std::nano> duration;
+    std::vector<std::chrono::duration<int64_t, std::nano>> messageReceives;
     int messagesLost = 0;
     int messagesReceived;
 };
@@ -26,6 +27,7 @@ void subscriberStartup(Endpoint* e, void*d){
     auto msg = subscriber->receiveMessage();
     int localCounter = msg->getInteger("counter") + 1;
     int initial = localCounter;
+    userData->messageReceives.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
     userData->startTime = std::chrono::high_resolution_clock::now().time_since_epoch();
     for ( ; localCounter <MESSAGE_NUM; localCounter++){
         try {
@@ -33,6 +35,9 @@ void subscriberStartup(Endpoint* e, void*d){
             if (msg->getInteger("counter") != localCounter) {
                 userData->messagesLost ++;
                 localCounter = msg->getInteger("counter");
+                userData->messageReceives.push_back(std::chrono::duration<int64_t, std::nano>::zero());
+            }else{
+                userData->messageReceives.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
             }
         }catch (std::logic_error &e){
             break;
@@ -54,6 +59,7 @@ int main(int argc, char **argv) {
 
         auto *userData = new subscriberStartupData;
         userData->component = &component;
+        userData->messageReceives.reserve(MESSAGE_NUM);
         component.registerStartupFunction("speedSub", subscriberStartup, userData);
 
         std::string brokerAddress = argv[2];
@@ -67,9 +73,13 @@ int main(int argc, char **argv) {
         userData->duration = userData->endTime - userData->startTime;
 
         std::ofstream results;
-        results.open("results.txt", std::fstream::out | std::fstream::app);
+        results.open("broker_subscriber_results.txt", std::fstream::out | std::fstream::app);
         results << userData->duration.count() << "," << userData->messagesReceived << "," << userData->messagesLost
                 << "\n";
+        for(auto i : userData->messageReceives){
+            results << i.count() << ",";
+        }
+        results << std::endl;
         results.close();
     } else if (strcmp(argv[1], PUBLISHER_COMPONENT) == 0) {
         Component component;
@@ -85,6 +95,12 @@ int main(int argc, char **argv) {
                                                      receiveSchema, sendSchema);
 
         component.startBackgroundListen();
+
+        std::vector<std::chrono::duration<int64_t, std::nano>> messageSendTimes;
+        std::vector<std::chrono::duration<int64_t, std::nano>> messageReplyTimes;
+        messageSendTimes.reserve(MESSAGE_NUM);
+        messageReplyTimes.reserve(MESSAGE_NUM);
+
 
         std::string brokerAddress = argv[2];
         component.getBackgroundRequester().requestChangeEndpoint(brokerAddress+":8000", ConnectionParadigm::Reply,
@@ -109,10 +125,14 @@ int main(int argc, char **argv) {
         for (; i < MESSAGE_NUM; i++) {
             sm.addMember("counter", i);
             try {
+                messageSendTimes.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
                 sendEndpoint->sendMessage(sm);
                 auto msg = recvEndpoint->receiveMessage();
                 if (!msg->getBoolean("success")) {
                     std::cout << i << " " << msg->stringify() << std::endl;
+                    messageReplyTimes.push_back(std::chrono::duration<int64_t, std::nano>::zero());
+                }else{
+                    messageReplyTimes.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
                 }
             } catch (ValidationError &e) {
                 std::cerr << sm.stringify() << std::endl;
@@ -123,6 +143,17 @@ int main(int argc, char **argv) {
             }
         }
 
+        std::ofstream results;
+        results.open("broker_publisher_results.txt", std::fstream::out | std::fstream::app);
+        for(auto i : messageSendTimes){
+            results << i.count() << ",";
+        }
+        results << std::endl;
+        for(auto i : messageReplyTimes){
+            results << i.count() << ",";
+        }
+        results << std::endl;
+        results.close();
         std::cout << "Successfully sent " << i << " messages" << std::endl;
     }
 
