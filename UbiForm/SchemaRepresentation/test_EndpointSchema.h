@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "../../include/UbiForm/SchemaRepresentation/EndpointSchema.h"
-#include "../../include/UbiForm/SocketMessage.h"
+#include "../../include/UbiForm/EndpointMessage.h"
 
 
 class EndpointSchemaSimpleChecks : public ::testing::Test {
@@ -19,22 +19,22 @@ protected:
 
 TEST_F(EndpointSchemaSimpleChecks, ErrorValidationOfMessage) {
 
-    SocketMessage socketMessage;
+    EndpointMessage endpointMessage;
     // Wrong type
-    socketMessage.addMember("temperature", std::string("NOPE"));
+    endpointMessage.addMember("temperature", std::string("NOPE"));
     // Correct type
-    socketMessage.addMember("value", std::string("WORLD"));
+    endpointMessage.addMember("value", std::string("WORLD"));
 
-    ASSERT_THROW(endpointSchema.validate(socketMessage), ValidationError);
+    ASSERT_THROW(endpointSchema.validate(endpointMessage), ValidationError);
 }
 
 TEST_F(EndpointSchemaSimpleChecks, CorrectValidationOfMessage) {
-    SocketMessage socketMessage;
+    EndpointMessage endpointMessage;
     // Both are correct types
-    socketMessage.addMember("temperature", 42);
-    socketMessage.addMember("value", std::string("WORLD"));
+    endpointMessage.addMember("temperature", 42);
+    endpointMessage.addMember("value", std::string("WORLD"));
 
-    ASSERT_NO_THROW(endpointSchema.validate(socketMessage));
+    ASSERT_NO_THROW(endpointSchema.validate(endpointMessage));
 }
 
 TEST_F(EndpointSchemaSimpleChecks, GetSchema) {
@@ -81,7 +81,7 @@ TEST_F(EndpointSchemaSimpleChecks, AddAttribute) {
     endpointSchema.addProperty("msg", ValueType::Number);
     ASSERT_EQ(endpointSchema.getValueType("msg"), ValueType::Number);
 
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("msg", 20);
     sm.addMember("value", "HELLO");
     sm.addMember("temperature", 1000);
@@ -95,7 +95,7 @@ TEST_F(EndpointSchemaSimpleChecks, AddAttribute) {
 
 TEST_F(EndpointSchemaSimpleChecks, RemoveRequired) {
     endpointSchema.removeRequired("value");
-    SocketMessage sm;
+    EndpointMessage sm;
     ASSERT_NO_THROW(endpointSchema.validate(sm));
 
     endpointSchema.addRequired("temperature");
@@ -109,7 +109,7 @@ TEST_F(EndpointSchemaSimpleChecks, ArrayAddition) {
     endpointSchema.setArrayType("msgs", ValueType::String);
     endpointSchema.setArrayType("msgs", ValueType::Number);
 
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("value", "HELLO");
     std::vector<int> msgs{1, 2, 3, 4};
     sm.addMember("msgs", msgs);
@@ -126,10 +126,10 @@ TEST_F(EndpointSchemaSimpleChecks, SubObjects) {
     subEndpoint.addRequired("TEST");
     endpointSchema.setSubObject("sub", subEndpoint);
 
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("value", "HELLO");
     ASSERT_NO_THROW(endpointSchema.validate(sm));
-    SocketMessage subSM;
+    EndpointMessage subSM;
     sm.addMember("sub", subSM);
     ASSERT_THROW(endpointSchema.validate(sm), ValidationError);
 }
@@ -140,19 +140,19 @@ TEST_F(EndpointSchemaSimpleChecks, SubArrayObjects) {
     subEndpoint.addRequired("TEST");
     endpointSchema.setArrayObject("sub", subEndpoint);
 
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("value", "HELLO");
 
-    SocketMessage *subSm = new SocketMessage;
+    EndpointMessage *subSm = new EndpointMessage;
     subSm->addMember("TEST", 10);
 
-    std::vector<SocketMessage *> arrayS = {subSm, subSm};
+    std::vector<EndpointMessage *> arrayS = {subSm, subSm};
     sm.addMember("sub", arrayS);
     delete subSm;
 
     ASSERT_NO_THROW(endpointSchema.validate(sm));
 
-    SocketMessage *wrongSub = new SocketMessage;
+    EndpointMessage *wrongSub = new EndpointMessage;
     wrongSub->addMember("TEST", "NOT ALLOWED");
     arrayS = {wrongSub, wrongSub};
     sm.addMember("sub", arrayS);

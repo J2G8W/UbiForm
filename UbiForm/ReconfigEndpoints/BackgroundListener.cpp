@@ -5,7 +5,7 @@
 #include "../../include/UbiForm/ResourceDiscovery/ResourceDiscoveryConnEndpoint.h"
 
 void BackgroundListener::startBackgroundListen(const std::string &baseAddress, int port) {
-    replyEndpoint.listenForConnection(baseAddress.c_str(), port);
+    replyEndpoint.listenForConnection(baseAddress, port);
     if(VIEW_STD_OUTPUT) std::cout << "Started background listener on " << baseAddress << ":" << port << std::endl;
     backgroundPort = port;
     this->backgroundThread = std::thread(backgroundListen, this);
@@ -13,8 +13,8 @@ void BackgroundListener::startBackgroundListen(const std::string &baseAddress, i
 
 void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener) {
     while (true) {
-        std::unique_ptr<SocketMessage> request;
-        std::unique_ptr<SocketMessage> reply;
+        std::unique_ptr<EndpointMessage> request;
+        std::unique_ptr<EndpointMessage> reply;
         bool validRequest = true;
         try {
             request = backgroundListener->replyEndpoint.receiveMessage();
@@ -26,13 +26,13 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                 std::cerr << "Background Listener - " << e.what() << std::endl;
                 break;
             }
-        } catch (SocketOpenError &e) {
-            // If the socket is no longer open then we just end our background process
+        } catch (EndpointOpenError &e) {
+            // If the endpoint is no longer open then we just end our background process
             break;
         } catch (std::logic_error &e) {
             // For validation errors or something similar, we return the error messahe
             validRequest = false;
-            reply = std::make_unique<SocketMessage>();
+            reply = std::make_unique<EndpointMessage>();
             reply->addMember("error", true);
             reply->addMember("errorMsg", e.what());
         }
@@ -61,8 +61,8 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                     reply = backgroundListener->handleChangeManifestRequest(*request);
                 } else if (requestType == BACKGROUND_GET_LOCATIONS_OF_RDH) {
                     reply = backgroundListener->handleRDHLocationsRequest(*request);
-                } else if (requestType == BACKGROUND_CLOSE_SOCKETS) {
-                    reply = backgroundListener->handleCloseSocketsRequest(*request);
+                } else if (requestType == BACKGROUND_CLOSE_ENDPOINTS) {
+                    reply = backgroundListener->handleCloseEndpointsRequest(*request);
                 } else if (requestType == BACKGROUND_CLOSE_ENDPOINT_BY_ID) {
                     reply = backgroundListener->handleCloseEndpointByIdRequest(*request);
                 } else if (requestType == BACKGROUND_CLOSE_RDH) {
@@ -75,11 +75,11 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                     throw ValidationError("requestType had value: " + requestType);
                 }
             } catch (ValidationError &e) {
-                reply = std::make_unique<SocketMessage>();
+                reply = std::make_unique<EndpointMessage>();
                 reply->addMember("error", true);
                 reply->addMember("errorMsg", "Validation error - " + std::string(e.what()));
             } catch (std::logic_error &e) {
-                reply = std::make_unique<SocketMessage>();
+                reply = std::make_unique<EndpointMessage>();
                 reply->addMember("error", true);
                 reply->addMember("errorMsg", e.what());
             }
@@ -94,20 +94,21 @@ void BackgroundListener::backgroundListen(BackgroundListener *backgroundListener
                 std::cerr << "Background Listener - " << e.what() << std::endl;
                 break;
             }
-        } catch (SocketOpenError &e) {
+        } catch (EndpointOpenError &e) {
             break;
         }
     }
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleCreateAndListen(SocketMessage &request) {
+std::unique_ptr<EndpointMessage> BackgroundListener::handleCreateAndListen(EndpointMessage &request) {
     try {
         systemSchemas.getSystemSchema(SystemSchemaName::endpointCreationRequest).validate(request);
 
-        auto socketType = component->getComponentManifest().getSocketType(request.getString("endpointType"));
+        auto connectionParadigm = component->getComponentManifest().getConnectionParadigm(
+                request.getString("endpointType"));
         int port = component->createEndpointAndListen(request.getString("endpointType"));
 
-        auto reply = std::make_unique<SocketMessage>();
+        auto reply = std::make_unique<EndpointMessage>();
         reply->addMember("port", port);
         reply->addMember("error", false);
         return reply;
@@ -116,45 +117,45 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleCreateAndListen(SocketM
     }
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleAddRDH(SocketMessage &request) {
-    auto reply = std::make_unique<SocketMessage>();
+std::unique_ptr<EndpointMessage> BackgroundListener::handleAddRDH(EndpointMessage &request) {
+    auto reply = std::make_unique<EndpointMessage>();
     component->getResourceDiscoveryConnectionEndpoint().registerWithHub(request.getString("url"));
     reply->addMember("error", false);
     return reply;
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleRemoveRDH(SocketMessage &request){
-    auto reply = std::make_unique<SocketMessage>();
+std::unique_ptr<EndpointMessage> BackgroundListener::handleRemoveRDH(EndpointMessage &request){
+    auto reply = std::make_unique<EndpointMessage>();
     component->getResourceDiscoveryConnectionEndpoint().deRegisterFromHub(request.getString("url"));
     reply->addMember("error", false);
     return reply;
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handle3rdPartyRemoteListenThenDial(SocketMessage &request) {
+std::unique_ptr<EndpointMessage> BackgroundListener::handle3rdPartyRemoteListenThenDial(EndpointMessage &request) {
     component->getBackgroundRequester().requestRemoteListenThenDial(
             request.getString("remoteAddress"),
             request.getInteger("port"),
             request.getString("reqEndpointType"),
             request.getString("remoteEndpointType"));
-    auto reply = std::make_unique<SocketMessage>();
+    auto reply = std::make_unique<EndpointMessage>();
     reply->addMember("error", false);
     return reply;
 
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handle3rdPartyLocalListenThenRemoteDial(SocketMessage &request){
+std::unique_ptr<EndpointMessage> BackgroundListener::handle3rdPartyLocalListenThenRemoteDial(EndpointMessage &request){
     component->getBackgroundRequester().localListenThenRequestRemoteDial(request.getString("dialerAddress"),
                                                                          request.getString("listenEndpointType"),
                                                                          request.getString("dialEndpointType"));
-    auto reply = std::make_unique<SocketMessage>();
+    auto reply = std::make_unique<EndpointMessage>();
     reply->addMember("error", false);
     return reply;
 
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(SocketMessage &request) {
-    std::unique_ptr<SocketMessage> sendSchema;
-    std::unique_ptr<SocketMessage> receiveSchema;
+std::unique_ptr<EndpointMessage> BackgroundListener::handleChangeEndpointRequest(EndpointMessage &request) {
+    std::unique_ptr<EndpointMessage> sendSchema;
+    std::unique_ptr<EndpointMessage> receiveSchema;
 
     std::shared_ptr<EndpointSchema> esSendSchema;
     std::shared_ptr<EndpointSchema> esReceiveSchema;
@@ -174,13 +175,13 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(S
         esReceiveSchema = std::make_shared<EndpointSchema>(*receiveSchema);
     }
 
-    component->getComponentManifest().addEndpoint(static_cast<SocketType>(request.getInteger("socketType")),
+    component->getComponentManifest().addEndpoint(static_cast<ConnectionParadigm>(request.getInteger("connectionParadigm")),
                                                   request.getString("endpointType"), esReceiveSchema, esSendSchema);
 
     if(VIEW_STD_OUTPUT) std::cout << "Endpoint of type: " << request.getString("endpointType") << " changed" << std::endl;
     component->getResourceDiscoveryConnectionEndpoint().updateManifestWithHubs();
 
-    auto reply = std::make_unique<SocketMessage>();
+    auto reply = std::make_unique<EndpointMessage>();
     reply->addMember("error", false);
     reply->addMember("errorMsg", "All good");
 
@@ -188,8 +189,8 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleChangeEndpointRequest(S
 
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleCreateRDHRequest(SocketMessage &request) {
-    auto reply = std::make_unique<SocketMessage>();
+std::unique_ptr<EndpointMessage> BackgroundListener::handleCreateRDHRequest(EndpointMessage &request) {
+    auto reply = std::make_unique<EndpointMessage>();
 
     int port = component->startResourceDiscoveryHub();
     reply->addMember("port", port);
@@ -198,16 +199,16 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleCreateRDHRequest(Socket
     return reply;
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleChangeManifestRequest(SocketMessage &request) {
-    auto reply = std::make_unique<SocketMessage>();
+std::unique_ptr<EndpointMessage> BackgroundListener::handleChangeManifestRequest(EndpointMessage &request) {
+    auto reply = std::make_unique<EndpointMessage>();
     auto manifestObject = request.getMoveObject("newManifest");
     component->specifyManifest(manifestObject.get());
     reply->addMember("error", false);
     return reply;
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleRDHLocationsRequest(SocketMessage &request) {
-    auto reply = std::make_unique<SocketMessage>();
+std::unique_ptr<EndpointMessage> BackgroundListener::handleRDHLocationsRequest(EndpointMessage &request) {
+    auto reply = std::make_unique<EndpointMessage>();
     auto locations = component->getResourceDiscoveryConnectionEndpoint().getResourceDiscoveryHubs();
 
     bool selfRDH = false;
@@ -233,23 +234,24 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleRDHLocationsRequest(Soc
     return reply;
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleCloseSocketsRequest(SocketMessage &request) {
-    auto reply = std::make_unique<SocketMessage>();
-    component->closeAndInvalidateSocketsOfType(request.getString("endpointType"));
+std::unique_ptr<EndpointMessage> BackgroundListener::handleCloseEndpointsRequest(EndpointMessage &request) {
+    auto reply = std::make_unique<EndpointMessage>();
+    component->closeAndInvalidateEndpointsOfType(request.getString("endpointType"));
     reply->addMember("error", false);
     return reply;
 }
 
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleCloseRDH(SocketMessage &sm) {
+std::unique_ptr<EndpointMessage> BackgroundListener::handleCloseRDH(EndpointMessage &sm) {
     component->closeResourceDiscoveryHub();
-    auto reply = std::make_unique<SocketMessage>();
+    auto reply = std::make_unique<EndpointMessage>();
     reply->addMember("error", false);
     return reply;
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleCreateAndDial(SocketMessage &sm) {
-    std::string socketType = component->getComponentManifest().getSocketType(sm.getString("endpointType"));
+std::unique_ptr<EndpointMessage> BackgroundListener::handleCreateAndDial(EndpointMessage &sm) {
+    std::string connectionParadigm = component->getComponentManifest().getConnectionParadigm(
+            sm.getString("endpointType"));
     bool success = false;
     for (const auto &url: sm.getArray<std::string>("dialUrls")) {
         try {
@@ -264,22 +266,23 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleCreateAndDial(SocketMes
         throw std::logic_error("Could not dial any of the given urls");
     }
 
-    auto reply = std::make_unique<SocketMessage>();
+    auto reply = std::make_unique<EndpointMessage>();
     reply->addMember("error", false);
     return reply;
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleEndpointInfoRequest(SocketMessage &request) {
-    std::unique_ptr<SocketMessage> reply = std::make_unique<SocketMessage>();
+std::unique_ptr<EndpointMessage> BackgroundListener::handleEndpointInfoRequest(EndpointMessage &request) {
+    std::unique_ptr<EndpointMessage> reply = std::make_unique<EndpointMessage>();
     std::vector<std::string> endpointTypes = component->getComponentManifest().getAllEndpointTypes();
-    std::vector<std::unique_ptr<SocketMessage>> endpoints;
+    std::vector<std::unique_ptr<EndpointMessage>> endpoints;
     for (const auto &type:endpointTypes) {
         auto endpointObjects = component->getEndpointsByType(type);
         for (const auto &endpoint: *endpointObjects) {
-            std::unique_ptr<SocketMessage> mini = std::make_unique<SocketMessage>();
+            std::unique_ptr<EndpointMessage> mini = std::make_unique<EndpointMessage>();
             mini->addMember("id", endpoint->getEndpointId());
             mini->addMember("endpointType", type);
-            mini->addMember("socketType", component->getComponentManifest().getSocketType(type));
+            mini->addMember("connectionParadigm", component->getComponentManifest().getConnectionParadigm(type));
+            mini->addMember("endpointState",convertEndpointState(endpoint->getEndpointState()));
             try {
                 if (endpoint->getEndpointState() == EndpointState::Listening) {
                     mini->addMember("listenPort", component->castToDataSenderEndpoint(endpoint)->getListenPort());
@@ -300,9 +303,9 @@ std::unique_ptr<SocketMessage> BackgroundListener::handleEndpointInfoRequest(Soc
     return reply;
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleCloseEndpointByIdRequest(SocketMessage &re) {
-    component->closeAndInvalidateSocketById(re.getString("endpointId"));
-    auto reply = std::make_unique<SocketMessage>();
+std::unique_ptr<EndpointMessage> BackgroundListener::handleCloseEndpointByIdRequest(EndpointMessage &re) {
+    component->closeAndInvalidateEndpointsById(re.getString("endpointId"));
+    auto reply = std::make_unique<EndpointMessage>();
     reply->addMember("error", false);
     return reply;
 }
@@ -318,9 +321,9 @@ BackgroundListener::~BackgroundListener() {
     }
 }
 
-std::unique_ptr<SocketMessage> BackgroundListener::handleManifestRequest(SocketMessage &request) {
-    std::unique_ptr<SocketMessage> reply = std::make_unique<SocketMessage>();
-    reply->addMoveObject("manifest", component->getComponentManifest().getSocketMessageCopy());
+std::unique_ptr<EndpointMessage> BackgroundListener::handleManifestRequest(EndpointMessage &request) {
+    std::unique_ptr<EndpointMessage> reply = std::make_unique<EndpointMessage>();
+    reply->addMoveObject("manifest", component->getComponentManifest().getEndpointMessageCopy());
     reply->addMember("error",false);
     return reply;
 }

@@ -58,7 +58,7 @@ TEST_F(EndpointCreation, ReListen) {
     ASSERT_EQ(endpoints->size(),1);
     endpoints->at(0)->closeEndpoint();
     component.castToPair(endpoints->at(0))->openEndpoint();
-    component.castToPair(endpoints->at(0))->listenForConnection(component.getSelfAddress().c_str(),10000);
+    component.castToPair(endpoints->at(0))->listenForConnection(component.getSelfAddress(),10000);
     nng_msleep(100);
     ASSERT_EQ(e->reached, 2);
     delete e;

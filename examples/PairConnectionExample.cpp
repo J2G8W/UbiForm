@@ -12,7 +12,7 @@ struct SimpleData{
     Component * component;
     Endpoint* endpoint;
 };
-void simpleCallback(SocketMessage *sm, void *data) {
+void simpleCallback(EndpointMessage *sm, void *data) {
     auto extraData = static_cast<SimpleData *>(data);
     std::cout << sm->getInteger("temp") << std::endl;
     auto endpoint = extraData->component->castToDataReceiverEndpoint(extraData->endpoint);
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
             while (true) {
                 nng_msleep(1000);
                 try {
-                    SocketMessage sm;
+                    EndpointMessage sm;
                     sm.addMember("temp", i++);
                     sm.addMember("msg", std::string("HELLO WORLD!"));
                     for (const auto &e : *endpointVector) {

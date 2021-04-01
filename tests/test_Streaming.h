@@ -1,7 +1,7 @@
 #include "../UbiForm/Utilities/base64.h"
 
 void sendStream(PairEndpoint* sendEndpoint, std::fstream* inputFile){
-    SocketMessage emptyMsg;
+    EndpointMessage emptyMsg;
     sendEndpoint->sendStream(*inputFile, 5001, false, emptyMsg, nullptr, nullptr);
 }
 
@@ -11,8 +11,8 @@ TEST(StreamingTests, SendMessage){
     Component recvComponent("tcp://127.0.0.2");
     std::shared_ptr<EndpointSchema> empty = std::make_shared<EndpointSchema>();
 
-    sendComponent.getComponentManifest().addEndpoint(SocketType::Pair, "streamSender", empty, empty);
-    recvComponent.getComponentManifest().addEndpoint(SocketType::Pair, "streamRecv", empty, empty);
+    sendComponent.getComponentManifest().addEndpoint(ConnectionParadigm::Pair, "streamSender", empty, empty);
+    recvComponent.getComponentManifest().addEndpoint(ConnectionParadigm::Pair, "streamRecv", empty, empty);
 
     sendComponent.startBackgroundListen();
     recvComponent.startBackgroundListen();
@@ -52,6 +52,6 @@ TEST(StreamingTests, SendMessage){
         nng_msleep(100);
     }
 
-    ASSERT_EQ(fileSize,(int) out.tellp() - 1);
+    ASSERT_EQ(fileSize,(int) out.tellp());
     sendThread.join();
 }

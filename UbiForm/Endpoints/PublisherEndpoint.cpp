@@ -6,13 +6,13 @@ void PublisherEndpoint::openEndpoint() {
     if (endpointState == EndpointState::Closed) {
         int rv;
         if ((rv = nng_pub0_open(senderSocket)) != 0) {
-            throw NngError(rv, "Creation of publisher socket");
+            throw NngError(rv, "Opening of publisher endpoint");
         } else {
             endpointState = EndpointState::Open;
         }
     } else {
-        throw SocketOpenError("Can't open endpoint", socketType,
-                              endpointIdentifier);
+        throw EndpointOpenError("Can't open endpoint", connectionParadigm,
+                                endpointIdentifier);
     }
 }
 
@@ -24,9 +24,9 @@ PublisherEndpoint::~PublisherEndpoint() {
             endpointState == EndpointState::Invalid)) {
             nng_msleep(300);
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
-                std::cerr << "This socket had already been closed" << std::endl;
+                std::cerr << "This endpoint had already been closed" << std::endl;
             } else {
-                if(VIEW_STD_OUTPUT) std::cout << "Publisher socket " << endpointIdentifier << " closed" << std::endl;
+                if(VIEW_STD_OUTPUT) std::cout << "Publisher endpoint " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }

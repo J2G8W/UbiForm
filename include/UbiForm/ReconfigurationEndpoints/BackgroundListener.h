@@ -22,35 +22,35 @@ private:
     ReplyEndpoint replyEndpoint;
 
     ///@{
-    std::unique_ptr<SocketMessage> handleCreateAndListen(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleCreateAndListen(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleAddRDH(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleAddRDH(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleRemoveRDH(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleRemoveRDH(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handle3rdPartyRemoteListenThenDial(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handle3rdPartyRemoteListenThenDial(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handle3rdPartyLocalListenThenRemoteDial(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handle3rdPartyLocalListenThenRemoteDial(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleChangeEndpointRequest(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleChangeEndpointRequest(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleCreateRDHRequest(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleCreateRDHRequest(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleChangeManifestRequest(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleChangeManifestRequest(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleRDHLocationsRequest(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleRDHLocationsRequest(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleCloseSocketsRequest(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleCloseEndpointsRequest(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleCloseEndpointByIdRequest(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleCloseEndpointByIdRequest(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleCloseRDH(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleCloseRDH(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleCreateAndDial(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleCreateAndDial(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleEndpointInfoRequest(SocketMessage &request);
+    std::unique_ptr<EndpointMessage> handleEndpointInfoRequest(EndpointMessage &request);
 
-    std::unique_ptr<SocketMessage> handleManifestRequest(SocketMessage& request);
+    std::unique_ptr<EndpointMessage> handleManifestRequest(EndpointMessage& request);
     ///@}
 
 public:
@@ -74,7 +74,7 @@ public:
     /**
      * This is the actual listener which runs in the background on our thread. To do most of its processing it passes
      * request to its handler. When it encounters NngErrors it simply ends itself as this is unrectifyable, but for all
-     * other errors it will return a SocketMessage detailing the error (without actually throwing any exceptions itself)
+     * other errors it will return a EndpointMessage detailing the error (without actually throwing any exceptions itself)
      * @param backgroundListener - the listener it uses
      */
     static void backgroundListen(BackgroundListener *backgroundListener);

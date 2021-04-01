@@ -13,7 +13,7 @@ public:
     explicit PublisherEndpoint(std::shared_ptr<EndpointSchema> sendSchema, const std::string &endpointType,
                                const std::string &endpointIdentifier = "Publisher",
                                endpointStartupFunction startupFunction = nullptr, void* extraData = nullptr) :
-                               Endpoint(endpointIdentifier, SocketType::Publisher, endpointType,
+                               Endpoint(endpointIdentifier, ConnectionParadigm::Publisher, endpointType,
                                         startupFunction, extraData)
                                , DataSenderEndpoint(sendSchema) {
         senderSocket = new nng_socket;

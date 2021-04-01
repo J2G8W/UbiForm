@@ -15,16 +15,16 @@
 #define REPLY "reply"
 #define REQUEST "request"
 
-/// Describes the different sockets we can have
-enum SocketType {
+/// Describes the different connection paradigms we can have
+enum ConnectionParadigm {
     Pair, Publisher, Subscriber, Reply, Request
 };
 
-std::string convertFromSocketType(SocketType st);
+std::string convertFromConnectionParadigm(ConnectionParadigm st);
 
-SocketType convertToSocketType(const std::string &st);
+ConnectionParadigm convertToConnectionParadigm(const std::string &st);
 
-/// Describes the different types in our endpoint schemas/socket messages
+/// Describes the different types in our endpoint schemas/endpoint messages
 enum ValueType {
     Number, String, Boolean, Object, Array, Null
 };
@@ -53,6 +53,8 @@ std::string convertEndpointState(EndpointState es);
 
 class Endpoint;
 class PairEndpoint;
+class EndpointMessage;
+class ComponentManifest;
 /// This represents the type of functions which can be called on Endpoint startup. We give a pointer to the endpoint which
 /// has been started and a pointer to some arbitrary data structure which the developer can specify
 typedef void (*endpointStartupFunction)(Endpoint*, void *);
@@ -60,6 +62,10 @@ typedef void (*endpointStartupFunction)(Endpoint*, void *);
 typedef void (*endOfStreamCallback)(PairEndpoint*, void*);
 
 typedef void (*endpointAdditionCallBack)(std::string, void*);
+
+typedef void (*receiveMessageCallBack)(EndpointMessage *, void *);
+
+typedef void (*manifestChangeCallBack)(ComponentManifest*, void*);
 
 
 // Strings used for Background Requester and Listener
@@ -82,7 +88,7 @@ typedef void (*endpointAdditionCallBack)(std::string, void*);
 #define BACKGROUND_CHANGE_MANIFEST "change_manifest"
 #define BACKGROUND_GET_COMPONENT_MANIFEST "get_manifest"
 
-#define BACKGROUND_CLOSE_SOCKETS "close_sockets"
+#define BACKGROUND_CLOSE_ENDPOINTS "close_endpoints"
 #define BACKGROUND_CLOSE_ENDPOINT_BY_ID "close_endpoint_id"
 
 
@@ -93,7 +99,7 @@ typedef void (*endpointAdditionCallBack)(std::string, void*);
 #define RESOURCE_DISCOVERY_ADD_COMPONENT "addition"
 #define RESOURCE_DISCOVERY_DEREGISTER_COMPONENT "deRegister"
 #define RESOURCE_DISCOVERY_UPDATE_MANIFEST "update"
-#define RESOURCE_DISCOVERY_NOTIFY_SOCKET_LISTEN "socketListen"
+#define RESOURCE_DISCOVERY_NOTIFY_ENDPOINT_PORT_LISTEN "endpointPortListen"
 
 #define RESOURCE_DISCOVERY_REQUEST_BY_ID "requestId"
 #define RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA "requestSchema"

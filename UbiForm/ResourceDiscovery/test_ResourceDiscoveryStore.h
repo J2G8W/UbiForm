@@ -17,24 +17,24 @@ protected:
         delete exampleManifest;
     }
 
-    std::unique_ptr<SocketMessage> addDummyComponent() {
-        SocketMessage sm;
+    std::unique_ptr<EndpointMessage> addDummyComponent() {
+        EndpointMessage sm;
         sm.addMember("request", RESOURCE_DISCOVERY_ADD_COMPONENT);
 
-        auto manifest = exampleManifest->getSocketMessageCopy();
+        auto manifest = exampleManifest->getEndpointMessageCopy();
         sm.addMoveObject("manifest", std::move(manifest));
 
-        std::unique_ptr<SocketMessage> returnMsg = resourceDiscoveryStore.generateRDResponse(&sm);
+        std::unique_ptr<EndpointMessage> returnMsg = resourceDiscoveryStore.generateRDResponse(&sm);
 
         return returnMsg;
     }
 
-    std::unique_ptr<SocketMessage> loadSocketMessage(const std::string &location) {
+    std::unique_ptr<EndpointMessage> loadSocketMessage(const std::string &location) {
         try {
             std::ifstream in(location);
             std::string contents((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-            auto socketMessage = std::make_unique<SocketMessage>(contents.c_str());
-            return socketMessage;
+            auto endpointMessage = std::make_unique<EndpointMessage>(contents.c_str());
+            return endpointMessage;
         } catch (const std::ifstream::failure &e) {
             std::cerr << "ERROR OPENING FILE: " << location << std::endl;
             throw;
@@ -49,27 +49,27 @@ protected:
 
 
 TEST_F(SimpleRDS, AdditionOfComponent) {
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("request", RESOURCE_DISCOVERY_ADD_COMPONENT);
 
-    std::unique_ptr<SocketMessage> manifest = exampleManifest->getSocketMessageCopy();
+    std::unique_ptr<EndpointMessage> manifest = exampleManifest->getEndpointMessageCopy();
     sm.addMoveObject("manifest", std::move(manifest));
 
 
 
     // In this assertion we know that we have got back a valid message
-    ASSERT_NO_THROW(std::unique_ptr<SocketMessage> returnMsg = resourceDiscoveryStore.generateRDResponse(&sm));
+    ASSERT_NO_THROW(std::unique_ptr<EndpointMessage> returnMsg = resourceDiscoveryStore.generateRDResponse(&sm));
 }
 
 
 TEST_F(SimpleRDS, GetManifestById) {
-    std::unique_ptr<SocketMessage> returnMsg = addDummyComponent();
+    std::unique_ptr<EndpointMessage> returnMsg = addDummyComponent();
 
     // Assert that we have a returned ID
     std::string returnID = returnMsg->getString("newID");
 
 
-    SocketMessage idRequest;
+    EndpointMessage idRequest;
     idRequest.addMember("request", RESOURCE_DISCOVERY_REQUEST_BY_ID);
     idRequest.addMember("id", returnID);
 
@@ -79,7 +79,7 @@ TEST_F(SimpleRDS, GetManifestById) {
     ASSERT_FALSE(returnMsg->isNull("component"));
 
 
-    std::unique_ptr<SocketMessage> componentObject;
+    std::unique_ptr<EndpointMessage> componentObject;
     ASSERT_NO_THROW(componentObject = returnMsg->getCopyObject("component"));
 
     ComponentRepresentation componentRepresentation(componentObject.get(), ss);
@@ -87,16 +87,16 @@ TEST_F(SimpleRDS, GetManifestById) {
 
 TEST_F(SimpleRDS, GetComponentIds) {
 
-    std::unique_ptr<SocketMessage> returnMsg = addDummyComponent();
+    std::unique_ptr<EndpointMessage> returnMsg = addDummyComponent();
     std::string id1 = returnMsg->getString("newID");
     returnMsg = addDummyComponent();
     std::string id2 = returnMsg->getString("newID");
 
 
-    SocketMessage request;
+    EndpointMessage request;
     request.addMember("request", RESOURCE_DISCOVERY_REQUEST_COMPONENTS);
 
-    std::unique_ptr<SocketMessage> reply = resourceDiscoveryStore.generateRDResponse(&request);
+    std::unique_ptr<EndpointMessage> reply = resourceDiscoveryStore.generateRDResponse(&request);
 
     std::vector<std::string> ids;
     ASSERT_NO_THROW(ids = reply->getArray<std::string>("components"));
@@ -110,37 +110,37 @@ TEST_F(SimpleRDS, GetComponentIds) {
 
 TEST_F(SimpleRDS, GetBySchemaValid) {
 
-    std::unique_ptr<SocketMessage> returnMsg = addDummyComponent();
+    std::unique_ptr<EndpointMessage> returnMsg = addDummyComponent();
     std::string id1 = returnMsg->getString("newID");
 
-    SocketMessage request;
+    EndpointMessage request;
     request.addMember("request", RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA);
-    std::unique_ptr<SocketMessage> schema = loadSocketMessage("TestManifests/Endpoint1.json");
+    std::unique_ptr<EndpointMessage> schema = loadSocketMessage("TestManifests/Endpoint1.json");
     request.addMoveObject("schema", std::move(schema));
     request.addMember("dataReceiverEndpoint", true);
-    request.addMoveObject("specialProperties", std::make_unique<SocketMessage>());
+    request.addMoveObject("specialProperties", std::make_unique<EndpointMessage>());
 
 
-    std::unique_ptr<SocketMessage> reply = resourceDiscoveryStore.generateRDResponse(&request);
-    std::vector<std::unique_ptr<SocketMessage>> endpointReturns = reply->getArray<std::unique_ptr<SocketMessage>>(
+    std::unique_ptr<EndpointMessage> reply = resourceDiscoveryStore.generateRDResponse(&request);
+    std::vector<std::unique_ptr<EndpointMessage>> endpointReturns = reply->getArray<std::unique_ptr<EndpointMessage>>(
             "endpoints");
     ASSERT_GE(endpointReturns.size(), 1);
 
     ASSERT_EQ(endpointReturns.at(0)->getString("componentId"), id1);
 
-    SocketMessage newRequest;
+    EndpointMessage newRequest;
     newRequest.addMember("request", RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA);
     schema = loadSocketMessage("TestManifests/Endpoint1.json");
     newRequest.addMoveObject("schema", std::move(schema));
     newRequest.addMember("dataReceiverEndpoint", true);
 
 
-    std::unique_ptr<SocketMessage> errorSpecialProperties = std::make_unique<SocketMessage>();
+    std::unique_ptr<EndpointMessage> errorSpecialProperties = std::make_unique<EndpointMessage>();
     errorSpecialProperties->addMember("name", "NOT FOUND");
     newRequest.addMoveObject("specialProperties", std::move(errorSpecialProperties));
 
     reply = resourceDiscoveryStore.generateRDResponse(&newRequest);
-    endpointReturns = reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
+    endpointReturns = reply->getArray<std::unique_ptr<EndpointMessage>>("endpoints");
     ASSERT_EQ(endpointReturns.size(), 0);
 }
 
@@ -148,31 +148,31 @@ TEST_F(SimpleRDS, GetBySchemaValid) {
 TEST_F(SimpleRDS, GetBySchemaInvalid) {
     std::string url1 = "tcp://127.0.0.1:8000";
 
-    std::unique_ptr<SocketMessage> returnMsg = addDummyComponent();
+    std::unique_ptr<EndpointMessage> returnMsg = addDummyComponent();
     std::string id1 = returnMsg->getString("newID");
 
-    SocketMessage request;
+    EndpointMessage request;
     request.addMember("request", RESOURCE_DISCOVERY_REQUEST_BY_SCHEMA);
     // Doesn't match component1
-    std::unique_ptr<SocketMessage> schema = loadSocketMessage("TestManifests/Endpoint3.json");
+    std::unique_ptr<EndpointMessage> schema = loadSocketMessage("TestManifests/Endpoint3.json");
     request.addMember("schema", *schema);
     request.addMember("dataReceiverEndpoint", true);
-    request.addMoveObject("specialProperties", std::make_unique<SocketMessage>());
+    request.addMoveObject("specialProperties", std::make_unique<EndpointMessage>());
 
 
-    std::unique_ptr<SocketMessage> reply = resourceDiscoveryStore.generateRDResponse(&request);
-    auto endpointReturns = reply->getArray<std::unique_ptr<SocketMessage>>("endpoints");
+    std::unique_ptr<EndpointMessage> reply = resourceDiscoveryStore.generateRDResponse(&request);
+    auto endpointReturns = reply->getArray<std::unique_ptr<EndpointMessage>>("endpoints");
     ASSERT_EQ(endpointReturns.size(), 0);
 
 }
 
 TEST_F(SimpleRDS, NoRequestField) {
-    SocketMessage request;
+    EndpointMessage request;
     ASSERT_THROW(resourceDiscoveryStore.generateRDResponse(&request), ValidationError);
 }
 
 TEST_F(SimpleRDS, BrokenRequest) {
-    SocketMessage request;
+    EndpointMessage request;
     request.addMember("request", RESOURCE_DISCOVERY_ADD_COMPONENT);
 
     ASSERT_THROW(resourceDiscoveryStore.generateRDResponse(&request), ValidationError);

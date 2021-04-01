@@ -4,7 +4,7 @@
   "port": 8000,
   "schemas": {
     "publisherExample": {
-      "socketType": "publisher",
+      "connectionParadigm": "publisher",
       "send": {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",

@@ -17,7 +17,7 @@ protected:
 };
 
 TEST_F(test_RDC, GenerateRegisterRequest) {
-    std::unique_ptr<SocketMessage> request;
+    std::unique_ptr<EndpointMessage> request;
     ASSERT_NO_THROW(request = rdc.generateRegisterRequest());
     ASSERT_NO_THROW(component.getSystemSchemas().getSystemSchema(SystemSchemaName::additionRequest).validate(*request));
 }
