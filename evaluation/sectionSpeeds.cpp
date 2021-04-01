@@ -7,7 +7,7 @@
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
 
-#define USE_RDH true
+#define USE_RDH false
 #define USE_ASYNC_SEND false
 
 
@@ -79,15 +79,20 @@ int main(int argc, char **argv) {
             }
 
             std::ofstream results;
-            results.open("section_speeds_receiver_results.txt",std::fstream::out | std::fstream::app);
+            results.open("section_speeds_receiver_results.csv",std::fstream::out | std::fstream::app);
+            // Inital time (when receiver made), Time after receiving message
             for(auto x : timings){
                 results << x.count() << ",";
             }
             results << std::endl;
             results.close();
+
+            if (argc >= 3){
+                receiver.getResourceDiscoveryConnectionEndpoint().deRegisterFromAllHubs();
+            }
         } else if (strcmp(argv[1], SENDER) == 0 && argc >=3) {
             std::vector<std::chrono::duration<int64_t, std::nano>> timings;
-            timings.reserve(5);
+            timings.reserve(7);
 
             // Initial time
             timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
@@ -127,7 +132,9 @@ int main(int argc, char **argv) {
             nng_msleep(1000);
 
             std::ofstream results;
-            results.open("section_speeds_sender_results.txt",std::fstream::out | std::fstream::app);
+            results.open("section_speeds_sender_results.csv",std::fstream::out | std::fstream::app);
+            // Initial Time, Time after component start, Time after register with hub, Time after request for components,
+            //      Time at start of endpoint, Time after making message, Time after sending message
             for(auto x : timings){
                 results << x.count() << ",";
             }
