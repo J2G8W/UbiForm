@@ -7,7 +7,7 @@
 #define RECEIVER "RECEIVER"
 #define SENDER "SENDER"
 
-#define USE_RDH false
+#define USE_RDH true
 #define USE_ASYNC_SEND false
 
 
@@ -115,10 +115,21 @@ int main(int argc, char **argv) {
                 std::map<std::string, std::string> empty;
                 auto receivers = sender.getResourceDiscoveryConnectionEndpoint().getComponentsBySchema("pairEvaluation", empty);
                 timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
-                if(receivers.empty()){throw std::logic_error("No receivers returned");}
-                dialAddress = receivers.at(0)->getArray<std::string>("urls").at(0);
-                dialAddress += ":" + std::to_string(receivers.at(0)->getInteger("port"));
 
+                bool found = false;
+
+                for (auto r = receivers.begin(); r != receivers.end(); r++){
+                    if((*r)->getString("componentId") != sender.getResourceDiscoveryConnectionEndpoint().getId(argv[2])){
+                        dialAddress = (*r)->getArray<std::string>("urls").at(0);
+                        dialAddress += ":" + std::to_string((*r)->getInteger("port"));
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found){
+                    sender.getResourceDiscoveryConnectionEndpoint().deRegisterFromAllHubs();
+                    throw std::logic_error("No receivers returned");
+                }
             }else{
                 timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
                 timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
@@ -131,16 +142,23 @@ int main(int argc, char **argv) {
 
             nng_msleep(1000);
 
-            std::ofstream results;
-            results.open("section_speeds_sender_results.csv",std::fstream::out | std::fstream::app);
-            // Initial Time, Time after component start, Time after register with hub, Time after request for components,
-            //      Time at start of endpoint, Time after making message, Time after sending message
-            for(auto x : timings){
-                results << x.count() << ",";
+            if (data->timings.size() < 7){
+                std::cerr << "ERROR WITH READINGS" << std::endl;
+            }else {
+                std::ofstream results;
+                results.open("section_speeds_sender_results.csv", std::fstream::out | std::fstream::app);
+                // Initial Time, Time after component start, Time after register with hub, Time after request for components,
+                //      Time at start of endpoint, Time after making message, Time after sending message
+                for (auto x : timings) {
+                    results << x.count() << ",";
+                }
+                results << dialAddress <<  std::endl;
+                results.close();
             }
-            results << std::endl;
-            results.close();
 
+            if (USE_RDH){
+                sender.getResourceDiscoveryConnectionEndpoint().deRegisterFromAllHubs();
+            }
         } else {
             std::cerr << "Error usage is " << argv[0] << " " << RECEIVER << "|" << SENDER << "\n";
         }
