@@ -93,33 +93,34 @@ static const int B64index[256] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 // https://stackoverflow.com/questions/180947/base64-decode-snippet-in-c/13935718 -- polfosol
 void base64_decode_to_stream(const void* data, const size_t len, std::ostream &stream)
 {
-    unsigned char* p = (unsigned char*)data;
-    int pad = len > 0 && (len % 4 || p[len - 1] == '=');
-    const size_t L = ((len + 3) / 4 - pad) * 4;
-    char char_3[3];
+    if (len == 0) return ;
 
-    for (size_t i = 0, j = 0; i < L; i += 4)
+    unsigned char *p = (unsigned char*) data;
+    size_t j = 0,
+            pad1 = len % 4 || p[len - 1] == '=',
+            pad2 = pad1 && (len % 4 > 2 || p[len - 2] != '=');
+    const size_t last = (len - pad1) / 4 << 2;
+    std::string result(last / 4 * 3 + pad1 + pad2, '\0');
+    unsigned char *str = (unsigned char*) &result[0];
+
+    for (size_t i = 0; i < last; i += 4)
     {
         int n = B64index[p[i]] << 18 | B64index[p[i + 1]] << 12 | B64index[p[i + 2]] << 6 | B64index[p[i + 3]];
-        char_3[0] = n >> 16;
-        char_3[1] = n >> 8 & 0xFF;
-        char_3[2] = n & 0xFF;
-        stream.write(char_3,3);
+        str[j++] = n >> 16;
+        str[j++] = n >> 8 & 0xFF;
+        str[j++] = n & 0xFF;
     }
-    if (pad)
+    if (pad1)
     {
-        int n = B64index[p[L]] << 18 | B64index[p[L + 1]] << 12;
-        char_3[0] = n >> 16;
-
-        if (len > L + 2 && p[L + 2] != '=')
+        int n = B64index[p[last]] << 18 | B64index[p[last + 1]] << 12;
+        str[j++] = n >> 16;
+        if (pad2)
         {
-            n |= B64index[p[L + 2]] << 6;
-            char_3[1] = n >> 8 & 0xFF;
-            stream.write(char_3,2);
-        }else{
-            stream.write(char_3, 1);
+            n |= B64index[p[last + 2]] << 6;
+            str[j++] = n >> 8 & 0xFF;
         }
     }
+    stream << str;
 }
 
 /*
