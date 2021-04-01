@@ -71,14 +71,14 @@ void brokerRequestEndpointStartup(Endpoint* e, void* data){
     }
 
     while (true){
-        std::unique_ptr<SocketMessage> msg;
+        std::unique_ptr<EndpointMessage> msg;
         try{
             msg = reqReceive->receiveMessage();
-            SocketMessage sm;
+            EndpointMessage sm;
             sm.addMember("success",true);
             reqSend->sendMessage(sm);
         } catch (ValidationError &e) {
-            SocketMessage sm;
+            EndpointMessage sm;
             sm.addMember("success", false);
             continue;
         } catch (std::logic_error &e){
@@ -105,9 +105,9 @@ struct BrokerEndpointAdditionData{
 void brokerEndpointAddition(std::string endpointType, void* data){
     auto* userData = static_cast<BrokerEndpointAdditionData*>(data);
     if(userData->component->getComponentManifest().hasEndpoint(endpointType) &&
-        userData->component->getComponentManifest().getSocketType(endpointType) == convertFromSocketType(SocketType::Reply)){
+        userData->component->getComponentManifest().getConnectionParadigm(endpointType) == convertFromSocketType(ConnectionParadigm::Reply)){
         auto inputSchema = userData->component->getComponentManifest().getReceiverSchema(endpointType);
-        userData->component->getComponentManifest().addEndpoint(SocketType::Publisher,endpointType + "_publisher",
+        userData->component->getComponentManifest().addEndpoint(ConnectionParadigm::Publisher,endpointType + "_publisher",
                                                                 nullptr,inputSchema);
 
         auto* startupData = new BrokerReqEndpointStartupData;

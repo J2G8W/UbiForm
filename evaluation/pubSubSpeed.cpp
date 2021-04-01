@@ -55,7 +55,7 @@ void publisherStartup(Endpoint * e, void * d){
     std::this_thread::sleep_for(std::chrono::seconds(2));
     auto* userData = static_cast<publisherStartupData*>(d);
     DataSenderEndpoint* publisher = userData->component->castToDataSenderEndpoint(e);
-    SocketMessage sm;
+    EndpointMessage sm;
     userData->startTime = std::chrono::high_resolution_clock::now().time_since_epoch();
     int i = 0;
     for ( ; i < MESSAGE_NUM ; i++){
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
             std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
             es->addProperty("counter", ValueType::Number);
             es->addRequired("counter");
-            component.getComponentManifest().addEndpoint(SocketType::Subscriber,"speedSub",es, nullptr);
+            component.getComponentManifest().addEndpoint(ConnectionParadigm::Subscriber,"speedSub",es, nullptr);
 
             auto* userData = new subscriberStartupData;
             userData->component = &component;
@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
             std::shared_ptr<EndpointSchema> es = std::make_shared<EndpointSchema>();
             es->addProperty("counter", ValueType::Number);
             es->addRequired("counter");
-            component.getComponentManifest().addEndpoint(SocketType::Publisher,"speedPub",nullptr, es);
+            component.getComponentManifest().addEndpoint(ConnectionParadigm::Publisher,"speedPub",nullptr, es);
 
 
             component.startBackgroundListen(8000);

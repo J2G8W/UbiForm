@@ -37,10 +37,10 @@ void senderCreationCallback(Endpoint* e, void* data){
     auto userData = static_cast<SenderData *>(data);
     userData->timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());
 
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("stringProperty", "Hello");
     sm.addMember("numberProperty", 42);
-    std::unique_ptr<SocketMessage> subObject = std::make_unique<SocketMessage>();
+    std::unique_ptr<EndpointMessage> subObject = std::make_unique<EndpointMessage>();
     subObject->addMember("subString","world!");
     sm.addMoveObject("objectProperty", std::move(subObject));
     userData->timings.push_back(std::chrono::high_resolution_clock::now().time_since_epoch());

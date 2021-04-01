@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
         std::shared_ptr <EndpointSchema> es = std::make_shared<EndpointSchema>();
         es->addProperty("counter", ValueType::Number);
         es->addRequired("counter");
-        component.getComponentManifest().addEndpoint(SocketType::Subscriber, "speedSub", es, nullptr);
+        component.getComponentManifest().addEndpoint(ConnectionParadigm::Subscriber, "speedSub", es, nullptr);
 
         auto *userData = new subscriberStartupData;
         userData->component = &component;
@@ -81,14 +81,13 @@ int main(int argc, char **argv) {
         std::shared_ptr <EndpointSchema> receiveSchema = std::make_shared<EndpointSchema>();
         receiveSchema->addProperty("success", ValueType::Boolean);
         receiveSchema->addRequired("success");
-        component.getComponentManifest().addEndpoint(SocketType::Request, "dataPublisher",
+        component.getComponentManifest().addEndpoint(ConnectionParadigm::Request, "dataPublisher",
                                                      receiveSchema, sendSchema);
 
         component.startBackgroundListen();
 
-
         std::string brokerAddress = argv[2];
-        component.getBackgroundRequester().requestChangeEndpoint(brokerAddress+":8000", SocketType::Reply,
+        component.getBackgroundRequester().requestChangeEndpoint(brokerAddress+":8000", ConnectionParadigm::Reply,
                                                                  "dataBroker", sendSchema.get(), receiveSchema.get());
 
         nng_msleep(2000);
@@ -105,7 +104,7 @@ int main(int argc, char **argv) {
         auto recvEndpoint = component.castToDataReceiverEndpoint(reqEndpoint);
 
 
-        SocketMessage sm;
+        EndpointMessage sm;
         int i = 0;
         for (; i < MESSAGE_NUM; i++) {
             sm.addMember("counter", i);

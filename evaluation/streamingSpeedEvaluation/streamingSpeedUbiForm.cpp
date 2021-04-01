@@ -38,7 +38,7 @@ void endOfSenderStream(PairEndpoint* pe, void* userData){
 }
 void senderConnectStream(Endpoint* e, void* userData){
     auto* t = static_cast<startupData*>(userData);
-    SocketMessage sm;
+    EndpointMessage sm;
     sm.addMember("blockSize", t->blockSize);
     auto pair = t->component->castToPair(e);
 
@@ -50,10 +50,6 @@ void senderConnectStream(Endpoint* e, void* userData){
     pair->sendStream(t->fileStream, t->blockSize, false, sm, endOfSenderStream, t);
 }
 
-class NullBuffer : public std::streambuf {
-public:
-    int overflow(int c) { return c; }
-};
 
 
 int main(int argc, char **argv) {
@@ -64,7 +60,7 @@ int main(int argc, char **argv) {
             std::shared_ptr<EndpointSchema> receiveEndpoint = std::make_shared<EndpointSchema>();
             receiveEndpoint->addProperty("blockSize",ValueType::Number);
             receiveEndpoint->addRequired("blockSize");
-            receiver.getComponentManifest().addEndpoint(SocketType::Pair,"receiver",receiveEndpoint,empty);
+            receiver.getComponentManifest().addEndpoint(ConnectionParadigm::Pair,"receiver",receiveEndpoint,empty);
 
             timingData ts[5];
             for(auto &t:ts){
@@ -92,7 +88,7 @@ int main(int argc, char **argv) {
                 while (!pair->getReceiverThreadEnded()) {
                     nng_msleep(100);
                 }
-                receiver.closeAndInvalidateSocketById(pair->getEndpointId());
+                receiver.closeAndInvalidateEndpointsById(pair->getEndpointId());
                 nng_msleep(500);
             }
             std::ofstream results;
@@ -109,7 +105,7 @@ int main(int argc, char **argv) {
             std::shared_ptr<EndpointSchema> senderSchema = std::make_shared<EndpointSchema>();
             senderSchema->addProperty("blockSize",ValueType::Number);
             senderSchema->addRequired("blockSize");
-            sender.getComponentManifest().addEndpoint(SocketType::Pair,"sender",empty,senderSchema);
+            sender.getComponentManifest().addEndpoint(ConnectionType::Pair,"sender",empty,senderSchema);
 
             auto* s = new startupData;
             s->fileName = std::string(argv[2]);
@@ -133,7 +129,7 @@ int main(int argc, char **argv) {
                     nng_msleep(100);
                 }
                 s->streamDone = false;
-                sender.closeAndInvalidateSocketsOfType("sender");
+                sender.closeAndInvalidateEndpointsOfType("sender");
             }
 
         } else {
