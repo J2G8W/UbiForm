@@ -120,7 +120,7 @@ void base64_decode_to_stream(const void* data, const size_t len, std::ostream &s
             str[j++] = n >> 8 & 0xFF;
         }
     }
-    stream << str;
+    stream.write(reinterpret_cast<const char *>(str), result.size());
 }
 
 /*
