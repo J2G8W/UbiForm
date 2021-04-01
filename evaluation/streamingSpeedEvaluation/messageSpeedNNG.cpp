@@ -8,6 +8,7 @@
 #include <nng/protocol/pair0/pair.h>
 #include <chrono>
 #include <vector>
+#include <sstream>
 
 
 #define RECEIVER "RECEIVER"
@@ -40,6 +41,7 @@ int main(int argc, char **argv){
             nng_err(rv, "Dialing " + std::string(argv[2]) + " for a pair connection");
         }
 
+        std::ostringstream output;
         for(auto& t : timings){
             t.startTime = std::chrono::high_resolution_clock::now().time_since_epoch();
             size_t bytesReceived = 0;
@@ -51,6 +53,8 @@ int main(int argc, char **argv){
                         break;
                     }
                     bytesReceived += sz;
+                    // Write to a stream for comparison to UbiForm
+                    output.write(buffer,sz);
                     nng_free(buffer, sz);
                 }
             }
