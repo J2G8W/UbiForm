@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
             std::shared_ptr<EndpointSchema> senderSchema = std::make_shared<EndpointSchema>();
             senderSchema->addProperty("blockSize",ValueType::Number);
             senderSchema->addRequired("blockSize");
-            sender.getComponentManifest().addEndpoint(ConnectionType::Pair,"sender",empty,senderSchema);
+            sender.getComponentManifest().addEndpoint(ConnectionParadigm::Pair,"sender",empty,senderSchema);
 
             auto* s = new startupData;
             s->fileName = std::string(argv[2]);
