@@ -91,6 +91,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<EndpointSchema> recv = std::make_shared<EndpointSchema>();
         recv->addProperty("extraInfo",ValueType::String);
         recv->addRequired("extraInfo");
+        recv->addProperty("endpointNum",ValueType::Number);
         std::shared_ptr<EndpointSchema> empty = std::make_shared<EndpointSchema>();
         receiver.getComponentManifest().addEndpoint(SocketType::Pair,"receiver",recv,empty);
 

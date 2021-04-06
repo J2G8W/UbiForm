@@ -9,9 +9,9 @@
 
 
 struct timingData{
-    std::chrono::duration<int64_t, std::nano> startTime;
-    std::chrono::duration<int64_t, std::nano> endTime;
-    std::chrono::duration<int64_t, std::nano> duration;
+    std::chrono::duration<int64_t, std::nano> streamStartTime;
+    std::chrono::duration<int64_t, std::nano> streamEndTime;
+    std::chrono::duration<int64_t, std::nano> streamDuration;
     long fileSize;
     int blockSize;
     std::ostream* outputStream;
@@ -19,7 +19,7 @@ struct timingData{
 
 void endOfReceiveStream(PairEndpoint* pe, void* userData){
     auto* t = static_cast<timingData*>(userData);
-    t->endTime = std::chrono::high_resolution_clock::now().time_since_epoch();
+    t->streamEndTime = std::chrono::high_resolution_clock::now().time_since_epoch();
     t->fileSize = t->outputStream->tellp();
     delete t->outputStream;
 }
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
             }
 
             for(auto & t : ts) {
-                t.startTime = std::chrono::high_resolution_clock::now().time_since_epoch();
+                t.streamStartTime = std::chrono::high_resolution_clock::now().time_since_epoch();
 
                 receiver.getBackgroundRequester().requestRemoteListenThenDial(
                         argv[2], 8000, "receiver",
@@ -94,8 +94,8 @@ int main(int argc, char **argv) {
             std::ofstream results;
             results.open("streaming_UbiForm_results.csv",std::fstream::out | std::fstream::app);
             for(auto &t : ts){
-                t.duration = t.endTime - t.startTime;
-                results << t.duration.count() << "," << t.fileSize << "," << t.blockSize << "\n";
+                t.streamDuration = t.streamEndTime - t.streamStartTime;
+                results << t.streamDuration.count() << "," << t.fileSize << "," << t.blockSize << "\n";
             }
             results.close();
         } else if (strcmp(argv[1], SENDER) == 0) {
