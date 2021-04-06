@@ -162,4 +162,7 @@ if(BUILD_EVALUATION)
 
 	add_executable(section_speed_test ../evaluation/sectionSpeeds.cpp)
 	target_link_libraries(section_speed_test UbiForm)
+
+	add_executable(scalability_streaming_test ../evaluation/scalabilityStreaming.cpp)
+	target_link_libraries(scalability_streaming_test UbiForm)
 endif(BUILD_EVALUATION)
