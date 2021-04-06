@@ -165,4 +165,9 @@ if(BUILD_EVALUATION)
 
 	add_executable(scalability_streaming_test ../evaluation/scalabilityStreaming.cpp)
 	target_link_libraries(scalability_streaming_test UbiForm)
+
+	add_executable(resource_discovery_scalability_query ../evaluation/scalabilityResourceDiscovery/resourceDiscoveryQuery.cpp)
+	target_link_libraries(resource_discovery_scalability_query UbiForm)
+	add_executable(resource_discovery_scalability_register ../evaluation/scalabilityResourceDiscovery/resourceDiscoveryRegister.cpp)
+	target_link_libraries(resource_discovery_scalability_register UbiForm)
 endif(BUILD_EVALUATION)
