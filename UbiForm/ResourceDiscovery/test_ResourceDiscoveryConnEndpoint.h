@@ -21,3 +21,10 @@ TEST_F(test_RDC, GenerateRegisterRequest) {
     ASSERT_NO_THROW(request = rdc.generateRegisterRequest());
     ASSERT_NO_THROW(component.getSystemSchemas().getSystemSchema(SystemSchemaName::additionRequest).validate(*request));
 }
+
+TEST_F(test_RDC, GenerateSchemaRequest){
+    std::unique_ptr<EndpointMessage> request;
+    std::map<std::string,std::string> props;
+    props.insert(std::pair<std::string,std::string>("name","test1"));
+    ASSERT_NO_THROW(request = rdc.generateFindBySchemaRequest("pairExample",props));
+}
