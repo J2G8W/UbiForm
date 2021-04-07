@@ -17,18 +17,6 @@ option(BUILD_SOUND_EXAMPLES "Build sound based examples" OFF)
 option(BUILD_EVALUATION "Build evaluation programs" OFF)
 
 
-
-# Setup nng library
-include_directories(../libs/nng-master/include)
-add_subdirectory(../libs/nng-master nng-build)
-
-# Setup rapidjson
-ADD_DEFINITIONS(-DRAPIDJSON_HAS_STDSTRING)
-set(rapidjson_dir ${CMAKE_CURRENT_SOURCE_DIR}/../libs/rapidjson)
-include_directories(${rapidjson_dir}/include)
-
-
-
 # File setup
 set(endpointFiles ../include/UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoints/DataReceiverEndpoint.cpp
         ../include/UbiForm/Endpoints/DataSenderEndpoint.h ../UbiForm/Endpoints/DataSenderEndpoint.cpp
@@ -65,6 +53,14 @@ set(componentFiles ../include/UbiForm/ComponentManifest.h ../UbiForm/ComponentMa
 # Create library
 add_library(UbiForm ${endpointFiles} ${reconfigEndpoints} ${resourceDiscovery} ${schemaFiles} ${utilityFiles} ${componentFiles})
 target_link_libraries(UbiForm nng)
+
+# Setup nng library
+include_directories(../libs/nng-master/include)
+add_subdirectory(../libs/nng-master nng-build)
+
+# Setup rapidjson (header only)
+target_compile_definitions(UbiForm PUBLIC -DRAPIDJSON_HAS_STDSTRING)
+target_include_directories(UbiForm PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../libs/rapidjson/include)
 
 # Control the view of the output
 option(VIEW_STD_OUTPUT "Standard output used" ON)
