@@ -121,6 +121,7 @@ if (BUILD_TESTS)
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm)
 	set_target_properties(run_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testing)
+
     file(COPY ../tests/TestManifests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/testing)
 	file(COPY ../tests/TestFiles DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/testing)
 endif(BUILD_TESTS)
@@ -158,46 +159,44 @@ if(BUILD_SOUND_EXAMPLES)
 endif(BUILD_SOUND_EXAMPLES)
 
 if(BUILD_EVALUATION)
+	# Files used to test our evaluation
 	file(COPY ../evaluation/EvaluationFiles DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 
-
-	add_executable(UbiForm_stream_speed_test ../evaluation/streamingSpeedEvaluation/streamingSpeedUbiForm.cpp)
+	# UbiForm streaming evaluation
+	add_executable(UbiForm_stream_speed_test ../evaluation/Streaming_SpeedEvaluation/eval_StreamingSpeedUbiForm.cpp)
 	set_target_properties(UbiForm_stream_speed_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(UbiForm_stream_speed_test UbiForm)
 
-	add_executable(nng_message_speed_test ../evaluation/streamingSpeedEvaluation/messageSpeedNNG.cpp)
+	# NNG streaming comparison
+	add_executable(nng_message_speed_test ../evaluation/Streaming_SpeedEvaluation/eval_MessageSpeedNNG.cpp)
 	set_target_properties(nng_message_speed_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(nng_message_speed_test nng)
 
-	add_executable(nng_stream_speed_test ../evaluation/streamingSpeedEvaluation/streamingSpeedNNG.cpp)
-	set_target_properties(nng_stream_speed_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
-	target_link_libraries(nng_stream_speed_test nng)
-
-	add_executable(pub_sub_speed_test ../evaluation/pubSubSpeed.cpp)
-	set_target_properties(pub_sub_speed_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
-	target_link_libraries(pub_sub_speed_test UbiForm)
-	configure_file(../evaluation/runPubSubEval.sh ${CMAKE_CURRENT_BINARY_DIR}/run_pub_sub_eval.sh COPYONLY)
-
-	add_executable(brokered_speed_test_broker ../evaluation/brokeredPubSubEvaluation/Broker.cpp)
+	# Build process for brokered evaluation
+	add_executable(brokered_speed_test_broker ../evaluation/BrokeredPubSubEvaluation/eval_Broker.cpp)
 	set_target_properties(brokered_speed_test_broker PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(brokered_speed_test_broker UbiForm)
-	add_executable(brokered_speed_test_pubsub ../evaluation/brokeredPubSubEvaluation/PublisherSubscriber.cpp)
+
+	add_executable(brokered_speed_test_pubsub ../evaluation/BrokeredPubSubEvaluation/eval_PublisherSubscriber.cpp)
 	set_target_properties(brokered_speed_test_pubsub PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(brokered_speed_test_pubsub UbiForm)
-	configure_file(../evaluation/brokeredPubSubEvaluation/run_brokered_pub_sub.sh ${CMAKE_CURRENT_BINARY_DIR}/run_brokered_pub_sub.sh COPYONLY)
+	configure_file(../evaluation/BrokeredPubSubEvaluation/run_brokered_pub_sub.sh ${CMAKE_CURRENT_BINARY_DIR}/evaluation/run_brokered_pub_sub.sh COPYONLY)
 
-	add_executable(section_speed_test ../evaluation/sectionSpeeds.cpp)
+	# Measuring the speeds of the sections
+	add_executable(section_speed_test ../evaluation/eval_SectionSpeeds.cpp)
 	set_target_properties(section_speed_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(section_speed_test UbiForm)
 
-	add_executable(scalability_streaming_test ../evaluation/scalabilityStreaming.cpp)
+	# Scalability of streaming evaluation
+	add_executable(scalability_streaming_test ../evaluation/eval_ScalabilityStreaming.cpp)
 	set_target_properties(scalability_streaming_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(scalability_streaming_test UbiForm)
 
-	add_executable(resource_discovery_scalability_query ../evaluation/scalabilityResourceDiscovery/resourceDiscoveryQuery.cpp)
+	# Scalability of resource discovery evaluation (query and register)
+	add_executable(resource_discovery_scalability_query ../evaluation/Scalability_ResourceDiscovery/eval_ResourceDiscoveryQuery.cpp)
 	set_target_properties(resource_discovery_scalability_query PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(resource_discovery_scalability_query UbiForm)
-	add_executable(resource_discovery_scalability_register ../evaluation/scalabilityResourceDiscovery/resourceDiscoveryRegister.cpp)
+	add_executable(resource_discovery_scalability_register ../evaluation/Scalability_ResourceDiscovery/eval_ResourceDiscoveryRegister.cpp)
 	set_target_properties(resource_discovery_scalability_register PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(resource_discovery_scalability_register UbiForm)
 endif(BUILD_EVALUATION)
