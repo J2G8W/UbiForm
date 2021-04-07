@@ -112,11 +112,11 @@ if (BUILD_TESTS)
 		include_directories("${gtest_SOURCE_DIR}/include")
 	endif()
 
-    set(testFiles ../UbiForm/test_ComponentManifest.h ../UbiForm/test_EndpointMessage.h
-            ../UbiForm/SchemaRepresentation/test_EndpointSchema.h ../UbiForm/test_Component.h
-            ../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h ../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h
-			../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h ../UbiForm/SystemSchemas/test_SystemSchemas.h
-			../tests/test_ReconfigurationIntegration.h ../UbiForm/Utilities/test_GetIPAddresses.h ../tests/test_Streaming.h ../tests/test_EndpointCreation.h)
+    set(testFiles ../tests/UnitTests/test_ComponentManifest.h ../tests/UnitTests/test_EndpointMessage.h
+			../tests/UnitTests/test_EndpointSchema.h ../tests/UnitTests/test_Component.h
+			../tests/UnitTests/test_ResourceDiscoveryStore.h ../tests/UnitTests/test_ComponentRepresentation.h
+			../tests/UnitTests/test_ResourceDiscoveryConnEndpoint.h ../tests/UnitTests/test_SystemSchemas.h
+			../tests/IntegrationTests/test_ReconfigurationIntegration.h ../tests/UnitTests/test_GetIPAddresses.h ../tests/IntegrationTests/test_Streaming.h ../tests/IntegrationTests/test_EndpointCreation.h)
 
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm)

@@ -1,18 +1,18 @@
 #include "gtest/gtest.h"
 
-#include "../UbiForm/test_ComponentManifest.h"
-#include "../UbiForm/test_EndpointMessage.h"
-#include "../UbiForm/test_Component.h"
-#include "../UbiForm/SchemaRepresentation/test_EndpointSchema.h"
-#include "../UbiForm/ResourceDiscovery/test_ResourceDiscoveryStore.h"
-#include "../UbiForm/ResourceDiscovery/test_ComponentRepresentation.h"
-#include "../UbiForm/ResourceDiscovery/test_ResourceDiscoveryConnEndpoint.h"
-#include "../UbiForm/SystemSchemas/test_SystemSchemas.h"
-#include "../UbiForm/Utilities/test_GetIPAddresses.h"
+#include "UnitTests/test_ComponentManifest.h"
+#include "UnitTests/test_EndpointMessage.h"
+#include "UnitTests/test_Component.h"
+#include "UnitTests/test_EndpointSchema.h"
+#include "UnitTests/test_ResourceDiscoveryStore.h"
+#include "UnitTests/test_ComponentRepresentation.h"
+#include "UnitTests/test_ResourceDiscoveryConnEndpoint.h"
+#include "UnitTests/test_SystemSchemas.h"
+#include "UnitTests/test_GetIPAddresses.h"
 
-#include "test_EndpointCreation.h"
-#include "test_Streaming.h"
-#include "test_ReconfigurationIntegration.h"
+#include "IntegrationTests/test_EndpointCreation.h"
+#include "IntegrationTests/test_Streaming.h"
+#include "IntegrationTests/test_ReconfigurationIntegration.h"
 
 int main(int argc, char **argv)
 {

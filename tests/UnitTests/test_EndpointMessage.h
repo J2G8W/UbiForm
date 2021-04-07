@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../include/UbiForm/EndpointMessage.h"
+#include "../../include/UbiForm/EndpointMessage.h"
 
 TEST(EndpointMessageTest, Stringify) {
     std::string jsonString = R"({"temperature":42,"value":"HELLO WORLD!"})";

@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "SystemSchemas.h"
+#include "../../UbiForm/SystemSchemas/SystemSchemas.h"
 
 TEST(SystemSchemas, Init) {
     ASSERT_NO_THROW(SystemSchemas ss);
