@@ -50,15 +50,15 @@ int main(int argc, char **argv) {
             component->specifyManifest(pFile);
             fclose(pFile);
 
-            std::cout << "MANIFEST SPECIFIED" << std::endl;
+            if(VIEW_STD_OUTPUT) std::cout << "MANIFEST SPECIFIED" << std::endl;
 
             // Start on a specific port
             component->startBackgroundListen(8000);
-            std::cout << "Component Listening" << std::endl;
+            if(VIEW_STD_OUTPUT) std::cout << "Component Listening" << std::endl;
 
             component->startResourceDiscoveryHub(7999);
 
-            std::cout << "Resource discovery started" << std::endl;
+            if(VIEW_STD_OUTPUT) std::cout << "Resource discovery started" << std::endl;
 
 
             EndpointMessage s;
@@ -94,13 +94,13 @@ int main(int argc, char **argv) {
                 component->specifyManifest(pFile);
                 fclose(pFile);
 
-                std::cout << "MANIFEST SPECIFIED" << std::endl;
+                if(VIEW_STD_OUTPUT) std::cout << "MANIFEST SPECIFIED" << std::endl;
                 // Find some port which works
                 component->startBackgroundListen();
-                std::cout << "Component Listening" << std::endl;
+                if(VIEW_STD_OUTPUT) std::cout << "Component Listening" << std::endl;
 
                 if (argc < 4) {
-                    std::cout << "Search for Resource Discovery Hubs" << std::endl;
+                    if(VIEW_STD_OUTPUT) std::cout << "Search for Resource Discovery Hubs" << std::endl;
                     component->getResourceDiscoveryConnectionEndpoint().searchForResourceDiscoveryHubs();
                 } else {
                     component->getResourceDiscoveryConnectionEndpoint().registerWithHub(argv[3]);
@@ -134,11 +134,11 @@ int main(int argc, char **argv) {
                 component->specifyManifest(pFile);
                 fclose(pFile);
 
-                std::cout << "MANIFEST SPECIFIED" << "\n";
+                if(VIEW_STD_OUTPUT) std::cout << "MANIFEST SPECIFIED" << "\n";
 
 
                 if (argc < 4) {
-                    std::cout << "Search for Resource Discovery Hubs" << std::endl;
+                    if(VIEW_STD_OUTPUT) std::cout << "Search for Resource Discovery Hubs" << std::endl;
                     component->getResourceDiscoveryConnectionEndpoint().searchForResourceDiscoveryHubs();
                 } else {
                     component->getResourceDiscoveryConnectionEndpoint().registerWithHub(argv[3]);

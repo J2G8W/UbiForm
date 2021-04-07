@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
             receiver.specifyManifest(pFile);
             fclose(pFile);
 
-            std::cout << "MANIFEST SPECIFIED" << "\n";
+            if(VIEW_STD_OUTPUT) std::cout << "MANIFEST SPECIFIED" << "\n";
 
             receiver.getBackgroundRequester().requestRemoteListenThenDial(
                     "tcp://127.0.0.1", 8000, "pairExample",
@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
             receiver.specifyManifest(pFile);
             fclose(pFile);
 
-            std::cout << "MANIFEST SPECIFIED" << "\n";
+            if(VIEW_STD_OUTPUT) std::cout << "MANIFEST SPECIFIED" << "\n";
 
             receiver.getBackgroundRequester().requestRemoteListenThenDial(
                     "tcp://127.0.0.1", 8000, "pairExample",
@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
             sender.specifyManifest(pFile);
             fclose(pFile);
 
-            std::cout << "MANIFEST SPECIFIED" << "\n";
+            if(VIEW_STD_OUTPUT) std::cout << "MANIFEST SPECIFIED" << "\n";
 
             sender.startBackgroundListen(8000);
             auto endpointVector = sender.getEndpointsByType("pairExample");

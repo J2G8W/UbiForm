@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
             std::shared_ptr<EndpointSchema> empty = std::make_shared<EndpointSchema>();
             receiver.getComponentManifest().addEndpoint(ConnectionParadigm::Pair, "receiver", recv, empty);
 
-            std::cout << "MANIFEST SPECIFIED" << "\n";
+            if(VIEW_STD_OUTPUT) std::cout << "MANIFEST SPECIFIED" << "\n";
 
             receiver.getBackgroundRequester().requestRemoteListenThenDial(
                     argv[2], 8000, "receiver",
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
             std::shared_ptr<EndpointSchema> empty = std::make_shared<EndpointSchema>();
             sender.getComponentManifest().addEndpoint(ConnectionParadigm::Pair, "sender", empty, send);
 
-            std::cout << "MANIFEST SPECIFIED" << "\n";
+            if(VIEW_STD_OUTPUT) std::cout << "MANIFEST SPECIFIED" << "\n";
 
             sender.startBackgroundListen(8000);
             auto endpointVector = sender.getEndpointsByType("sender");

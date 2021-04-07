@@ -15,6 +15,8 @@ option(BUILD_EXAMPLES "Build examples programs" OFF)
 option(BUILD_SOUND_EXAMPLES "Build sound based examples" OFF)
 option(BUILD_EVALUATION "Build evaluation programs" OFF)
 
+
+
 # Setup nng library
 include_directories(nng-master/include)
 add_subdirectory(nng-master)
@@ -25,6 +27,13 @@ set(rapidjson_dir ${CMAKE_CURRENT_SOURCE_DIR}/../libs/rapidjson)
 
 include_directories(${rapidjson_dir}/include)
 
+# Control the view of the output
+option(VIEW_STD_OUTPUT "Standard output used" ON)
+if(VIEW_STD_OUTPUT)
+	add_compile_definitions(VIEW_STD_OUTPUT=true)
+else()
+	add_compile_definitions(VIEW_STD_OUTPUT=false)
+endif()
 
 set(endpointFiles ../include/UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoints/DataReceiverEndpoint.cpp
         ../include/UbiForm/Endpoints/DataSenderEndpoint.h ../UbiForm/Endpoints/DataSenderEndpoint.cpp

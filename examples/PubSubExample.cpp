@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
             component.specifyManifest(pFile);
             fclose(pFile);
 
-            std::cout << "MANIFEST SPECIFIED" << "\n";
+            if(VIEW_STD_OUTPUT) std::cout << "MANIFEST SPECIFIED" << "\n";
 
             component.getBackgroundRequester().requestRemoteListenThenDial(
                     "tcp://127.0.0.1", 8000, "subscriberExample",
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
             component.specifyManifest(pFile);
             fclose(pFile);
 
-            std::cout << "MANIFEST SPECIFIED" << "\n";
+            if(VIEW_STD_OUTPUT) std::cout << "MANIFEST SPECIFIED" << "\n";
 
             component.startBackgroundListen(8000);
 

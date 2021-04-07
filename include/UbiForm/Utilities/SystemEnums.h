@@ -1,11 +1,11 @@
 #ifndef UBIFORM_SYSTEMENUMS_H
 #define UBIFORM_SYSTEMENUMS_H
 
-#define VIEW_STD_OUTPUT false
-
-
 #include <string>
 #include <memory>
+
+// The define of VIEW_STD_OUTPUT is done with the CMake options
+
 
 // NOTE THAT these strings are defined in the various schemas in SystemSchemas
 

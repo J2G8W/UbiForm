@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
                         if (!somePublisher && compRep != nullptr && compRep->getName() == "Publisher") {
                             somePublisher = true;
                             publisherRep = std::move(compRep);
-                            std::cout << "Found Publisher" << std::endl;
+                            if(VIEW_STD_OUTPUT) std::cout << "Found Publisher" << std::endl;
                         } else if (compRep != nullptr && somePublisher && compRep->getName() == "Subscriber") {
                             for (const auto &url:compRep->getAllUrls()) {
                                 std::string dialUrl = url + ":" + std::to_string(compRep->getPort());
@@ -59,14 +59,14 @@ int main(int argc, char **argv) {
                                                                                           publisherRep->getSenderSchema(
                                                                                                   "publisherExample").get(),
                                                                                           nullptr);
-                                std::cout << "Subscriber component added endpoint schema" << std::endl;
+                                if(VIEW_STD_OUTPUT) std::cout << "Subscriber component added endpoint schema" << std::endl;
                                 component->getBackgroundRequester().request3rdPartyRemoteListenThenDial(dialUrl,
                                                                                                         "subscriberExample",
                                                                                                         "publisherExample",
                                                                                                         publisherRep->getAllUrls().at(
                                                                                                                 0),
                                                                                                         publisherRep->getPort());
-                                std::cout << "Subscriber has formed connection to publisher" << std::endl;
+                                if(VIEW_STD_OUTPUT) std::cout << "Subscriber has formed connection to publisher" << std::endl;
                                 update = true;
                                 break;
                             }
@@ -81,14 +81,14 @@ int main(int argc, char **argv) {
                                                                                             "subscriberExample");
                             break;
                         }
-                        std::cout << "Subscriber endpoint closed" << std::endl;
+                        if(VIEW_STD_OUTPUT) std::cout << "Subscriber endpoint closed" << std::endl;
 
                         for (const auto &url:publisherRep->getAllUrls()) {
                             std::string dialUrl = url + ":" + std::to_string(publisherRep->getPort());
                             component->getBackgroundRequester().requestCloseEndpointsOfType(dialUrl, "publisherExample");
                             break;
                         }
-                        std::cout << "Publisher endpoint closed" << std::endl;
+                        if(VIEW_STD_OUTPUT) std::cout << "Publisher endpoint closed" << std::endl;
                     }
                 }
                 nng_msleep(1000);
@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
                 if (pFile == nullptr) perror("ERROR");
                 component->specifyManifest(pFile);
                 fclose(pFile);
-                std::cout << "Publisher Manifest Specified" << std::endl;
+                if(VIEW_STD_OUTPUT) std::cout << "Publisher Manifest Specified" << std::endl;
 
                 component->startBackgroundListen();
 

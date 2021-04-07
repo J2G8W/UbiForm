@@ -46,7 +46,7 @@ void onStreamingEndpointCreation(Endpoint* e, void* u){
 
     nng_msleep(100);
     musicFileStream->flush();
-    std::cout << "INITIATING PLAY" << std::endl;
+    if(VIEW_STD_OUTPUT) std::cout << "INITIATING PLAY" << std::endl;
 
 
     if (!userData->stream.open(tempFileName)){
@@ -57,7 +57,7 @@ void onStreamingEndpointCreation(Endpoint* e, void* u){
     }
     userData->musicObject.play();
     userData->musicPlaying = true;
-    std::cout << "PLAYING" << std::endl;
+    if(VIEW_STD_OUTPUT) std::cout << "PLAYING" << std::endl;
 }
 
 
@@ -76,7 +76,7 @@ void maintainMusicPlaying(PairStartupInfo* psi){
                 }
                 psi->musicObject.play();
                 psi->musicObject.setPlayingOffset(recentPos);
-                std::cout << "RESET" << std::endl;
+                if(VIEW_STD_OUTPUT) std::cout << "RESET" << std::endl;
             } else {
                 recentPos = psi->musicObject.getPlayingOffset();
             }
@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
                         found = true;
                         break;
                     } catch (std::logic_error &e) {
-                        std::cout << e.what() << std::endl;
+                        std::cerr << e.what() << std::endl;
                     }
                 }
                 if(!found){
