@@ -35,6 +35,11 @@ else()
 	add_compile_definitions(VIEW_STD_OUTPUT=false)
 endif()
 
+# Control the location of systems scheams pointer
+file(COPY ../UbiForm/SystemSchemas DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+add_compile_definitions(SYSTEM_SCHEMAS_LOC="${CMAKE_CURRENT_BINARY_DIR}/SystemSchemas")
+
+# File setup
 set(endpointFiles ../include/UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoints/DataReceiverEndpoint.cpp
         ../include/UbiForm/Endpoints/DataSenderEndpoint.h ../UbiForm/Endpoints/DataSenderEndpoint.cpp
         ../include/UbiForm/Endpoints/PairEndpoint.h ../UbiForm/Endpoints/PairEndpoint.cpp
@@ -68,7 +73,6 @@ set(componentFiles ../include/UbiForm/ComponentManifest.h ../UbiForm/ComponentMa
 
 
 # Create library
-file(COPY ../UbiForm/SystemSchemas DESTINATION .)
 add_library(UbiForm ${endpointFiles} ${reconfigEndpoints} ${resourceDiscovery} ${schemaFiles} ${utilityFiles} ${componentFiles})
 target_link_libraries(UbiForm nng)
 
