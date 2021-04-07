@@ -24,7 +24,7 @@ SubscriberEndpoint::~SubscriberEndpoint() {
             if (nng_close(*receiverSocket) == NNG_ECLOSED) {
                 std::cerr << "This endpoint had already been closed" << std::endl;
             } else {
-                std::cout << "Subscriber endpoint " << endpointIdentifier << " closed" << std::endl;
+                if(VIEW_STD_OUTPUT) std::cout << "Subscriber endpoint " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }

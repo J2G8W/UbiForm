@@ -63,7 +63,7 @@ void ResourceDiscoveryConnEndpoint::registerWithHub(const std::string &url) {
 
         reply = sendRequest(url, *request, true);
         systemSchemas.getSystemSchema(SystemSchemaName::additionResponse).validate(*reply);
-        std::cout << "Registered successfully with: " << url << " id is " << reply->getString("newID") << std::endl;
+        if(VIEW_STD_OUTPUT) std::cout << "Registered successfully with: " << url << " id is " << reply->getString("newID") << std::endl;
     } catch (std::logic_error &e) {
         resourceDiscoveryEndpoints.erase(url);
         throw;
@@ -255,7 +255,7 @@ void ResourceDiscoveryConnEndpoint::searchForResourceDiscoveryHubs() {
                     try {
                         registerWithHub(url);
                         found = true;
-                        std::cout << "Found Resource Discovery Hub: " << url << std::endl;
+                        if(VIEW_STD_OUTPUT) std::cout << "Found Resource Discovery Hub: " << url << std::endl;
                         break;
                     } catch (std::logic_error &e) {
                         continue;
@@ -329,7 +329,7 @@ void ResourceDiscoveryConnEndpoint::deRegisterFromHub(const std::string &rdhUrl)
 
     try {
         sendRequest(rdhUrl, request, false);
-        std::cout << "De-registered from " << rdhUrl << std::endl;
+        if(VIEW_STD_OUTPUT) std::cout << "De-registered from " << rdhUrl << std::endl;
     } catch (std::logic_error &e) {
         std::cerr << "Error with de-register from " << rdhUrl << "\n" << e.what() << std::endl;
     }

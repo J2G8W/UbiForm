@@ -1,0 +1,1 @@
+seq "$1" | xargs -I{} sh -c "./pub_sub_speed_test SUBSCRIBER $2 &"

@@ -42,7 +42,9 @@ static inline bool is_base64(unsigned char c) {
     return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
-std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len);
-std::vector<unsigned char>base64_decode_to_vector(std::string const& encoded_string);
-void base64_decode_to_stream(std::string const& encoded_string, std::ostream &stream);
+unsigned char* base64_encode(const unsigned char *src, size_t len,
+                             size_t *out_len);
+
+
+void base64_decode_to_stream(const void* data, const size_t len, std::ostream &stream);
 #endif //UBIFORM_BASE64_H

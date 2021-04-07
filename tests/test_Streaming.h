@@ -52,6 +52,6 @@ TEST(StreamingTests, SendMessage){
         nng_msleep(100);
     }
 
-    ASSERT_EQ(fileSize,(int) out.tellp() - 1);
+    ASSERT_EQ(fileSize,(int) out.tellp());
     sendThread.join();
 }

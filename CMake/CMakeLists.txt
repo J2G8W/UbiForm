@@ -7,10 +7,13 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 # Set options whether we build tests and examples
 option(BUILD_TESTS "Build test programs" OFF)
 option(BUILD_EXAMPLES "Build examples programs" OFF)
 option(BUILD_SOUND_EXAMPLES "Build sound based examples" OFF)
+option(BUILD_EVALUATION "Build evaluation programs" OFF)
 
 # Setup nng library
 include_directories(nng-master/include)
@@ -135,3 +138,36 @@ if(BUILD_SOUND_EXAMPLES)
 	add_executable(music_stream ../examples/MusicPlayerExample.cpp)
 	target_link_libraries(music_stream UbiForm sfml-audio sfml-system)
 endif(BUILD_SOUND_EXAMPLES)
+
+if(BUILD_EVALUATION)
+	file(COPY ../evaluation/EvaluationFiles DESTINATION .)
+	add_executable(UbiForm_stream_speed_test ../evaluation/streamingSpeedEvaluation/streamingSpeedUbiForm.cpp)
+	target_link_libraries(UbiForm_stream_speed_test UbiForm)
+
+	add_executable(nng_message_speed_test ../evaluation/streamingSpeedEvaluation/messageSpeedNNG.cpp)
+	target_link_libraries(nng_message_speed_test nng)
+
+	add_executable(nng_stream_speed_test ../evaluation/streamingSpeedEvaluation/streamingSpeedNNG.cpp)
+	target_link_libraries(nng_stream_speed_test nng)
+
+	add_executable(pub_sub_speed_test ../evaluation/pubSubSpeed.cpp)
+	target_link_libraries(pub_sub_speed_test UbiForm)
+	configure_file(../evaluation/runPubSubEval.sh ${CMAKE_CURRENT_BINARY_DIR}/run_pub_sub_eval.sh COPYONLY)
+
+	add_executable(brokered_speed_test_broker ../evaluation/brokeredPubSubEvaluation/Broker.cpp)
+	target_link_libraries(brokered_speed_test_broker UbiForm)
+	add_executable(brokered_speed_test_pubsub ../evaluation/brokeredPubSubEvaluation/PublisherSubscriber.cpp)
+	target_link_libraries(brokered_speed_test_pubsub UbiForm)
+	configure_file(../evaluation/brokeredPubSubEvaluation/run_brokered_pub_sub.sh ${CMAKE_CURRENT_BINARY_DIR}/run_brokered_pub_sub.sh COPYONLY)
+
+	add_executable(section_speed_test ../evaluation/sectionSpeeds.cpp)
+	target_link_libraries(section_speed_test UbiForm)
+
+	add_executable(scalability_streaming_test ../evaluation/scalabilityStreaming.cpp)
+	target_link_libraries(scalability_streaming_test UbiForm)
+
+	add_executable(resource_discovery_scalability_query ../evaluation/scalabilityResourceDiscovery/resourceDiscoveryQuery.cpp)
+	target_link_libraries(resource_discovery_scalability_query UbiForm)
+	add_executable(resource_discovery_scalability_register ../evaluation/scalabilityResourceDiscovery/resourceDiscoveryRegister.cpp)
+	target_link_libraries(resource_discovery_scalability_register UbiForm)
+endif(BUILD_EVALUATION)

@@ -19,7 +19,7 @@ PairEndpoint::~PairEndpoint() {
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This endpoint had already been closed" << std::endl;
             } else {
-                std::cout << "Pair endpoint " << endpointIdentifier << " closed" << std::endl;
+                if(VIEW_STD_OUTPUT) std::cout << "Pair endpoint " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }
@@ -110,7 +110,7 @@ PairEndpoint::streamReceiveData(PairEndpoint *endpoint, std::ostream *stream, en
             break;
         }
         std::string r  = message->getString("bytes");
-        base64_decode_to_stream(r,*stream);
+        base64_decode_to_stream(r.c_str(),r.length(),*stream);
     }
     if(endCallback != nullptr){
         endCallback(endpoint, userData);
@@ -151,23 +151,29 @@ void PairEndpoint::streamSendData(PairEndpoint *endpoint, std::istream *stream, 
                 EndpointMessage sm;
                 sm.addMember("end",true);
                 try{
-                    endpoint->asyncSendMessage(sm);
+                    endpoint->rawSendMessage(sm);
                     break;
                 }catch (std::logic_error&e){
                     break;
                 }
             }
         }
+        size_t out_len = 0;
+        auto encodedMsg = base64_encode(reinterpret_cast<const unsigned char *>(bytesToEncode), numBytes, &out_len);
 
-        std::string encodedMsg = base64_encode(reinterpret_cast<const unsigned char *>(bytesToEncode), numBytes);
-
-        EndpointMessage sm;
-        sm.addMember("bytes", encodedMsg);
         try {
-            endpoint->asyncSendMessage(sm);
+            if (!(endpoint->endpointState == EndpointState::Listening || endpoint->endpointState == EndpointState::Dialed)) {
+                throw EndpointOpenError("Could not send message, in state: " + convertEndpointState(endpoint->endpointState),
+                                      endpoint->connectionParadigm, endpoint->endpointIdentifier);
+            }
+            int rv;
+            if ((rv = nng_send(*(endpoint->senderSocket), (void *) encodedMsg, out_len + 1, 0)) != 0) {
+                throw NngError(rv, "nng_send");
+            }
         }catch(std::logic_error &e){
             break;
         }
+        free(encodedMsg);
     }
     if(endCallback != nullptr) {
         endCallback(endpoint, userData);

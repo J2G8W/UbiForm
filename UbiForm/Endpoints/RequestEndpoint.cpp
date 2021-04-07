@@ -43,7 +43,7 @@ RequestEndpoint::~RequestEndpoint() {
             if (nng_close(*senderSocket) == NNG_ECLOSED) {
                 std::cerr << "This endpoint had already been closed" << std::endl;
             } else {
-                std::cout << "Request endpoint " << endpointIdentifier << " closed" << std::endl;
+                if(VIEW_STD_OUTPUT) std::cout << "Request endpoint " << endpointIdentifier << " closed" << std::endl;
             }
             endpointState = EndpointState::Invalid;
         }
@@ -66,7 +66,7 @@ void RequestEndpoint::openEndpoint() {
             // Use the same socket for sending and receiving
             receiverSocket = senderSocket;
             // Set timeout to a reasonably small value
-            setReceiveTimeout(500);
+            setReceiveTimeout(600);
         }
     } else {
         throw EndpointOpenError("Can't open endpoint", connectionParadigm,
