@@ -19,14 +19,13 @@ option(BUILD_EVALUATION "Build evaluation programs" OFF)
 
 
 # Setup nng library
-include_directories(nng-master/include)
-add_subdirectory(nng-master)
+include_directories(../libs/nng-master/include)
+add_subdirectory(../libs/nng-master nng-build)
 
 # Setup rapidjson
 ADD_DEFINITIONS(-DRAPIDJSON_HAS_STDSTRING)
-set(rapidjson_dir ../libs/rapidjson)
+set(rapidjson_dir ${CMAKE_CURRENT_SOURCE_DIR}/../libs/rapidjson)
 include_directories(${rapidjson_dir}/include)
-add_subdirectory(${rapidjson_dir} rapidjson-build)
 
 
 
