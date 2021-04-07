@@ -9,7 +9,7 @@ Far more detail about the setup can be found in the dissertation produced about 
 
 
 ## Installation
-In order to build the project you must include rapidjson in the libs folder and nng-master inside the CMake folder.
+In order to build the project you must include rapidjson and nng-master inside a 'libs' folder at the top level.
 Additionally it requires the CMake tool (min version 3.17) and optionally ninja. 
 As part of the build process it will automatically download google-test which is used as the testing framework for our system.
 
@@ -21,11 +21,12 @@ cmake -G Ninja ..
 ninja (or make)
 ```
 
-Additionally, there are three options related to cmake:
+Additionally, there are multiple options related to cmake:
 * \-DBUILD_TESTS=On          => Build the tests in the google test framework (run_tests.exe)
 * \-DBUILD_EXAMPLES=On       => Build the example programs as executables (they are further documented within the examples folder)
 * \-DBUILD_SOUND_EXAMPLES=On => Build the music player program (requires the installation of SFML on the host system)
 * \-DBUILD_EVALUATION=On     => Build the evaluation programs which were used to evaluate the performance of the program
+* \-DVIEW_STD_OUTPUT=Off     => Turn off the textual output given by UbiForm as default (default on)  
 
 ## Usage Examples 
 There are a couple of small examples provided in the examples directory, and some more fleshed out examples in the following GitHub repos:
