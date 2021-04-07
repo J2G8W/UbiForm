@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
+# Up the levels of optimisation when releasing
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 # Set options whether we build tests and examples
@@ -24,7 +25,6 @@ add_subdirectory(nng-master)
 # Setup rapidjson
 ADD_DEFINITIONS(-DRAPIDJSON_HAS_STDSTRING)
 set(rapidjson_dir ${CMAKE_CURRENT_SOURCE_DIR}/../libs/rapidjson)
-
 include_directories(${rapidjson_dir}/include)
 
 # Control the view of the output
@@ -120,67 +120,84 @@ if (BUILD_TESTS)
 
     add_executable(run_tests ../tests/RunTests.cpp ${testFiles})
     target_link_libraries(run_tests gtest_main gmock_main UbiForm)
-    file(COPY ../tests/TestManifests DESTINATION .)
-	file(COPY ../tests/TestFiles DESTINATION .)
+	set_target_properties(run_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testing)
+    file(COPY ../tests/TestManifests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/testing)
+	file(COPY ../tests/TestFiles DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/testing)
 endif(BUILD_TESTS)
 
 # Create examples
 if (BUILD_EXAMPLES)
     add_executable(pair_example ../examples/PairConnectionExample.cpp)
+	set_target_properties(pair_example PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/examples)
     target_link_libraries(pair_example UbiForm)
 
     add_executable(pubsub_example ../examples/PubSubExample.cpp)
+	set_target_properties(pubsub_example PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/examples)
     target_link_libraries(pubsub_example UbiForm)
 
     add_executable(reconfiguration_example ../examples/ReconfigurationExample.cpp)
-    target_link_libraries(reconfiguration_example UbiForm)
+	set_target_properties(reconfiguration_example PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/examples)
+	target_link_libraries(reconfiguration_example UbiForm)
 
     add_executable(resource_discovery_example ../examples/ResourceDiscoveryExample.cpp)
-    target_link_libraries(resource_discovery_example UbiForm)
+	set_target_properties(resource_discovery_example PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/examples)
+	target_link_libraries(resource_discovery_example UbiForm)
 
 	add_executable(simple_stream_example ../examples/SimpleStreamingExample.cpp)
+	set_target_properties(simple_stream_example PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/examples)
 	target_link_libraries(simple_stream_example UbiForm)
 
-
-
     # Copy over our base JSON files for our examples to use
-    file(COPY ../examples/JsonFiles DESTINATION .)
+    file(COPY ../examples/JsonFiles DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/examples)
 endif(BUILD_EXAMPLES)
 
 if(BUILD_SOUND_EXAMPLES)
 	add_executable(music_stream ../examples/MusicPlayerExample.cpp)
+	set_target_properties(music_stream PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/examples)
 	target_link_libraries(music_stream UbiForm sfml-audio sfml-system)
 endif(BUILD_SOUND_EXAMPLES)
 
 if(BUILD_EVALUATION)
-	file(COPY ../evaluation/EvaluationFiles DESTINATION .)
+	file(COPY ../evaluation/EvaluationFiles DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
+
+
 	add_executable(UbiForm_stream_speed_test ../evaluation/streamingSpeedEvaluation/streamingSpeedUbiForm.cpp)
+	set_target_properties(UbiForm_stream_speed_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(UbiForm_stream_speed_test UbiForm)
 
 	add_executable(nng_message_speed_test ../evaluation/streamingSpeedEvaluation/messageSpeedNNG.cpp)
+	set_target_properties(nng_message_speed_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(nng_message_speed_test nng)
 
 	add_executable(nng_stream_speed_test ../evaluation/streamingSpeedEvaluation/streamingSpeedNNG.cpp)
+	set_target_properties(nng_stream_speed_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(nng_stream_speed_test nng)
 
 	add_executable(pub_sub_speed_test ../evaluation/pubSubSpeed.cpp)
+	set_target_properties(pub_sub_speed_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(pub_sub_speed_test UbiForm)
 	configure_file(../evaluation/runPubSubEval.sh ${CMAKE_CURRENT_BINARY_DIR}/run_pub_sub_eval.sh COPYONLY)
 
 	add_executable(brokered_speed_test_broker ../evaluation/brokeredPubSubEvaluation/Broker.cpp)
+	set_target_properties(brokered_speed_test_broker PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(brokered_speed_test_broker UbiForm)
 	add_executable(brokered_speed_test_pubsub ../evaluation/brokeredPubSubEvaluation/PublisherSubscriber.cpp)
+	set_target_properties(brokered_speed_test_pubsub PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(brokered_speed_test_pubsub UbiForm)
 	configure_file(../evaluation/brokeredPubSubEvaluation/run_brokered_pub_sub.sh ${CMAKE_CURRENT_BINARY_DIR}/run_brokered_pub_sub.sh COPYONLY)
 
 	add_executable(section_speed_test ../evaluation/sectionSpeeds.cpp)
+	set_target_properties(section_speed_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(section_speed_test UbiForm)
 
 	add_executable(scalability_streaming_test ../evaluation/scalabilityStreaming.cpp)
+	set_target_properties(scalability_streaming_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(scalability_streaming_test UbiForm)
 
 	add_executable(resource_discovery_scalability_query ../evaluation/scalabilityResourceDiscovery/resourceDiscoveryQuery.cpp)
+	set_target_properties(resource_discovery_scalability_query PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(resource_discovery_scalability_query UbiForm)
 	add_executable(resource_discovery_scalability_register ../evaluation/scalabilityResourceDiscovery/resourceDiscoveryRegister.cpp)
+	set_target_properties(resource_discovery_scalability_register PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/evaluation)
 	target_link_libraries(resource_discovery_scalability_register UbiForm)
 endif(BUILD_EVALUATION)
