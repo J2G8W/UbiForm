@@ -24,20 +24,11 @@ add_subdirectory(nng-master)
 
 # Setup rapidjson
 ADD_DEFINITIONS(-DRAPIDJSON_HAS_STDSTRING)
-set(rapidjson_dir ${CMAKE_CURRENT_SOURCE_DIR}/../libs/rapidjson)
+set(rapidjson_dir ../libs/rapidjson)
 include_directories(${rapidjson_dir}/include)
+add_subdirectory(${rapidjson_dir} rapidjson-build)
 
-# Control the view of the output
-option(VIEW_STD_OUTPUT "Standard output used" ON)
-if(VIEW_STD_OUTPUT)
-	add_compile_definitions(VIEW_STD_OUTPUT=true)
-else()
-	add_compile_definitions(VIEW_STD_OUTPUT=false)
-endif()
 
-# Control the location of systems scheams pointer
-file(COPY ../UbiForm/SystemSchemas DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-add_compile_definitions(SYSTEM_SCHEMAS_LOC="${CMAKE_CURRENT_BINARY_DIR}/SystemSchemas")
 
 # File setup
 set(endpointFiles ../include/UbiForm/Endpoints/DataReceiverEndpoint.h ../UbiForm/Endpoints/DataReceiverEndpoint.cpp
@@ -75,6 +66,18 @@ set(componentFiles ../include/UbiForm/ComponentManifest.h ../UbiForm/ComponentMa
 # Create library
 add_library(UbiForm ${endpointFiles} ${reconfigEndpoints} ${resourceDiscovery} ${schemaFiles} ${utilityFiles} ${componentFiles})
 target_link_libraries(UbiForm nng)
+
+# Control the view of the output
+option(VIEW_STD_OUTPUT "Standard output used" ON)
+if(VIEW_STD_OUTPUT)
+	target_compile_definitions(UbiForm PUBLIC VIEW_STD_OUTPUT=true)
+else()
+	target_compile_definitions(UbiForm PUBLIC VIEW_STD_OUTPUT=false)
+endif()
+
+# Control the location of systems scheams pointer
+file(COPY ../UbiForm/SystemSchemas DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+target_compile_definitions(UbiForm PUBLIC SYSTEM_SCHEMAS_LOC="${CMAKE_CURRENT_BINARY_DIR}/SystemSchemas")
 
 
 # Create tests
