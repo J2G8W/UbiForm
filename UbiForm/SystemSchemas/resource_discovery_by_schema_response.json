@@ -25,13 +25,17 @@
           },
           "endpointType": {
             "type": "string"
+          },
+          "connectionParadigm": {
+            "type": "string"
           }
         },
         "required": [
           "componentId",
           "urls",
           "port",
-          "endpointType"
+          "endpointType",
+          "connectionParadigm"
         ]
       }
     }

@@ -68,15 +68,16 @@ std::unique_ptr<EndpointMessage> ResourceDiscoveryStore::generateRDResponse(Endp
             }
             if (!validComponent) { continue; }
 
-            std::vector<std::string> endpointIds = componentRep.second->findEquals(receiveData, *schemaRequest);
-            for (const auto &id: endpointIds) {
+            std::vector<std::string> endpointTypes = componentRep.second->findEquals(receiveData, *schemaRequest);
+            for (const auto &endpointType: endpointTypes) {
                 auto *endpoint = new EndpointMessage;
                 endpoint->addMember("componentId", componentRep.first);
                 endpoint->addMember("urls", componentRep.second->getAllUrls());
                 endpoint->addMember("port", componentRep.second->getPort());
-                endpoint->addMember("endpointType", id);
-                if (componentRep.second->hasListenPort(id)) {
-                    endpoint->addMember("listenPort", componentRep.second->getListenPort(id));
+                endpoint->addMember("endpointType", endpointType);
+                endpoint->addMember("connectionParadigm",componentRep.second->getConnectionParadigm(endpointType));
+                if (componentRep.second->hasListenPort(endpointType)) {
+                    endpoint->addMember("listenPort", componentRep.second->getListenPort(endpointType));
                 }
                 returnEndpoints.emplace_back(endpoint);
             }
