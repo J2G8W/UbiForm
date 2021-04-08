@@ -29,7 +29,8 @@
 
 /**
  * The central concept to UbiForm. Each process should only need one component at any point and all network operations should
- * go via the component (using the getters we access the actual function we want).
+ * go via the component (using the getters we access the actual function we want). The component is also used for creation,
+ * access and destruction of endpoints and controls the memory access of these objects.
  */
 class Component {
 private:
@@ -40,17 +41,9 @@ private:
     std::map<std::string, endpointStartupFunction> startupFunctionsMap;
     std::map<std::string, void*> startupDataMap;
 
-    // Note that we use shared pointers so there can be multiple active pointers, but there memory management is handled automatically
-    //std::map<std::string, std::shared_ptr<DataReceiverEndpoint> > idReceiverEndpoints;
-    //std::map<std::string, std::shared_ptr<DataSenderEndpoint> > idSenderEndpoints;
-
     std::map<std::string, std::shared_ptr<Endpoint>> endpointsById;
 
     std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<Endpoint> > >> endpointsByType;
-
-    // Choice made to also store endpoints by TYPE, for speed of access and other things
-    //std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataReceiverEndpoint> > > > typeReceiverEndpoints;
-    //std::map<std::string, std::shared_ptr<std::vector<std::shared_ptr<DataSenderEndpoint> > > > typeSenderEndpoints;
 
 
     std::minstd_rand0 generator;
@@ -80,14 +73,13 @@ private:
 
 public:
     /**
-     * Create a Component object which will specifically be LocalTCP or IPC, must start with "ipc://" or "tcp://127.".
-     * This is designed to be used for testing purposes largely
-     * @param baseAddress - address to listen on
+     * @brief Create a Component object which will specifically be LocalTCP or IPC (designed to be used for testing purposes largely)
+     * @param baseAddress - Address to listen on (must start with tcp://127 or ipc:///
      */
     explicit Component(const std::string &baseAddress);
 
     /**
-     * Create a component which will listen on ALL external IPv4 connections
+     * @brief Create a component which will listen on ALL external IPv4 connections to the device
      * @throws std::logic_error when can't find any valid external IPv4 connections to join on to
      */
     Component();
@@ -108,7 +100,12 @@ public:
 
 
     /**
-     *
+     * @name Create Endpoints
+     * Functions to create endpoints and do different initialisation work for them
+     * @{
+     */
+    /**
+     * @brief Create a new endpoint of endpointType (refers to manifest) with endpointId
      * @param - Type refers to an identifier in the componentManifest
      * @param - Id is a unique identifier given to the new endpoint within the component
      */
@@ -116,26 +113,27 @@ public:
 
 
     /**
-     * Creates an endpoint of connectionParadigm which refers to the endpointType in the componentManifest. It then listens for
-     * incoming connections.
-     * @param endpointType - Specifies what type of connection is created (refers to componentManifest)
+     * @brief Creates an endpoint of endpointType (refers to manifest), then listens for incoming connections.
+     * @param endpointType - Specifies what type of connection is created (refers to manifest)
      * @return The port number which the endpoint is listening on
      */
     int createEndpointAndListen(const std::string &endpointType);
 
     /**
-     * Creates and dials
+     * @brief Creates an endpoint and dials
      * @param localEndpointType - Refers to our own componentManifest
      * @param dialUrl - The complete URL to listen on (form tcp://_._._._:_)
      */
     void
     createEndpointAndDial(const std::string &localEndpointType, const std::string &dialUrl);
+    ///@}
 
 
     ///@{
     /**
-     * @brief Get a pointer to endpoints, they are shared_ptr's which shouldn't be deleted, and may be closed without notice
      * @name Get Endpoints by ID
+     * Get a shared pointer to endpoints based on the provided ID
+     *
      * @throws std::out_of_range if the id does not appear in our OPEN endpoints
      * @param id - The local id of the endpoint we want
      * @return A shared_ptr to an endpoint, note that this may be in an "Invalid" state at some, at which point any actions throw EndpointOpenError
@@ -148,30 +146,25 @@ public:
     ///@}
 
 
-    ///@{
     /**
-     * @brief Get pointer to a vector of endpoints, again these will be manipulated without notice and will be added to and
-     * emptied as we go. Does not throw any access error for an endpoint type, but returns an empty vector which is filled
-     * if things of that type are created
-     * @name Get Endpoint by type
+     * @brief Get a shared pointer to a vector of endpoints which are all of endpointType
      * @param endpointType - The type of endpoint we want (referenced in the ComponentManifest)
      * @return A pointer to a vector of endpoint (we say a pointer so that we can manipulate the vector in BackgroundListener)
      *
+     * These will be manipulated without notice and will be added to and
+     * emptied as we go. Does not throw any access error for an endpoint type, but returns an empty vector which is filled
+     * if things of that type are created
      */
     std::shared_ptr<std::vector<std::shared_ptr<Endpoint>>> getEndpointsByType(const std::string &endpointType);
 
-    ///@}
 
 
 
     ///@{
     /**
      * @name Start Background Listen
-     * @brief Start a background listener process for the component which will handle requests for reconfiguration of the component.
-     * You can only have one background listener at a time.
-     * @param port - specific port to listen to
-     * @throws NngError if there is an error listening on that port
-     */
+     * Start background listen process
+    **/
     void startBackgroundListen(int port);
 
     void startBackgroundListen();
@@ -182,7 +175,7 @@ public:
      * @name Start Resource Discovery Hub
      * Start a ResourceDiscoveryHub process for the component which will store other components on the network and handle requests.
      * You can only have on RDH at a time
-     * @param port
+     * @param port - specific port to listen on
      */
     void startResourceDiscoveryHub(int port);
 
@@ -190,49 +183,57 @@ public:
     ///@}
 
     /**
-     * Close the Resource Discovery Hub attached to the component. If there is no RDH then we don't do anything
+     * @brief Close the Resource Discovery Hub attached to the component. If there is no RDH then we don't do anything
      */
     void closeResourceDiscoveryHub();
 
     /**
+     * @brief Get the address by which the component can reach itself
      * @return The self address is the address by which the componet can reach itself
      */
     std::string getSelfAddress() { return selfAddress; }
 
     /**
+     * @brief Get the port for the resource discovery hub of this component
      * @return The port that the RDH is on
      * @throws std::logic_error - when there is no RDH started
      */
     int getResourceDiscoveryHubPort();
 
+    /**
+     * @brief Directly access the resource discovery hub attached to this component
+     * @return The connections of the RDH
+     */
     std::vector<std::shared_ptr<ComponentRepresentation>> getResourceDiscoveryHubConnections();
 
 
-    /// @return A reference to our Resource Discovery Connection Endpoint, from which we make RDH requests
+    /// @brief Return a reference to our Resource Discovery Connection Endpoint, from which we make RDH requests
     ResourceDiscoveryConnEndpoint &getResourceDiscoveryConnectionEndpoint() { return resourceDiscoveryConnEndpoint; }
 
-    /// @return A reference to the Component Manifest which we can change/read. Note that changes to manifest may need "updateManifestWithHubs()"
+    /// @brief Return a reference to the Component Manifest which we can change/read. Note that changes to manifest may need "updateManifestWithHubs()"
     ComponentManifest &getComponentManifest() { return componentManifest; }
 
-    /// @return A reference to the SystemSchemas object we have. The Component should have the only copy of the SystemSchemas
+    /// @brief Return a reference to the SystemSchemas object we have. The Component should have the only copy of the SystemSchemas
     SystemSchemas &getSystemSchemas() { return systemSchemas; }
 
-    /// @return A reference to our Background Requester so we can make requests to other parties
+    /// @brief Return a reference to our Background Requester so we can make requests to other parties
     BackgroundRequester &getBackgroundRequester() { return backgroundRequester; }
 
-    /// @return The type of connection our Component makes (either TCP, LocalTCP or IPC)
+    /// @brief Return the type of connection our Component makes (either TCP, LocalTCP or IPC)
     ConnectionType getComponentConnectionType() { return componentConnectionType; }
 
-    /// @return The background port of our listener. Set to -1 if there is no Background Listener
+    /// @brief Return the background port of our listener. Set to -1 if there is no Background Listener
     int getBackgroundPort() { return backgroundListener.getBackgroundPort(); }
 
-    /// @brief - Returns a reference to the vector of all the addresses that the component can listen on
+    /// @brief Return a reference to the vector of all the addresses that the component can listen on
     std::vector<std::string> &getAllAddresses() {
         return availableAddresses;
     }
 
     /**
-     * Close the endpoints of endpointType. The vector which represents the endpointType is emptied and if users haven't got pointers
+     * @brief Close the endpoints of endpointType.
+     *
+     * The vector which represents the endpointType is emptied and if users haven't got pointers
      * the endpoints will be deleted. If the users to do have their own pointers, then we set the endpoints to INVALID and they throw exception
      * when asked to do anything
      * @param endpointType
@@ -240,19 +241,19 @@ public:
     void closeAndInvalidateEndpointsOfType(const std::string &endpointType);
 
     /**
-     * Close by id. Makes the given endpoint Invalid, does nothing if the endpointID does not exist
+     * @brief Close endpoint by id. Makes the given endpoint Invalid, does nothing if the endpointID does not exist
      * @param endpointId
      */
     void closeAndInvalidateEndpointsById(const std::string &endpointId);
 
     /**
-     * Close all the used made endpoints on our component (apart from pre-defined endpoints)
+     * @brief Close all the used made endpoints on our component (apart from pre-defined endpoints)
      */
     void closeAndInvalidateAllEndpoints();
 
 
     /**
-     * This destructor takes some time as it gracefully closes each endpoint. This requires a short period of time as we
+     * @brief This destructor takes some time as it gracefully closes each endpoint. This requires a short period of time as we
      * need to a) Close the communications and b) Join any background thread that was running
      */
     ~Component();
@@ -260,9 +261,10 @@ public:
     /**
      * @brief This can be used to run the given function whenever the given endpoint is CONNECTED (that is it dials or listens).
      * It runs as a std::thread in the background and is cleanly handled IF the given the function does
-     * not block on non-network calls. Additionally the function should not throw any exceptions as these are incredibly
-     * difficult to diagnose, so the suggestion is to wrap any work in try/catch for good debugging.
+     * not block on non-network calls.
      *
+     * Additionally the function should not throw any exceptions as these are incredibly
+     * difficult to diagnose, so the suggestion is to wrap any work in try/catch for good debugging
      * If there is not an endpointType in our manifest then this function does nothing and if there is already a function
      * registered then we overwrite this.
      * @param endpointType - The type of endpoint we want to attach to
@@ -275,9 +277,9 @@ public:
 
     /**
      * @name Casting operations
-     * We give the ability for an endpoint to be DYNAMICALLY casted to the given type. We check that there shouldn't be an
+     * We give the ability for an endpoint to be dynamically casted to the given type. We check that there shouldn't be an
      * error on casting by looking at our manifest and endpoint ConnectionParadigm
-     * @throws AccessError if the endpoint is the wrong type
+     * @throws AccessError If the endpoint is the wrong type
      */
     ///{
     PairEndpoint* castToPair(Endpoint *e);
