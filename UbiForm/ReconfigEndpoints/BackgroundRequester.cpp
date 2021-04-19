@@ -8,7 +8,7 @@
 std::unique_ptr<EndpointMessage> BackgroundRequester::sendRequest(const std::string &url, EndpointMessage &request) {
     requestEndpoint.dialConnection(url);
     requestEndpoint.setSendTimeout(500);
-    requestEndpoint.setReceiveTimeout(600);
+    requestEndpoint.setReceiveTimeout(1000);
     requestEndpoint.sendMessage(request);
     auto reply = requestEndpoint.receiveMessage();
     if (reply->getBoolean("error")) {
