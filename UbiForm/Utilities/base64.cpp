@@ -1,7 +1,20 @@
-// Decisions based on https://stackoverflow.com/questions/342409/how-do-i-base64-encode-decode-in-c
+// ------------------------------------------------------------------------------------------------
+// | THE ENCODING AND DECODING FUNCTIONS PROVIDED HAVE BEEN SLIGHTLY ADJUSTED FROM ONLINE VERSIONS |
+// | BUT I DO NOT CLAIM TO HAVE IMPLEMENTED THEMSELVES.                                            |
+// |                                                                                               |
+// | The decisions as to which implementation to us were                                           |
+// |  based on https://stackoverflow.com/questions/342409/how-do-i-base64-encode-decode-in-c       |
+// ------------------------------------------------------------------------------------------------
+
+
+
+#include "base64.h"
+#include <ostream>
+#include <string.h>
+
 
 /*
- * Base64 encoding/decoding (RFC1341)
+ * Base64 encoding (RFC1341)
  * Copyright (c) 2005-2011, Jouni Malinen <j@w1.fi>
  *
  * This software may be distributed under the terms of the BSD license.
@@ -9,10 +22,6 @@
  * http://web.mit.edu/freebsd/head/contrib/wpa/src/utils/base64.c
  */
 
-
-#include "base64.h"
-#include <ostream>
-#include <string.h>
 
 static const unsigned char base64_table[65] =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -82,6 +91,13 @@ unsigned char * base64_encode(const unsigned char *src, size_t len,
 }
 
 
+
+
+/*
+ * Decode function openly provided without any license by 'polfosol' on StackOverflow, thread is:
+ * https://stackoverflow.com/questions/180947/base64-decode-snippet-in-c/13935718
+ */
+
 static const int B64index[256] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 62, 63, 62, 62, 63, 52, 53, 54, 55,
@@ -90,7 +106,6 @@ static const int B64index[256] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
                                    0,  0,  0, 63,  0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
                                    41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
 
-// https://stackoverflow.com/questions/180947/base64-decode-snippet-in-c/13935718 -- polfosol
 void base64_decode_to_stream(const void* data, const size_t len, std::ostream &stream)
 {
     if (len == 0) return ;
@@ -123,42 +138,4 @@ void base64_decode_to_stream(const void* data, const size_t len, std::ostream &s
     stream.write(reinterpret_cast<const char *>(str), result.size());
 }
 
-/*
-void base64_decode_to_stream(const std::string &encoded_string, std::ostream &stream) {
-    int in_len = encoded_string.size();
-    int i = 0;
-    int j = 0;
-    int in_ = 0;
-    char char_array_4[4], char_array_3[3];
 
-    while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
-        char_array_4[i++] = encoded_string[in_]; in_++;
-        if (i ==4) {
-            for (i = 0; i <4; i++)
-                char_array_4[i] = base64_chars.find(char_array_4[i]);
-
-            char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-            char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-            char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-
-            stream.write(char_array_3,3);
-            i = 0;
-        }
-    }
-
-    if (i) {
-        for (j = i; j <4; j++)
-            char_array_4[j] = 0;
-
-        for (j = 0; j <4; j++)
-            char_array_4[j] = base64_chars.find(char_array_4[j]);
-
-        char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-        char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-        char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-
-        //for (j = 0; (j < i - 1); j++) stream.write(char_array_3[j]);
-        stream.write(char_array_3, i-1);
-    }
-}
-*/
